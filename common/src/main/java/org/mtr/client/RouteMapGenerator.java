@@ -61,7 +61,7 @@ public class RouteMapGenerator implements IGui {
 			drawStringPixelated(nativeImage, pixels, dimensions, textColor, fullPixel);
 			return nativeImage;
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to generate pixelated text image for [{}]", text, e);
 		}
 
 		return null;
@@ -84,7 +84,7 @@ public class RouteMapGenerator implements IGui {
 				return nativeImage;
 			}
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to generate colour strip image for platform [{}]", platformId, e);
 		}
 
 		return null;
@@ -108,7 +108,7 @@ public class RouteMapGenerator implements IGui {
 			drawString(nativeImage, pixels, width / 2, height / 2, dimensions, HorizontalAlignment.CENTER, VerticalAlignment.CENTER, 0, ARGB_WHITE, false);
 			return nativeImage;
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to generate station name image for [{}]", stationName, e);
 		}
 
 		return null;

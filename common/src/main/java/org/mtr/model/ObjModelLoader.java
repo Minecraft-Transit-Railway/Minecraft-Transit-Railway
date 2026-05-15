@@ -32,7 +32,7 @@ public final class ObjModelLoader extends ModelLoaderBase {
 					try {
 						MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
 					} catch (Exception e) {
-						MTR.LOGGER.error("", e);
+						MTR.LOGGER.error("Failed to parse MTL file [{}] referenced by OBJ model", mtlFileName, e);
 					}
 				});
 
@@ -46,7 +46,7 @@ public final class ObjModelLoader extends ModelLoaderBase {
 					setModelLoaded();
 				});
 			} catch (Exception e) {
-				MTR.LOGGER.error("", e);
+				MTR.LOGGER.error("Failed to parse OBJ model for texture [{}]", defaultTexture, e);
 			}
 		}
 	}

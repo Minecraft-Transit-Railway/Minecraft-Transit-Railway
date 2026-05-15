@@ -25,7 +25,7 @@ public final class ResourceManagerHelper {
 			final Optional<Resource> optionalResource = MinecraftClient.getInstance().getResourceManager().getResource(identifier);
 			optionalResource.ifPresent(resource -> readResource(resource, consumer));
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to read resource [{}] from the resource manager", identifier, e);
 		}
 	}
 
@@ -35,7 +35,7 @@ public final class ResourceManagerHelper {
 			try {
 				string[0] = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 			} catch (Exception e) {
-				MTR.LOGGER.error("", e);
+				MTR.LOGGER.error("Failed to decode resource [{}] as UTF-8 text", identifier, e);
 			}
 		});
 		return string[0];
@@ -45,7 +45,7 @@ public final class ResourceManagerHelper {
 		try {
 			MinecraftClient.getInstance().getResourceManager().getAllResources(identifier).forEach(resource -> readResource(resource, consumer));
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to enumerate all resources matching [{}]", identifier, e);
 		}
 	}
 
@@ -55,7 +55,7 @@ public final class ResourceManagerHelper {
 				.findAllResources(path, identifier -> true)
 				.forEach((identifier, resources) -> resources.forEach(resource -> readResource(resource, inputStream -> consumer.accept(identifier, inputStream))));
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to enumerate resources under directory [{}]", path, e);
 		}
 	}
 
@@ -63,7 +63,7 @@ public final class ResourceManagerHelper {
 		try (final InputStream inputStream = resource.getInputStream()) {
 			consumer.accept(inputStream);
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Failed to open the input stream for resource [{}]", resource.getPackId(), e);
 		}
 	}
 

@@ -106,7 +106,7 @@ public class CustomResourceLoader {
 					LIFTS_CACHE.put(liftResource.getId(), liftResource);
 				});
 			} catch (Exception e) {
-				MTR.LOGGER.error("", e);
+				MTR.LOGGER.error("Failed to parse custom resources from {}.json — skipping this resource pack entry", CUSTOM_RESOURCES_ID, e);
 			}
 		});
 
@@ -115,7 +115,7 @@ public class CustomResourceLoader {
 			try {
 				CustomResourcesConverter.convert(Config.readResource(inputStream).getAsJsonObject(), CustomResourceLoader::readResource).iterateVehicles(vehicleResource -> registerVehicle(vehicleResource, false));
 			} catch (Exception e) {
-				MTR.LOGGER.error("", e);
+				MTR.LOGGER.error("Failed to parse pending-migration custom resources from {}.json — skipping this resource pack entry", CUSTOM_RESOURCES_PENDING_MIGRATION_ID, e);
 			}
 		});
 
@@ -309,7 +309,7 @@ public class CustomResourceLoader {
 					RESOURCE_CACHE.put(identifierString, content);
 					return content;
 				} catch (Exception e) {
-					MTR.LOGGER.error("", e);
+					MTR.LOGGER.error("Failed to read debug-mode resource [{}] from the development source tree", identifierString, e);
 					return "";
 				}
 			} else {

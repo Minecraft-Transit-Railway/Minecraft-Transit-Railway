@@ -259,7 +259,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						MTR.LOGGER.error("", e);
+						MTR.LOGGER.error("Failed to load the Noto Sans Semibold font for dynamic text rendering", e);
 					}
 				});
 			}
@@ -269,7 +269,7 @@ public class DynamicTextureCache implements IGui {
 					try {
 						fontCjk = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 					} catch (Exception e) {
-						MTR.LOGGER.error("", e);
+						MTR.LOGGER.error("Failed to load the Noto Serif CJK TC Semibold font for dynamic text rendering", e);
 					}
 				});
 			}
