@@ -31,6 +31,10 @@ MTR runtime behaviour is split into three cooperating layers:
    - Handles simulation-heavy logic and data processing.
    - Exchanges operation messages with the shared mod layer.
 
+For a detailed breakdown of client-side resource loading, async model parsing,
+render-thread GPU upload, and frame render-queue draining, see
+[RENDERING_PIPELINE.md](RENDERING_PIPELINE.md).
+
 ## Message and data flow
 
 - Player/client interactions trigger shared mod handlers in `common/`.

@@ -564,6 +564,73 @@ render jobs (between frames), the renderer will try to draw with a disposed
 `VertexBuffer` and silently no-op (lines 31–32 of `NewOptimizedModel.render`). At minimum,
 add an `assert` and a debug log when `vertexBuffer == null` to surface dangling refs.
 
+### 3.10 Per-rail segment rendering — abrupt cutoffs and per-segment churn
+
+**Where**
+- [`RenderRails.render`](../common/src/main/java/org/mtr/render/RenderRails.java) — rail
+  collection and dispatch loop.
+- [`RenderRails.renderWithinRenderDistance`](../common/src/main/java/org/mtr/render/RenderRails.java) — the per-segment walk.
+- [`RenderRails.renderRailStandard`](../common/src/main/java/org/mtr/render/RenderRails.java) — `IDrawing.drawTexture` emission per segment.
+- [`CullingHelper.getDistanceFromCameraToBox`](../common/src/main/java/org/mtr/tool/CullingHelper.java) — the new whole-object cull helper.
+
+**Why it costs (and looks bad)**
+
+Each rail's geometry is walked with `rail.railMath.render(callback, interval, …)` every
+frame. The callback fires once per `interval` step along the curve. For a 200-block rail
+with `interval = 0.5`, that is 400 callbacks; multiplied by every visible style (default
+texture + 3D model + colour overlay + signals) and every rail in the area, the per-frame
+cost is dominated by:
+
+1. Hundreds of `StoredMatrixTransformations` allocations per rail (the 3D-model path
+   builds a fresh transform per segment).
+2. Hundreds of `ScheduledRender` lambda allocations queued into `MainRenderer.RENDERS`.
+3. The Minecraft render-distance check was performed *per segment*. A long rail whose
+   far end fell outside the budget therefore stopped emitting segments halfway through —
+   visually the rail "ends abruptly" mid-curve.
+
+Users worked around the visual issue by lowering the in-game render distance until the
+cutoff happened off-screen, which made the surrounding world look worse without solving
+the underlying allocation churn.
+
+**Fix (done in this pass)**
+
+Move the distance test from per-segment to **per-rail**, using the rail's axis-aligned
+bounding box (`railMath.minX/Y/Z` … `maxX/Y/Z`). A new helper
+`CullingHelper.getDistanceFromCameraToBox` returns the orthogonal distance from the
+camera to the *closest point* on the AABB; the rail is rendered fully if and only if that
+distance is within the render-distance budget. Inside `renderWithinRenderDistance` the
+per-segment culling is gone entirely.
+
+This gives two wins at once:
+
+- *Visual*: a long rail is either drawn end-to-end or skipped completely — no more
+  mid-curve cutoffs, regardless of how the in-game render distance is configured.
+- *Performance*: when the rail is off-screen, `railMath.render` is never invoked at all
+  and zero allocations happen. When it is on-screen, the inner loop body is identical to
+  before. Net work scales with **on-screen** rail count, not total rail count.
+
+**Follow-up — per-rail vertex caching (deferred)**
+
+The remaining per-frame cost for *visible* rails is still O(segments) — primarily the
+`StoredMatrixTransformations` and `ScheduledRender` allocations. The natural next step is
+to bake each rail's geometry exactly once and replay it from a cached vertex stream every
+frame. Sketch:
+
+1. Extend `MinecraftClientData.RailWrapper` with a `@Nullable RailRenderCache` field. The
+   cache stores: (a) the pre-computed segment transforms for the 3D-model path; (b) a
+   pre-built vertex buffer for the flat textured path. Both are computed lazily on first
+   render.
+2. Invalidate the cache when the `Rail` instance is replaced inside the wrapper (already
+   the migration point — `RailWrapper.rail` is reassigned by the client-data updater).
+3. Per-frame work becomes one bounding-box check plus one cache replay per visible rail.
+
+This is a contained change (touches `RailWrapper`, `RenderRails`, and adds one new class)
+but needs the rail-style hash to also feed cache invalidation. Tracked under
+`docs/PENDING.md` → *Architecture cleanup* → "Per-rail vertex caching".
+
+**Risk / scope** — low for the implemented part (one helper + two inlined edits, no API
+changes); medium for the deferred vertex-caching follow-up.
+
 ---
 
 ## 4. Miscellaneous findings

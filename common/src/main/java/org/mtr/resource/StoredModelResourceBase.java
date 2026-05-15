@@ -42,14 +42,15 @@ public interface StoredModelResourceBase {
 
 		if (isBlockbench) {
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(defaultTexture);
-			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
+			// Defer JSON parse to the worker — see docs/PERFORMANCE.md §1.2.
+			blockbenchModelLoader.loadModel(() -> new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
 			models = blockbenchModelLoader.get();
 		} else if (isObj) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(defaultTexture);
 			objModelLoader.loadModel(
 				resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 				mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-				textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : StringUtils.equals(textureString, "default.png") ? defaultTexture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+				textureString -> StringUtils.isEmpty(textureString) ? Identifier.of(MTR.MOD_ID, "textures/block/white.png") : (StringUtils.equals(textureString, "default.png") ? defaultTexture : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png")),
 				true, flipTextureV
 			);
 			// TODO transform object if needed

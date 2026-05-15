@@ -63,18 +63,19 @@ public final class ObjModelLoader extends ModelLoaderBase {
 	 */
 	public void loadModel(String objString, Function<String, String> mtlResolver, Function<String, Identifier> textureResolver, boolean splitModel, boolean flipTextureV) {
 		if (canLoadModel()) {
-			try {
-				final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
-				final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
-				sourceObj.getMtlFileNames().forEach(mtlFileName -> {
-					try {
-						MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
-					} catch (Exception e) {
-						MTR.LOGGER.error("Failed to parse MTL file [{}] referenced by OBJ model", mtlFileName, e);
-					}
-				});
+			parseStarted();
+			MainRenderer.WORKER_THREAD.worker.submit(() -> {
+				try {
+					final Obj sourceObj = ObjReader.read(IOUtils.toInputStream(objString, StandardCharsets.UTF_8));
+					final Object2ObjectOpenHashMap<String, Mtl> materials = new Object2ObjectOpenHashMap<>();
+					sourceObj.getMtlFileNames().forEach(mtlFileName -> {
+						try {
+							MtlReader.read(IOUtils.toInputStream(mtlResolver.apply(formatFilePath(mtlFileName)), StandardCharsets.UTF_8)).forEach(mtl -> materials.put(mtl.getName(), mtl));
+						} catch (Exception e) {
+							MTR.LOGGER.error("Failed to parse MTL file [{}] referenced by OBJ model", mtlFileName, e);
+						}
+					});
 
-				MainRenderer.WORKER_THREAD.worker.submit(() -> {
 					if (splitModel) {
 						ObjSplitting.splitByGroups(sourceObj).forEach((key, obj) -> addModel(key, loadModel(obj, materials, textureResolver, flipTextureV)));
 					} else {
@@ -82,10 +83,12 @@ public final class ObjModelLoader extends ModelLoaderBase {
 					}
 
 					setModelLoaded();
-				});
-			} catch (Exception e) {
-				MTR.LOGGER.error("Failed to parse OBJ model for texture [{}]", defaultTexture, e);
-			}
+				} catch (Exception e) {
+					MTR.LOGGER.error("Failed to parse OBJ model for texture [{}]", defaultTexture, e);
+				} finally {
+					parseFinished();
+				}
+			});
 		}
 	}
 

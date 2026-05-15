@@ -78,15 +78,85 @@ These items were addressed in earlier modernisation passes:
 
 The full performance backlog is in [`PERFORMANCE.md`](PERFORMANCE.md). Highest-value items:
 
-- **`WorkerThread.dynamicTextureQueue` bug** — currently a single-slot `AtomicReference` that
-  drops all but the last submitted runnable. See [`PERFORMANCE.md` §2.1](PERFORMANCE.md).
+- ✅ **`WorkerThread.dynamicTextureQueue` bug** — replaced the single-slot
+  `AtomicReference` with a bounded FIFO and `LockSupport.park`/`unpark` signalling. See
+  [`PERFORMANCE.md` §2.1](PERFORMANCE.md).
+- ✅ **Eager OBJ / bbmodel parsing in `VehicleModel` constructor** — parsing is now fully
+  on `MainRenderer.WORKER_THREAD.worker` for both formats, and
+  `ModelLoaderBase.awaitParsing(...)` lets `CustomResourceLoader.reload()` block on the
+  outstanding work before the preload pass. See
+  [`PERFORMANCE.md` §1.2 / §1.3](PERFORMANCE.md).
+- ✅ **Per-rail (vs per-segment) culling** — see
+  [`PERFORMANCE.md` §3.10](PERFORMANCE.md); the deferred vertex-caching follow-up is
+  listed under *Architecture cleanup* below.
 - **`GraphicsEnvironment.getAllFonts()` called per missing character** — see
   [`PERFORMANCE.md` §2.2](PERFORMANCE.md).
 - **Main-thread `setColorArgb` pixel-copy loop** — see [`PERFORMANCE.md` §2.4](PERFORMANCE.md).
 - **`MODEL_RENDERS` nested-map churn** — see [`PERFORMANCE.md` §3.1](PERFORMANCE.md).
-- **Eager OBJ / bbmodel parsing in `VehicleModel` constructor** — see
-  [`PERFORMANCE.md` §1.2 / §1.3](PERFORMANCE.md).
 - **`RESOURCE_CACHE` is unbounded** — see [`PERFORMANCE.md` §1.1 / §1.4](PERFORMANCE.md).
 
 Track each item by linking the PR back to the relevant `PERFORMANCE.md` section in the
 commit message.
+
+### Architecture cleanup — rendering and model loading
+
+The user has flagged that the rendering and model-loading code is hard to follow and that
+several layers exist primarily as workarounds for Minecraft's renderer. The list below is
+the inventory of "tangled" spots that are worth straightening out, ordered by how much
+they simplify the rest of the codebase.
+
+- **Two parallel model-loader dispatches** — `VehicleModel.getModelLoaderBase(...)` and
+  `StoredModelResourceBase.load(...)` contain near-identical `if (isBlockbench) … else if
+  (isObj) …` blocks. Pull both into a single static helper
+  (`ModelLoaderBase.loadFromResource(modelResource, textureResource, resourceProvider,
+  flipTextureV)`) and have both call sites delegate. Tracked already in
+  `docs/MIGRATIONS.md` §6 — promote it from "tracked" to "do next".
+
+- **`StoredMatrixTransformations` is allocated per draw call** — every rail segment,
+  vehicle, and rail-side decoration builds a fresh `StoredMatrixTransformations` plus a
+  list of lambdas, then re-applies them at drain time. For the hot paths
+  (`RenderVehicles`, `RenderRails`) consider a value-type alternative: a `float[]` of
+  pre-baked matrix coefficients carried alongside the model in the
+  `MODEL_RENDERS` map. Even with the existing API, switch the field type to
+  `record TransformStep(...)` so the lambda allocations disappear.
+
+- **Per-rail vertex caching** — see `docs/PERFORMANCE.md` §3.10 *Follow-up*. This removes
+  the per-frame `IDrawing.drawTexture` allocation chain entirely for visible rails. The
+  cache lives in `MinecraftClientData.RailWrapper`, invalidated when `rail` is reassigned.
+
+- **`RenderRails.renderRailStandard` is doing three jobs** — it iterates styles, branches
+  on default vs 3D vs coloured rail, and emits the standard rail quad. Split into:
+  - `renderRail3DStyles(rail, renderState, …)` — the loop body over `rail.getStyles()`.
+  - `renderRailFlat(clientWorld, rail, renderState, defaultTexture, …)` — the quad emit.
+  - The outer dispatch in `RenderRails.render` decides which combination to call. Today
+    the two responsibilities are interleaved in a single 50-line method.
+
+- **`MainRenderer.scheduleRender` overload sprawl** — there are at least three call
+  shapes: `(QueuedRenderLayer, ScheduledRender)`, `(Identifier, boolean,
+  QueuedRenderLayer, ScheduledRender)`, and `renderModel(...)` for already-baked meshes.
+  Each carries slightly different semantics for what it does with the texture and the
+  priority. Document the matrix in a comment on the class header, or — better — collapse
+  them into a builder (`MainRenderer.queue().withTexture(id).priority().on(layer).run(cb)`).
+
+- **`MoreRenderLayers` lookups inside the per-instance draw loop** — `MainRenderer.renderModel`
+  does a `switch` over `RenderStage` per instance to fetch the render layer. With
+  per-instance counts in the thousands this becomes measurable. Cache the
+  `RenderLayer` on `NewOptimizedModel` itself, once at build time.
+
+- **Occlusion plumbing has dead code** — `RenderRails.render` still declares a
+  `cullingTasks` list that is never used after the per-segment culling was removed; the
+  old vehicle-culling pipeline in `WorkerThread` similarly references occlusion data the
+  AABB cull no longer needs. Audit `WorkerThread` and remove the now-unreachable rail
+  occlusion path.
+
+- **`RenderState` lives inside `RenderRails` but is shared semantics with `RenderVehicles`** —
+  both files have a notion of "normal / coloured / flashing". Promote to a top-level
+  `org.mtr.data.RenderTint` (or similar) so brushes and tools register the desired
+  tint in one place.
+
+- **`IDrawing.drawTexture` is the universal hammer for world-space quads** — eight-arg
+  overload, twelve-arg overload, etc. Replace with a small `QuadBuilder` whose `fluent`
+  call site reads top-down (`QuadBuilder.at(x,y,z).size(...).uv(...).light(...).build()`).
+  The current call sites are very hard to skim because the arguments are all `double`s.
+
+

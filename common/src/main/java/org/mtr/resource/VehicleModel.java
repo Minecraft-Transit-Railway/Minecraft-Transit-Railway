@@ -173,10 +173,15 @@ public final class VehicleModel extends VehicleModelSchema {
 
 		if (modelResource.endsWith(".bbmodel")) {
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
-			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
+			// Defer both the resource fetch (cached) and the JSON parse to the worker
+			// thread — see docs/PERFORMANCE.md §1.2.
+			blockbenchModelLoader.loadModel(() -> new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))));
 			modelLoaderBase = blockbenchModelLoader;
 		} else if (modelResource.endsWith(".obj")) {
 			final ObjModelLoader objModelLoader = new ObjModelLoader(texture);
+			// Resource fetch itself happens here (cheap when cached, off the main thread
+			// once the cache is warm); the heavy ObjReader / MtlReader / face walk runs on
+			// the worker — see docs/PERFORMANCE.md §1.2.
 			objModelLoader.loadModel(
 				resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 				mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
@@ -188,7 +193,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		} else {
 			MTR.LOGGER.error("[{}] Invalid model!", texture.toString());
 			final BlockbenchModelLoader blockbenchModelLoader = new BlockbenchModelLoader(texture);
-			blockbenchModelLoader.loadModel(new BlockbenchModel(new JsonReader(new JsonObject())));
+			blockbenchModelLoader.loadModel(() -> new BlockbenchModel(new JsonReader(new JsonObject())));
 			modelLoaderBase = blockbenchModelLoader;
 		}
 

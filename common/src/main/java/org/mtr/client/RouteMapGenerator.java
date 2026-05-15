@@ -44,6 +44,12 @@ public class RouteMapGenerator implements IGui {
 	private static int lineSpacing;
 	private static int fontSizeBig;
 	private static int fontSizeSmall;
+	/**
+	 * Last dynamic-texture-resolution value the constants were computed for. {@link #setConstants()}
+	 * is otherwise pure of the resolution value, so we skip recompute when nothing has
+	 * changed — see {@code docs/PERFORMANCE.md} §4.4.
+	 */
+	private static int lastResolution = Integer.MIN_VALUE;
 
 	public static final int PIXEL_SCALE = 4;
 	private static final int MIN_VERTICAL_SIZE = 5;
@@ -62,7 +68,12 @@ public class RouteMapGenerator implements IGui {
 	 * see {@code docs/PERFORMANCE.md} §4.4 for the proposed caching change.</p>
 	 */
 	public static void setConstants() {
-		scale = (int) Math.pow(2, Config.getClient().getDynamicTextureResolution() + 5);
+		final int resolution = Config.getClient().getDynamicTextureResolution();
+		if (resolution == lastResolution) {
+			return;
+		}
+		lastResolution = resolution;
+		scale = (int) Math.pow(2, resolution + 5);
 		lineSize = scale / 8;
 		lineSpacing = lineSize * 3 / 2;
 		fontSizeBig = lineSize * 2;

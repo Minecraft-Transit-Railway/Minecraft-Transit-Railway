@@ -13,6 +13,7 @@ import org.mtr.resource.*;
 
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Shared infrastructure for the two concrete model loaders — {@link ObjModelLoader} and
@@ -43,6 +44,53 @@ import java.util.concurrent.ConcurrentHashMap;
  * buffers via {@link NewOptimizedModelGroup#build(net.minecraft.client.render.VertexFormat.DrawMode)}.</p>
  */
 public abstract class ModelLoaderBase {
+
+	/**
+	 * Global counter of model-parse tasks currently sitting on
+	 * {@link org.mtr.render.MainRenderer#WORKER_THREAD}. Incremented by
+	 * {@link ObjModelLoader} / {@link BlockbenchModelLoader} just before submitting the
+	 * parse, and decremented in the submitted task's {@code finally} block. Callers like
+	 * {@link org.mtr.client.CustomResourceLoader#reload()} use
+	 * {@link #awaitParsing(long)} to drain the queue before kicking off the preload pass.
+	 */
+	private static final AtomicInteger PENDING_PARSE_COUNT = new AtomicInteger();
+
+	/**
+	 * Mark a parse task as starting. Callers must invoke {@link #parseFinished()} from a
+	 * {@code finally} block.
+	 */
+	public static void parseStarted() {
+		PENDING_PARSE_COUNT.incrementAndGet();
+	}
+
+	/**
+	 * Mark a parse task as finished.
+	 */
+	public static void parseFinished() {
+		PENDING_PARSE_COUNT.decrementAndGet();
+	}
+
+	/**
+	 * Block until every outstanding model parse has finished or the timeout elapses.
+	 *
+	 * @param timeoutMillis max wait in milliseconds; {@code 0} or negative for no bound
+	 * @return {@code true} if drained within the timeout, {@code false} if it expired
+	 */
+	public static boolean awaitParsing(long timeoutMillis) {
+		final long deadline = timeoutMillis > 0 ? System.currentTimeMillis() + timeoutMillis : Long.MAX_VALUE;
+		while (PENDING_PARSE_COUNT.get() > 0) {
+			if (System.currentTimeMillis() >= deadline) {
+				return false;
+			}
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return false;
+			}
+		}
+		return true;
+	}
 
 	private boolean modelLoaded = false;
 	@Nullable

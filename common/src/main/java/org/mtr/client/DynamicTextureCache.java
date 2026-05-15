@@ -190,7 +190,7 @@ public class DynamicTextureCache implements IGui {
 	 * @param horizontalAlignment {@code null} to lay out as a single horizontal row;
 	 *                            non-null to wrap parts vertically with the given alignment
 	 * @return tightly-packed {@code BYTE_GRAY} pixels suitable for compositing into a
-	 *         {@link NativeImage}; empty if the fonts have not yet loaded
+	 * {@link NativeImage}; empty if the fonts have not yet loaded
 	 */
 	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int maxHeight, int fontSizeCjk, int fontSize, int padding, IGui.@Nullable HorizontalAlignment horizontalAlignment) {
 		if (maxWidth <= 0 || font == null || fontCjk == null) {

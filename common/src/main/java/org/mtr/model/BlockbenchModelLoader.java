@@ -19,6 +19,7 @@ import org.mtr.resource.BlockbenchOutline;
 import org.mtr.resource.GroupTransformations;
 
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Blockbench ({@code .bbmodel}) loader producing {@link NewOptimizedModelGroup}s indexed
@@ -39,35 +40,56 @@ public final class BlockbenchModelLoader extends ModelLoaderBase {
 	}
 
 	public void loadModel(BlockbenchModel blockbenchModel) {
+		loadModel(() -> blockbenchModel);
+	}
+
+	/**
+	 * Defer the entire build pipeline — including the supplier that parses the bbmodel
+	 * JSON — onto the worker thread. Prefer this overload when the JSON content is
+	 * available as a string from a thread-safe source (e.g.
+	 * {@link org.mtr.client.CustomResourceLoader}) so the caller doesn't pay JSON parsing
+	 * cost on the render thread.
+	 *
+	 * <p>See {@code docs/PERFORMANCE.md} §1.2.</p>
+	 */
+	public void loadModel(Supplier<BlockbenchModel> blockbenchModelSupplier) {
 		if (canLoadModel()) {
+			parseStarted();
 			MainRenderer.WORKER_THREAD.worker.submit(() -> {
-				final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
-				blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
+				try {
+					final BlockbenchModel blockbenchModel = blockbenchModelSupplier.get();
+					final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
+					blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
 
-				blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
-					final ModelPartData modelPartData = new ModelData().getRoot();
-					final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
-					final MutableBox mutableBox = new MutableBox();
-					final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = new ObjectArrayList<>();
+					blockbenchModel.getOutlines().forEach(blockbenchOutline -> {
+						final ModelPartData modelPartData = new ModelData().getRoot();
+						final NewOptimizedModelGroup newOptimizedModelGroup = new NewOptimizedModelGroup();
+						final MutableBox mutableBox = new MutableBox();
+						final ObjectArrayList<ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> rawModelDisplayParts = new ObjectArrayList<>();
 
-					iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
-						final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
-						if (blockbenchElement != null) {
-							final ObjectObjectImmutablePair<Box, ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelPartDetails = blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations);
-							mutableBox.add(modelPartDetails.left());
-							rawModelDisplayParts.add(modelPartDetails.right());
+						iterateChildren(blockbenchOutline, null, new GroupTransformations(), (uuid, groupTransformations) -> {
+							final BlockbenchElement blockbenchElement = uuidToBlockbenchElement.remove(uuid);
+							if (blockbenchElement != null) {
+								final ObjectObjectImmutablePair<Box, ObjectObjectImmutablePair<StoredMatrixTransformations, IntIntImmutablePair>> modelPartDetails = blockbenchElement.setModelPart(modelPartData.addChild(MTR.randomString()), groupTransformations);
+								mutableBox.add(modelPartDetails.left());
+								rawModelDisplayParts.add(modelPartDetails.right());
+							}
+						});
+
+						newOptimizedModelGroup.add(null, defaultTexture, storedVertexDataList -> StoredVertexData.write(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), storedVertexDataList), mutableBox.getAll());
+						addModel(blockbenchOutline.getName(), newOptimizedModelGroup);
+
+						if (!rawModelDisplayParts.isEmpty()) {
+							addModelDisplayParts(blockbenchOutline.getName(), rawModelDisplayParts);
 						}
 					});
 
-					newOptimizedModelGroup.add(null, defaultTexture, storedVertexDataList -> StoredVertexData.write(modelPartData.createPart(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight()), storedVertexDataList), mutableBox.getAll());
-					addModel(blockbenchOutline.getName(), newOptimizedModelGroup);
-
-					if (!rawModelDisplayParts.isEmpty()) {
-						addModelDisplayParts(blockbenchOutline.getName(), rawModelDisplayParts);
-					}
-				});
-
-				setModelLoaded();
+					setModelLoaded();
+				} catch (Exception e) {
+					MTR.LOGGER.error("Failed to parse Blockbench model for texture [{}]", defaultTexture, e);
+				} finally {
+					parseFinished();
+				}
 			});
 		}
 	}

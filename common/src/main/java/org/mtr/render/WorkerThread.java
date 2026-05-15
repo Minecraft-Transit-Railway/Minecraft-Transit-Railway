@@ -8,33 +8,42 @@ import net.minecraft.util.math.BlockPos;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
 /**
  * Background thread driving the off-main-thread part of every frame.
  *
- * <p>The thread owns four single-slot inboxes:</p>
+ * <p>The thread owns:</p>
  * <ul>
- *   <li>Three for occlusion-culling work (vehicles / lifts / rails), each refreshed every
- *       frame from the corresponding renderer.</li>
- *   <li>One for dynamic-texture generation, fed by {@link org.mtr.client.DynamicTextureCache}.</li>
+ *   <li>Two single-slot {@link AtomicReference} inboxes for occlusion-culling work
+ *       (vehicles / lifts). Each is refreshed every frame; the per-frame nature
+ *       means superseding the previous task is the desired behaviour (last writer wins —
+ *       there's no point doing culling against a stale camera position). Rail culling
+ *       was removed in favour of per-rail AABB distance checks — see
+ *       {@code docs/PERFORMANCE.md} §3.10.</li>
+ *   <li>A bounded {@link Deque}-backed queue for dynamic-texture generation, fed by
+ *       {@link org.mtr.client.DynamicTextureCache}. Up to
+ *       {@value #DYNAMIC_TEXTURE_QUEUE_LIMIT} jobs may sit in flight; older jobs are
+ *       discarded once the cap is hit so the queue tracks the user's current viewport
+ *       and doesn't accumulate work for textures that scrolled offscreen long ago.</li>
  * </ul>
  *
- * <p>The loop wakes every {@code 10 ms}, drains whichever slots are non-null, and goes back
- * to sleep. {@link #start()} is idempotent — the loop is launched once on first call and
- * survives until {@link MinecraftClient#isRunning()} returns {@code false}.</p>
+ * <p>The loop parks on {@link LockSupport#park()} when there is no work, and is woken by
+ * the scheduling methods. {@link #start()} is idempotent — the loop is launched once on
+ * first call and survives until {@link MinecraftClient#isRunning()} returns
+ * {@code false}.</p>
  *
- * <p><b>Known limitation:</b> all four inboxes are
- * {@link java.util.concurrent.atomic.AtomicReference}s, so {@code set(...)} overwrites any
- * pending runnable. For the dynamic-texture queue this manifests as "textures pop in one
- * per frame when many are requested at once" — tracked in
- * {@code docs/PERFORMANCE.md} §2.1.</p>
+ * <p>The {@link #worker} executor is a {@code newVirtualThreadPerTaskExecutor}, suitable
+ * for one-shot async submissions (model parsing, IO-bound resource decoding).</p>
  *
- * <p>The {@link #worker} executor is a {@code newVirtualThreadPerTaskExecutor}, suitable for
- * one-shot async submissions (model parsing, IO-bound resource decoding).</p>
+ * <p>Performance details for the queueing strategy are documented in
+ * {@code docs/PERFORMANCE.md} §2.1 and §4.2.</p>
  */
 public final class WorkerThread {
 
@@ -47,10 +56,23 @@ public final class WorkerThread {
 	public final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
 	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueVehicle = new AtomicReference<>();
 	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueLift = new AtomicReference<>();
-	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueRail = new AtomicReference<>();
-	private final AtomicReference<@Nullable Runnable> dynamicTextureQueue = new AtomicReference<>();
+	/**
+	 * Bounded dynamic-texture inbox. Drained FIFO every loop iteration up to
+	 * {@value #DYNAMIC_TEXTURE_BATCH} jobs per pass; further work waits for the next pass
+	 * so the worker remains responsive to occlusion-culling refreshes.
+	 */
+	private final Deque<Runnable> dynamicTextureQueue = new ArrayDeque<>();
+	private final Object dynamicTextureLock = new Object();
+	@Nullable
+	private volatile Thread loopThread;
 
 	private static final int COOLDOWN = 100;
+	/** Maximum number of pending dynamic-texture jobs. Older jobs are dropped on overflow. */
+	private static final int DYNAMIC_TEXTURE_QUEUE_LIMIT = 256;
+	/** Maximum jobs drained per loop iteration, to keep occlusion culling responsive. */
+	private static final int DYNAMIC_TEXTURE_BATCH = 8;
+	/** Worker idle park duration when no occlusion work is pending. */
+	private static final long IDLE_PARK_NANOS = 10_000_000L; // 10 ms
 
 	/**
 	 * Idempotent loop launcher. Called once per frame from
@@ -62,25 +84,26 @@ public final class WorkerThread {
 		if (canStart && isRunning()) {
 			canStart = false;
 			worker.submit(() -> {
+				loopThread = Thread.currentThread();
 				while (isRunning()) {
-					if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null || occlusionQueueRail.get() != null) {
-						updateInstance();
-						occlusionCullingInstance.resetCache();
-						run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
-						run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
-						run(occlusionQueueRail, task -> task.accept(occlusionCullingInstance));
-					}
+				if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null) {
+					updateInstance();
+					occlusionCullingInstance.resetCache();
+					run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
+					run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
+				}
 
-					run(dynamicTextureQueue, Runnable::run);
+					drainDynamicTextureBatch();
 
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						MTR.LOGGER.debug("", e);
+					// Park briefly if nothing is queued; scheduling methods unpark us
+					// directly so the wakeup latency is near zero when work arrives.
+					if (!hasWork()) {
+						LockSupport.parkNanos(IDLE_PARK_NANOS);
 					}
 
 					runCooldown = 0;
 				}
+				loopThread = null;
 			});
 		}
 
@@ -105,26 +128,64 @@ public final class WorkerThread {
 	 */
 	public void scheduleVehicles(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueVehicle.set(consumer);
+		wake();
 	}
 
 	/** See {@link #scheduleVehicles(Consumer)}. */
 	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueLift.set(consumer);
-	}
-
-	/** See {@link #scheduleVehicles(Consumer)}. */
-	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
-		occlusionQueueRail.set(consumer);
+		wake();
 	}
 
 	/**
-	 * Replace the pending dynamic-texture-generation task.
+	 * Queue a dynamic-texture-generation task. Tasks are processed FIFO; if more than
+	 * {@value #DYNAMIC_TEXTURE_QUEUE_LIMIT} jobs are pending the oldest is discarded.
 	 *
-	 * <p><b>Caveat:</b> single-slot queue — overwrites any previous pending task. See the
-	 * class-level note and {@code docs/PERFORMANCE.md} §2.1.</p>
+	 * <p>Replaces the historical single-slot {@code AtomicReference}-based queue that
+	 * silently dropped all but the most recent submission per frame — see
+	 * {@code docs/PERFORMANCE.md} §2.1.</p>
 	 */
 	public void scheduleDynamicTextures(Runnable runnable) {
-		dynamicTextureQueue.set(runnable);
+		synchronized (dynamicTextureLock) {
+			while (dynamicTextureQueue.size() >= DYNAMIC_TEXTURE_QUEUE_LIMIT) {
+				dynamicTextureQueue.pollFirst();
+			}
+			dynamicTextureQueue.addLast(runnable);
+		}
+		wake();
+	}
+
+	private void drainDynamicTextureBatch() {
+		for (int i = 0; i < DYNAMIC_TEXTURE_BATCH; i++) {
+			final Runnable next;
+			synchronized (dynamicTextureLock) {
+				next = dynamicTextureQueue.pollFirst();
+			}
+			if (next == null) {
+				return;
+			}
+			try {
+				next.run();
+			} catch (Exception e) {
+				MTR.LOGGER.error("Dynamic texture generation task failed", e);
+			}
+		}
+	}
+
+	private boolean hasWork() {
+		if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null) {
+			return true;
+		}
+		synchronized (dynamicTextureLock) {
+			return !dynamicTextureQueue.isEmpty();
+		}
+	}
+
+	private void wake() {
+		final Thread thread = loopThread;
+		if (thread != null) {
+			LockSupport.unpark(thread);
+		}
 	}
 
 	private void updateInstance() {
@@ -146,7 +207,7 @@ public final class WorkerThread {
 				consumer.accept(task);
 			}
 		} catch (Exception e) {
-			MTR.LOGGER.error("", e);
+			MTR.LOGGER.error("Occlusion culling task failed", e);
 		}
 	}
 

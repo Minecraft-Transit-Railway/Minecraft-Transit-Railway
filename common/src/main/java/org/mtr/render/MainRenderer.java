@@ -87,6 +87,15 @@ public class MainRenderer {
 
 	private static final int FLASHING_INTERVAL = 1000;
 	private static final int TOTAL_RENDER_STAGES = 2;
+	/**
+	 * Cached enum-values arrays. {@link Enum#values()} allocates a fresh defensive copy on
+	 * every call; the render loop walks these many times per frame so we hold a single
+	 * shared snapshot. See {@code docs/PERFORMANCE.md} §3.3.
+	 */
+	private static final QueuedRenderLayer[] QUEUED_RENDER_LAYERS = QueuedRenderLayer.values();
+	private static final RenderStage[] RENDER_STAGES = RenderStage.values();
+	/** Reusable identifier for {@link #scheduleRender(QueuedRenderLayer, ScheduledRender)} — see {@code docs/PERFORMANCE.md} §4.3. */
+	private static final Identifier EMPTY_IDENTIFIER = Identifier.of("");
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> MODEL_RENDERS = new Object2ObjectOpenHashMap<>();
@@ -94,7 +103,7 @@ public class MainRenderer {
 
 	static {
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
-			final int renderStageCount = QueuedRenderLayer.values().length;
+			final int renderStageCount = QUEUED_RENDER_LAYERS.length;
 			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>> rendersList = new ObjectArrayList<>(renderStageCount);
 			final ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>> currentRendersList = new ObjectArrayList<>(renderStageCount);
 
@@ -159,7 +168,7 @@ public class MainRenderer {
 		renderModel(matrixStack, MODEL_RENDERS_TRANSLUCENT, offset);
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
-			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
+			for (int j = 0; j < QUEUED_RENDER_LAYERS.length; j++) {
 				CURRENT_RENDERS.get(i).get(j).clear();
 				CURRENT_RENDERS.get(i).get(j).putAll(RENDERS.get(i).get(j));
 				RENDERS.get(i).get(j).clear();
@@ -167,8 +176,8 @@ public class MainRenderer {
 		}
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
-			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
-				final QueuedRenderLayer queuedRenderLayer = QueuedRenderLayer.values()[j];
+			for (int j = 0; j < QUEUED_RENDER_LAYERS.length; j++) {
+				final QueuedRenderLayer queuedRenderLayer = QUEUED_RENDER_LAYERS[j];
 				CURRENT_RENDERS.get(i).get(j).forEach((key, value) -> {
 					final RenderLayer renderLayer = switch (queuedRenderLayer) {
 						case LIGHT -> MoreRenderLayers.getLight(key, false);
@@ -228,7 +237,7 @@ public class MainRenderer {
 	 * for draws that aren't keyed to a specific texture (e.g. line / debug renders).
 	 */
 	public static void scheduleRender(QueuedRenderLayer queuedRenderLayer, ScheduledRender scheduledRender) {
-		scheduleRender(Identifier.of(""), false, queuedRenderLayer, scheduledRender);
+		scheduleRender(EMPTY_IDENTIFIER, false, queuedRenderLayer, scheduledRender);
 	}
 
 	/**
