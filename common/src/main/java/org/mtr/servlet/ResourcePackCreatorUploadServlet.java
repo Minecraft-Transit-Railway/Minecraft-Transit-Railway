@@ -3,7 +3,9 @@ package org.mtr.servlet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+
 import org.apache.commons.io.IOUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
@@ -78,6 +80,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 		}
 	}
 
+	@Nullable
 	static String getModel(String name) {
 		return MODELS.get(name);
 	}

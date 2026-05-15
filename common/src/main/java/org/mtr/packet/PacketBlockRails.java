@@ -6,8 +6,6 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 
-import javax.annotation.Nonnull;
-
 public final class PacketBlockRails extends PacketRequestResponseBase {
 
 	public PacketBlockRails(PacketBufferReceiver packetBufferReceiver) {
@@ -32,7 +30,6 @@ public final class PacketBlockRails extends PacketRequestResponseBase {
 		return new BlockRails(jsonReader);
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.BLOCK_RAILS;

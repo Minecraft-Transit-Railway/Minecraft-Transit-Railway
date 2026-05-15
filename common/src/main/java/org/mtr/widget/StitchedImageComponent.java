@@ -23,16 +23,16 @@ public class StitchedImageComponent extends ImageComponentBase {
 
 	public StitchedImageComponent(int textureWidth, int textureHeight, int textureBorder, int texturePadding, ReleasedDynamicTexture... releasedDynamicTextures) {
 		this(
-				textureWidth, textureHeight, textureWidth, textureHeight, textureBorder, texturePadding,
-				textureBorder, textureBorder, textureWidth - textureBorder, textureHeight - textureBorder,
-				releasedDynamicTextures
+			textureWidth, textureHeight, textureWidth, textureHeight, textureBorder, texturePadding,
+			textureBorder, textureBorder, textureWidth - textureBorder, textureHeight - textureBorder,
+			releasedDynamicTextures
 		);
 	}
 
 	public StitchedImageComponent(
-			int textureWidth, int textureHeight, int croppedTextureWidth, int croppedTextureHeight, int textureBorder, int texturePadding,
-			int textureMiddleX1, int textureMiddleY1, int textureMiddleX2, int textureMiddleY2,
-			ReleasedDynamicTexture... releasedDynamicTextures
+		int textureWidth, int textureHeight, int croppedTextureWidth, int croppedTextureHeight, int textureBorder, int texturePadding,
+		int textureMiddleX1, int textureMiddleY1, int textureMiddleX2, int textureMiddleY2,
+		ReleasedDynamicTexture... releasedDynamicTextures
 	) {
 		super(releasedDynamicTextures);
 		this.textureWidth = textureWidth;
@@ -50,35 +50,35 @@ public class StitchedImageComponent extends ImageComponentBase {
 	@Override
 	public final void renderTexture(UMatrixStack matrixStack, UVertexConsumer vertexConsumer) {
 		drawImage(
-				matrixStack, vertexConsumer,
-				getLeft() + texturePadding, getTop() + texturePadding, getWidth() - texturePadding * 2, getHeight() - texturePadding * 2,
-				textureWidth, textureHeight, croppedTextureWidth, croppedTextureHeight, textureBorder,
-				textureMiddleX1, textureMiddleY1, textureMiddleX2, textureMiddleY2,
-				backgroundColor == null
+			matrixStack, vertexConsumer,
+			getLeft() + texturePadding, getTop() + texturePadding, getWidth() - texturePadding * 2, getHeight() - texturePadding * 2,
+			textureWidth, textureHeight, croppedTextureWidth, croppedTextureHeight, textureBorder,
+			textureMiddleX1, textureMiddleY1, textureMiddleX2, textureMiddleY2,
+			backgroundColor == null
 		);
 	}
 
 	public static void drawImage(
-			UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
-			float x, float y, float width, float height,
-			int textureWidth, int textureHeight, int textureBorder,
-			boolean drawBackground
+		UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
+		float x, float y, float width, float height,
+		int textureWidth, int textureHeight, int textureBorder,
+		boolean drawBackground
 	) {
 		drawImage(
-				matrixStack, vertexConsumer,
-				x, y, width, height,
-				textureWidth, textureHeight, textureWidth, textureHeight, textureBorder,
-				textureBorder, textureBorder, textureWidth - textureBorder, textureHeight - textureBorder,
-				drawBackground
+			matrixStack, vertexConsumer,
+			x, y, width, height,
+			textureWidth, textureHeight, textureWidth, textureHeight, textureBorder,
+			textureBorder, textureBorder, textureWidth - textureBorder, textureHeight - textureBorder,
+			drawBackground
 		);
 	}
 
 	public static void drawImage(
-			UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
-			float x, float y, float width, float height,
-			int textureWidth, int textureHeight, int croppedTextureWidth, int croppedTextureHeight, int textureBorder,
-			int textureMiddleX1, int textureMiddleY1, int textureMiddleX2, int textureMiddleY2,
-			boolean drawBackground
+		UMatrixStack matrixStack, UVertexConsumer vertexConsumer,
+		float x, float y, float width, float height,
+		int textureWidth, int textureHeight, int croppedTextureWidth, int croppedTextureHeight, int textureBorder,
+		int textureMiddleX1, int textureMiddleY1, int textureMiddleX2, int textureMiddleY2,
+		boolean drawBackground
 	) {
 		if (width > 0 && height > 0) {
 			final int halfMiddleWidth = (textureMiddleX2 - textureMiddleX1) / 2;

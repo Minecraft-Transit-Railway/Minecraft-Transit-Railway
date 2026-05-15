@@ -26,8 +26,6 @@ import org.mtr.item.ItemBrush;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 
 	private static final float PERSISTENT_OFFSET = 7.5F;
@@ -42,7 +40,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		super(settings.nonOpaque());
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingItem(world, player, item -> {
@@ -70,13 +67,11 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.PSD_GLASS_1.get();
 	}
 
-	@Nonnull
 	@Override
 	protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
 		return new ItemStack(asItem());
@@ -92,7 +87,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (direction == Direction.DOWN && IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE && !(neighborState.getBlock() instanceof BlockPSDAPGBase)) {
@@ -102,7 +96,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final VoxelShape baseShape = IBlock.getVoxelShapeByDirection(0, IBlock.getStatePropertySafe(state, PERSISTENT) == EnumPersistent.NONE ? 0 : PERSISTENT_OFFSET, 0, 16, 16, 6, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
@@ -115,7 +108,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new PSDTopBlockEntity(blockPos, blockState);
@@ -191,7 +183,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;
@@ -207,7 +198,6 @@ public class BlockPSDTop extends Block implements IBlock, BlockEntityProvider {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

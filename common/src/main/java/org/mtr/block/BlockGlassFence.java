@@ -18,7 +18,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
@@ -29,7 +28,6 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 		super(settings.nonOpaque());
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -40,14 +38,12 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return VoxelShapes.union(getOutlineShape(state, world, pos, context), IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 8, 3, facing));
 	}
 
-	@Nonnull
 	@Override
 	protected VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();

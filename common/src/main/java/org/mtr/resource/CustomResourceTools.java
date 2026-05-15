@@ -1,10 +1,10 @@
 package org.mtr.resource;
 
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.serializer.SerializedDataBase;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;

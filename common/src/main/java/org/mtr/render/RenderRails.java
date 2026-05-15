@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockNode;
@@ -52,7 +53,6 @@ import org.mtr.resource.RailResource;
 import org.mtr.tool.CullingHelper;
 import org.mtr.tool.Drawing;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;

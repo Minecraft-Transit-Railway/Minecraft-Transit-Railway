@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.VehicleRidingMovement;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.data.VehicleExtraData;
@@ -16,8 +17,6 @@ import org.mtr.data.VehicleExtension;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleObjectImmutablePair;
 import org.mtr.tool.Drawing;
-
-import javax.annotation.Nullable;
 
 public final class DrivingGuiRenderer {
 

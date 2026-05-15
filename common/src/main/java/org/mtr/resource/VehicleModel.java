@@ -2,6 +2,7 @@ package org.mtr.resource;
 
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
 
 public final class VehicleModel extends VehicleModelSchema {
 
-	final Supplier<BuiltVehicleModelHolder> builtVehicleModelHolderSupplier;
+	final Supplier<@Nullable BuiltVehicleModelHolder> builtVehicleModelHolderSupplier;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
 	private final ModelLoaderBase modelLoaderBase;
@@ -123,7 +124,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		return modelProperties.toVehicleModelWrapper(modelResource, textureResource, modelPropertiesResource, positionDefinitionsResource, flipTextureV, parts);
 	}
 
-	private Supplier<BuiltVehicleModelHolder> createModelSupplier(JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader) {
+	private Supplier<@Nullable BuiltVehicleModelHolder> createModelSupplier(JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader) {
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
 		return () -> modelLoaderBase.get(modelProperties, positionDefinitions);

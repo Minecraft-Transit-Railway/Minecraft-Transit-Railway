@@ -1,10 +1,10 @@
 package org.mtr.data;
 
 import net.minecraft.client.gui.widget.CheckboxWidget;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +25,6 @@ public interface IGui {
 	int RGB_WHITE = 0xFFFFFF;
 	int ARGB_WHITE = 0xFFFFFFFF;
 	int ARGB_BLACK = 0xFF000000;
-	int ARGB_WHITE_TRANSLUCENT = 0x7FFFFFFF;
-	int ARGB_BLACK_TRANSLUCENT = 0x7F000000;
 	int ARGB_LIGHT_GRAY = 0xFFAAAAAA;
 	int ARGB_GRAY = 0xFF666666;
 	int ARGB_BACKGROUND = 0xFF121212;
@@ -80,8 +78,8 @@ public interface IGui {
 			return "";
 		}
 
-		final List<String[]> dataCJK = new ArrayList<>();
-		final List<String[]> data = new ArrayList<>();
+		final List<@Nullable String[]> dataCJK = new ArrayList<>();
+		final List<@Nullable String[]> data = new ArrayList<>();
 		for (int i = 0; i < arguments.length; i++) {
 			final String[] argumentSplit = arguments[i].split("\\|");
 
@@ -132,10 +130,10 @@ public interface IGui {
 			}
 		});
 
-		if (result.length() > 0) {
-			return result.substring(1);
-		} else {
+		if (result.isEmpty()) {
 			return "";
+		} else {
+			return result.substring(1);
 		}
 	}
 
@@ -171,7 +169,7 @@ public interface IGui {
 					}
 				} else {
 					final int index = i;
-					combinedCJK.add(new ArrayList<String>() {{
+					combinedCJK.add(new ArrayList<>() {{
 						add(currentStationCJK.get(index));
 					}});
 				}
@@ -184,7 +182,7 @@ public interface IGui {
 					}
 				} else {
 					final int index = i;
-					combined.add(new ArrayList<String>() {{
+					combined.add(new ArrayList<>() {{
 						add(currentStation.get(index));
 					}});
 				}
@@ -299,14 +297,11 @@ public interface IGui {
 		TOP, CENTER, BOTTOM;
 
 		public float getOffset(float y, float height) {
-			switch (this) {
-				case CENTER:
-					return y - height / 2;
-				case BOTTOM:
-					return y - height;
-				default:
-					return y;
-			}
+			return switch (this) {
+				case CENTER -> y - height / 2;
+				case BOTTOM -> y - height;
+				default -> y;
+			};
 		}
 	}
 }

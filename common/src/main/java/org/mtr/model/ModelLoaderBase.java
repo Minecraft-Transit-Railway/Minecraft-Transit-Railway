@@ -3,6 +3,7 @@ package org.mtr.model;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -10,7 +11,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 

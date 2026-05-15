@@ -1,7 +1,9 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
+
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {DataService} from "../../service/data.service";
 import {MatIconModule} from "@angular/material/icon";
+
+import {DataService} from "../../service/data.service";
 
 @Component({
 	selector: "app-uploader",

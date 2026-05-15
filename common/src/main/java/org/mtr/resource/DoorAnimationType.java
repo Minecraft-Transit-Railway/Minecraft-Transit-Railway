@@ -1,6 +1,5 @@
 package org.mtr.resource;
 
-
 public enum DoorAnimationType {
 
 	STANDARD,
@@ -142,9 +141,10 @@ public enum DoorAnimationType {
 						return smoothEnds(0, 1, 0, 0.1, time);
 					}
 				}
-			default:
-				return smoothEnds(0, doorMax, 0, 0.5, time);
+				break;
 		}
+
+		return smoothEnds(0, doorMax, 0, 0.5, time);
 	}
 
 	private static double smoothEnds(double startValue, double endValue, double startTime, double endTime, double time) {

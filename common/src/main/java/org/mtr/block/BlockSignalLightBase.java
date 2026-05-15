@@ -8,8 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockSignalLightBase extends BlockSignalBase {
 
 	private final int shapeX;
@@ -21,7 +19,6 @@ public abstract class BlockSignalLightBase extends BlockSignalBase {
 		this.shapeHeight = shapeHeight;
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final int newShapeX;

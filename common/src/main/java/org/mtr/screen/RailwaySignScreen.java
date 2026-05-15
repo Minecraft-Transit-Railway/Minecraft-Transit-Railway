@@ -7,6 +7,7 @@ import gg.essential.universal.UMinecraft;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Platform;
@@ -23,14 +24,12 @@ import org.mtr.resource.SignResource;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
 
-import javax.annotation.Nullable;
-
 public final class RailwaySignScreen extends WindowBase {
 
 	@Nullable
 	private final BlockPos signPos;
 	private final LongAVLTreeSet[] selectedIds;
-	private final String[] signIds;
+	private final @Nullable String[] signIds;
 
 	private static final int MAX_SIGN_TILE_HEIGHT = 32;
 	private static final int MAX_SEARCH_WIDTH = 64;

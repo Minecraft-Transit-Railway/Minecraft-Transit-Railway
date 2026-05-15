@@ -15,9 +15,9 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -27,7 +27,6 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (world.isClient() && TactileMapBlockEntity.onUse != null) {
@@ -38,7 +37,6 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -49,12 +47,12 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new TactileMapBlockEntity(blockPos, blockState);
 	}
 
+	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
 		return type == BlockEntityTypes.TACTILE_MAP.get() && world.isClient && TactileMapBlockEntity.updateSoundSource != null ? (world1, pos, state1, blockEntity) -> TactileMapBlockEntity.updateSoundSource.accept(pos, false) : null;
@@ -68,7 +66,9 @@ public class BlockTactileMap extends BlockDirectionalDoubleBlockBase implements 
 
 	public static class TactileMapBlockEntity extends BlockEntityExtension {
 
+		@Nullable
 		public static BiConsumer<BlockPos, Boolean> updateSoundSource = null;
+		@Nullable
 		public static Consumer<BlockPos> onUse = null;
 
 		public TactileMapBlockEntity(BlockPos pos, BlockState state) {

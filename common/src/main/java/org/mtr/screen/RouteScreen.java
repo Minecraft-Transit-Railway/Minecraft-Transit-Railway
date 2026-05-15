@@ -3,6 +3,7 @@ package org.mtr.screen;
 import gg.essential.elementa.constraints.PixelConstraint;
 import gg.essential.elementa.constraints.RelativeConstraint;
 import gg.essential.elementa.constraints.SiblingConstraint;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Route;
 import org.mtr.core.data.RouteType;
@@ -22,11 +23,9 @@ import org.mtr.widget.ButtonComponent;
 import org.mtr.widget.CheckboxComponent;
 import org.mtr.widget.TextInputComponent;
 
-import javax.annotation.Nullable;
-
 public final class RouteScreen extends NameColorDataScreenBase<Route> {
 
-	private RouteType routeType;
+	private RouteType routeType = RouteType.NORMAL;
 
 	private final TextInputComponent routeNumberTextInput;
 	@Nullable

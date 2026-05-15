@@ -1,10 +1,10 @@
 package org.mtr.cache;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

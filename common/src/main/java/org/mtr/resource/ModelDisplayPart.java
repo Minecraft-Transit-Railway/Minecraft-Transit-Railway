@@ -1,9 +1,8 @@
 package org.mtr.resource;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.data.VehicleExtension;
 import org.mtr.render.StoredMatrixTransformations;
-
-import javax.annotation.Nullable;
 
 public final class ModelDisplayPart {
 

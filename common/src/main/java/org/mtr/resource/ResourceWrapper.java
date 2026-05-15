@@ -9,6 +9,10 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.function.Consumer;
 
+/**
+ * Container for custom vehicle resources including models, textures, and Minecraft assets.
+ * Manages merging, validation, and registration of resource packs.
+ */
 public final class ResourceWrapper extends ResourceWrapperSchema {
 
 	public ResourceWrapper(

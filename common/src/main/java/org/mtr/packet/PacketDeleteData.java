@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-import org.mtr.libraries.com.google.gson.JsonObject;
 import net.minecraft.server.world.ServerWorld;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
@@ -12,8 +11,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-
-import javax.annotation.Nonnull;
+import org.mtr.libraries.com.google.gson.JsonObject;
 
 public final class PacketDeleteData extends PacketRequestResponseBase {
 
@@ -52,7 +50,6 @@ public final class PacketDeleteData extends PacketRequestResponseBase {
 		return new DeleteDataRequest(jsonReader);
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.DELETE_DATA;

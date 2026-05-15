@@ -12,15 +12,12 @@ import org.mtr.data.TicketSystem;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.SoundEvents;
 
-import javax.annotation.Nonnull;
-
 public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 
 	public BlockTicketProcessorEnquiry(AbstractBlock.Settings settings) {
 		super(settings, false, false, false);
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos blockPos, PlayerEntity player, BlockHitResult hit) {
 		if (!world.isClient()) {

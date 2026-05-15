@@ -5,6 +5,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.IGui;
@@ -15,8 +16,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 
-import javax.annotation.Nullable;
-
 public class DashboardListSelectorScreen extends ScreenBase implements IGui {
 
 	protected final ObjectImmutableList<DashboardListItem> allData;
@@ -26,6 +25,7 @@ public class DashboardListSelectorScreen extends ScreenBase implements IGui {
 	protected final DashboardList selectedList;
 	protected final ButtonWidget buttonDone;
 
+	@Nullable
 	private final Runnable onClose;
 	private final boolean isSingleSelect;
 	private final boolean canRepeat;

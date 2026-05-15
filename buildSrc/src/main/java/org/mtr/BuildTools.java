@@ -228,10 +228,7 @@ public final class BuildTools {
 		try (final Stream<Path> schemasStream = Files.list(project.getRootDir().toPath().resolve("common/src/main/java/org/mtr/").resolve(inputPath))) {
 			schemasStream.forEach(path -> {
 				try {
-					Files.writeString(path, Files.readString(path)
-						.replace("it.unimi", "org.mtr.libraries.it.unimi")
-						.replace("org.jspecify", "org.mtr.libraries.org.jspecify")
-					);
+					Files.writeString(path, Files.readString(path).replace("it.unimi", "org.mtr.libraries.it.unimi"));
 				} catch (Exception e) {
 					LOGGER.error("", e);
 				}

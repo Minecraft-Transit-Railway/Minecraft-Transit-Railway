@@ -14,6 +14,10 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Utilities for reading and managing Minecraft resource pack assets.
+ * Handles resource locations, format versions, and stream-based resource loading.
+ */
 public final class ResourceManagerHelper {
 
 	public static void readResource(Identifier identifier, Consumer<InputStream> consumer) {
@@ -48,8 +52,8 @@ public final class ResourceManagerHelper {
 	public static void readDirectory(String path, BiConsumer<Identifier, InputStream> consumer) {
 		try {
 			MinecraftClient.getInstance().getResourceManager()
-					.findAllResources(path, identifier -> true)
-					.forEach((identifier, resources) -> resources.forEach(resource -> readResource(resource, inputStream -> consumer.accept(identifier, inputStream))));
+				.findAllResources(path, identifier -> true)
+				.forEach((identifier, resources) -> resources.forEach(resource -> readResource(resource, inputStream -> consumer.accept(identifier, inputStream))));
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
 		}

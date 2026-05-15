@@ -32,7 +32,6 @@ import org.mtr.packet.PacketTurnOnBlockEntity;
 import org.mtr.registry.Registry;
 import org.mtr.registry.RegistryClient;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
 public abstract class BlockSignalBase extends Block implements BlockEntityProvider {
@@ -49,7 +48,6 @@ public abstract class BlockSignalBase extends Block implements BlockEntityProvid
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -218,7 +216,6 @@ public abstract class BlockSignalBase extends Block implements BlockEntityProvid
 			this.booleanValue = booleanValue;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return String.valueOf(booleanValue);

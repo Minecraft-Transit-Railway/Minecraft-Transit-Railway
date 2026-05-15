@@ -10,6 +10,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockStationNameTallBase;
 import org.mtr.block.BlockStationNameTallStanding;
 import org.mtr.block.BlockTactileMap;
@@ -46,18 +47,24 @@ import org.mtr.sound.ScheduledSound;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Client-side mod coordinator and webserver host.
+ * Initialises client-side rendering, GUI screens, sound systems, and local webserver for map/tools.
+ * Bridges player interactions with the server and backend simulator.
+ */
 public final class MTRClient {
 
 	@Nullable
 	private static Webserver webserver;
 	/**
-	 * This is the port of the clientside webserver (multiplayer) or the webserver started by Transport Simulation Core (singleplayer). {@code 0} means the webserver is not running
+	 * Port of the webserver used by the client.
+	 * In multiplayer this is the local client-side bridge server; in singleplayer it can be the integrated backend server.
+	 * {@code 0} means the webserver is not running.
 	 */
 	@Getter
 	private static int serverPort;
@@ -442,10 +449,6 @@ public final class MTRClient {
 		return MinecraftClient.getInstance().options.sneakKey.getBoundKeyLocalizedText().getString();
 	}
 
-	public static String getRightClickText() {
-		return MinecraftClient.getInstance().options.useKey.getBoundKeyLocalizedText().getString();
-	}
-
 	public static float getGameTick() {
 		return gameMillis / 50F;
 	}
@@ -477,7 +480,7 @@ public final class MTRClient {
 
 	private static class ResourcePackCreatorWebServlet extends WebServlet {
 
-		public ResourcePackCreatorWebServlet(Function<String, String> contentProvider, String expectedPath) {
+		public ResourcePackCreatorWebServlet(Function<String, @Nullable String> contentProvider, String expectedPath) {
 			super(contentProvider, expectedPath);
 		}
 	}

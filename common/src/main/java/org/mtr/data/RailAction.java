@@ -9,13 +9,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
 import org.mtr.core.tool.Utilities;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -36,6 +36,7 @@ public class RailAction {
 	private final int radius;
 	private final int height;
 	private final double length;
+	@Nullable
 	private final BlockState state;
 	private final boolean isSlab;
 	private final ObjectOpenHashSet<BlockPos> blacklistedPositions = new ObjectOpenHashSet<>();
@@ -109,11 +110,11 @@ public class RailAction {
 
 			if (isSlab && isTopHalf) {
 				placePos = blockPos;
-				placeState = state.with(SlabBlock.TYPE, SlabType.BOTTOM);
+				placeState = state == null ? null : state.with(SlabBlock.TYPE, SlabType.BOTTOM);
 				placeHalf = false;
 			} else {
 				placePos = blockPos.down();
-				placeState = isSlab ? state.with(SlabBlock.TYPE, SlabType.TOP) : state;
+				placeState = isSlab && state != null ? state.with(SlabBlock.TYPE, SlabType.TOP) : state;
 				placeHalf = true;
 			}
 

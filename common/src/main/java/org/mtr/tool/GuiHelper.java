@@ -9,6 +9,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -16,9 +17,12 @@ import org.mtr.widget.ListComponent;
 import org.mtr.widget.ScrollPanelComponent;
 import org.mtr.widget.SlotBackgroundComponent;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 
+/**
+ * GUI colour palette and widget rendering utilities.
+ * Provides consistent dark theme colours and helpers for text rendering, tooltips, and list components.
+ */
 public final class GuiHelper {
 
 	public static final int BLACK_COLOR = 0xFF000000;

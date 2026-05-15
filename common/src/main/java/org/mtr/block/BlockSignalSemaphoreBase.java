@@ -11,15 +11,12 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockSignalSemaphoreBase extends BlockSignalBase {
 
 	public BlockSignalSemaphoreBase(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final VoxelShape poleShape = Block.createCuboidShape(6, 0, 6, 10, 12, 10);

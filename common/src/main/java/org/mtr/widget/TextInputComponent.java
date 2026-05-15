@@ -8,9 +8,9 @@ import gg.essential.universal.UMatrixStack;
 import kotlin.Unit;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
+import org.jspecify.annotations.Nullable;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Locale;
 
@@ -36,27 +36,27 @@ public final class TextInputComponent extends StitchedImageComponent {
 		super(200, 20, 1, 0, ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get());
 
 		final UIContainer container = (UIContainer) new UIContainer()
-				.setChildOf(this)
-				.setX(new CenterConstraint())
-				.setY(new CenterConstraint())
-				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(PADDING)))
-				.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(PADDING)));
+			.setChildOf(this)
+			.setX(new CenterConstraint())
+			.setY(new CenterConstraint())
+			.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(PADDING)))
+			.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(PADDING)));
 
 		prefixText = (UIText) new UIText("", false)
-				.setChildOf(container)
-				.setX(new PixelConstraint(0))
-				.setY(new CenterConstraint());
+			.setChildOf(container)
+			.setX(new PixelConstraint(0))
+			.setY(new CenterConstraint());
 
 		newTextInput = (NewTextInput) new NewTextInput()
-				.setChildOf(container)
-				.setX(new SiblingConstraint())
-				.setY(new CenterConstraint())
-				.setWidth(new FillConstraint(true));
+			.setChildOf(container)
+			.setX(new SiblingConstraint())
+			.setY(new CenterConstraint())
+			.setWidth(new FillConstraint(true));
 
 		suffixText = (UIText) new UIText("", false)
-				.setChildOf(container)
-				.setX(new PixelConstraint(0, true))
-				.setY(new CenterConstraint());
+			.setChildOf(container)
+			.setX(new PixelConstraint(0, true))
+			.setY(new CenterConstraint());
 
 		onMouseClickConsumer(clickEvent -> {
 			if (disabled) {

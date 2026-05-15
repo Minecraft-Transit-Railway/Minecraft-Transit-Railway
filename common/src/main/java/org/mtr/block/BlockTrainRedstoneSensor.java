@@ -6,15 +6,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockTrainRedstoneSensor extends BlockTrainPoweredSensorBase {
 
 	public BlockTrainRedstoneSensor(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new TrainRedstoneSensorBlockEntity(blockPos, blockState);

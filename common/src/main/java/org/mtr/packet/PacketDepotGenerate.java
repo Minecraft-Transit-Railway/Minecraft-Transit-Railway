@@ -6,8 +6,6 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 
-import javax.annotation.Nonnull;
-
 public final class PacketDepotGenerate extends PacketRequestResponseBase {
 
 	public PacketDepotGenerate(PacketBufferReceiver packetBufferReceiver) {
@@ -32,7 +30,6 @@ public final class PacketDepotGenerate extends PacketRequestResponseBase {
 		return new DepotOperationByIds(jsonReader);
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.GENERATE_BY_DEPOT_IDS;

@@ -11,15 +11,12 @@ import net.minecraft.util.math.Direction;
 import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockLiftTrackBase extends Block {
 
 	public BlockLiftTrackBase(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext context) {
 		return getDefaultState().with(Properties.HORIZONTAL_FACING, getFacing(context));

@@ -17,8 +17,6 @@ import net.minecraft.world.World;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityProvider {
 
 	public static final IntProperty ARROW_DIRECTION = IntProperty.of("propagate_property", 0, 3);
@@ -27,13 +25,11 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.APG_GLASS.get();
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		final double y = hit.getPos().y;
@@ -48,7 +44,6 @@ public class BlockAPGGlass extends BlockPSDAPGGlassBase implements BlockEntityPr
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new APGGlassBlockEntity(blockPos, blockState);

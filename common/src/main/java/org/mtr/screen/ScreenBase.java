@@ -6,9 +6,8 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.widget.ClickableWidgetBase;
-
-import javax.annotation.Nullable;
 
 public abstract class ScreenBase extends Screen {
 

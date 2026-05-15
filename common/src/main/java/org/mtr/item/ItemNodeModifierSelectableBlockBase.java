@@ -14,6 +14,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
@@ -22,8 +23,6 @@ import org.mtr.core.tool.Angle;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.DataComponentTypes;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifierBase {
@@ -43,7 +42,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		radius = width / 2;
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (canSaveBlock) {

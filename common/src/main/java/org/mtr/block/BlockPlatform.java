@@ -16,8 +16,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-import javax.annotation.Nonnull;
-
 public class BlockPlatform extends Block implements PlatformHelper {
 
 	private final boolean isIndented;
@@ -27,7 +25,6 @@ public class BlockPlatform extends Block implements PlatformHelper {
 		this.isIndented = isIndented;
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		return PlatformHelper.getActualState(world, pos, state);
@@ -38,7 +35,6 @@ public class BlockPlatform extends Block implements PlatformHelper {
 		return getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing());
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		if (isIndented) {

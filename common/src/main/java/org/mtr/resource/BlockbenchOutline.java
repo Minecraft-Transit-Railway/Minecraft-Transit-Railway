@@ -1,12 +1,11 @@
 package org.mtr.resource;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.resource.BlockbenchOutlineSchema;
 import org.mtr.libraries.it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-
-import javax.annotation.Nullable;
 
 public final class BlockbenchOutline extends BlockbenchOutlineSchema {
 

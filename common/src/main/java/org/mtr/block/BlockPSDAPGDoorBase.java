@@ -19,14 +19,12 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.Vehicle;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.render.RenderVehicleHelper;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements BlockEntityProvider {
 
@@ -37,7 +35,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (IBlock.getSideDirection(state) == direction && !neighborState.isOf(this)) {
@@ -66,7 +63,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -110,7 +106,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		// The serverside collision shape is always empty, and the clientside collision shape is determined by the vehicle door positions the client sees
@@ -122,7 +117,6 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Blo
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockRenderType getRenderType(BlockState state) {
 		return BlockRenderType.MODEL;

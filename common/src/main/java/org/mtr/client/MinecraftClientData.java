@@ -1,5 +1,6 @@
 package org.mtr.client;
 
+import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -9,6 +10,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
 import org.mtr.core.data.*;
@@ -21,11 +23,15 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.screen.DashboardListItem;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Client-side cached transport network state.
+ * Mirrors backend data structures for routes, vehicles, lifts, rails, stations and signals.
+ * Provides search caching and UI model snapshots.
+ */
 public final class MinecraftClientData extends ClientData {
 
 	public final Long2ObjectOpenHashMap<SimplifiedRoute> simplifiedRouteIdMap = new Long2ObjectOpenHashMap<>();
@@ -40,7 +46,9 @@ public final class MinecraftClientData extends ClientData {
 
 	private final LongAVLTreeSet routeIdsWithDisabledAnnouncements = new LongAVLTreeSet();
 
+	@Getter
 	private static MinecraftClientData instance = new MinecraftClientData();
+	@Getter
 	private static MinecraftClientData dashboardInstance = new MinecraftClientData();
 
 	public static String DASHBOARD_SEARCH = "";
@@ -49,10 +57,6 @@ public final class MinecraftClientData extends ClientData {
 	public static String TRAINS_SEARCH = "";
 	public static String EXIT_PARENTS_SEARCH = "";
 	public static String EXIT_DESTINATIONS_SEARCH = "";
-
-	private static boolean pressingAccelerate = false;
-	private static boolean pressingBrake = false;
-	private static boolean pressingDoors = false;
 
 	@Override
 	public void sync() {
@@ -106,7 +110,7 @@ public final class MinecraftClientData extends ClientData {
 
 		if (clientWorld.getBlockState(blockPos).getBlock() instanceof BlockNode) {
 			final float playerAngle = clientPlayerEntity.getYaw() + 90;
-			final Rail[] closestRail = {null};
+			final @Nullable Rail[] closestRail = {null};
 			final double[] closestAngle = {720};
 
 			positionsToRail.getOrDefault(MTR.blockPosToPosition(blockPos), new Object2ObjectOpenHashMap<>()).forEach((endPosition, rail) -> {
@@ -136,14 +140,6 @@ public final class MinecraftClientData extends ClientData {
 		} else {
 			routeIdsWithDisabledAnnouncements.remove(routeId);
 		}
-	}
-
-	public static MinecraftClientData getInstance() {
-		return instance;
-	}
-
-	public static MinecraftClientData getDashboardInstance() {
-		return dashboardInstance;
 	}
 
 	public static void reset() {
@@ -221,14 +217,11 @@ public final class MinecraftClientData extends ClientData {
 	public static class LiftWrapper {
 
 		public boolean shouldRender;
+		@Getter
 		private Lift lift;
 
 		private LiftWrapper(Lift lift) {
 			this.lift = lift;
-		}
-
-		public Lift getLift() {
-			return lift;
 		}
 	}
 
@@ -238,6 +231,7 @@ public final class MinecraftClientData extends ClientData {
 		public final String hexId;
 		public final Vec3d startVector;
 		public final Vec3d endVector;
+		@Getter
 		private Rail rail;
 
 		private RailWrapper(Rail rail, String hexId) {
@@ -245,10 +239,6 @@ public final class MinecraftClientData extends ClientData {
 			this.hexId = hexId;
 			startVector = new Vec3d(rail.railMath.minX, rail.railMath.minY, rail.railMath.minZ);
 			endVector = new Vec3d(rail.railMath.maxX, rail.railMath.maxY, rail.railMath.maxZ);
-		}
-
-		public Rail getRail() {
-			return rail;
 		}
 	}
 }

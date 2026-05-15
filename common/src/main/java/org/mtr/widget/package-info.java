@@ -1,4 +1,8 @@
-@ParametersAreNonnullByDefault
+/**
+ * UI widget components for in-game screens and displays.
+ * Includes custom render layers, buttons, scrollable panels, and display widgets.
+ */
+@NullMarked
 package org.mtr.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

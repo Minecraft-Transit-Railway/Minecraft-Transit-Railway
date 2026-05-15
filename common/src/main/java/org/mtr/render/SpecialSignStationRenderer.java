@@ -1,11 +1,10 @@
 package org.mtr.render;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.tool.GuiHelper;
-
-import javax.annotation.Nullable;
 
 public final class SpecialSignStationRenderer extends SpecialSignPlatformStationRendererBase<Station> {
 

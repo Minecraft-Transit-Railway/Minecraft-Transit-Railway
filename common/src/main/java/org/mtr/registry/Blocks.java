@@ -23,10 +23,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-
 public final class Blocks {
 
-	private static ObjectAVLTreeSet<String> REGISTERED_IDENTIFIERS = new ObjectAVLTreeSet<>();
+	private static final ObjectAVLTreeSet<String> REGISTERED_IDENTIFIERS = new ObjectAVLTreeSet<>();
 
 	// Nodes
 	public static final ObjectHolder<Block> RAIL_NODE = registerBlockWithBlockItem("rail", settings -> new BlockNode(settings, TransportMode.TRAIN), true, ItemGroups.CORE);

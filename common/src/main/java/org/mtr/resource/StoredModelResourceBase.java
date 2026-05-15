@@ -2,6 +2,7 @@ package org.mtr.resource;
 
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.tool.Utilities;
@@ -13,10 +14,9 @@ import org.mtr.model.ObjModelLoader;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.StoredMatrixTransformations;
 
-import javax.annotation.Nullable;
-
 public interface StoredModelResourceBase {
 
+	@Nullable
 	default Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> load(String modelResource, String textureResource, boolean flipTextureV, double modelYOffset, ResourceProvider resourceProvider) {
 		final boolean isBlockbench = modelResource.endsWith(".bbmodel");
 		final boolean isObj = modelResource.endsWith(".obj");

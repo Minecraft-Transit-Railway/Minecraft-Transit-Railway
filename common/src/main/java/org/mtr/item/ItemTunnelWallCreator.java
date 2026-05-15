@@ -16,8 +16,6 @@ public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 	@Override
 	protected void onConnect(Rail rail, ServerPlayerEntity serverPlayerEntity, ItemStack itemStack, int radius, int height) {
 		final BlockState blockState = getSavedState(itemStack);
-		if (blockState != null) {
-			MTR.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState));
-		}
+		MTR.getRailActionModule(serverPlayerEntity.getServerWorld(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState));
 	}
 }

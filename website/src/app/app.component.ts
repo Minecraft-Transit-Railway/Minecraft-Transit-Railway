@@ -1,13 +1,15 @@
 import {Component} from "@angular/core";
-import {MatStepperModule} from "@angular/material/stepper";
-import {PrepareComponent} from "./component/prepare/prepare.component";
 import {FormsModule} from "@angular/forms";
-import {DataService} from "./service/data.service";
-import {EditComponent} from "./component/edit/edit.component";
-import {PreviewComponent} from "./component/preview/preview.component";
+
+import {MatStepperModule} from "@angular/material/stepper";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
+
+import {DataService} from "./service/data.service";
+import {PrepareComponent} from "./component/prepare/prepare.component";
+import {EditComponent} from "./component/edit/edit.component";
+import {PreviewComponent} from "./component/preview/preview.component";
 import {ExportComponent} from "./component/export/export.component";
 import {LargeTileComponent} from "./component/large-button/large-tile.component";
 

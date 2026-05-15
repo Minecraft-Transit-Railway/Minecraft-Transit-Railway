@@ -58,25 +58,25 @@ public class RenderRouteSign<T extends BlockRouteSignBase.BlockEntityBase> exten
 		});
 
 		MainRenderer.scheduleRender(
-				DynamicTextureCache.instance.getDirectionArrow(platform.getId(), (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).identifier,
-				false,
-				QueuedRenderLayer.EXTERIOR,
-				(matrixStack, vertexConsumer, offset) -> {
-					storedMatrixTransformations.transform(matrixStack, offset);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
-					matrixStack.pop();
-				}
+			DynamicTextureCache.instance.getDirectionArrow(platform.getId(), (arrowDirection & 0b01) > 0, (arrowDirection & 0b10) > 0, HorizontalAlignment.CENTER, true, 0.2F, WIDTH / HEIGHT_TOP, ARGB_BLACK, ARGB_WHITE, 0).identifier,
+			false,
+			QueuedRenderLayer.EXTERIOR,
+			(matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, TOP + (isTop ? 0 : 1), 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, 1, 1, facing.getOpposite(), -1, light);
+				matrixStack.pop();
+			}
 		);
 
 		MainRenderer.scheduleRender(
-				DynamicTextureCache.instance.getRouteMap(platform.getId(), true, false, HEIGHT_BOTTOM / WIDTH, false).identifier,
-				false,
-				QueuedRenderLayer.EXTERIOR,
-				(matrixStack, vertexConsumer, offset) -> {
-					storedMatrixTransformations.transform(matrixStack, offset);
-					IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
-					matrixStack.pop();
-				}
+			DynamicTextureCache.instance.getRouteMap(platform.getId(), true, false, HEIGHT_BOTTOM / WIDTH, false).identifier,
+			false,
+			QueuedRenderLayer.EXTERIOR,
+			(matrixStack, vertexConsumer, offset) -> {
+				storedMatrixTransformations.transform(matrixStack, offset);
+				IDrawing.drawTexture(matrixStack, vertexConsumer, 1 - SIDE, MIDDLE + (isTop ? 0 : 1), 0, 1 - SIDE, isTop ? 0 : BOTTOM, 0, SIDE, isTop ? 0 : BOTTOM, 0, SIDE, MIDDLE + (isTop ? 0 : 1), 0, 0, 0, isTop ? TEXTURE_BREAK : 1, 1, facing.getOpposite(), -1, light);
+				matrixStack.pop();
+			}
 		);
 	}
 

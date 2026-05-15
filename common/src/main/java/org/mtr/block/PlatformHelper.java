@@ -10,8 +10,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 
-import javax.annotation.Nonnull;
-
 public interface PlatformHelper {
 
 	EnumProperty<EnumDoorType> DOOR_TYPE = EnumProperty.of("door_type", EnumDoorType.class);
@@ -69,7 +67,6 @@ public interface PlatformHelper {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

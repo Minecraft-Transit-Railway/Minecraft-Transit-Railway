@@ -1,8 +1,10 @@
 import {Component} from "@angular/core";
+
 import {MatIconModule} from "@angular/material/icon";
-import {DataService} from "../../service/data.service";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatButtonModule} from "@angular/material/button";
+
+import {DataService} from "../../service/data.service";
 
 @Component({
 	selector: "app-preview",

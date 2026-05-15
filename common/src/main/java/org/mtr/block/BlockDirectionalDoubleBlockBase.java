@@ -15,8 +15,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class BlockDirectionalDoubleBlockBase extends Block implements IBlock {
 
@@ -24,7 +23,6 @@ public abstract class BlockDirectionalDoubleBlockBase extends Block implements I
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		return DoubleVerticalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(this), super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random));
@@ -35,6 +33,7 @@ public abstract class BlockDirectionalDoubleBlockBase extends Block implements I
 		DoubleVerticalBlock.onPlaced(world, pos, state, getAdditionalState(pos, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)));
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return DoubleVerticalBlock.getPlacementState(ctx, getAdditionalState(ctx.getBlockPos(), ctx.getHorizontalPlayerFacing()));

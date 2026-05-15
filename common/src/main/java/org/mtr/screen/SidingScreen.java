@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Siding;
 import org.mtr.core.operation.UpdateDataRequest;
@@ -18,8 +19,6 @@ import org.mtr.widget.BetterButtonWidget;
 import org.mtr.widget.BetterCheckboxWidget;
 import org.mtr.widget.BetterSliderWidget;
 import org.mtr.widget.BetterTextFieldWidget;
-
-import javax.annotation.Nullable;
 
 public final class SidingScreen extends ScrollableScreenBase {
 

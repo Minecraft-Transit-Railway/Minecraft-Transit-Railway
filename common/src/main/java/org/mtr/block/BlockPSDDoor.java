@@ -8,8 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 
 	private final int style;
@@ -19,13 +17,11 @@ public class BlockPSDDoor extends BlockPSDAPGDoorBase {
 		this.style = style;
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new PSDDoorBlockEntity(style, blockPos, blockState);
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return style == 0 ? Items.PSD_DOOR_1.get() : Items.PSD_DOOR_2.get();

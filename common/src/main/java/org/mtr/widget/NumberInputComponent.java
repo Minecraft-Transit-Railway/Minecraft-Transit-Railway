@@ -7,10 +7,10 @@ import gg.essential.elementa.constraints.RelativeConstraint;
 import gg.essential.elementa.constraints.SiblingConstraint;
 import gg.essential.universal.UMatrixStack;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 
-import javax.annotation.Nullable;
 import java.util.function.DoubleConsumer;
 
 public final class NumberInputComponent extends UIContainer {
@@ -43,21 +43,21 @@ public final class NumberInputComponent extends UIContainer {
 		allowNegative = min < 0;
 
 		textInputComponent = (TextInputComponent) new TextInputComponent()
-				.setChildOf(this)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(TEXT_INPUT_HEIGHT));
+			.setChildOf(this)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(TEXT_INPUT_HEIGHT));
 
 		final StitchedImageComponent sliderBackgroundComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 4, 0, ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get())
-				.setChildOf(this)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(SLIDER_HEIGHT));
+			.setChildOf(this)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(SLIDER_HEIGHT));
 
 		sliderHandleComponent = (StitchedImageComponent) new StitchedImageComponent(200, 20, 3, 0, ReleasedDynamicTextureRegistry.BUTTON_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_DISABLED_TEXTURE.get(), ReleasedDynamicTextureRegistry.BUTTON_HIGHLIGHTED_TEXTURE.get())
-				.setChildOf(sliderBackgroundComponent)
-				.setWidth(new PixelConstraint(SLIDER_HANDLE_WIDTH))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(sliderBackgroundComponent)
+			.setWidth(new PixelConstraint(SLIDER_HANDLE_WIDTH))
+			.setHeight(new RelativeConstraint());
 
 		sliderBackgroundComponent.onMouseEnterRunnable(() -> setHighlighted(true));
 		sliderBackgroundComponent.onMouseLeaveRunnable(() -> setHighlighted(false));
@@ -70,7 +70,7 @@ public final class NumberInputComponent extends UIContainer {
 			String newText = originalText.replaceAll("[^\\d-.]", "");
 
 			if (!allowNegative) {
-				newText = newText.replaceAll("-", "");
+				newText = newText.replace("-", "");
 			}
 
 			if (!allowDecimal) {

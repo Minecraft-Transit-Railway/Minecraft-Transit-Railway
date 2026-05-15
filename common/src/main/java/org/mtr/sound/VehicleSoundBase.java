@@ -1,6 +1,5 @@
 package org.mtr.sound;
 
-
 import net.minecraft.util.math.BlockPos;
 
 public abstract class VehicleSoundBase {

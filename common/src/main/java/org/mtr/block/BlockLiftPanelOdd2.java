@@ -9,8 +9,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 
 	public BlockLiftPanelOdd2(AbstractBlock.Settings settings) {
@@ -24,7 +22,6 @@ public class BlockLiftPanelOdd2 extends BlockLiftPanelBase {
 		builder.add(SIDE);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new LiftPanelOdd2BlockEntity(blockPos, blockState);

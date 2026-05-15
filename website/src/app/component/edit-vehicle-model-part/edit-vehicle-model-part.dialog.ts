@@ -1,19 +1,21 @@
 import {Component, inject} from "@angular/core";
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatTooltipModule} from "@angular/material/tooltip";
-import {DataService} from "../../service/data.service";
 import {MatIconModule} from "@angular/material/icon";
-import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
-import {CREATE_MODEL_PROPERTIES_PART} from "../edit-vehicle-model-parts/edit-vehicle-model-parts.dialog";
 import {MatSelectModule} from "@angular/material/select";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 import {CdkTextareaAutosize} from "@angular/cdk/text-field";
+
+import {DataService} from "../../service/data.service";
+import {CREATE_MODEL_PROPERTIES_PART} from "../edit-vehicle-model-parts/edit-vehicle-model-parts.dialog";
+import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
 import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {PartPositionDTO} from "../../entity/generated/partPosition";
-import {MatCheckboxModule} from "@angular/material/checkbox";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
 
 @Component({

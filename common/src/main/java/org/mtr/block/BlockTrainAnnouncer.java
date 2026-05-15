@@ -19,7 +19,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -31,7 +30,6 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new TrainAnnouncerBlockEntity(blockPos, blockState);

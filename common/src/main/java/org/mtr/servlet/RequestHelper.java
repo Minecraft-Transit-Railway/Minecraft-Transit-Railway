@@ -1,10 +1,9 @@
 package org.mtr.servlet;
 
-
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.libraries.okhttp3.*;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;

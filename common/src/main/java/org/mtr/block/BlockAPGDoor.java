@@ -9,21 +9,17 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockAPGDoor extends BlockPSDAPGDoorBase implements BlockEntityProvider {
 
 	public BlockAPGDoor(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new APGDoorBlockEntity(blockPos, blockState);
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.APG_DOOR.get();

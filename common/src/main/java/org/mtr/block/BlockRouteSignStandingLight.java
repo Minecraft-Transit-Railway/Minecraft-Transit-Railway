@@ -12,15 +12,12 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockRouteSignStandingLight extends BlockRouteSignBase implements IBlock {
 
 	public BlockRouteSignStandingLight(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean isLower = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER;
@@ -36,7 +33,6 @@ public class BlockRouteSignStandingLight extends BlockRouteSignBase implements I
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new RouteSignStandingLightBlockEntity(blockPos, blockState);

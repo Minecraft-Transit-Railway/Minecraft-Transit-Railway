@@ -5,9 +5,8 @@ import gg.essential.elementa.WindowScreen;
 import gg.essential.universal.UKeyboard;
 import gg.essential.universal.UMinecraft;
 import net.minecraft.client.MinecraftClient;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nullable;
 
 public abstract class WindowBase extends WindowScreen {
 
@@ -36,14 +35,14 @@ public abstract class WindowBase extends WindowScreen {
 	}
 
 	@Override
-	public void onKeyPressed(int keyCode, char typedChar, @Nullable UKeyboard.Modifiers modifiers) {
+	public void onKeyPressed(int keyCode, char typedChar, UKeyboard.@Nullable Modifiers modifiers) {
 		if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
 			super.onKeyPressed(keyCode, typedChar, modifiers);
 		}
 	}
 
 	@Override
-	public void onKeyReleased(int keyCode, char typedChar, @Nullable UKeyboard.Modifiers modifiers) {
+	public void onKeyReleased(int keyCode, char typedChar, UKeyboard.@Nullable Modifiers modifiers) {
 		if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
 			closeScreen = true;
 		} else {

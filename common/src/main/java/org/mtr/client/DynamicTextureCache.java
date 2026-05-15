@@ -4,10 +4,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.config.LanguageDisplay;
 import org.mtr.core.servlet.MessageQueue;
+import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -17,7 +19,6 @@ import org.mtr.render.MainRenderer;
 import org.mtr.render.MoreRenderLayers;
 import org.mtr.resource.ResourceManagerHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
@@ -28,9 +29,15 @@ import java.text.AttributedString;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+/**
+ * Runtime texture generation and caching system.
+ * Generates text/display textures on-demand with multi-language and CJK font support.
+ */
 public class DynamicTextureCache implements IGui {
 
+	@Nullable
 	private Font font;
+	@Nullable
 	private Font fontCjk;
 
 	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
@@ -139,8 +146,8 @@ public class DynamicTextureCache implements IGui {
 		return getTextPixels(text, dimensions, Integer.MAX_VALUE, (int) (Math.max(fontSizeCjk, fontSize) * LINE_HEIGHT_MULTIPLIER), fontSizeCjk, fontSize, 0, null);
 	}
 
-	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int maxHeight, int fontSizeCjk, int fontSize, int padding, @Nullable IGui.HorizontalAlignment horizontalAlignment) {
-		if (maxWidth <= 0) {
+	public byte[] getTextPixels(String text, int[] dimensions, int maxWidth, int maxHeight, int fontSizeCjk, int fontSize, int padding, IGui.@Nullable HorizontalAlignment horizontalAlignment) {
+		if (maxWidth <= 0 || font == null || fontCjk == null) {
 			dimensions[0] = 0;
 			dimensions[1] = 0;
 			return new byte[0];
@@ -198,7 +205,7 @@ public class DynamicTextureCache implements IGui {
 				width += textWidths[index];
 				height = Math.max(height, (int) (fontSizes[index] * LINE_HEIGHT_MULTIPLIER));
 			} else {
-				width = Math.max(width, Math.min(maxWidth, textWidths[index]));
+				width = Utilities.clampSafe(textWidths[index], width, maxWidth);
 				height += (int) (fontSizes[index] * LINE_HEIGHT_MULTIPLIER);
 			}
 		}
@@ -233,7 +240,7 @@ public class DynamicTextureCache implements IGui {
 		return pixels;
 	}
 
-	private DynamicResource getResource(String key, Supplier<NativeImage> supplier, DefaultRenderingColor defaultRenderingColor) {
+	private DynamicResource getResource(String key, Supplier<@Nullable NativeImage> supplier, DefaultRenderingColor defaultRenderingColor) {
 		resourceRegistryQueue.process(Runnable::run);
 		final DynamicResource dynamicResource = dynamicResources.get(key);
 

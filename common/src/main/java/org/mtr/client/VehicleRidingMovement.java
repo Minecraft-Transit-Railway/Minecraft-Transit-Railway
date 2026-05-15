@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
@@ -25,7 +26,6 @@ import org.mtr.render.PositionAndRotation;
 import org.mtr.render.RenderVehicleHelper;
 import org.mtr.screen.LiftSelectionScreen;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 
 public class VehicleRidingMovement {
@@ -42,9 +42,13 @@ public class VehicleRidingMovement {
 	private static float shiftHoldingTicks;
 
 	private static int ridingVehicleCarNumberCacheOld;
+	@Nullable
 	private static Vec3d ridingPositionCacheOld;
+	@Nullable
 	private static Vec3d ridingPositionCache;
+	@Nullable
 	private static Double ridingYawDifferenceOld;
+	@Nullable
 	private static Double ridingYawDifference;
 	private static double previousVehicleYaw;
 
@@ -289,7 +293,7 @@ public class VehicleRidingMovement {
 	 * @return {@code null} if the player is not riding a vehicle or an {@link IntObjectImmutablePair} of the car number the player is currently riding in and the relative position and yaw of the player with respect to the center of the car they are currently riding in.
 	 */
 	@Nullable
-	public static IntObjectImmutablePair<ObjectObjectImmutablePair<Vec3d, Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
+	public static IntObjectImmutablePair<ObjectObjectImmutablePair<@Nullable Vec3d, @Nullable Double>> getRidingVehicleCarNumberAndOffset(long vehicleId) {
 		return isRiding(vehicleId) ? new IntObjectImmutablePair<>(ridingVehicleCarNumberCacheOld, new ObjectObjectImmutablePair<>(ridingPositionCacheOld, ridingYawDifferenceOld)) : null;
 	}
 

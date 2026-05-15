@@ -1,12 +1,12 @@
 package org.mtr.resource;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.VehicleResourceWrapperSchema;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public final class VehicleResourceWrapper extends VehicleResourceWrapperSchema {

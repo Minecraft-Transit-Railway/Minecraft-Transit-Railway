@@ -12,15 +12,12 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nonnull;
-
 public class BlockPIDSPole extends BlockPoleCheckBase {
 
 	public BlockPIDSPole(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(7.5, 0, 12.5, 8.5, 16, 13.5, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));

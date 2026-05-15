@@ -1,14 +1,13 @@
 package org.mtr.model;
 
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 import org.mtr.data.VehicleExtension;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.MainRenderer;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.resource.*;
-
-import javax.annotation.Nullable;
 
 public final class BuiltVehicleModelHolder {
 

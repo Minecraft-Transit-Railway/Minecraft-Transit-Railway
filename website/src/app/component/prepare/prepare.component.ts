@@ -1,11 +1,13 @@
 import {Component, EventEmitter, inject, Output} from "@angular/core";
+
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import {MatDividerModule} from "@angular/material/divider";
+
 import {DataService} from "../../service/data.service";
 import {UploaderComponent} from "../uploader/uploader.component";
 import {LargeTileComponent} from "../large-button/large-tile.component";
-import {MatDividerModule} from "@angular/material/divider";
 
 @Component({
 	selector: "app-prepare",

@@ -6,15 +6,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockSignalLight2Aspect3 extends BlockSignalLightBase {
 
 	public BlockSignalLight2Aspect3(AbstractBlock.Settings blockSettings) {
 		super(blockSettings, 2, 14);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new SignalLight2Aspect3BlockEntity(blockPos, blockState);

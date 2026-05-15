@@ -1,5 +1,6 @@
 package org.mtr.block;
 
+import lombok.Getter;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,12 +16,10 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Registry;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProvider {
 
@@ -28,19 +27,16 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		super(settings.nonOpaque());
 	}
 
-	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		return super.getPlacementState(itemPlacementContext).with(Properties.HORIZONTAL_FACING, itemPlacementContext.getHorizontalPlayerFacing());
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
 
-	@Nonnull
 	@Override
 	protected VoxelShape getCullingShape(BlockState state) {
 		// Prevents culling optimization mods from culling our fully transparent block
@@ -53,7 +49,6 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		builder.add(Properties.HORIZONTAL_FACING);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -65,13 +60,11 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		});
 	}
 
-	@Nonnull
 	@Override
 	public BlockRenderType getRenderType(BlockState state) {
 		return BlockRenderType.INVISIBLE;
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new EyeCandyBlockEntity(blockPos, blockState);
@@ -80,8 +73,19 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 	public static class EyeCandyBlockEntity extends BlockEntityExtension {
 
 		private String modelId = "";
-		private float translateX, translateY, translateZ;
-		private float rotateX, rotateY, rotateZ;
+		@Getter
+		private float translateX;
+		@Getter
+		private float translateY;
+		@Getter
+		private float translateZ;
+		@Getter
+		private float rotateX;
+		@Getter
+		private float rotateY;
+		@Getter
+		private float rotateZ;
+		@Getter
 		private boolean fullBrightness;
 
 		private static final String KEY_MODEL_ID = "prefabId";
@@ -136,34 +140,6 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 		@Nullable
 		public String getModelId() {
 			return modelId.isEmpty() ? null : modelId;
-		}
-
-		public float getTranslateX() {
-			return translateX;
-		}
-
-		public float getTranslateY() {
-			return translateY;
-		}
-
-		public float getTranslateZ() {
-			return translateZ;
-		}
-
-		public float getRotateX() {
-			return rotateX;
-		}
-
-		public float getRotateY() {
-			return rotateY;
-		}
-
-		public float getRotateZ() {
-			return rotateZ;
-		}
-
-		public boolean getFullBrightness() {
-			return fullBrightness;
 		}
 	}
 }

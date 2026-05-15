@@ -5,9 +5,8 @@ import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import net.minecraft.client.MinecraftClient;
+import org.jspecify.annotations.Nullable;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
-
-import javax.annotation.Nullable;
 
 public final class ButtonComponent extends StitchedImageComponent {
 
@@ -28,15 +27,15 @@ public final class ButtonComponent extends StitchedImageComponent {
 		if (wrapText) {
 			textLabel = null;
 			wrappedTextLabel = (UIWrappedText) new UIWrappedText("", true, null, true)
-					.setChildOf(this)
-					.setX(new CenterConstraint())
-					.setY(new CenterConstraint())
-					.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(TEXT_PADDING)));
+				.setChildOf(this)
+				.setX(new CenterConstraint())
+				.setY(new CenterConstraint())
+				.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(TEXT_PADDING)));
 		} else {
 			textLabel = (UIText) new UIText("", true)
-					.setChildOf(this)
-					.setX(new CenterConstraint())
-					.setY(new CenterConstraint());
+				.setChildOf(this)
+				.setX(new CenterConstraint())
+				.setY(new CenterConstraint());
 			wrappedTextLabel = null;
 		}
 

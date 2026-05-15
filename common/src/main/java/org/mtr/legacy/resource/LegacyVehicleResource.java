@@ -1,6 +1,7 @@
 package org.mtr.legacy.resource;
 
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.TransportMode;
@@ -16,7 +17,6 @@ import org.mtr.resource.ResourceProvider;
 import org.mtr.resource.VehicleModel;
 import org.mtr.resource.VehicleResource;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -78,11 +78,11 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 			}
 
 			if (accel_sound_at_coast) {
-				baseObject.addProperty("legacyUseAccelerationSoundsWhenCoasting", accel_sound_at_coast);
+				baseObject.addProperty("legacyUseAccelerationSoundsWhenCoasting", true);
 			}
 
 			if (const_playback_speed) {
-				baseObject.addProperty("legacyConstantPlaybackSpeed", const_playback_speed);
+				baseObject.addProperty("legacyConstantPlaybackSpeed", true);
 			}
 
 			baseObject.addProperty("legacyDoorCloseSoundTime", door_close_sound_time == 0 ? 0.5 : door_close_sound_time); // MTR 3.x.x defaults to 0.5 s if not specified
@@ -269,28 +269,13 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				partsObject.addProperty("doorAnimationType", door_animation_type);
 
 				if (renderConditionOverride == null) {
-					final String renderCondition;
-					switch (tryGet(propertiesPartsObject, "render_condition").toUpperCase(Locale.ENGLISH)) {
-						case "DOORS_OPEN":
-						case "DOORS_LEFT_OPEN":
-						case "DOORS_RIGHT_OPEN":
-							renderCondition = "DOORS_OPENED";
-							break;
-						case "DOORS_CLOSED":
-						case "DOORS_LEFT_CLOSED":
-						case "DOORS_RIGHT_CLOSED":
-							renderCondition = "DOORS_CLOSED";
-							break;
-						case "MOVING_FORWARDS":
-							renderCondition = "ON_ROUTE_FORWARDS";
-							break;
-						case "MOVING_BACKWARDS":
-							renderCondition = "ON_ROUTE_BACKWARDS";
-							break;
-						default:
-							renderCondition = "NORMAL";
-							break;
-					}
+					final String renderCondition = switch (tryGet(propertiesPartsObject, "render_condition").toUpperCase(Locale.ENGLISH)) {
+						case "DOORS_OPEN", "DOORS_LEFT_OPEN", "DOORS_RIGHT_OPEN" -> "DOORS_OPENED";
+						case "DOORS_CLOSED", "DOORS_LEFT_CLOSED", "DOORS_RIGHT_CLOSED" -> "DOORS_CLOSED";
+						case "MOVING_FORWARDS" -> "ON_ROUTE_FORWARDS";
+						case "MOVING_BACKWARDS" -> "ON_ROUTE_BACKWARDS";
+						default -> "NORMAL";
+					};
 					partsObject.addProperty("condition", renderCondition);
 				} else {
 					partsObject.addProperty("condition", renderConditionOverride);
@@ -329,53 +314,38 @@ public final class LegacyVehicleResource extends VehicleResourceSchema {
 				final double doorXMultiplier;
 				final double doorZMultiplier;
 				if (propertiesPartsObject.has("door_offset")) {
-					switch (tryGet(propertiesPartsObject, "door_offset").toUpperCase(Locale.ENGLISH)) {
-						case "LEFT_NEGATIVE":
+					doorZMultiplier = switch (tryGet(propertiesPartsObject, "door_offset").toUpperCase(Locale.ENGLISH)) {
+						case "LEFT_NEGATIVE" -> {
 							doorXMultiplier = mirror ? -1 : 1;
-							doorZMultiplier = -doorMax;
-							break;
-						case "RIGHT_NEGATIVE":
+							yield -doorMax;
+						}
+						case "RIGHT_NEGATIVE" -> {
 							doorXMultiplier = mirror ? 1 : -1;
-							doorZMultiplier = -doorMax;
-							break;
-						case "LEFT_POSITIVE":
+							yield -doorMax;
+						}
+						case "LEFT_POSITIVE" -> {
 							doorXMultiplier = mirror ? -1 : 1;
-							doorZMultiplier = doorMax;
-							break;
-						case "RIGHT_POSITIVE":
+							yield doorMax;
+						}
+						case "RIGHT_POSITIVE" -> {
 							doorXMultiplier = mirror ? 1 : -1;
-							doorZMultiplier = doorMax;
-							break;
-						default:
+							yield doorMax;
+						}
+						default -> {
 							doorXMultiplier = 0;
-							doorZMultiplier = 0;
-							break;
-					}
+							yield 0;
+						}
+					};
 				} else {
-					switch (tryGet(propertiesPartsObject, "door_offset_x").toUpperCase(Locale.ENGLISH)) {
-						case "LEFT":
-						case "LEFT_NEGATIVE":
-						case "RIGHT":
-						case "RIGHT_NEGATIVE":
-							doorXMultiplier = -1;
-							break;
-						default:
-							doorXMultiplier = 0;
-							break;
-					}
-					switch (tryGet(propertiesPartsObject, "door_offset_z").toUpperCase(Locale.ENGLISH)) {
-						case "LEFT_NEGATIVE":
-						case "RIGHT_NEGATIVE":
-							doorZMultiplier = -doorMax;
-							break;
-						case "LEFT":
-						case "RIGHT":
-							doorZMultiplier = doorMax;
-							break;
-						default:
-							doorZMultiplier = 0;
-							break;
-					}
+					doorXMultiplier = switch (tryGet(propertiesPartsObject, "door_offset_x").toUpperCase(Locale.ENGLISH)) {
+						case "LEFT", "LEFT_NEGATIVE", "RIGHT", "RIGHT_NEGATIVE" -> -1;
+						default -> 0;
+					};
+					doorZMultiplier = switch (tryGet(propertiesPartsObject, "door_offset_z").toUpperCase(Locale.ENGLISH)) {
+						case "LEFT_NEGATIVE", "RIGHT_NEGATIVE" -> -doorMax;
+						case "LEFT", "RIGHT" -> doorMax;
+						default -> 0;
+					};
 				}
 				partsObject.addProperty("doorXMultiplier", doorXMultiplier);
 				partsObject.addProperty("doorZMultiplier", (isObj ? -1 : 1) * doorZMultiplier);

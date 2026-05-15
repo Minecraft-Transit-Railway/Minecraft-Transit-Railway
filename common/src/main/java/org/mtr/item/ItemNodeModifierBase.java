@@ -9,6 +9,7 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
 import org.mtr.core.data.Rail;
@@ -24,7 +25,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.registry.DataComponentTypes;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
@@ -102,7 +102,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 						serverPlayerEntity.sendMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
 					}
 				} else {
-					consumer.accept(rails.get(0));
+					consumer.accept(rails.getFirst());
 				}
 			},
 			RailsResponse.class
@@ -110,6 +110,7 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 	}
 
 	public static TransportMode getTransportMode(ItemStack itemStack) {
-		return EnumHelper.valueOf(TransportMode.TRAIN, itemStack.get(DataComponentTypes.TRANSPORT_MODE.get()));
+		final String itemString = itemStack.get(DataComponentTypes.TRANSPORT_MODE.get());
+		return EnumHelper.valueOf(TransportMode.TRAIN, itemString == null ? "" : itemString);
 	}
 }

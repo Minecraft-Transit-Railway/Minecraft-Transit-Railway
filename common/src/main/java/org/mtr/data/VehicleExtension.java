@@ -1,5 +1,6 @@
 package org.mtr.data;
 
+import lombok.Getter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -12,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockTrainAnnouncer;
 import org.mtr.block.BlockTrainRedstoneSensor;
 import org.mtr.block.BlockTrainSensorBase;
@@ -39,11 +41,10 @@ import org.mtr.registry.RegistryClient;
 import org.mtr.render.DrivingGuiRenderer;
 import org.mtr.resource.VehicleResource;
 
-import javax.annotation.Nullable;
-
 public class VehicleExtension extends Vehicle implements Utilities {
 
 	private double oldSpeed;
+	@Getter
 	private int speedLimitKilometersPerHour;
 	@Nullable
 	private DoubleObjectImmutablePair<DoubleDoubleImmutablePair> platformStoppingDetails;
@@ -301,10 +302,6 @@ public class VehicleExtension extends Vehicle implements Utilities {
 
 	public void playDoorSound(VehicleResource vehicleResource, int carNumber, Vector vehiclePosition) {
 		persistentVehicleData.playDoorSound(vehicleResource, carNumber, BlockPos.ofFloored(vehiclePosition.x(), vehiclePosition.y(), vehiclePosition.z()));
-	}
-
-	public int getSpeedLimitKilometersPerHour() {
-		return speedLimitKilometersPerHour;
 	}
 
 	public double getSpeed() {

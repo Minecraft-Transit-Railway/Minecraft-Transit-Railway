@@ -18,8 +18,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-
 public class BlockRubbishBin extends Block {
 
 	public static final int MAX_LEVEL = 15;
@@ -34,13 +32,11 @@ public class BlockRubbishBin extends Block {
 		return getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing());
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(2, 0, 0, 14, 16, 4.5, state.get(Properties.HORIZONTAL_FACING));
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> world.setBlockState(pos, state.with(FILLED, 0)), () -> {

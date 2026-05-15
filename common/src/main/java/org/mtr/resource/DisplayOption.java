@@ -1,9 +1,9 @@
 package org.mtr.resource;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public enum DisplayOption {

@@ -5,10 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.data.IGui;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 
 @Getter

@@ -3,6 +3,7 @@ package org.mtr.resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
@@ -28,7 +29,6 @@ import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -545,13 +545,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema {
 		}
 	}
 
-	private static class DisplayPartDetails {
-
-		private final ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts;
-		private final double x;
-		private final double y;
-		private final double z;
-		private final boolean flipped;
+	private record DisplayPartDetails(ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts, double x, double y, double z, boolean flipped) {
 
 		private DisplayPartDetails(ObjectArrayList<ObjectArrayList<ModelDisplayPart>> modelDisplayParts, double x, double y, double z, boolean flipped) {
 			this.modelDisplayParts = modelDisplayParts;

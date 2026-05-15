@@ -1,5 +1,6 @@
 package org.mtr.block;
 
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -18,12 +19,12 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.packet.PacketOpenPIDSConfigScreen;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -42,7 +43,6 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 		this.getBlockPosWithData = getBlockPosWithData;
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -66,9 +66,11 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 		public final BiPredicate<World, BlockPos> canStoreData;
 		public final BiFunction<World, BlockPos, BlockPos> getBlockPosWithData;
 
-		private final String[] messages;
+		private final @Nullable String[] messages;
 		private final boolean[] hideArrivalArray;
+		@Getter
 		private final LongAVLTreeSet platformIds = new LongAVLTreeSet();
+		@Getter
 		private int displayPage;
 		private static final String KEY_MESSAGE = "message";
 		private static final String KEY_HIDE_ARRIVAL = "hide_arrival";
@@ -120,14 +122,6 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 			this.platformIds.addAll(platformIds);
 			this.displayPage = displayPage;
 			markDirty();
-		}
-
-		public int getDisplayPage() {
-			return displayPage;
-		}
-
-		public LongAVLTreeSet getPlatformIds() {
-			return platformIds;
 		}
 
 		public String getMessage(int index) {

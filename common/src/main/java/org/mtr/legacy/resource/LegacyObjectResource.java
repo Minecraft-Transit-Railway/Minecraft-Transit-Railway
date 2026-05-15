@@ -1,11 +1,11 @@
 package org.mtr.legacy.resource;
 
-import org.mtr.libraries.com.google.gson.JsonArray;
-import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.generated.resource.ObjectResourceSchema;
+import org.mtr.libraries.com.google.gson.JsonArray;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.resource.ObjectResource;
 import org.mtr.resource.ResourceProvider;
 

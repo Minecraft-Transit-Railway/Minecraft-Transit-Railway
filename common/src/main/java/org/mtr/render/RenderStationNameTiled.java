@@ -6,6 +6,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockStationNameBase;
 import org.mtr.block.BlockStationNameEntrance;
 import org.mtr.block.IBlock;
@@ -13,8 +14,6 @@ import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.IDrawing;
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
-
-import javax.annotation.Nullable;
 
 public class RenderStationNameTiled<T extends BlockStationNameBase.BlockEntityBase> extends RenderStationNameBase<T> {
 

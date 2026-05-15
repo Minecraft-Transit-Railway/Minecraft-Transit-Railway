@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
 import org.mtr.core.data.Position;
@@ -25,13 +26,13 @@ import org.mtr.packet.PacketDeleteData;
 import org.mtr.packet.PacketUpdateData;
 import org.mtr.packet.PacketUpdateLastRailStyles;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
 	private final boolean isOneWay;
+	@Nullable
 	private final RailType railType;
 
 	public ItemRailModifier(Item.Settings settings) {

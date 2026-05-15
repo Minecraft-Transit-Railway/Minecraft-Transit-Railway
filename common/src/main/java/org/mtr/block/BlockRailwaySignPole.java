@@ -15,8 +15,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nonnull;
-
 public class BlockRailwaySignPole extends BlockPoleCheckBase {
 
 	public static final IntProperty TYPE = IntProperty.of("type", 0, 3);
@@ -25,7 +23,6 @@ public class BlockRailwaySignPole extends BlockPoleCheckBase {
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);

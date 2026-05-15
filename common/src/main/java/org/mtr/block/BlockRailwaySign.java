@@ -27,14 +27,13 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +44,6 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 	public final int length;
 	public final boolean isOdd;
 
-	public static final float SMALL_SIGN_PERCENTAGE = 0.75F;
 	// Legacy sign IDs in MTR 3.x.x. In MTR 4.x.x they are migrated to use lower-case.
 	private static final String[] LEGACY_SIGNS = {"ARROW_LEFT", "ARROW_RIGHT", "ARROW_UP", "ARROW_DOWN", "ARROW_UP_LEFT", "ARROW_UP_RIGHT", "ARROW_DOWN_LEFT", "ARROW_DOWN_RIGHT", "ARROW_TURN_BACK_LEFT", "ARROW_TURN_BACK_RIGHT", "EXIT_1", "EXIT_2", "EXIT_3", "ESCALATOR", "ESCALATOR_FLIPPED", "STAIRS_UP", "STAIRS_UP_FLIPPED", "STAIRS_DOWN_FLIPPED", "STAIRS_DOWN", "LIFT_1", "LIFT_2", "WHEELCHAIR", "TOILET", "FEMALE", "MALE", "TRAIN", "TRAIN_OLD", "AIRPORT_EXPRESS", "LIGHT_RAIL_1", "LIGHT_RAIL_2", "LIGHT_RAIL_3", "LIGHT_RAIL_4", "XRL_1", "XRL_2", "SP1900", "YELLOW_HEAD_1", "YELLOW_HEAD_2", "BOAT", "CABLE_CAR", "AIRPLANE", "AIRPLANE_LEFT", "AIRPLANE_RIGHT", "AIRPLANE_UP_LEFT", "AIRPLANE_UP_RIGHT", "CROSS", "LOGO", "EXIT_LETTER", "EXIT_LETTER_FLIPPED", "ESCALATOR_TO_CONCOURSE_UP", "ESCALATOR_TO_CONCOURSE_UP_FLIPPED", "ESCALATOR_TO_CONCOURSE_DOWN", "ESCALATOR_TO_CONCOURSE_DOWN_FLIPPED", "PLATFORM", "PLATFORM_FLIPPED", "LINE", "LINE_FLIPPED", "STATION", "STATION_FLIPPED", "LIFT_1_TEXT", "LIFT_1_TEXT_FLIPPED", "LIFT_2_TEXT", "LIFT_2_TEXT_FLIPPED", "TOILETS", "TOILETS_FLIPPED", "FEMALE_TOILETS", "FEMALE_TOILETS_FLIPPED", "MALE_TOILETS", "MALE_TOILETS_FLIPPED", "WHEELCHAIR_TOILETS", "WHEELCHAIR_TOILETS_FLIPPED", "TRAINS", "TRAINS_FLIPPED", "TRAINS_OLD", "TRAINS_OLD_FLIPPED", "AIRPORT_EXPRESS_TRAINS", "AIRPORT_EXPRESS_TRAINS_FLIPPED", "AIRPORT_EXPRESS_TRAINS_CITY", "AIRPORT_EXPRESS_TRAINS_CITY_FLIPPED", "IN_TOWN_CHECK_IN", "IN_TOWN_CHECK_IN_FLIPPED", "CHECK_IN_PASSENGERS", "CHECK_IN_PASSENGERS_FLIPPED", "LIGHT_RAIL_1_TRAINS", "LIGHT_RAIL_1_TRAINS_FLIPPED", "LIGHT_RAIL_2_TRAINS", "LIGHT_RAIL_2_TRAINS_FLIPPED", "LIGHT_RAIL_3_TRAINS", "LIGHT_RAIL_3_TRAINS_FLIPPED", "LIGHT_RAIL_4_TRAINS", "LIGHT_RAIL_4_TRAINS_FLIPPED", "XRL_1_TRAINS", "XRL_1_TRAINS_FLIPPED", "XRL_2_TRAINS", "XRL_2_TRAINS_FLIPPED", "SP1900_TRAINS", "SP1900_TRAINS_FLIPPED", "YELLOW_HEAD_1_TRAINS", "YELLOW_HEAD_1_TRAINS_FLIPPED", "YELLOW_HEAD_2_TRAINS", "YELLOW_HEAD_2_TRAINS_FLIPPED", "BOAT_BOATS", "BOAT_BOATS_FLIPPED", "CABLE_CAR_CABLE_CARS", "CABLE_CAR_CABLE_CARS_FLIPPED", "AIRPORT", "AIRPORT_FLIPPED", "AIRPORT_LEFT", "AIRPORT_RIGHT", "AIRPORT_UP_LEFT", "AIRPORT_UP_RIGHT", "AIRPORT_ARRIVALS", "AIRPORT_ARRIVALS_FLIPPED", "AIRPORT_DEPARTURES", "AIRPORT_DEPARTURES_FLIPPED", "AIRPORT_TRANSFER", "AIRPORT_TRANSFER_FLIPPED", "BAGGAGE_CLAIM", "BAGGAGE_CLAIM_FLIPPED", "CUSTOMER_SERVICE_CENTRE", "CUSTOMER_SERVICE_CENTRE_FLIPPED", "TICKETS", "TICKETS_FLIPPED", "NO_ENTRY", "NO_ENTRY_FLIPPED", "EMERGENCY_EXIT", "EMERGENCY_EXIT_FLIPPED", "WIFI", "WIFI_FLIPPED", "LOGO_TEXT", "LOGO_TEXT_FLIPPED"};
 
@@ -55,7 +53,6 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		this.isOdd = isOdd;
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -70,7 +67,6 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		});
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -82,6 +78,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		}
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction facing = ctx.getHorizontalPlayerFacing();
@@ -116,7 +113,6 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -132,10 +128,11 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 
 	@Override
 	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText((Object) length).formatted(Formatting.GRAY));
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).formatted(Formatting.GRAY));
 		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().formatted(Formatting.GRAY));
 	}
 
+	@Nullable
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		if (this == getRailwaySignMiddle()) {
@@ -163,6 +160,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		return (length - (4 - getXStart() / 4)) / 2;
 	}
 
+	@Nullable
 	private BlockPos findEndWithDirection(World world, BlockPos startPos, Direction direction, boolean allowOpposite) {
 		int i = 0;
 		while (true) {
@@ -195,7 +193,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 		@Getter
 		private final LongAVLTreeSet[] selectedIds;
 		@Getter
-		private final String[] signIds;
+		private final @Nullable String[] signIds;
 		private static final String KEY_SELECTED_IDS = "selected_ids";
 		private static final String KEY_SIGN_LENGTH = "sign_length";
 
@@ -231,7 +229,7 @@ public class BlockRailwaySign extends Block implements IBlock, BlockEntityProvid
 			}
 		}
 
-		public void setData(LongAVLTreeSet[] selectedIds, String[] signIds) {
+		public void setData(LongAVLTreeSet[] selectedIds, @Nullable String[] signIds) {
 			for (int i = 0; i < this.signIds.length; i++) {
 				this.selectedIds[i].clear();
 				this.selectedIds[i].addAll(selectedIds[i]);

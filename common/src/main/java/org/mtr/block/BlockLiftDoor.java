@@ -8,21 +8,17 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockLiftDoor extends BlockPSDAPGDoorBase {
 
 	public BlockLiftDoor(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new LiftDoorBlockEntity(blockPos, blockState);
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.LIFT_DOOR_1.get();

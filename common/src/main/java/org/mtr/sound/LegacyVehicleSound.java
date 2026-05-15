@@ -3,15 +3,16 @@ package org.mtr.sound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.core.data.Siding;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 
 public class LegacyVehicleSound extends VehicleSoundBase {
 
+	@Nullable
 	private final String legacySpeedSoundBaseResource;
 	private final int legacySpeedSoundCount;
 	private final boolean legacyUseAccelerationSoundsWhenCoasting;

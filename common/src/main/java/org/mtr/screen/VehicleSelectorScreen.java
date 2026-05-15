@@ -9,6 +9,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.Siding;
@@ -26,7 +27,6 @@ import org.mtr.widget.BetterTextFieldWidget;
 import org.mtr.widget.ListItem;
 import org.mtr.widget.ScrollableListWidget;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.concurrent.CompletableFuture;

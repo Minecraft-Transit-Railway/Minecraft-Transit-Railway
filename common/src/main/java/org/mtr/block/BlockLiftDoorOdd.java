@@ -17,15 +17,12 @@ import net.minecraft.world.tick.ScheduledTickView;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHorizontalBlock {
 
 	public BlockLiftDoorOdd(AbstractBlock.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		return TripleHorizontalBlock.getStateForNeighborUpdate(state, direction, neighborState.isOf(this), super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random));
@@ -37,13 +34,11 @@ public class BlockLiftDoorOdd extends BlockPSDAPGDoorBase implements TripleHoriz
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new LiftDoorOddBlockEntity(blockPos, blockState);
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.LIFT_DOOR_ODD_1.get();

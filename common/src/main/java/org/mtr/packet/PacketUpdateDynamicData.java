@@ -18,7 +18,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.render.RenderVehicles;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
@@ -82,7 +81,6 @@ public final class PacketUpdateDynamicData extends PacketRequestResponseBase {
 		};
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.UPDATE_DATA;

@@ -1,17 +1,19 @@
 import {Component, inject, ViewChild} from "@angular/core";
+import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatTooltipModule} from "@angular/material/tooltip";
-import {DataService} from "../../service/data.service";
-import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {MatTable, MatTableModule} from "@angular/material/table";
-import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
 import {MatIconModule} from "@angular/material/icon";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+
+import {DataService} from "../../service/data.service";
+import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
+import {ModelPropertiesPartWrapperDTO} from "../../entity/generated/modelPropertiesPartWrapper";
 import {PositionDefinitionDTO} from "../../entity/generated/positionDefinition";
-import {EditVehicleModelPartDialog} from "../edit-vehicle-model-part/edit-vehicle-model-part.dialog";
-import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
+import {EditVehicleModelPartDialog} from "../edit-vehicle-model-part/edit-vehicle-model-part.dialog";
 
 const MAIN_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "positionDefinition", title: "Model Part", formatData: modelPropertiesPart => modelPropertiesPart.positionDefinition.name},

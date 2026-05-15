@@ -10,8 +10,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 
 	private static final int MAX_ARRIVALS = 16;
@@ -20,13 +18,11 @@ public class BlockPIDSVertical1 extends BlockPIDSVerticalBase {
 		super(settings, MAX_ARRIVALS);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new PIDSVertical1BlockEntity(blockPos, blockState);

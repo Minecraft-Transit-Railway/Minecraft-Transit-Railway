@@ -23,8 +23,6 @@ import net.minecraft.world.tick.OrderedTick;
 import org.mtr.data.TicketSystem;
 import org.mtr.registry.SoundEvents;
 
-import javax.annotation.Nonnull;
-
 public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 
 	public final boolean hasLight;
@@ -40,19 +38,18 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 		this.canExit = canExit;
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos blockPos, PlayerEntity player, BlockHitResult hit) {
 		if (!world.isClient() && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
 			final BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 			TicketSystem.passThrough(
-					world, blockPosCopy, player,
-					canEnter, canExit,
-					SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY.get(),
-					SoundEvents.TICKET_PROCESSOR_EXIT.get(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.get(),
-					SoundEvents.TICKET_PROCESSOR_FAIL.get(),
-					true,
-					open -> world.setBlockState(blockPosCopy, state.with(LIGHTS, open == TicketSystem.EnumTicketBarrierOpen.CLOSED ? EnumTicketProcessorLights.RED : EnumTicketProcessorLights.GREEN))
+				world, blockPosCopy, player,
+				canEnter, canExit,
+				SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundEvents.TICKET_PROCESSOR_ENTRY_CONCESSIONARY.get(),
+				SoundEvents.TICKET_PROCESSOR_EXIT.get(), SoundEvents.TICKET_PROCESSOR_EXIT_CONCESSIONARY.get(),
+				SoundEvents.TICKET_PROCESSOR_FAIL.get(),
+				true,
+				open -> world.setBlockState(blockPosCopy, state.with(LIGHTS, open == TicketSystem.EnumTicketBarrierOpen.CLOSED ? EnumTicketProcessorLights.RED : EnumTicketProcessorLights.GREEN))
 			);
 			world.getBlockTickScheduler().scheduleTick(new OrderedTick<>(this, blockPosCopy, 20, 0));
 		}
@@ -66,7 +63,6 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
@@ -93,7 +89,6 @@ public class BlockTicketProcessor extends BlockDirectionalDoubleBlockBase {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

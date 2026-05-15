@@ -1,5 +1,6 @@
 package org.mtr.client;
 
+import lombok.Getter;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.mtr.render.PositionAndRotation;
@@ -12,6 +13,7 @@ public class GangwayMovementPositions {
 	private double xMinClamped;
 	private double xMaxClamped;
 	private double y;
+	@Getter
 	private double z;
 	private final PositionAndRotation positionAndRotation;
 	private final boolean getMax;
@@ -61,10 +63,6 @@ public class GangwayMovementPositions {
 
 	public double getX(double percentageX) {
 		return (xMaxClamped - xMinClamped) * percentageX + xMinClamped;
-	}
-
-	public double getZ() {
-		return z;
 	}
 
 	public Vec3d getMinWorldPosition() {

@@ -8,10 +8,10 @@ import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 
@@ -21,6 +21,7 @@ public class BetterSliderWidget extends SliderWidget {
 	private final IntFunction<String> setMessage;
 	private final String label;
 	private final int fixedWidth;
+	@Nullable
 	private final IntConsumer shiftClickAction;
 
 	private static final int SLIDER_WIDTH = 4;

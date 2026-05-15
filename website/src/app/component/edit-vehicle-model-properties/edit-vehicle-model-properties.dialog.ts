@@ -1,14 +1,16 @@
 import {Component, inject} from "@angular/core";
+import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
-import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+
 import {DataService} from "../../service/data.service";
 import {FormatStringListPipe} from "../../pipe/formatStringListPipe";
 import {FormatFileNamePipe} from "../../pipe/formatFileNamePipe";
 import {AutocompleteComponent} from "../autocomplete/autocomplete.component";
-import {MatCheckboxModule} from "@angular/material/checkbox";
 import {VehicleModelWrapperDTO} from "../../entity/generated/vehicleModelWrapper";
 import {CREATE_MODEL} from "../edit/edit.component";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";

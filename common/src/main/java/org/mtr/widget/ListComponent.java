@@ -10,6 +10,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.data.*;
 import org.mtr.core.tool.Utilities;
@@ -27,7 +28,6 @@ import org.mtr.tool.DataHelper;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -164,6 +164,7 @@ public final class ListComponent<T> extends UIComponent {
 		return dataList.stream().anyMatch(ListItem::isExpanded);
 	}
 
+	@Nullable
 	public T getHoverData() {
 		return hoverItem == null ? null : hoverItem.data;
 	}
@@ -218,7 +219,7 @@ public final class ListComponent<T> extends UIComponent {
 				colors = savedRail.area == null ? new IntArrayList() : IntArrayList.of(savedRail.area.getColor());
 				final ObjectArrayList<String> vehicleNames = new ObjectArrayList<>();
 				for (final VehicleCar vehicleCar : siding.getVehicleCars()) {
-					final String[] vehicleName = {null};
+					final @Nullable String[] vehicleName = {null};
 					// TODO use vehicle family instead
 					CustomResourceLoader.getVehicleById(siding.getTransportMode(), vehicleCar.getVehicleId(), vehicleResourceDetails -> vehicleName[0] = vehicleResourceDetails.left().getName().getString());
 					if (vehicleName[0] != null && !vehicleNames.contains(vehicleName[0])) {

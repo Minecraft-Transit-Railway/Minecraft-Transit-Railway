@@ -1,6 +1,7 @@
 package org.mtr.resource;
 
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.RailResourceSchema;
@@ -9,14 +10,13 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.NewOptimizedModel;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public final class RailResource extends RailResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
 	private final ModelLoaderBase modelLoaderBase;
-	private final Supplier<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> modelSupplier;
+	private final Supplier<@Nullable Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> modelSupplier;
 
 	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);

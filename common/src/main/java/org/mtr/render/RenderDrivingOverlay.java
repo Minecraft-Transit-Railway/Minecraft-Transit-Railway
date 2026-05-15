@@ -8,6 +8,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.Window;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.data.IGui;
 
@@ -16,9 +17,13 @@ public class RenderDrivingOverlay implements IGui {
 	private static int accelerationSign;
 	private static float doorValue;
 	private static float speed;
+	@Nullable
 	private static String thisStation;
+	@Nullable
 	private static String nextStation;
+	@Nullable
 	private static String thisRoute;
+	@Nullable
 	private static String lastStation;
 	private static int cooldown;
 

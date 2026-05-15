@@ -1,6 +1,5 @@
 package org.mtr.client;
 
-
 public enum DoorAnimationType {
 
 	STANDARD(0.5F),
@@ -131,9 +130,10 @@ public enum DoorAnimationType {
 						return smoothEnds(0, 1, 0, 0.1F, value);
 					}
 				}
-			default:
-				return smoothEnds(0, doorMax, 0, duration, value);
+				break;
 		}
+
+		return smoothEnds(0, doorMax, 0, duration, value);
 	}
 
 	private static float smoothEnds(float startValue, float endValue, float startTime, float endTime, float time) {

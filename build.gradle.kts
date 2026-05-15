@@ -61,6 +61,7 @@ subprojects {
 		implementation("org.mtr:transport-simulation-core:+")
 		implementation("com.logisticscraft:occlusionculling:+")
 		implementation("gg.essential:elementa:$elementaVersion")
+		implementation("org.jspecify:jspecify:+")
 	}
 
 	java {
@@ -69,7 +70,21 @@ subprojects {
 		targetCompatibility = JavaVersion.VERSION_21
 	}
 
+	tasks.javadoc {
+		// Suppress "missing" doclint only (generated classes don't need javadoc)
+		(options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
+	}
+
 	tasks.withType<JavaCompile>().configureEach {
+		options.compilerArgs.addAll(
+			listOf(
+				"-Xlint:all",
+				"-Xlint:-serial",     // No Java serialization
+				"-Xlint:-processing", // Lombok annotation processor noise
+				"-Xlint:-this-escape" // Safe: schema constructor pattern
+			)
+		)
+
 		options.release.set(21)
 	}
 

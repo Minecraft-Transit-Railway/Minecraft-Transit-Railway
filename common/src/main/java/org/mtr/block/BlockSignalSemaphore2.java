@@ -6,15 +6,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockSignalSemaphore2 extends BlockSignalSemaphoreBase {
 
 	public BlockSignalSemaphore2(AbstractBlock.Settings blockSettings) {
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new SignalSemaphore2BlockEntity(blockPos, blockState);

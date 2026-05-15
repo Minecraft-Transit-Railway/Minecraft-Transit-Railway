@@ -10,8 +10,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class BlockStationNameWallBase extends BlockStationNameBase implements BlockEntityProvider {
 
@@ -19,6 +18,7 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase impl
 		super(blockSettings);
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
@@ -29,13 +29,11 @@ public abstract class BlockStationNameWallBase extends BlockStationNameBase impl
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();

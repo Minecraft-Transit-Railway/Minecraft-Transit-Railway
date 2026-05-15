@@ -2,12 +2,11 @@ package org.mtr.render;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.Route;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.tool.GuiHelper;
-
-import javax.annotation.Nullable;
 
 public final class SpecialSignRouteRenderer extends SpecialSignRouteStationExitRendererBase<Route> {
 
@@ -19,21 +18,21 @@ public final class SpecialSignRouteRenderer extends SpecialSignRouteStationExitR
 	@Override
 	protected void renderOverlayText(MatrixStack matrixStack, String overlayText, Identifier font, float x, float y, float zOffset, float width, float height, float padding, boolean flipText) {
 		FontRenderHelper.render(matrixStack, overlayText, FontRenderOptions.builder()
-				.font(font)
-				.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
-				.verticalPositioning(FontRenderOptions.Alignment.CENTER)
-				.horizontalSpace(width - padding * 2)
-				.verticalSpace(height - padding * 2)
-				.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
-				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.offsetX(x)
-				.offsetY(y)
-				.offsetZ(-zOffset * 2)
-				.cjkScaling(2)
-				.maxFontSize(height / 4)
-				.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-				.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-				.build());
+			.font(font)
+			.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
+			.verticalPositioning(FontRenderOptions.Alignment.CENTER)
+			.horizontalSpace(width - padding * 2)
+			.verticalSpace(height - padding * 2)
+			.horizontalTextAlignment(flipText ? FontRenderOptions.Alignment.END : FontRenderOptions.Alignment.START)
+			.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+			.offsetX(x)
+			.offsetY(y)
+			.offsetZ(-zOffset * 2)
+			.cjkScaling(2)
+			.maxFontSize(height / 4)
+			.lineBreak(FontRenderOptions.LineBreak.SPLIT)
+			.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+			.build());
 	}
 
 	@Override

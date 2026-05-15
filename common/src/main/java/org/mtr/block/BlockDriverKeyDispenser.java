@@ -1,5 +1,6 @@
 package org.mtr.block;
 
+import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
@@ -25,6 +26,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.tick.OrderedTick;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.data.Depot;
 import org.mtr.core.operation.NearbyAreasRequest;
@@ -35,9 +37,6 @@ import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.BlockEntityTypes;
 import org.mtr.registry.Items;
 import org.mtr.registry.Registry;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class BlockDriverKeyDispenser extends BlockWaterloggable implements BlockEntityProvider {
 
@@ -58,7 +57,6 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 		});
 	}
 
-	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		return super.getPlacementState(itemPlacementContext).with(Properties.HORIZONTAL_FACING, itemPlacementContext.getHorizontalPlayerFacing());
@@ -90,7 +88,6 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 		builder.add(Properties.HORIZONTAL_FACING, TRIGGERED);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new DriverKeyDispenserBlockEntity(blockPos, blockState);
@@ -120,6 +117,7 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 		private boolean dispenseBasicDriverKey = false;
 		private boolean dispenseAdvancedDriverKey = false;
 		private boolean dispenseGuardKey = false;
+		@Getter
 		private long timeout = Depot.MILLIS_PER_HOUR;
 
 		private static final String KEY_DISPENSE_BASIC_DRIVER_KEY = "dispense_basic_driver_key";
@@ -165,10 +163,6 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Block
 
 		public boolean getDispenseGuardKey() {
 			return dispenseGuardKey;
-		}
-
-		public long getTimeout() {
-			return timeout;
 		}
 
 		private void dispense(Direction direction) {

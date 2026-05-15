@@ -7,6 +7,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.Keys;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
@@ -19,7 +20,6 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.packet.PacketOpenDashboardScreen;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 
 public class ItemDashboard extends Item {

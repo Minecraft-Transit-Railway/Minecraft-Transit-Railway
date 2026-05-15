@@ -10,10 +10,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.registry.BlockEntityTypes;
-
-import javax.annotation.Nonnull;
 
 public class BlockStationNameTallWall extends BlockStationNameTallBase {
 
@@ -21,13 +20,13 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final IntIntImmutablePair bounds = getBounds(state);
 		return IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 0, 14, bounds.rightInt(), 0.5, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction blockSide = ctx.getSide();
@@ -35,7 +34,6 @@ public class BlockStationNameTallWall extends BlockStationNameTallBase {
 		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.HORIZONTAL_FACING, facing).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new StationNameTallWallBlockEntity(blockPos, blockState);

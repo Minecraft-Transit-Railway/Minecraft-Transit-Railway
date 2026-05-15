@@ -13,12 +13,12 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeEffects;
+import org.jspecify.annotations.Nullable;
 import org.mtr.cache.CachedFileResource;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.tool.Drawing;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.file.Path;
 
@@ -64,9 +64,8 @@ public final class MapTileResource extends CachedFileResource {
 		this.chunkZ = chunkZ;
 	}
 
-	@Nullable
 	@Override
-	protected byte[] generate(@Nullable byte[] oldData) {
+	protected byte @Nullable [] generate(byte @Nullable [] oldData) {
 		final ImageConverter imageConverter = new ImageConverter(oldData);
 
 		for (int x = 0; x < MapTileProvider.TILE_SIZE; x++) {
@@ -131,7 +130,7 @@ public final class MapTileResource extends CachedFileResource {
 	}
 
 	@Override
-	protected void dataUpdated(@Nullable byte[] data) {
+	protected void dataUpdated(byte @Nullable [] data) {
 		if (data == null) {
 			this.vertexBuffer = null;
 		} else {
@@ -245,7 +244,7 @@ public final class MapTileResource extends CachedFileResource {
 		private boolean modified = false;
 		private final int[] pixels;
 
-		private ImageConverter(@Nullable byte[] data) {
+		private ImageConverter(byte @Nullable [] data) {
 			pixels = new int[MapTileProvider.TILE_SIZE * MapTileProvider.TILE_SIZE];
 			if (data != null) {
 				int pixelIndex = 0;

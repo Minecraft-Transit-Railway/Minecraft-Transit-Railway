@@ -13,8 +13,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -27,6 +27,7 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 		super(settings, maxArrivals, CAN_STORE_DATA, GET_BLOCK_POS_WITH_DATA);
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction side = ctx.getSide();
@@ -37,7 +38,6 @@ public abstract class BlockArrivalProjectorBase extends BlockPIDSBase {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);

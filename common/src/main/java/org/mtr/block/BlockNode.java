@@ -29,7 +29,6 @@ import org.mtr.packet.ClientPacketHelper;
 import org.mtr.packet.PacketDeleteData;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockNode extends BlockWaterloggable implements Waterloggable {
@@ -49,7 +48,6 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 		this.transportMode = transportMode;
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (world.isClient() && player.isHolding(Items.BRUSH.get())) {
@@ -65,7 +63,6 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 		final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), true);
@@ -84,13 +81,11 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	public final VoxelShape getOutlineShape(BlockState blockState, BlockView world, BlockPos pos, ShapeContext context) {
 		return Block.createCuboidShape(SHAPE_PADDING, getShapeY1(), SHAPE_PADDING, 16 - SHAPE_PADDING, getShapeY2(blockState), 16 - SHAPE_PADDING);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
@@ -135,7 +130,6 @@ public class BlockNode extends BlockWaterloggable implements Waterloggable {
 			this.isStation = isStation;
 		}
 
-		@Nonnull
 		@Override
 		public BlockState getPlacementState(ItemPlacementContext itemPlacementContext) {
 			final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), false);

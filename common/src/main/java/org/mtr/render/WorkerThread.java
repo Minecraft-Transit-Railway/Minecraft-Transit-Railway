@@ -5,6 +5,7 @@ import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 
 import java.util.concurrent.ExecutorService;
@@ -19,15 +20,15 @@ public final class WorkerThread {
 
 	private static final int MAX_OCCLUSION_CHUNK_DISTANCE = 32;
 	private int renderDistance;
-	private OcclusionCullingInstance occlusionCullingInstance;
+	private OcclusionCullingInstance occlusionCullingInstance = new OcclusionCullingInstance(1, new CullingDataProvider());
 	private boolean canStart = true;
 	private int runCooldown;
 
 	public final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueVehicle = new AtomicReference<>();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueLift = new AtomicReference<>();
-	private final AtomicReference<Consumer<OcclusionCullingInstance>> occlusionQueueRail = new AtomicReference<>();
-	private final AtomicReference<Runnable> dynamicTextureQueue = new AtomicReference<>();
+	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueVehicle = new AtomicReference<>();
+	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueLift = new AtomicReference<>();
+	private final AtomicReference<@Nullable Consumer<OcclusionCullingInstance>> occlusionQueueRail = new AtomicReference<>();
+	private final AtomicReference<@Nullable Runnable> dynamicTextureQueue = new AtomicReference<>();
 
 	private static final int COOLDOWN = 100;
 
@@ -98,7 +99,7 @@ public final class WorkerThread {
 		return MinecraftClient.getInstance().isRunning();
 	}
 
-	private static <T> void run(AtomicReference<T> nextTask, Consumer<T> consumer) {
+	private static <T> void run(AtomicReference<@Nullable T> nextTask, Consumer<T> consumer) {
 		try {
 			final T task = nextTask.getAndSet(null);
 			if (task != null) {
@@ -112,6 +113,7 @@ public final class WorkerThread {
 	private static final class CullingDataProvider implements DataProvider {
 
 		private final MinecraftClient minecraftClient = MinecraftClient.getInstance();
+		@Nullable
 		private ClientWorld clientWorld = null;
 
 		@Override

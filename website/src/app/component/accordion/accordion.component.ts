@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, Output, TemplateRef} from "@angular/core";
+import {NgTemplateOutlet} from "@angular/common";
+
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatTooltip} from "@angular/material/tooltip";
-import {NgTemplateOutlet} from "@angular/common";
 
 @Component({
 	selector: "app-accordion",

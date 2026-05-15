@@ -14,7 +14,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import org.mtr.generated.lang.TranslationProvider;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockStationColorPole extends Block {
@@ -26,7 +25,6 @@ public class BlockStationColorPole extends Block {
 		this.showTooltip = showTooltip;
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return getStationPoleShape();

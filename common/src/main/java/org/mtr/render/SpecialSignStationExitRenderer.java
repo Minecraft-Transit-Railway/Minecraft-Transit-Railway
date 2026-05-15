@@ -2,14 +2,13 @@ package org.mtr.render;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.StationExit;
 import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontRenderHelper;
 import org.mtr.font.FontRenderOptions;
 import org.mtr.tool.DataHelper;
 import org.mtr.tool.GuiHelper;
-
-import javax.annotation.Nullable;
 
 public final class SpecialSignStationExitRenderer extends SpecialSignRouteStationExitRendererBase<StationExit> {
 
@@ -51,35 +50,35 @@ public final class SpecialSignStationExitRenderer extends SpecialSignRouteStatio
 		final float textY = y + height / 2;
 
 		FontRenderHelper.render(matrixStack, stationExitNameSplit[0], FontRenderOptions.builder()
-				.font(font)
-				.horizontalPositioning(FontRenderOptions.Alignment.START)
-				.verticalPositioning(FontRenderOptions.Alignment.END)
-				.horizontalSpace(width1 * scale)
-				.verticalSpace(height)
-				.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.maxFontSize(textSize)
-				.offsetX(textX)
-				.offsetY(textY)
-				.offsetZ(-zOffset)
-				.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-				.build()
+			.font(font)
+			.horizontalPositioning(FontRenderOptions.Alignment.START)
+			.verticalPositioning(FontRenderOptions.Alignment.END)
+			.horizontalSpace(width1 * scale)
+			.verticalSpace(height)
+			.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+			.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+			.maxFontSize(textSize)
+			.offsetX(textX)
+			.offsetY(textY)
+			.offsetZ(-zOffset)
+			.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+			.build()
 		);
 
 		FontRenderHelper.render(matrixStack, stationExitNameSplit[1], FontRenderOptions.builder()
-				.font(font)
-				.horizontalPositioning(FontRenderOptions.Alignment.START)
-				.verticalPositioning(FontRenderOptions.Alignment.END)
-				.horizontalSpace(width2 * scale)
-				.verticalSpace(height - textSize * 0.3125F)
-				.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
-				.maxFontSize(textSize / 2)
-				.offsetX(textX + width1 * scale)
-				.offsetY(textY)
-				.offsetZ(-zOffset)
-				.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
-				.build()
+			.font(font)
+			.horizontalPositioning(FontRenderOptions.Alignment.START)
+			.verticalPositioning(FontRenderOptions.Alignment.END)
+			.horizontalSpace(width2 * scale)
+			.verticalSpace(height - textSize * 0.3125F)
+			.horizontalTextAlignment(FontRenderOptions.Alignment.CENTER)
+			.verticalTextAlignment(FontRenderOptions.Alignment.CENTER)
+			.maxFontSize(textSize / 2)
+			.offsetX(textX + width1 * scale)
+			.offsetY(textY)
+			.offsetZ(-zOffset)
+			.textOverflow(FontRenderOptions.TextOverflow.COMPRESS)
+			.build()
 		);
 	}
 }

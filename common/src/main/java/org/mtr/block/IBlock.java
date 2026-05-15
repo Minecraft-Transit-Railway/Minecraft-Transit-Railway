@@ -17,10 +17,9 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public interface IBlock {
@@ -126,10 +125,10 @@ public interface IBlock {
 
 	static <T extends Comparable<T>> T getStatePropertySafe(BlockState state, Property<T> property) {
 		try {
-			return state.contains(property) ? state.get(property) : property.getValues().get(0);
+			return state.contains(property) ? state.get(property) : property.getValues().getFirst();
 		} catch (Exception ignored) {
 		}
-		return property.getValues().get(0);
+		return property.getValues().getFirst();
 	}
 
 	enum DoubleBlockHalf implements StringIdentifiable {
@@ -141,7 +140,6 @@ public interface IBlock {
 			this.name = name;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;
@@ -157,7 +155,6 @@ public interface IBlock {
 			this.name = name;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;
@@ -173,7 +170,6 @@ public interface IBlock {
 			this.name = name;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

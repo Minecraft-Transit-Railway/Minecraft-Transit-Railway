@@ -1,4 +1,8 @@
-@ParametersAreNonnullByDefault
+/**
+ * Block definitions for railways, stations, and infrastructure.
+ * Includes platform blocks, rails, signals, APG doors, PSD systems, and aesthetic components.
+ */
+@NullMarked
 package org.mtr.block;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

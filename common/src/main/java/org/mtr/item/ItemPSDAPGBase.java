@@ -14,14 +14,13 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockPSDTop;
 import org.mtr.block.IBlock;
 import org.mtr.block.TripleHorizontalBlock;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.Blocks;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemPSDAPGBase extends Item implements IBlock {
@@ -35,7 +34,6 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 		this.type = type;
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final int horizontalBlocks = item.isDoor ? type.isOdd ? 3 : 2 : 1;
@@ -159,7 +157,6 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 			this.isDoor = isDoor;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

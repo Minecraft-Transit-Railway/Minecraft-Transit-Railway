@@ -31,9 +31,7 @@ public class LiftStyleSelectorScreen extends DashboardListSelectorScreen {
 		super.close();
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 
-		selectedIds.forEach(index -> {
-			lift.setStyle(allLifts.get((int) index).getId());
-		});
+		selectedIds.forEach(index -> lift.setStyle(allLifts.get((int) index).getId()));
 
 		if (clientPlayerEntity != null) {
 			RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));

@@ -1,5 +1,6 @@
 package org.mtr.block;
 
+import lombok.Getter;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -23,11 +24,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class BlockLiftPanelBase extends Block implements IBlock, TripleHorizontalBlock, BlockEntityProvider {
@@ -41,7 +41,6 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		this.isFlat = isFlat;
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (isOdd) {
@@ -55,6 +54,7 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		}
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getHorizontalPlayerFacing();
@@ -65,7 +65,6 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, isFlat ? 1 : 4, state.get(Properties.HORIZONTAL_FACING));
@@ -99,7 +98,6 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (world.isClient()) {
@@ -116,6 +114,8 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 
 	public abstract static class BlockEntityBase extends BlockEntityExtension {
 
+		@Getter
+		@Nullable
 		private BlockPos trackPosition = null;
 		private static final String KEY_TRACK_FLOOR_POS = "track_floor_pos";
 
@@ -148,11 +148,6 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 				}
 				markDirty();
 			}
-		}
-
-		@Nullable
-		public BlockPos getTrackPosition() {
-			return trackPosition;
 		}
 	}
 }

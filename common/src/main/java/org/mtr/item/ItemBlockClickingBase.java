@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.DataComponentTypes;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class ItemBlockClickingBase extends Item {
@@ -20,7 +19,6 @@ public abstract class ItemBlockClickingBase extends Item {
 		super(settings.maxCount(1));
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (!context.getWorld().isClient()) {

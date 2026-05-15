@@ -12,6 +12,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockLiftTrackBase;
 import org.mtr.block.BlockLiftTrackFloor;
@@ -29,16 +30,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.packet.PacketOpenLiftCustomizationScreen;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class ItemLiftRefresher extends Item {
 
 	public ItemLiftRefresher(Item.Settings settings) {
 		super(settings.maxCount(1));
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		final World world = context.getWorld();
@@ -69,7 +66,7 @@ public class ItemLiftRefresher extends Item {
 			liftFloors.addAll(liftFloors2);
 			final boolean needsReverse = Utilities.getElement(liftFloors, -1).getPosition().getY() < Utilities.getElement(liftFloors, 0).getPosition().getY();
 			sendUpdate((ServerWorld) world, needsReverse ? reverseList(liftFloors) : liftFloors);
-			Registry.sendPacketToClient((ServerPlayerEntity) playerEntity, new PacketOpenLiftCustomizationScreen(MTR.positionToBlockPos(liftFloors.get(0).getPosition())));
+			Registry.sendPacketToClient((ServerPlayerEntity) playerEntity, new PacketOpenLiftCustomizationScreen(MTR.positionToBlockPos(liftFloors.getFirst().getPosition())));
 			return ActionResult.SUCCESS;
 		}
 	}
@@ -85,7 +82,7 @@ public class ItemLiftRefresher extends Item {
 			final ObjectArrayList<LiftFloor> liftFloors = new ObjectArrayList<>();
 			final ObjectArrayList<Vector> liftTrackPositions = new ObjectArrayList<>();
 			if (findPath(world, startBlockPos, null, liftFloors, liftTrackPositions, blacklistedBlockPos, false, true)) {
-				if (liftFloors.size() == 1 && liftFloors.get(0).getPosition().equals(endPosition)) {
+				if (liftFloors.size() == 1 && liftFloors.getFirst().getPosition().equals(endPosition)) {
 					return liftTrackPositions;
 				}
 				blacklistedBlockPos.remove(startBlockPos);
@@ -119,7 +116,7 @@ public class ItemLiftRefresher extends Item {
 
 		liftTrackPositions.add(((BlockLiftTrackBase) block).getCenterPoint(blockPos, blockState));
 		final BlockEntity blockEntity = world.getBlockEntity(blockPos);
-		if (addFirstFloor && blockEntity != null && blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
+		if (addFirstFloor && blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
 			liftFloors.add(new LiftFloor(
 				MTR.blockPosToPosition(blockPos),
 				((BlockLiftTrackFloor.LiftTrackFloorBlockEntity) (blockEntity)).getFloorNumber(),

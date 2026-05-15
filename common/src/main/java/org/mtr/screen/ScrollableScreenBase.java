@@ -10,6 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -19,8 +20,6 @@ import org.mtr.widget.BetterButtonWidget;
 import org.mtr.widget.PopupWidgetBase;
 import org.mtr.widget.ScrollableListWidget;
 import org.mtr.widget.ScrollbarWidget;
-
-import javax.annotation.Nullable;
 
 public abstract class ScrollableScreenBase extends ScreenBase {
 

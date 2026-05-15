@@ -19,8 +19,8 @@ public class BveMotorData5 extends BveMotorDataBase { // 5 for BVE5 and BVE6
 		brakeVolume = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/brakevol.csv")));
 		brakeFrequency = new FloatSplines(BveVehicleSoundConfig.readResource(Identifier.of(baseName + "/brakefreq.csv")));
 		soundCount = Math.max(
-				Math.max(powerVolume.data.size(), powerFrequency.data.size()),
-				Math.max(brakeVolume.data.size(), brakeFrequency.data.size())
+			Math.max(powerVolume.data.size(), powerFrequency.data.size()),
+			Math.max(brakeVolume.data.size(), brakeFrequency.data.size())
 		);
 	}
 
@@ -47,7 +47,7 @@ public class BveMotorData5 extends BveMotorDataBase { // 5 for BVE5 and BVE6
 
 	public static class FloatSplines {
 
-		public List<TreeMap<Float, Float>> data = new ArrayList<>();
+		public final List<TreeMap<Float, Float>> data = new ArrayList<>();
 
 		public FloatSplines(String textContent) {
 			String[] lines = textContent.split("[\\r\\n]+");

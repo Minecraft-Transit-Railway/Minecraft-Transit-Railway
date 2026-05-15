@@ -4,6 +4,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.block.BlockRouteSignBase;
@@ -13,7 +14,7 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 
 	private final BlockPos blockPos;
 	private final LongAVLTreeSet[] selectedIds;
-	private final String[] signIds;
+	private final @Nullable String[] signIds;
 
 	public PacketUpdateRailwaySignConfig(PacketBufferReceiver packetBufferReceiver) {
 		blockPos = BlockPos.fromLong(packetBufferReceiver.readLong());
@@ -37,7 +38,7 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 		}
 	}
 
-	public PacketUpdateRailwaySignConfig(BlockPos blockPos, LongAVLTreeSet[] selectedIds, String[] signIds) {
+	public PacketUpdateRailwaySignConfig(BlockPos blockPos, LongAVLTreeSet[] selectedIds, @Nullable String[] signIds) {
 		this.blockPos = blockPos;
 		this.selectedIds = selectedIds;
 		this.signIds = signIds;

@@ -1,7 +1,8 @@
 import {Component, Input} from "@angular/core";
+import {FormGroup, ReactiveFormsModule} from "@angular/forms";
+
 import {MatInputModule} from "@angular/material/input";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {FormGroup, ReactiveFormsModule} from "@angular/forms";
 
 @Component({
 	selector: "app-autocomplete",

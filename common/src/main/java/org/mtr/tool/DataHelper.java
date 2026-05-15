@@ -4,6 +4,10 @@ import org.mtr.cache.GenericStringCache;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.generated.lang.TranslationProvider;
 
+/**
+ * String and data transformation utilities for UI display.
+ * Handles name fallbacks (untitled placeholders), station exit name parsing with caching.
+ */
 public final class DataHelper {
 
 	private static final GenericStringCache<String[]> STATION_EXIT_NAME_SPLIT_CACHE = new GenericStringCache<>(30000, false);

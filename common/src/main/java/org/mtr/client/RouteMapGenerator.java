@@ -6,6 +6,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.core.data.*;
@@ -45,6 +46,7 @@ public class RouteMapGenerator implements IGui {
 		fontSizeSmall = fontSizeBig / 2;
 	}
 
+	@Nullable
 	public static NativeImage generatePixelatedText(String text, int textColor, int maxWidth, double cjkSizeRatio, boolean fullPixel) {
 		try {
 			final int scale = fullPixel ? 1 : PIXEL_SCALE;
@@ -65,6 +67,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateColorStrip(long platformId) {
 		try {
 			final IntArrayList colors = RouteHelper.getRouteStream(platformId, false, (simplifiedRoute, currentStationIndex) -> {
@@ -87,6 +90,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateStationName(String stationName, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -110,6 +114,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateTallStationName(int textColor, String stationName, int stationColor, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -133,6 +138,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateStationNameEntrance(int textColor, String stationName, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -161,6 +167,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateSingleRowStationName(long platformId, float aspectRatio) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -184,6 +191,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateSignText(String text, HorizontalAlignment horizontalAlignment, float paddingScale, int backgroundColor, int textColor) {
 		try {
 			final int height = scale;
@@ -212,6 +220,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateLiftPanel(String text, int textColor) {
 		try {
 			final int width = Math.round(scale * 1.5F);
@@ -231,6 +240,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateExitSignLetter(String exitLetter, String exitNumber, int backgroundColor) {
 		try {
 			final int size = scale / 2;
@@ -256,6 +266,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateRouteSquare(int color, String routeName, HorizontalAlignment horizontalAlignment) {
 		try {
 			final int padding = scale / 32;
@@ -275,6 +286,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateDirectionArrow(long platformId, boolean hasLeft, boolean hasRight, HorizontalAlignment horizontalAlignment, boolean showToString, float paddingScale, float aspectRatio, int backgroundColor, int textColor, int transparentColor) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -304,7 +316,6 @@ public class RouteMapGenerator implements IGui {
 			if (isTerminating) {
 				circleX = (int) horizontalAlignment.getOffset(0, tileSize - width);
 			} else {
-
 
 				final int tilePadding = tileSize / 4;
 				final int leftSize = ((hasLeft ? 1 : 0) + (leftToRight ? 1 : 0)) * (tileSize + tilePadding);
@@ -348,6 +359,7 @@ public class RouteMapGenerator implements IGui {
 		return null;
 	}
 
+	@Nullable
 	public static NativeImage generateRouteMap(long platformId, boolean vertical, boolean flip, float aspectRatio, boolean transparentWhite) {
 		if (aspectRatio <= 0) {
 			return null;
@@ -379,9 +391,9 @@ public class RouteMapGenerator implements IGui {
 						if (stationIndex != currentIndex) {
 							final long stationId = simplifiedRoutePlatforms.get(stationIndex).getStationId();
 							if (stationIndex < currentIndex) {
-								stationsIdsBefore.get(stationsIdsBefore.size() - 1).add(0, stationId);
+								stationsIdsBefore.getLast().add(0, stationId);
 							} else {
-								stationsIdsAfter.get(stationsIdsAfter.size() - 1).add(stationId);
+								stationsIdsAfter.getLast().add(stationId);
 							}
 						}
 					}
@@ -540,7 +552,7 @@ public class RouteMapGenerator implements IGui {
 		bounds[0] = 0;
 
 		final LongArrayList commonStationIds = new LongArrayList();
-		stationsIdLists.get(0).forEach(stationId -> {
+		stationsIdLists.getFirst().forEach(stationId -> {
 			if (stationId != 0 && !commonStationIds.contains(stationId) && stationsIdLists.stream().allMatch(stationsIds -> stationsIds.contains(stationId))) {
 				commonStationIds.add(stationId);
 			}

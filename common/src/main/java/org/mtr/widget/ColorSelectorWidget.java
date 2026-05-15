@@ -5,13 +5,13 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.screen.TextCase;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Locale;
 import java.util.Random;
@@ -26,7 +26,8 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 	private MouseZone hoverMouseZone = MouseZone.NONE;
 	private MouseZone draggingMouseZone = MouseZone.NONE;
 
-	private Color oldColor;
+	private Color oldColor = Color.BLACK;
+	@Nullable
 	private IntConsumer colorCallback;
 
 	private final Runnable onDismiss;

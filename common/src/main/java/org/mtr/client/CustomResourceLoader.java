@@ -3,16 +3,15 @@ package org.mtr.client;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.Keys;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
-import org.mtr.core.tool.Utilities;
 import org.mtr.legacy.resource.CustomResourcesConverter;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.resource.*;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,6 +19,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Vehicle resource loading and registration system.
+ * Handles custom model and sound imports, validation, and runtime registration for vehicles and add-ons.
+ */
 public class CustomResourceLoader {
 
 	private static long TEST_DURATION;
@@ -211,15 +214,6 @@ public class CustomResourceLoader {
 		registerVehicle(vehicleResource, true);
 	}
 
-	public static void getVehicleByIndex(TransportMode transportMode, int index, Consumer<VehicleResource> ifPresent) {
-		if (index >= 0) {
-			final VehicleResource vehicleResource = Utilities.getElement(VEHICLES.get(transportMode), index);
-			if (vehicleResource != null) {
-				ifPresent.accept(vehicleResource);
-			}
-		}
-	}
-
 	public static void getVehicleById(TransportMode transportMode, String vehicleId, Consumer<ObjectBooleanImmutablePair<VehicleResource>> ifPresent) {
 		final ObjectBooleanImmutablePair<VehicleResource> vehicleResourceDetails = VEHICLES_CACHE.get(transportMode).get(vehicleId);
 		if (vehicleResourceDetails != null) {
@@ -271,10 +265,6 @@ public class CustomResourceLoader {
 		if (liftResource != null) {
 			ifPresent.accept(liftResource);
 		}
-	}
-
-	public static void incrementTestDuration(long duration) {
-		TEST_DURATION += duration;
 	}
 
 	public static ObjectArrayList<MinecraftModelResource> getMinecraftModelResources() {

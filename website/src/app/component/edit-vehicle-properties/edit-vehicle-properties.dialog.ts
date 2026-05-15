@@ -1,15 +1,17 @@
 import {Component, inject} from "@angular/core";
+import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
-import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
 import {MatTooltipModule} from "@angular/material/tooltip";
-import {SoundComponent} from "../sound/sound.component";
+
 import {DataService} from "../../service/data.service";
+import {SoundComponent} from "../sound/sound.component";
 import {CREATE_VEHICLE_RESOURCE} from "../edit/edit.component";
 import {VehicleResourceWrapperDTO} from "../../entity/generated/vehicleResourceWrapper";
 

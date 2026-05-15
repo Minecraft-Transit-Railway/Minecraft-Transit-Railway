@@ -10,9 +10,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.registry.BlockEntityTypes;
-
-import javax.annotation.Nonnull;
 
 public class BlockStationNameTallStanding extends BlockStationNameTallBase {
 
@@ -23,7 +22,6 @@ public class BlockStationNameTallStanding extends BlockStationNameTallBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		switch (IBlock.getStatePropertySafe(state, THIRD)) {
@@ -40,12 +38,12 @@ public class BlockStationNameTallStanding extends BlockStationNameTallBase {
 		}
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing()).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new StationNameTallStandingBlockEntity(blockPos, blockState);

@@ -19,15 +19,12 @@ import org.mtr.data.TicketSystem;
 import org.mtr.packet.PacketOpenTicketMachineScreen;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
-
 public class BlockTicketMachine extends BlockDirectionalDoubleBlockBase {
 
 	public BlockTicketMachine(AbstractBlock.Settings settings) {
 		super(settings.luminance(blockState -> 5));
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		if (!world.isClient()) {
@@ -36,7 +33,6 @@ public class BlockTicketMachine extends BlockDirectionalDoubleBlockBase {
 		return ActionResult.SUCCESS;
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);

@@ -14,8 +14,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 
 	public static final EnumProperty<EnumPSDAPGGlassEndSide> TOUCHING_LEFT = EnumProperty.of("touching_left", EnumPSDAPGGlassEndSide.class);
@@ -25,7 +23,6 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		final BlockState superState = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
@@ -39,7 +36,6 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final VoxelShape superShape = super.getOutlineShape(state, world, pos, context);
@@ -97,7 +93,6 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

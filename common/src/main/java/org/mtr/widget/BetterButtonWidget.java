@@ -6,10 +6,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
-
-import javax.annotation.Nullable;
 
 public final class BetterButtonWidget extends ClickableWidgetBase {
 
@@ -44,16 +43,16 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 
 		// Draw background
 		new Drawing(matrixStack, RenderLayer.getGui())
-				.setVerticesWH(getX(), getY(), width, height)
-				.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
-				.draw();
+			.setVerticesWH(getX(), getY(), width, height)
+			.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
+			.draw();
 
 		// Draw icon
 		if (icon != null) {
 			new Drawing(matrixStack, RenderLayer.getGuiTextured(icon))
-					.setVerticesWH(getX() + (width - getContentWidth()) / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
-					.setUv()
-					.draw();
+				.setVerticesWH(getX() + (width - getContentWidth()) / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
+				.setUv()
+				.draw();
 		}
 
 		// Draw text

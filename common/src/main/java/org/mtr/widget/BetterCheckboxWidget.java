@@ -5,11 +5,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
+import org.jspecify.annotations.Nullable;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
-
-import javax.annotation.Nullable;
 
 public final class BetterCheckboxWidget extends ClickableWidgetBase {
 
@@ -46,9 +45,9 @@ public final class BetterCheckboxWidget extends ClickableWidgetBase {
 
 		// Draw background
 		new Drawing(matrixStack, RenderLayer.getGui())
-				.setVerticesWH(getX(), getY(), GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
-				.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
-				.draw();
+			.setVerticesWH(getX(), getY(), GuiHelper.DEFAULT_LINE_SIZE, GuiHelper.DEFAULT_LINE_SIZE)
+			.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
+			.draw();
 
 		// Handle animation
 		guiAnimationIcon.tick();
@@ -56,9 +55,9 @@ public final class BetterCheckboxWidget extends ClickableWidgetBase {
 
 		// Draw icon
 		new Drawing(matrixStack, RenderLayer.getGuiTextured(GuiHelper.CHECK_TEXTURE_ID))
-				.setVerticesWH(getX() + GuiHelper.DEFAULT_PADDING / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE * guiAnimationIcon.getCurrentValue(), GuiHelper.DEFAULT_ICON_SIZE)
-				.setUv(0, 0, guiAnimationIcon.getCurrentValue(), 1)
-				.draw();
+			.setVerticesWH(getX() + GuiHelper.DEFAULT_PADDING / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE * guiAnimationIcon.getCurrentValue(), GuiHelper.DEFAULT_ICON_SIZE)
+			.setUv(0, 0, guiAnimationIcon.getCurrentValue(), 1)
+			.draw();
 
 		// Draw text
 		GuiHelper.drawText(context, text, getX() + GuiHelper.DEFAULT_LINE_SIZE + GuiHelper.DEFAULT_PADDING, getY() + GuiHelper.DEFAULT_PADDING, 0, active ? textColor : GuiHelper.DISABLED_TEXT_COLOR);

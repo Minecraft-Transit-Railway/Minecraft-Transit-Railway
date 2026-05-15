@@ -5,6 +5,7 @@ import kotlin.Pair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.registry.UConverters;
@@ -23,14 +24,14 @@ public final class SignPreviewComponent extends SlotBackgroundComponent {
 
 	private final BlockPos signPos;
 	private final LongAVLTreeSet[] selectedIds;
-	private final String[] signIds;
+	private final @Nullable String[] signIds;
 	private final GuiAnimation guiAnimation = new GuiAnimation();
 
 	private static final int SPRITE_SIZE = 18;
 	private static final int ARROW_OFFSET = 14;
 	private static final int ANIMATION_DURATION = 200;
 
-	public SignPreviewComponent(BlockPos signPos, LongAVLTreeSet[] selectedIds, String[] signIds) {
+	public SignPreviewComponent(BlockPos signPos, LongAVLTreeSet[] selectedIds, @Nullable String[] signIds) {
 		this.signPos = signPos;
 		this.selectedIds = selectedIds;
 		this.signIds = signIds;

@@ -21,8 +21,6 @@ import net.minecraft.world.World;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase implements IBlock, BlockEntityProvider {
 
 	public static final IntProperty ARROW_DIRECTION = IntProperty.of("propagate_property", 0, 3);
@@ -31,7 +29,6 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 		super(settings.luminance(blockState -> 15));
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		final double y = hit.getPos().y;

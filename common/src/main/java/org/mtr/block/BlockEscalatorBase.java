@@ -19,8 +19,6 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.mtr.registry.Items;
 
-import javax.annotation.Nonnull;
-
 public abstract class BlockEscalatorBase extends Block implements IBlock {
 
 	public static final EnumProperty<EnumEscalatorOrientation> ORIENTATION = EnumProperty.of("orientation", EnumEscalatorOrientation.class);
@@ -29,7 +27,6 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 		super(settings.nonOpaque());
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (getSideDirection(state) == direction && !neighborState.isOf(this)) {
@@ -39,13 +36,11 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return super.getOutlineShape(state, world, pos, context);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final EnumEscalatorOrientation orientation = getOrientation(world, pos, state);
@@ -57,7 +52,6 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public Item asItem() {
 		return Items.ESCALATOR.get();
@@ -117,7 +111,6 @@ public abstract class BlockEscalatorBase extends Block implements IBlock {
 			name = nameIn;
 		}
 
-		@Nonnull
 		@Override
 		public String asString() {
 			return name;

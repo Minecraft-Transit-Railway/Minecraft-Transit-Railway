@@ -16,7 +16,6 @@ import net.minecraft.world.BlockView;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
@@ -27,7 +26,6 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 		super(settings, MAX_ARRIVALS);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
@@ -38,7 +36,6 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(1).formatted(Formatting.GRAY));
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new PIDSVerticalSingleArrival1BlockEntity(blockPos, blockState);

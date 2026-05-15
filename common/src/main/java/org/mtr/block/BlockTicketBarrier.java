@@ -23,8 +23,6 @@ import net.minecraft.world.tick.OrderedTick;
 import org.mtr.data.TicketSystem;
 import org.mtr.registry.SoundEvents;
 
-import javax.annotation.Nonnull;
-
 public class BlockTicketBarrier extends Block {
 
 	private final boolean isEntrance;
@@ -49,18 +47,18 @@ public class BlockTicketBarrier extends Block {
 				final BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 				world.setBlockState(blockPosCopy, state.with(OPEN, TicketSystem.EnumTicketBarrierOpen.PENDING));
 				TicketSystem.passThrough(
-						world, blockPosCopy, (PlayerEntity) entity,
-						isEntrance, !isEntrance,
-						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
-						SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
-						null,
-						false,
-						newOpen -> {
-							world.setBlockState(blockPosCopy, state.with(OPEN, newOpen));
-							if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !world.getBlockTickScheduler().isQueued(blockPosCopy, this)) {
-								world.getBlockTickScheduler().scheduleTick(new OrderedTick<>(this, blockPosCopy, 40, 0));
-							}
+					world, blockPosCopy, (PlayerEntity) entity,
+					isEntrance, !isEntrance,
+					SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
+					SoundEvents.TICKET_BARRIER.get(), SoundEvents.TICKET_BARRIER_CONCESSIONARY.get(),
+					null,
+					false,
+					newOpen -> {
+						world.setBlockState(blockPosCopy, state.with(OPEN, newOpen));
+						if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED && !world.getBlockTickScheduler().isQueued(blockPosCopy, this)) {
+							world.getBlockTickScheduler().scheduleTick(new OrderedTick<>(this, blockPosCopy, 40, 0));
 						}
+					}
 				);
 			}
 		}
@@ -76,14 +74,12 @@ public class BlockTicketBarrier extends Block {
 		return getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing()).with(OPEN, TicketSystem.EnumTicketBarrierOpen.CLOSED);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);
 		return IBlock.getVoxelShapeByDirection(12, 0, 0, 16, 15, 16, facing);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING);

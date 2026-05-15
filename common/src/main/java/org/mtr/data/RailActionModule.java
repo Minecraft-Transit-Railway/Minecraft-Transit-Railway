@@ -8,6 +8,10 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.packet.PacketBroadcastRailActions;
 import org.mtr.registry.Registry;
 
+/**
+ * Per-dimension rail action broadcaster and state manager.
+ * Tracks and synchronises player rail interactions (signal changes, route interactions) across the server.
+ */
 public class RailActionModule {
 
 	private final ServerWorld serverWorld;
@@ -18,8 +22,8 @@ public class RailActionModule {
 	}
 
 	public void tick() {
-		if (!railActions.isEmpty() && railActions.get(0).build()) {
-			railActions.remove(0);
+		if (!railActions.isEmpty() && railActions.getFirst().build()) {
+			railActions.removeFirst();
 			broadcastUpdate();
 		}
 	}

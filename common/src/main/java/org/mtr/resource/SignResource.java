@@ -6,6 +6,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.cache.GenericLongCache;
 import org.mtr.client.CustomResourceLoader;
@@ -31,7 +32,6 @@ import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.RouteHelper;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -92,15 +92,15 @@ public final class SignResource extends SignResourceSchema {
 		return CustomResourceTools.colorStringToInt(backgroundColor);
 	}
 
-	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, LongAVLTreeSet[] selectedIds, String[] signIds, float signSize, float zOffset, boolean renderPlaceholder) {
-		final SignResource[] signResources = new SignResource[signIds.length];
+	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, LongAVLTreeSet[] selectedIds, @Nullable String[] signIds, float signSize, float zOffset, boolean renderPlaceholder) {
+		final @Nullable SignResource[] signResources = new SignResource[signIds.length];
 		for (int i = 0; i < signIds.length; i++) {
 			signResources[i] = CustomResourceLoader.getSignById(signIds[i]);
 		}
 		render(matrixStack, vertexConsumerProvider, blockPos, 0, 0, selectedIds, signResources, signSize, zOffset, renderPlaceholder);
 	}
 
-	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, float x, float y, LongAVLTreeSet[] selectedIds, SignResource[] signResources, float signSize, float zOffset, boolean renderPlaceholder) {
+	public static void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, float x, float y, LongAVLTreeSet[] selectedIds, @Nullable SignResource[] signResources, float signSize, float zOffset, boolean renderPlaceholder) {
 		final float signPadding = SMALL_SIGN_PADDING * signSize;
 		boolean renderBackground = false;
 		int backgroundColor = 0;
@@ -298,29 +298,34 @@ public final class SignResource extends SignResourceSchema {
 		return blockPos == null ? null : SIGN_STATION_CACHE.get(blockPos.asLong(), () -> MTRClient.findStation(blockPos));
 	}
 
-	private static float getTextSpace(SignResource[] signResources, int index) {
+	private static float getTextSpace(@Nullable SignResource[] signResources, int index) {
 		final SignResource signResource = signResources[index];
-		final int direction = signResource.flipCustomText ? -1 : 1;
-		final boolean useRawUnits = (signResource.signType == SignType.EXIT || signResource.signType == SignType.ROUTE) && !signResource.small;
-		int checkIndex = index + direction;
-		float space = useRawUnits ? 0 : -SMALL_SIGN_PADDING * (signResource.small ? 1 : 2);
 
-		while (checkIndex >= 0 && checkIndex < signResources.length) {
-			final SignResource checkSignResource = signResources[checkIndex];
-			if (checkSignResource == null) {
-				space++;
-			} else {
-				if (!useRawUnits && checkSignResource.small) {
-					space += SMALL_SIGN_PADDING;
+		if (signResource == null) {
+			return 0;
+		} else {
+			final int direction = signResource.flipCustomText ? -1 : 1;
+			final boolean useRawUnits = (signResource.signType == SignType.EXIT || signResource.signType == SignType.ROUTE) && !signResource.small;
+			int checkIndex = index + direction;
+			float space = useRawUnits ? 0 : -SMALL_SIGN_PADDING * (signResource.small ? 1 : 2);
+
+			while (checkIndex >= 0 && checkIndex < signResources.length) {
+				final SignResource checkSignResource = signResources[checkIndex];
+				if (checkSignResource == null) {
+					space++;
+				} else {
+					if (!useRawUnits && checkSignResource.small) {
+						space += SMALL_SIGN_PADDING;
+					}
+					if (checkSignResource.hasCustomText && checkSignResource.flipCustomText != signResource.flipCustomText) {
+						space = (space - SMALL_SIGN_PADDING) / 2;
+					}
+					break;
 				}
-				if (checkSignResource.hasCustomText && checkSignResource.flipCustomText != signResource.flipCustomText) {
-					space = (space - SMALL_SIGN_PADDING) / 2;
-				}
-				break;
+				checkIndex += direction;
 			}
-			checkIndex += direction;
-		}
 
-		return space;
+			return space;
+		}
 	}
 }

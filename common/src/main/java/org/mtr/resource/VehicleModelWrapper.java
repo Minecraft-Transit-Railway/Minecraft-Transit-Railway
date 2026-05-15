@@ -1,6 +1,7 @@
 package org.mtr.resource;
 
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.ReaderBase;
@@ -9,8 +10,6 @@ import org.mtr.generated.resource.VehicleModelWrapperSchema;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-
-import javax.annotation.Nullable;
 
 public final class VehicleModelWrapper extends VehicleModelWrapperSchema {
 

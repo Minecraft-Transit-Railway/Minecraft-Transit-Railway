@@ -5,6 +5,7 @@ import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -17,7 +18,6 @@ import org.mtr.resource.BlockbenchModel;
 import org.mtr.resource.BlockbenchOutline;
 import org.mtr.resource.GroupTransformations;
 
-import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
 public final class BlockbenchModelLoader extends ModelLoaderBase {

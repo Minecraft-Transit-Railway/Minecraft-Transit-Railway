@@ -4,6 +4,7 @@ import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.utils.ReleasedDynamicTexture;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
@@ -14,7 +15,6 @@ import org.mtr.widget.ColorInputComponent;
 import org.mtr.widget.ScrollPanelComponent;
 import org.mtr.widget.TextInputComponent;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.function.Function;
 
@@ -37,7 +37,7 @@ public abstract class NameColorDataScreenBase<T extends NameColorDataBase> exten
 		ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs,
 		TranslationProvider.TranslationHolder nameLabel,
 		Function<String, String> nameLabelFormatter,
-		@Nullable TranslationProvider.TranslationHolder colorLabel,
+		TranslationProvider.@Nullable TranslationHolder colorLabel,
 		@Nullable ScreenBase previousScreenLegacy
 	) {
 		super(previousScreenLegacy);

@@ -4,7 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Random;
 
 public class BveVehicleSound extends VehicleSoundBase {
@@ -32,17 +33,18 @@ public class BveVehicleSound extends VehicleSoundBase {
 
 		final VehicleLoopingSoundInstance[] soundLoopMotor = new VehicleLoopingSoundInstance[config.config.motor.length];
 		for (int i = 0; i < Math.min(config.config.motor.length, config.motorData.getSoundCount()); i++) {
-			if (config.config.motor[i] != null) {
-				soundLoopMotor[i] = new VehicleLoopingSoundInstance(config.config.motor[i]);
+			final SoundEvent motorSoundEvent = config.config.motor[i];
+			if (motorSoundEvent != null) {
+				soundLoopMotor[i] = new VehicleLoopingSoundInstance(motorSoundEvent);
 			}
 		}
 		vehicleLoopingSoundHolder = new VehicleLoopingSoundHolder(
-				soundLoopMotor,
-				config.config.run[0] == null ? null : new VehicleLoopingSoundInstance(config.config.run[0]),
-				config.config.flange[0] == null ? null : new VehicleLoopingSoundInstance(config.config.flange[0]),
-				config.config.noise == null ? null : new VehicleLoopingSoundInstance(config.config.noise),
-				config.config.shoe == null ? null : new VehicleLoopingSoundInstance(config.config.shoe),
-				config.config.compressorLoop == null ? null : new VehicleLoopingSoundInstance(config.config.compressorLoop)
+			soundLoopMotor,
+			config.config.run[0] == null ? null : new VehicleLoopingSoundInstance(config.config.run[0]),
+			config.config.flange[0] == null ? null : new VehicleLoopingSoundInstance(config.config.flange[0]),
+			config.config.noise == null ? null : new VehicleLoopingSoundInstance(config.config.noise),
+			config.config.shoe == null ? null : new VehicleLoopingSoundInstance(config.config.shoe),
+			config.config.compressorLoop == null ? null : new VehicleLoopingSoundInstance(config.config.compressorLoop)
 		);
 	}
 
@@ -110,8 +112,9 @@ public class BveVehicleSound extends VehicleSoundBase {
 
 		// Motor noise
 		for (int i = 0; i < config.motorData.getSoundCount(); i++) {
-			if (vehicleLoopingSoundHolder.soundLoopMotor[i] != null) {
-				vehicleLoopingSoundHolder.soundLoopMotor[i].setData(config.motorData.getVolume(i, speedKilometersPerHour, motorCurrentOutput) * config.config.motorVolumeMultiply, config.motorData.getPitch(i, speedKilometersPerHour, motorCurrentOutput), blockPos);
+			final VehicleLoopingSoundInstance vehicleLoopingSoundInstance = vehicleLoopingSoundHolder.soundLoopMotor[i];
+			if (vehicleLoopingSoundInstance != null) {
+				vehicleLoopingSoundInstance.setData(config.motorData.getVolume(i, speedKilometersPerHour, motorCurrentOutput) * config.config.motorVolumeMultiply, config.motorData.getPitch(i, speedKilometersPerHour, motorCurrentOutput), blockPos);
 			}
 		}
 
@@ -186,7 +189,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 		return new Random().nextInt(maxExclusive - minInclusive) + minInclusive;
 	}
 
-	private record VehicleLoopingSoundHolder(VehicleLoopingSoundInstance[] soundLoopMotor, @Nullable VehicleLoopingSoundInstance soundLoopRun, @Nullable VehicleLoopingSoundInstance soundLoopFlange, @Nullable VehicleLoopingSoundInstance soundLoopNoise, @Nullable VehicleLoopingSoundInstance soundLoopShoe, @Nullable VehicleLoopingSoundInstance soundLoopCompressor) {
+	private record VehicleLoopingSoundHolder(@Nullable VehicleLoopingSoundInstance[] soundLoopMotor, @Nullable VehicleLoopingSoundInstance soundLoopRun, @Nullable VehicleLoopingSoundInstance soundLoopFlange, @Nullable VehicleLoopingSoundInstance soundLoopNoise, @Nullable VehicleLoopingSoundInstance soundLoopShoe, @Nullable VehicleLoopingSoundInstance soundLoopCompressor) {
 
 		public void dispose() {
 			for (VehicleLoopingSoundInstance instance : soundLoopMotor) {

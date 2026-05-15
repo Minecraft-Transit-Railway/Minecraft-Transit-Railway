@@ -1,4 +1,8 @@
-@ParametersAreNonnullByDefault
+/**
+ * Custom resources and asset definitions for vehicles and signs.
+ * Handles 3D models (OBJ, Blockbench), textures, vehicle configurations, and rendering properties.
+ */
+@NullMarked
 package org.mtr.resource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

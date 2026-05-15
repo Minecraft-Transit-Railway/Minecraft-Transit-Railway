@@ -18,9 +18,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.registry.BlockEntityTypes;
-
-import javax.annotation.Nonnull;
 
 public class BlockStationNameEntrance extends BlockStationNameBase implements IBlock {
 
@@ -30,7 +29,6 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 		super(blockSettings);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {
@@ -40,6 +38,7 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 		});
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final BlockPos pos = ctx.getBlockPos();
@@ -65,20 +64,17 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 		}
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean tall = IBlock.getStatePropertySafe(state, STYLE) % 2 == 1;
 		return IBlock.getVoxelShapeByDirection(0, tall ? 0 : 4, 0, 16, tall ? 16 : 12, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return VoxelShapes.empty();
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new StationNameEntranceBlockEntity(blockPos, blockState);
@@ -98,14 +94,11 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 
 		@Override
 		public int getColor(BlockState state) {
-			switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
-				case 1:
-					return ARGB_LIGHT_GRAY;
-				case 2:
-					return ARGB_BLACK;
-				default:
-					return ARGB_WHITE;
-			}
+			return switch (IBlock.getStatePropertySafe(state, BlockStationNameBase.COLOR)) {
+				case 1 -> ARGB_LIGHT_GRAY;
+				case 2 -> ARGB_BLACK;
+				default -> ARGB_WHITE;
+			};
 		}
 	}
 }

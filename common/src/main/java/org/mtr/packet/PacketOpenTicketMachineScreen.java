@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-
 public final class PacketOpenTicketMachineScreen extends PacketHandler {
 
 	private final int balance;

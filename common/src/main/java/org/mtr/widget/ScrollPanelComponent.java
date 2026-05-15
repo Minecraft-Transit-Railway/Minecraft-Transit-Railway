@@ -14,22 +14,22 @@ public final class ScrollPanelComponent extends UIContainer {
 	private static final int SCROLL_BAR_PADDING = 1;
 
 	public final ScrollComponent contentContainer = (ScrollComponent) new ScrollComponent()
-			.setChildOf(this)
-			.setWidth(new FillConstraint())
-			.setHeight(new RelativeConstraint());
+		.setChildOf(this)
+		.setWidth(new FillConstraint())
+		.setHeight(new RelativeConstraint());
 
 	private final ScrollBarComponent scrollBarComponent;
 
 	public ScrollPanelComponent(boolean autoHideScrollbar) {
 		final UIContainer scrollBarContainer = (UIContainer) new UIContainer()
-				.setChildOf(this)
-				.setX(new SiblingConstraint())
-				.setWidth(new ChildBasedSizeConstraint())
-				.setHeight(new RelativeConstraint());
+			.setChildOf(this)
+			.setX(new SiblingConstraint())
+			.setWidth(new ChildBasedSizeConstraint())
+			.setHeight(new RelativeConstraint());
 
 		scrollBarComponent = (ScrollBarComponent) new ScrollBarComponent()
-				.setChildOf(scrollBarContainer)
-				.setWidth(new PixelConstraint(SCROLL_BAR_WIDTH));
+			.setChildOf(scrollBarContainer)
+			.setWidth(new PixelConstraint(SCROLL_BAR_WIDTH));
 
 		contentContainer.setVerticalScrollBarComponent(scrollBarComponent, autoHideScrollbar);
 	}

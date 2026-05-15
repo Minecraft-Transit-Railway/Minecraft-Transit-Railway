@@ -11,10 +11,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import org.jspecify.annotations.Nullable;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import org.mtr.registry.BlockEntityTypes;
-
-import javax.annotation.Nonnull;
 
 public class BlockStationNameTallBlockDoubleSided extends BlockStationNameTallBase {
 
@@ -22,19 +21,18 @@ public class BlockStationNameTallBlockDoubleSided extends BlockStationNameTallBa
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final IntIntImmutablePair bounds = getBounds(state);
 		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(2, bounds.leftInt(), 5, 14, bounds.rightInt(), 11, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING)), BlockStationColorPole.getStationPoleShape());
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return IBlock.isReplaceable(ctx, Direction.UP, 3) ? getDefaultState().with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing()).with(METAL, true).with(THIRD, EnumThird.LOWER) : null;
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new StationNameTallBlockDoubleSidedBlockEntity(blockPos, blockState);

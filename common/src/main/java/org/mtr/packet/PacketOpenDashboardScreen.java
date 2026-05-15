@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-import org.mtr.libraries.com.google.gson.JsonObject;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.mtr.client.MinecraftClientData;
@@ -12,8 +11,7 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.serializer.WriterBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.EnumHelper;
-
-import javax.annotation.Nonnull;
+import org.mtr.libraries.com.google.gson.JsonObject;
 
 public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 
@@ -74,7 +72,6 @@ public final class PacketOpenDashboardScreen extends PacketRequestResponseBase {
 		};
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.LIST_DATA;

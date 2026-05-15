@@ -5,13 +5,13 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.render.MainRenderer;
 import org.mtr.resource.RenderStage;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;

@@ -8,35 +8,34 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.data.SignalModification;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
 import org.mtr.packet.PacketUpdateData;
 
-import javax.annotation.Nullable;
-
 public class ItemSignalModifier extends ItemNodeModifierBase {
 
 	private final int color;
 
 	public static final int[] COLORS = {
-			MapColor.WHITE.color,
-			MapColor.ORANGE.color,
-			MapColor.MAGENTA.color,
-			MapColor.LIGHT_BLUE.color,
-			MapColor.YELLOW.color,
-			MapColor.LIME.color,
-			MapColor.PINK.color,
-			MapColor.GRAY.color,
-			MapColor.LIGHT_GRAY.color,
-			MapColor.CYAN.color,
-			MapColor.PURPLE.color,
-			MapColor.BLUE.color,
-			MapColor.BROWN.color,
-			MapColor.GREEN.color,
-			MapColor.RED.color,
-			MapColor.BLACK.color,
+		MapColor.WHITE.color,
+		MapColor.ORANGE.color,
+		MapColor.MAGENTA.color,
+		MapColor.LIGHT_BLUE.color,
+		MapColor.YELLOW.color,
+		MapColor.LIME.color,
+		MapColor.PINK.color,
+		MapColor.GRAY.color,
+		MapColor.LIGHT_GRAY.color,
+		MapColor.CYAN.color,
+		MapColor.PURPLE.color,
+		MapColor.BLUE.color,
+		MapColor.BROWN.color,
+		MapColor.GREEN.color,
+		MapColor.RED.color,
+		MapColor.BLACK.color,
 	};
 
 	public ItemSignalModifier(boolean isConnector, int color, Item.Settings settings) {

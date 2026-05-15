@@ -3,17 +3,17 @@ package org.mtr.model;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.resource.RenderStage;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public final class NewOptimizedModelGroup {
 
 	public final ObjectArrayList<Box> boxes = new ObjectArrayList<>();
-	private final Object2ObjectOpenHashMap<RenderStage, Object2ObjectOpenHashMap<Identifier, ObjectArrayList<StoredVertexData>>> storedVertexConsumersForRenderStageAndTexture = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<@Nullable RenderStage, Object2ObjectOpenHashMap<Identifier, ObjectArrayList<StoredVertexData>>> storedVertexConsumersForRenderStageAndTexture = new Object2ObjectOpenHashMap<>();
 
 	public void add(@Nullable RenderStage renderStage, Identifier texture, Consumer<ObjectArrayList<StoredVertexData>> consumer, @Nullable ObjectArrayList<Box> boxes) {
 		final ObjectArrayList<StoredVertexData> storedVertexDataList = new ObjectArrayList<>();

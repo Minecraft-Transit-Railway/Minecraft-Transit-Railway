@@ -12,6 +12,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockLiftTrackFloor;
 import org.mtr.client.CustomResourceLoader;
@@ -33,7 +34,6 @@ import org.mtr.registry.Items;
 import org.mtr.resource.LiftResource;
 import org.mtr.tool.Drawing;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class RenderLifts implements IGui {
@@ -62,7 +62,7 @@ public class RenderLifts implements IGui {
 
 			if (isHoldingRefresher) {
 				// Render lift path for debugging
-				final LiftFloor[] previousLiftFloor = {null};
+				final @Nullable LiftFloor[] previousLiftFloor = {null};
 				lift.iterateFloors(liftFloor -> {
 					final Position position = liftFloor.getPosition();
 					final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(position.getX(), position.getY(), position.getZ());
@@ -115,7 +115,7 @@ public class RenderLifts implements IGui {
 
 			if (liftWrapper.shouldRender) {
 				// Riding offset
-				final IntObjectImmutablePair<ObjectObjectImmutablePair<Vec3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(lift.getId());
+				final IntObjectImmutablePair<ObjectObjectImmutablePair<@Nullable Vec3d, @Nullable Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(lift.getId());
 				final PositionAndRotation ridingCarPositionAndRotation;
 				final Vec3d offsetVector;
 				final Double offsetRotation;
@@ -255,7 +255,7 @@ public class RenderLifts implements IGui {
 		if (liftId == null) {
 			liftResource = null;
 		} else {
-			final LiftResource[] tempLiftResource = {null};
+			final @Nullable LiftResource[] tempLiftResource = {null};
 			CustomResourceLoader.getLiftById(liftId, newLiftResource -> tempLiftResource[0] = newLiftResource);
 			liftResource = tempLiftResource[0];
 		}

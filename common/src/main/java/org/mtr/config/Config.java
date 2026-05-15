@@ -1,14 +1,15 @@
 package org.mtr.config;
 
-import org.mtr.libraries.com.google.gson.JsonElement;
-import org.mtr.libraries.com.google.gson.JsonObject;
-import org.mtr.libraries.com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.config.ConfigSchema;
+import org.mtr.libraries.com.google.gson.JsonElement;
+import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.com.google.gson.JsonParser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,7 +21,9 @@ import java.nio.file.StandardOpenOption;
 
 public final class Config extends ConfigSchema {
 
+	@Nullable
 	private static Config instance;
+	@Nullable
 	private static Path basePath;
 
 	public static void init(Path baseFolder) {
@@ -59,7 +62,9 @@ public final class Config extends ConfigSchema {
 
 	public static void save() {
 		try {
-			FileUtils.write(getConfigFilePath().toFile(), Utilities.prettyPrint(Utilities.getJsonObjectFromData(instance)), StandardCharsets.UTF_8);
+			if (instance != null) {
+				FileUtils.write(getConfigFilePath().toFile(), Utilities.prettyPrint(Utilities.getJsonObjectFromData(instance)), StandardCharsets.UTF_8);
+			}
 		} catch (Exception e) {
 			MTR.LOGGER.error("", e);
 		}

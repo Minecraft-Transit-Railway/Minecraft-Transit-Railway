@@ -14,8 +14,6 @@ import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
-
 public final class PacketUpdateData extends PacketRequestResponseBase {
 
 	public PacketUpdateData(PacketBufferReceiver packetBufferReceiver) {
@@ -45,7 +43,6 @@ public final class PacketUpdateData extends PacketRequestResponseBase {
 		return new UpdateDataRequest(jsonReader, new MinecraftClientData());
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.UPDATE_DATA;

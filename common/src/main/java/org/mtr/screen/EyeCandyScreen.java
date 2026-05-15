@@ -91,7 +91,7 @@ public class EyeCandyScreen extends ScreenBase implements IGui {
 		textFieldRotateX.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateX()), 4)));
 		textFieldRotateY.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateY()), 4)));
 		textFieldRotateZ.setText(String.valueOf(Utilities.round(Math.toDegrees(blockEntity.getRotateZ()), 4)));
-		IGui.setChecked(buttonFullBrightness, blockEntity.getFullBrightness());
+		IGui.setChecked(buttonFullBrightness, blockEntity.isFullBrightness());
 
 		addDrawableChild(buttonSelectModel);
 		addDrawableChild(textFieldTranslateX);

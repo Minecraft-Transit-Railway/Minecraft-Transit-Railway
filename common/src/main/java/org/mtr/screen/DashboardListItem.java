@@ -1,5 +1,6 @@
 package org.mtr.screen;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.NameColorDataBase;
 
 import java.util.Locale;
@@ -7,6 +8,7 @@ import java.util.Locale;
 public class DashboardListItem implements Comparable<DashboardListItem> {
 
 	public final long id;
+	@Nullable
 	public final NameColorDataBase data;
 	private final String name;
 	private final int color;

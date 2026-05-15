@@ -9,8 +9,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockLiftPanelEven2 extends BlockLiftPanelBase {
 
 	public BlockLiftPanelEven2(AbstractBlock.Settings settings) {
@@ -23,7 +21,6 @@ public class BlockLiftPanelEven2 extends BlockLiftPanelBase {
 		builder.add(SIDE);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new LiftPanelEven2BlockEntity(blockPos, blockState);

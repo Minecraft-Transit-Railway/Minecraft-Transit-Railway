@@ -1,11 +1,13 @@
 import {Component, inject} from "@angular/core";
+
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
-import {UploaderComponent} from "../uploader/uploader.component";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatExpansionModule} from "@angular/material/expansion";
+
 import {DataService} from "../../service/data.service";
+import {UploaderComponent} from "../uploader/uploader.component";
 
 @Component({
 	imports: [

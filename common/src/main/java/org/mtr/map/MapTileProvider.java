@@ -4,10 +4,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.cache.CachedFileProvider;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 
 /**
@@ -34,9 +34,9 @@ public final class MapTileProvider extends CachedFileProvider<MapTileResource> {
 		final int y = mapType == MapType.DYNAMIC ? blockPos.getY() : 0;
 		final int chunkZ = Math.floorDiv(blockPos.getZ(), TILE_SIZE);
 		final MapTileResource mapTileResource = get(new BlockPos(chunkX, y, chunkZ).asLong(), cacheDirectory -> new MapTileResource(
-				world, mapType,
-				chunkX, y, chunkZ,
-				cacheDirectory.resolve(String.format("%s_%s_%s_%s", mapType.toString().toLowerCase(Locale.ENGLISH), chunkX, y, chunkZ))
+			world, mapType,
+			chunkX, y, chunkZ,
+			cacheDirectory.resolve(String.format("%s_%s_%s_%s", mapType.toString().toLowerCase(Locale.ENGLISH), chunkX, y, chunkZ))
 		));
 		return mapTileResource == null ? null : mapTileResource.getVertexBuffer();
 	}

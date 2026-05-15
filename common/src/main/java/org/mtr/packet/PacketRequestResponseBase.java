@@ -1,17 +1,15 @@
 package org.mtr.packet;
 
-import org.mtr.libraries.com.google.gson.JsonObject;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.registry.Registry;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Sends a round trip request/response. This is meant to be used on the Minecraft client only.
@@ -73,7 +71,6 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 
 	protected abstract SerializedDataBase getDataInstance(JsonReader jsonReader);
 
-	@Nonnull
 	protected abstract String getKey();
 
 	/**
@@ -83,7 +80,32 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 	 */
 	protected abstract ResponseType responseType();
 
-	protected enum ResponseType {
-		NONE, PLAYER, ALL
+	/**
+	 * Sealed type hierarchy for response handling.
+	 * Enables exhaustive pattern matching in Java 21+
+	 */
+	protected sealed interface ResponseType permits ResponseType.None, ResponseType.Player, ResponseType.All {
+		/**
+		 * No response expected from the server
+		 */
+		final class None implements ResponseType {
+		}
+
+		/**
+		 * Response sent only to the requesting player
+		 */
+		final class Player implements ResponseType {
+		}
+
+		/**
+		 * Response sent to all players on the server
+		 */
+		final class All implements ResponseType {
+		}
+
+		// Singleton instances
+		ResponseType NONE = new None();
+		ResponseType PLAYER = new Player();
+		ResponseType ALL = new All();
 	}
 }

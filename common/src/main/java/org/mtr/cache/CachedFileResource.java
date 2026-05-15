@@ -1,9 +1,9 @@
 package org.mtr.cache;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,8 +18,8 @@ import java.util.function.BiConsumer;
  */
 public abstract class CachedFileResource {
 
-	@Nullable
-	private byte[] data;
+
+	private byte @Nullable [] data;
 	private long regenerateTimeout;
 	private long fetchTimeout;
 
@@ -70,17 +70,16 @@ public abstract class CachedFileResource {
 	 * @param oldData the data that was there previously or {@code null} if nothing was previously set
 	 * @return new data or the same object if nothing needs to be changed or {@code null} if the file should be deleted
 	 */
-	@Nullable
-	protected abstract byte[] generate(@Nullable byte[] oldData);
+	protected abstract byte @Nullable [] generate(byte @Nullable [] oldData);
 
 	/**
 	 * Called whenever the data has been updated (loaded from a file or regenerated).
 	 *
 	 * @param data the new data
 	 */
-	protected abstract void dataUpdated(@Nullable byte[] data);
+	protected abstract void dataUpdated(byte @Nullable [] data);
 
-	private void generateAndWrite(@Nullable byte[] oldData) {
+	private void generateAndWrite(byte @Nullable [] oldData) {
 		final byte[] newData = generate(oldData);
 
 		if (newData != oldData) {

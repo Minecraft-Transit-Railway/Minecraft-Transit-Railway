@@ -93,7 +93,7 @@ public final class PacketBufferSender {
 	private static void schedule(ObjectArrayList<Runnable> queue, Consumer<Runnable> scheduler) {
 		if (!queue.isEmpty()) {
 			scheduler.accept(() -> {
-				queue.remove(0).run();
+				queue.removeFirst().run();
 				schedule(queue, scheduler);
 			});
 		}

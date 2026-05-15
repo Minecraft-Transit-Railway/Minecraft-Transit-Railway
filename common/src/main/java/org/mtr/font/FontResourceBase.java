@@ -1,15 +1,14 @@
 package org.mtr.font;
 
+import org.jspecify.annotations.Nullable;
 import org.mtr.cache.CachedFileResource;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 
 public abstract class FontResourceBase extends CachedFileResource {
 
-	@Nullable
-	private byte[] data;
+	private byte @Nullable [] data;
 	protected final int textureIndex;
 
 	public static final int TEXTURE_CHAR_COUNT = 256;
@@ -22,12 +21,11 @@ public abstract class FontResourceBase extends CachedFileResource {
 	}
 
 	@Override
-	protected void dataUpdated(@Nullable byte[] data) {
+	protected void dataUpdated(byte @Nullable [] data) {
 		this.data = data;
 	}
 
-	@Nullable
-	protected byte[] getData() {
+	protected byte @Nullable [] getData() {
 		return data;
 	}
 

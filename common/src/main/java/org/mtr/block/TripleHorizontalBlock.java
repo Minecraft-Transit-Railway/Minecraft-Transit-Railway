@@ -9,9 +9,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface TripleHorizontalBlock extends IBlock {
 
@@ -27,7 +25,6 @@ public interface TripleHorizontalBlock extends IBlock {
 	 */
 	BooleanProperty CENTER = BooleanProperty.of("odd");
 
-	@Nonnull
 	static BlockState getStateForNeighborUpdate(BlockState blockState, Direction direction, boolean isThis, BlockState defaultBlockState) {
 		final Direction sideDirection = IBlock.getSideDirection(blockState);
 		if ((sideDirection == direction || sideDirection == direction.getOpposite() && IBlock.getStatePropertySafe(blockState, CENTER)) && !isThis) {

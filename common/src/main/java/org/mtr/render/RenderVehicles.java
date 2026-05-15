@@ -1,6 +1,5 @@
 package org.mtr.render;
 
-import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -14,6 +13,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.*;
 import org.mtr.config.Config;
 import org.mtr.core.data.VehicleCar;
@@ -33,9 +33,7 @@ import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.Interpolation;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class RenderVehicles {
@@ -51,9 +49,6 @@ public final class RenderVehicles {
 		}
 
 		final double renderDistance = minecraftClient.worldRenderer.getViewDistance() * 16;
-		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
-		final Vec3d cameraPosition = minecraftClient.gameRenderer.getCamera().getPos();
-		final com.logisticscraft.occlusionculling.util.Vec3d camera = new com.logisticscraft.occlusionculling.util.Vec3d(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 		// When riding a moving vehicle, the client movement is always out of sync with the vehicle rendering. This produces annoying shaking effects.
 		// Offsets are used to render the vehicle with respect to the player position rather than the absolute world position, eliminating shaking.
@@ -80,7 +75,7 @@ public final class RenderVehicles {
 				.collect(Collectors.toCollection(ObjectArrayList::new));
 
 			// Riding offset
-			final IntObjectImmutablePair<ObjectObjectImmutablePair<Vec3d, Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId());
+			final IntObjectImmutablePair<ObjectObjectImmutablePair<@Nullable Vec3d, @Nullable Double>> ridingVehicleCarNumberAndOffset = VehicleRidingMovement.getRidingVehicleCarNumberAndOffset(vehicle.getId());
 			final int ridingCarNumber;
 			final PositionAndRotation ridingCarPositionAndRotation;
 			final Vec3d offsetVector;
@@ -583,9 +578,13 @@ public final class RenderVehicles {
 
 	public static class PreviousConnectionPositions {
 
+		@Nullable
 		private Vector position1;
+		@Nullable
 		private Vector position2;
+		@Nullable
 		private Vector position3;
+		@Nullable
 		private Vector position4;
 
 		private boolean isValid() {
@@ -595,6 +594,7 @@ public final class RenderVehicles {
 
 	private static class PreviousGangwayMovementPositions {
 
+		@Nullable
 		private GangwayMovementPositions gangwayMovementPositions;
 	}
 

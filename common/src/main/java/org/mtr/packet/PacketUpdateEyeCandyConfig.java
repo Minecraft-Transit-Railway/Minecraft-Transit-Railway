@@ -4,10 +4,9 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockEyeCandy;
-
-import javax.annotation.Nullable;
 
 public final class PacketUpdateEyeCandyConfig extends PacketHandler {
 

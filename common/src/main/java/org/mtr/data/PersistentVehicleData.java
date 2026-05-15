@@ -1,5 +1,6 @@
 package org.mtr.data;
 
+import lombok.Getter;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.client.Oscillation;
 import org.mtr.client.ScrollingText;
@@ -18,6 +19,7 @@ public final class PersistentVehicleData {
 
 	private double smoothedRailProgress;
 	private double railProgressSmoothingAdjustment;
+	@Getter
 	private double doorValue;
 	private double oldDoorValue;
 	private double nextAnnouncementRailProgress;
@@ -82,10 +84,6 @@ public final class PersistentVehicleData {
 			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
 		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
-	}
-
-	public double getDoorValue() {
-		return doorValue;
 	}
 
 	public boolean checkCanOpenDoors() {

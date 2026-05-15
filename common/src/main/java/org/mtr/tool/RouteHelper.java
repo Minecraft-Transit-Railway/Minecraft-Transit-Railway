@@ -9,6 +9,10 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
+/**
+ * Route and station computation helpers for map and schedule displays.
+ * Handles route filtering, station indexing, circular line detection, and colour aggregation.
+ */
 public final class RouteHelper {
 
 	private static final String TEMP_CIRCULAR_MARKER_CLOCKWISE = String.format("temp_circular_marker_%s_clockwise", MTR.randomString());

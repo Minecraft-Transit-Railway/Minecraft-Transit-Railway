@@ -19,8 +19,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
 
-import javax.annotation.Nonnull;
-
 public class BlockEscalatorStep extends BlockEscalatorBase {
 
 	public static final BooleanProperty DIRECTION = BooleanProperty.of("direction");
@@ -30,7 +28,6 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (direction == Direction.UP && !(world.getBlockState(pos.up()).getBlock() instanceof BlockEscalatorSide)) {
@@ -48,7 +45,6 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		return super.onBreak(world, pos, state, player);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final EnumEscalatorOrientation orientation = IBlock.getStatePropertySafe(state, ORIENTATION);
@@ -86,7 +82,6 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 		}
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {

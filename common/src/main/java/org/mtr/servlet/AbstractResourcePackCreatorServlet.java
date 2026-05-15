@@ -5,6 +5,7 @@ import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.client.CustomResourceLoader;
 import org.mtr.core.serializer.JsonReader;
@@ -22,7 +23,6 @@ import org.mtr.model.ObjModelLoader;
 import org.mtr.resource.*;
 import org.mtr.screen.ReloadCustomResourcesScreen;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 

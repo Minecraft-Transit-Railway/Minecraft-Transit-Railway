@@ -7,14 +7,13 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.mixin.TextFieldSelectionEndAccessor;
 import org.mtr.screen.TextCase;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
-import javax.annotation.RegEx;
 import java.util.function.Consumer;
 
 public final class BetterTextFieldWidget extends ClickableWidgetBase {
@@ -42,11 +41,11 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	private static final int CURSOR_FLASH_TIME = 1000;
 	private static final int ANIMATION_DURATION = 200;
 
-	public BetterTextFieldWidget(int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
+	public BetterTextFieldWidget(int maxLength, TextCase textCase, @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
 		this("", maxLength, textCase, filter, label, width, callback);
 	}
 
-	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @RegEx @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
+	public BetterTextFieldWidget(String text, int maxLength, TextCase textCase, @Nullable String filter, String label, int width, @Nullable Consumer<String> callback) {
 		this.maxLength = maxLength;
 		this.textCase = textCase;
 		this.filter = filter;
@@ -89,19 +88,19 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		// Draw text selection
 		final int selectionEndPixel = textRenderer.getWidth(text.substring(0, Math.min(text.length(), ((TextFieldSelectionEndAccessor) textFieldWidget).getSelectionEnd())));
 		drawing.setVerticesWH(
-				getX() + GuiHelper.DEFAULT_PADDING + Math.min(cursorPixel, selectionEndPixel),
-				getY() + CURSOR_START,
-				Math.abs(selectionEndPixel - cursorPixel),
-				CURSOR_HEIGHT
+			getX() + GuiHelper.DEFAULT_PADDING + Math.min(cursorPixel, selectionEndPixel),
+			getY() + CURSOR_START,
+			Math.abs(selectionEndPixel - cursorPixel),
+			CURSOR_HEIGHT
 		).setColor(GuiHelper.TEXT_SELECTION_COLOR).draw();
 
 		// Draw cursor
 		if (isFocused() && (currentTime - lastCursorChangeTime < CURSOR_FLASH_TIME || currentTime % CURSOR_FLASH_TIME < CURSOR_FLASH_TIME / 2)) {
 			drawing.setVerticesWH(
-					getX() + GuiHelper.DEFAULT_PADDING + cursorPixel - pixelWidth,
-					getY() + CURSOR_START,
-					pixelWidth * 2,
-					CURSOR_HEIGHT
+				getX() + GuiHelper.DEFAULT_PADDING + cursorPixel - pixelWidth,
+				getY() + CURSOR_START,
+				pixelWidth * 2,
+				CURSOR_HEIGHT
 			).setColor(GuiHelper.WHITE_COLOR).draw();
 		}
 

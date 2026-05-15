@@ -7,25 +7,17 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
-import org.mtr.generated.lang.TranslationProvider;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 
@@ -33,8 +25,6 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 		super(settings, maxArrivals, BlockPIDSHorizontalBase::canStoreData, BlockPIDSHorizontalBase::getBlockPosWithData);
 	}
 
-
-	@Nonnull
 	@Override
 	protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
 		if (IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING) == direction && !neighborState.isOf(this)) {
@@ -55,6 +45,7 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 		}
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		final Direction direction = ctx.getHorizontalPlayerFacing().getOpposite();
@@ -68,11 +59,6 @@ public abstract class BlockPIDSHorizontalBase extends BlockPIDSBase {
 			IBlock.onBreakCreative(world, player, pos.offset(facing));
 		}
 		return super.onBreak(world, pos, state, player);
-	}
-
-	@Override
-	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).formatted(Formatting.GRAY));
 	}
 
 	@Override

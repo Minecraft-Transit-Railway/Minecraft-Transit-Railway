@@ -6,8 +6,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockArrivalProjector1Large extends BlockArrivalProjectorBase {
 
 	private static final int MAX_ARRIVALS = 16;
@@ -16,7 +14,6 @@ public class BlockArrivalProjector1Large extends BlockArrivalProjectorBase {
 		super(settings, MAX_ARRIVALS);
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new ArrivalProjector1LargeBlockEntity(blockPos, blockState);

@@ -3,6 +3,7 @@ package org.mtr.resource;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.config.Config;
 import org.mtr.core.data.TransportMode;
@@ -22,8 +23,6 @@ import org.mtr.sound.BveVehicleSoundConfig;
 import org.mtr.sound.LegacyVehicleSound;
 import org.mtr.sound.VehicleSoundBase;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -115,19 +114,16 @@ public final class VehicleResource extends VehicleResourceSchema {
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
 	}
 
-	@Nonnull
 	@Override
 	protected ResourceProvider modelsResourceProviderParameter() {
 		return resourceProvider;
 	}
 
-	@Nonnull
 	@Override
 	protected ResourceProvider bogie1ModelsResourceProviderParameter() {
 		return resourceProvider;
 	}
 
-	@Nonnull
 	@Override
 	protected ResourceProvider bogie2ModelsResourceProviderParameter() {
 		return resourceProvider;

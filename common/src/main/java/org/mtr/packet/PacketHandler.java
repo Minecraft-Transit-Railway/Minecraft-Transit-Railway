@@ -1,6 +1,5 @@
 package org.mtr.packet;
 
-
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 

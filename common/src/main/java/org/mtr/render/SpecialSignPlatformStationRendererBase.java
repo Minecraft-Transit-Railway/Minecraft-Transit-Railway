@@ -2,6 +2,7 @@ package org.mtr.render;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.data.NameColorDataBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.font.FontRenderHelper;
@@ -13,7 +14,6 @@ import org.mtr.resource.SignResource;
 import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public abstract class SpecialSignPlatformStationRendererBase<T extends NameColorDataBase> extends SpecialSignRendererBase<T> {

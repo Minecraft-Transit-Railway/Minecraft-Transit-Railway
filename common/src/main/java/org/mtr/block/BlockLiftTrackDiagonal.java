@@ -23,7 +23,6 @@ import org.mtr.core.tool.Vector;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock {
@@ -32,14 +31,12 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext context) {
 		final Vec3d vector3d = context.getHitPos().rotateY((float) Math.toRadians(getFacing(context).getPositiveHorizontalDegrees()));
 		return super.getPlacementState(context).with(HALF, MathHelper.fractionalPart(vector3d.y) < 0.5 ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER).with(SIDE, MathHelper.fractionalPart(vector3d.x) < 0.5 ? EnumSide.RIGHT : EnumSide.LEFT);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final boolean isUpper = IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER;

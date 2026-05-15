@@ -17,7 +17,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.Registry;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
 public abstract class BlockTrainSensorBase extends Block implements BlockEntityProvider {
@@ -26,7 +25,6 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 		return IBlock.checkHoldingBrush(world, player, () -> {

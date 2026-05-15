@@ -4,15 +4,14 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.data.IGui;
-
-import javax.annotation.Nullable;
 
 public class ScrollingText {
 
 	private float ticksOffset;
-	private DynamicTextureCache.DynamicResource dynamicResource;
+	private DynamicTextureCache.@Nullable DynamicResource dynamicResource;
 
 	private final double availableWidth;
 	private final double availableHeight;
@@ -26,7 +25,7 @@ public class ScrollingText {
 		this.isFullPixel = isFullPixel;
 	}
 
-	public void changeImage(@Nullable DynamicTextureCache.DynamicResource dynamicResource) {
+	public void changeImage(DynamicTextureCache.@Nullable DynamicResource dynamicResource) {
 		if (this.dynamicResource != dynamicResource) {
 			this.dynamicResource = dynamicResource;
 			ticksOffset = MTRClient.getGameTick();

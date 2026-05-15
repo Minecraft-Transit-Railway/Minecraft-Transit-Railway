@@ -79,11 +79,11 @@ public class DriverKeyDispenserScreen extends ScreenBase implements IGui {
 		} catch (Exception ignored) {
 		}
 		RegistryClient.sendPacketToServer(new PacketUpdateKeyDispenserConfig(
-				blockPos,
-				checkBoxDispenseBasicDriverKey.isChecked(),
-				checkBoxDispenseAdvancedDriverKey.isChecked(),
-				checkBoxDispenseGuardKey.isChecked(),
-				newTimeout
+			blockPos,
+			checkBoxDispenseBasicDriverKey.isChecked(),
+			checkBoxDispenseAdvancedDriverKey.isChecked(),
+			checkBoxDispenseGuardKey.isChecked(),
+			newTimeout
 		));
 		super.close();
 	}

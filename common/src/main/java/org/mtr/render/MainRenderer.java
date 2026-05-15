@@ -1,6 +1,7 @@
 package org.mtr.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -11,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.client.DynamicTextureCache;
 import org.mtr.client.MinecraftClientData;
@@ -27,13 +29,17 @@ import org.mtr.model.NewOptimizedModel;
 import org.mtr.registry.KeyBindings;
 import org.mtr.resource.RenderStage;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class MainRenderer {
 
+	/**
+	 * Get a continously ticking timer for rendering, suitable for animations.
+	 * Returns a value in millisecond representing the time elapsed, incremented when {@link MainRenderer#render(GraphicsHolder, Vector3d)} gets invoked.
+	 */
+	@Getter
 	private static long timerMillis;
 	private static long lastRenderedMillis;
 
@@ -70,7 +76,6 @@ public class MainRenderer {
 		if (clientWorld == null || clientPlayerEntity == null) {
 			return;
 		}
-
 
 		final long millisElapsed = getMillisElapsed();
 		timerMillis += millisElapsed;
@@ -123,7 +128,9 @@ public class MainRenderer {
 						case LINES -> RenderLayer.getLines();
 						default -> null;
 					};
-					value.forEach(renderer -> renderer.accept(matrixStack, renderLayer == null ? null : vertexConsumerProvider.getBuffer(renderLayer), offset));
+					if (renderLayer != null) {
+						value.forEach(renderer -> renderer.accept(matrixStack, vertexConsumerProvider.getBuffer(renderLayer), offset));
+					}
 				});
 			}
 		}
@@ -150,15 +157,6 @@ public class MainRenderer {
 	public static void cancelRender(Identifier identifier) {
 		RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
 		CURRENT_RENDERS.forEach(renderForPriority -> renderForPriority.forEach(renderForPriorityAndQueuedRenderLayer -> renderForPriorityAndQueuedRenderLayer.remove(identifier)));
-	}
-
-	/**
-	 * Get a continously ticking timer for rendering, suitable for animations.
-	 *
-	 * @return A value in millisecond representing the time elapsed, incremented when {@link MainRenderer#render(GraphicsHolder, Vector3d)} gets invoked.
-	 */
-	public static long getTimerMillis() {
-		return timerMillis;
 	}
 
 	public static String getInterchangeRouteNames(Consumer<BiConsumer<String, InterchangeColorsForStationName>> getInterchanges) {
@@ -195,16 +193,14 @@ public class MainRenderer {
 				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
 				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
 			};
-			if (renderLayer != null) {
-				renderLayer.startDrawing();
-				newOptimizedModel.begin(RenderSystem.getShader());
-				renderDetails.forEach(renderDetailsEntry -> {
-					renderDetailsEntry.left().transform(matrixStack, offset);
-					newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());
-					matrixStack.pop();
-				});
-				renderLayer.endDrawing();
-			}
+			renderLayer.startDrawing();
+			newOptimizedModel.begin(RenderSystem.getShader());
+			renderDetails.forEach(renderDetailsEntry -> {
+				renderDetailsEntry.left().transform(matrixStack, offset);
+				newOptimizedModel.render(matrixStack.peek().getPositionMatrix(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF, RenderSystem.getShader());
+				matrixStack.pop();
+			});
+			renderLayer.endDrawing();
 		}));
 	}
 

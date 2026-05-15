@@ -16,7 +16,6 @@ import net.minecraft.world.BlockView;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockLiftTrackVertical extends BlockLiftTrackBase {
@@ -25,7 +24,6 @@ public class BlockLiftTrackVertical extends BlockLiftTrackBase {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, Properties.HORIZONTAL_FACING));

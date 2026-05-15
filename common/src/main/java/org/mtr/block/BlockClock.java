@@ -12,8 +12,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.mtr.registry.BlockEntityTypes;
 
-import javax.annotation.Nonnull;
-
 public class BlockClock extends Block implements BlockEntityProvider {
 
 	public static final BooleanProperty FACING = BooleanProperty.of("facing");
@@ -28,14 +26,12 @@ public class BlockClock extends Block implements BlockEntityProvider {
 		return getDefaultState().with(FACING, facing);
 	}
 
-	@Nonnull
 	@Override
 	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING) ? Direction.EAST : Direction.NORTH;
 		return VoxelShapes.union(IBlock.getVoxelShapeByDirection(3, 0, 6, 13, 12, 10, facing), Block.createCuboidShape(7.5, 12, 7.5, 8.5, 16, 8.5));
 	}
 
-	@Nonnull
 	@Override
 	public BlockEntity createBlockEntity(BlockPos blockPos, BlockState blockState) {
 		return new ClockBlockEntity(blockPos, blockState);

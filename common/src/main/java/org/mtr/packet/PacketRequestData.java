@@ -8,8 +8,6 @@ import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
 
-import javax.annotation.Nonnull;
-
 public final class PacketRequestData extends PacketRequestResponseBase {
 
 	public PacketRequestData(PacketBufferReceiver packetBufferReceiver) {
@@ -39,7 +37,6 @@ public final class PacketRequestData extends PacketRequestResponseBase {
 		return new DataRequest(jsonReader);
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.GET_DATA;

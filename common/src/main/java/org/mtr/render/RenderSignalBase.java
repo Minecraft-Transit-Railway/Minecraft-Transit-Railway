@@ -9,6 +9,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
 import org.mtr.block.BlockSignalBase;
@@ -26,7 +27,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.tool.Drawing;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 
 public abstract class RenderSignalBase<T extends BlockSignalBase.BlockEntityBase> extends BlockEntityRendererExtension<T> implements IBlock, IGui {

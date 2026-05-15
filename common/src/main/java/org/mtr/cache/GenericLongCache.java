@@ -3,6 +3,9 @@ package org.mtr.cache;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
 
+/**
+ * Long-keyed cache with automatic expiration.
+ */
 public final class GenericLongCache<T> extends GenericCacheBase<T, Long, Long2ObjectOpenHashMap<GenericCacheBase.DataHolder<T>>> {
 
 	public GenericLongCache(int approximateTimeout, boolean canExpireWhileFetching) {

@@ -1,12 +1,12 @@
 package org.mtr.resource;
 
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ModelPropertiesSchema;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public final class ModelProperties extends ModelPropertiesSchema {

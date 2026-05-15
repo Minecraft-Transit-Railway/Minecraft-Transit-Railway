@@ -2,6 +2,7 @@ package org.mtr.servlet;
 
 import net.minecraft.client.MinecraftClient;
 import org.apache.commons.io.IOUtils;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.servlet.HttpResponseStatus;
 import org.mtr.core.servlet.ServletBase;
 import org.mtr.libraries.jakarta.servlet.AsyncContext;
@@ -12,7 +13,6 @@ import org.mtr.libraries.org.eclipse.jetty.server.Request;
 import org.mtr.packet.PacketForwardClientRequest;
 import org.mtr.registry.RegistryClient;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 public final class ClientServlet extends HttpServlet {

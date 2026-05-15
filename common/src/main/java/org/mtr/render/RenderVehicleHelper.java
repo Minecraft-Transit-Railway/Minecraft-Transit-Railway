@@ -85,21 +85,21 @@ public class RenderVehicleHelper {
 			final Vec3d corner3 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.maxX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 			final Vec3d corner4 = positionAndRotation.transformForwards(new Vec3d(floorOrDoorway.minX, floorOrDoorway.maxY, floorOrDoorway.maxZ), Vec3d::rotateX, Vec3d::rotateY, Vec3d::rotateZ, Vec3d::add);
 			final int newColor = boxContains(floorOrDoorway,
-					playerPosition.x - HALF_PLAYER_WIDTH,
-					playerPosition.y,
-					playerPosition.z - HALF_PLAYER_WIDTH
+				playerPosition.x - HALF_PLAYER_WIDTH,
+				playerPosition.y,
+				playerPosition.z - HALF_PLAYER_WIDTH
 			) || boxContains(floorOrDoorway,
-					playerPosition.x + HALF_PLAYER_WIDTH,
-					playerPosition.y,
-					playerPosition.z - HALF_PLAYER_WIDTH
+				playerPosition.x + HALF_PLAYER_WIDTH,
+				playerPosition.y,
+				playerPosition.z - HALF_PLAYER_WIDTH
 			) || boxContains(floorOrDoorway,
-					playerPosition.x + HALF_PLAYER_WIDTH,
-					playerPosition.y,
-					playerPosition.z + HALF_PLAYER_WIDTH
+				playerPosition.x + HALF_PLAYER_WIDTH,
+				playerPosition.y,
+				playerPosition.z + HALF_PLAYER_WIDTH
 			) || boxContains(floorOrDoorway,
-					playerPosition.x - HALF_PLAYER_WIDTH,
-					playerPosition.y,
-					playerPosition.z + HALF_PLAYER_WIDTH
+				playerPosition.x - HALF_PLAYER_WIDTH,
+				playerPosition.y,
+				playerPosition.z + HALF_PLAYER_WIDTH
 			) ? 0xFF00FF00 : color;
 			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (matrixStack, vertexConsumer, offset) -> {
 				drawLine(matrixStack, vertexConsumer, corner1, corner2, useOffset ? offset : Vec3d.ZERO, newColor);
@@ -112,27 +112,27 @@ public class RenderVehicleHelper {
 
 	public static boolean boxContains(Box box, double x, double y, double z) {
 		return Utilities.isBetween(
-				x,
-				box.minX,
-				box.maxX
+			x,
+			box.minX,
+			box.maxX
 		) && Utilities.isBetween(
-				y,
-				box.minY,
-				box.maxY,
-				RIDE_STEP_THRESHOLD
+			y,
+			box.minY,
+			box.maxY,
+			RIDE_STEP_THRESHOLD
 		) && Utilities.isBetween(
-				z,
-				box.minZ,
-				box.maxZ
+			z,
+			box.minZ,
+			box.maxZ
 		);
 	}
 
 	private static void drawLine(MatrixStack matrixStack, VertexConsumer vertexConsumer, Vec3d corner1, Vec3d corner2, Vec3d offset, int color) {
 		IDrawing.drawLineInWorld(
-				matrixStack, vertexConsumer,
-				(float) (corner1.x - offset.x), (float) (corner1.y - offset.y), (float) (corner1.z - offset.z),
-				(float) (corner2.x - offset.x), (float) (corner2.y - offset.y), (float) (corner2.z - offset.z),
-				color
+			matrixStack, vertexConsumer,
+			(float) (corner1.x - offset.x), (float) (corner1.y - offset.y), (float) (corner1.z - offset.z),
+			(float) (corner2.x - offset.x), (float) (corner2.y - offset.y), (float) (corner2.z - offset.z),
+			color
 		);
 	}
 }

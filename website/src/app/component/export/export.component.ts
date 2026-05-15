@@ -1,9 +1,11 @@
 import {Component} from "@angular/core";
+import {ReactiveFormsModule} from "@angular/forms";
+
 import {MatIconModule} from "@angular/material/icon";
-import {DataService} from "../../service/data.service";
 import {MatButtonModule} from "@angular/material/button";
 import {MatInputModule} from "@angular/material/input";
-import {ReactiveFormsModule} from "@angular/forms";
+
+import {DataService} from "../../service/data.service";
 import {LargeTileComponent} from "../large-button/large-tile.component";
 
 @Component({

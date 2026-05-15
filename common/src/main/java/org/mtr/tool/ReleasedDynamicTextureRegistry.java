@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+/**
+ * Registry for dynamic textures accessed from resource packs.
+ * Manages lifecycle and reloading of textures used in UI rendering.
+ */
 public final class ReleasedDynamicTextureRegistry extends DynamicReloadableRegistry<ReleasedDynamicTexture, Identifier, ReleasedDynamicTextureRegistry.Holder> {
 
 	public static final ReleasedDynamicTextureRegistry INSTANCE = new ReleasedDynamicTextureRegistry();

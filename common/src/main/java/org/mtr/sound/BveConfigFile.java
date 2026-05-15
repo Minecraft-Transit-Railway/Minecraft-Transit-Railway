@@ -3,19 +3,24 @@ package org.mtr.sound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
 public class BveConfigFile {
 
-	public final SoundEvent[] run = new SoundEvent[1];
-	public final SoundEvent[] flange = new SoundEvent[1];
-	public final SoundEvent[] motor = new SoundEvent[40];
-	public final SoundEvent[] joint = new SoundEvent[1];
+	public final @Nullable SoundEvent[] run = new SoundEvent[1];
+	public final @Nullable SoundEvent[] flange = new SoundEvent[1];
+	public final @Nullable SoundEvent[] motor = new SoundEvent[40];
+	public final @Nullable SoundEvent[] joint = new SoundEvent[1];
 
+	@Nullable
 	public final SoundEvent air;
+	@Nullable
 	public final SoundEvent airZero;
+	@Nullable
 	public final SoundEvent airHigh;
+	@Nullable
 	public final SoundEvent brakeEmergency;
 
 	public final SoundEvent doorOpen;
@@ -25,10 +30,13 @@ public class BveConfigFile {
 	public final SoundEvent brakeHandleRelease;
 
 	public final SoundEvent compressorAttack;
+	@Nullable
 	public final SoundEvent compressorLoop;
 	public final SoundEvent compressorRelease;
 
+	@Nullable
 	public final SoundEvent noise;
+	@Nullable
 	public final SoundEvent shoe;
 
 	public final int motorNoiseDataType;
@@ -173,6 +181,7 @@ public class BveConfigFile {
 								doorClose = valueAsSoundEvent;
 								break;
 						}
+						break;
 					case "brakehandle":
 						switch (key) {
 							case "apply":
@@ -195,6 +204,7 @@ public class BveConfigFile {
 								compressorRelease = valueAsSoundEvent;
 								break;
 						}
+						break;
 					case "others":
 						switch (key) {
 							case "noise":
@@ -204,6 +214,7 @@ public class BveConfigFile {
 								shoe = valueAsSoundEvent;
 								break;
 						}
+						break;
 				}
 			} else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
 				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ENGLISH);

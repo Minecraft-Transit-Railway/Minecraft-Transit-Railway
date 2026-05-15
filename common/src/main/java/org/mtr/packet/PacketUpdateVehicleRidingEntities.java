@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.data.VehicleRidingEntity;
 import org.mtr.core.operation.UpdateVehicleRidingEntities;
@@ -11,9 +12,6 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class PacketUpdateVehicleRidingEntities extends PacketRequestResponseBase implements Utilities {
 
@@ -62,7 +60,6 @@ public final class PacketUpdateVehicleRidingEntities extends PacketRequestRespon
 		return new UpdateVehicleRidingEntities(jsonReader);
 	}
 
-	@Nonnull
 	@Override
 	protected String getKey() {
 		return OperationProcessor.UPDATE_RIDING_ENTITIES;

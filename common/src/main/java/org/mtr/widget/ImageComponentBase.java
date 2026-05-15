@@ -13,10 +13,10 @@ import gg.essential.universal.vertex.UVertexConsumer;
 import kotlin.Unit;
 import lombok.Setter;
 import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.core.tool.Vector;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
@@ -186,12 +186,12 @@ public abstract class ImageComponentBase extends UIComponent {
 			final Vector topVectorRotated = topVector.rotateY((float) (2 * Math.PI * i / CYLINDER_EDGES)).rotateZ(angleZ).rotateY(angleY);
 			if (previousBottomVectorRotated != null) {
 				drawShadedQuad(
-						matrixStack, vertexConsumer,
-						x1 + previousBottomVectorRotated.x(), y1 + previousBottomVectorRotated.y(), z1 + previousBottomVectorRotated.z(),
-						x1 + bottomVectorRotated.x(), y1 + bottomVectorRotated.y(), z1 + bottomVectorRotated.z(),
-						x1 + topVectorRotated.x(), y1 + topVectorRotated.y(), z1 + topVectorRotated.z(),
-						x1 + previousTopVectorRotated.x(), y1 + previousTopVectorRotated.y(), z1 + previousTopVectorRotated.z(),
-						color
+					matrixStack, vertexConsumer,
+					x1 + previousBottomVectorRotated.x(), y1 + previousBottomVectorRotated.y(), z1 + previousBottomVectorRotated.z(),
+					x1 + bottomVectorRotated.x(), y1 + bottomVectorRotated.y(), z1 + bottomVectorRotated.z(),
+					x1 + topVectorRotated.x(), y1 + topVectorRotated.y(), z1 + topVectorRotated.z(),
+					x1 + previousTopVectorRotated.x(), y1 + previousTopVectorRotated.y(), z1 + previousTopVectorRotated.z(),
+					color
 				);
 			}
 			previousBottomVectorRotated = bottomVectorRotated;

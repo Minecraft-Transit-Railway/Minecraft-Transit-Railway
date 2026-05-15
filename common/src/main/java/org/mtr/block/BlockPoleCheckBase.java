@@ -10,6 +10,7 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public abstract class BlockPoleCheckBase extends Block {
 		super(blockSettings);
 	}
 
+	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		BlockState stateBelow = ctx.getWorld().getBlockState(ctx.getBlockPos().down());

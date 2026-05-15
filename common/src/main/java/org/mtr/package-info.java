@@ -1,7 +1,7 @@
 /**
  * Root package for shared Minecraft Transit Railway mod code used by both loader targets.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 package org.mtr;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

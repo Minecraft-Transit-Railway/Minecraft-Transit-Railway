@@ -3,6 +3,7 @@ package org.mtr;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import lombok.Getter;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -18,6 +19,7 @@ import net.minecraft.world.World;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.Nullable;
 import org.mtr.config.Config;
 import org.mtr.core.Main;
 import org.mtr.core.data.Position;
@@ -42,13 +44,11 @@ import org.mtr.registry.*;
 import org.mtr.servlet.MinecraftOperationProcessor;
 import org.mtr.servlet.RequestHelper;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,15 +56,29 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * Main entry point and server-side mod coordinator.
+ * Initialises all mod systems, manages packet registration and handling, synchronises world state
+ * with the backend transport simulator, and handles player/dimension lifecycle events.
+ */
 public final class MTR {
 
+	@Nullable
 	private static Main main;
+	/**
+	 * Returns the port of the webserver started by Transport Simulation Core, not the clientside webserver.
+	 * <br>{@code 0} means the integrated server is not running
+	 * <br>{@code -1} means the webserver is disabled
+	 */
+	@Getter
 	private static int serverPort;
+	@Nullable
 	private static Runnable sendWorldTimeUpdate;
 	private static boolean canSendWorldTimeUpdate = true;
 	private static boolean isDedicatedServer = true;
 	private static int serverTick;
 	private static long lastSavedMillis;
+	@Nullable
 	private static Consumer<Webserver> webserverSetup;
 
 	public static final String MOD_ID = "mtr";
@@ -283,15 +297,6 @@ public final class MTR {
 		}
 	}
 
-	/**
-	 * @return the port of the webserver started by Transport Simulation Core, not the clientside webserver.
-	 * <br>{@code 0} means the integrated server is not running
-	 * <br>{@code -1} means the webserver is disabled
-	 */
-	public static int getServerPort() {
-		return serverPort;
-	}
-
 	public static <T extends SerializedDataBase> void sendMessageC2S(String key, @Nullable MinecraftServer minecraftServer, @Nullable World world, SerializedDataBase data, @Nullable Consumer<T> consumer, @Nullable Class<T> responseDataClass) {
 		if (main != null) {
 			main.sendMessageC2S(world == null ? null : WORLD_ID_LIST.indexOf(getWorldId(world)), new QueueObject(key, data, consumer == null || minecraftServer == null ? null : responseData -> minecraftServer.execute(() -> consumer.accept(responseData)), responseDataClass));
@@ -339,7 +344,7 @@ public final class MTR {
 
 	public static void openConnectionSafe(String url, Consumer<InputStream> callback, String... requestProperties) {
 		try {
-			final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			final HttpURLConnection connection = (HttpURLConnection) new java.net.URI(url).toURL().openConnection();
 			connection.setUseCaches(false);
 
 			for (int i = 0; i < requestProperties.length / 2; i++) {

@@ -14,6 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
 import org.mtr.core.operation.UpdateDataRequest;
@@ -34,7 +35,6 @@ import org.mtr.tool.GuiHelper;
 import org.mtr.tool.ReleasedDynamicTextureRegistry;
 import org.mtr.widget.*;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Random;
 import java.util.stream.Collectors;

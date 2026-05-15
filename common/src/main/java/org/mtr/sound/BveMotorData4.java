@@ -93,9 +93,9 @@ public final class BveMotorData4 extends BveMotorDataBase { // 4 for BVE4 and Op
 	}
 
 	public static class Channel {
-		public ArrayList<Integer> soundIds = new ArrayList<>();
-		public ArrayList<Float> pitches = new ArrayList<>();
-		public ArrayList<Float> volumes = new ArrayList<>();
+		public final ArrayList<Integer> soundIds = new ArrayList<>();
+		public final ArrayList<Float> pitches = new ArrayList<>();
+		public final ArrayList<Float> volumes = new ArrayList<>();
 		public int maxEntryId = -1;
 		public int maxSoundId = -1;
 	}

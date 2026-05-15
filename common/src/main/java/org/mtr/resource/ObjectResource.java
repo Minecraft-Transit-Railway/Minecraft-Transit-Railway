@@ -1,31 +1,28 @@
 package org.mtr.resource;
 
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.config.Config;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.generated.resource.ObjectResourceSchema;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.model.ModelLoaderBase;
 import org.mtr.model.NewOptimizedModel;
 import org.mtr.render.StoredMatrixTransformations;
 import org.mtr.tool.Drawing;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public final class ObjectResource extends ObjectResourceSchema implements StoredModelResourceBase {
 
 	public final boolean shouldPreload;
-	private final ModelLoaderBase modelLoaderBase;
-	private final Supplier<Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> modelSupplier;
+	private final Supplier<@Nullable Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>>> modelSupplier;
 
 	public ObjectResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
 		updateData(readerBase);
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
-		modelLoaderBase = VehicleModel.getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
-		modelSupplier = modelLoaderBase::get;
+		modelSupplier = VehicleModel.getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV)::get;
 	}
 
 	@Override

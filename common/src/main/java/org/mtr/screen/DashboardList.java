@@ -7,6 +7,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.data.IGui;
@@ -18,7 +19,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.widget.BetterTextFieldWidget;
 import org.mtr.widget.BetterTexturedButtonWidget;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;

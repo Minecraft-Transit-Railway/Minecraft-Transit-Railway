@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.client.IDrawing;
 import org.mtr.client.MinecraftClientData;
@@ -35,12 +36,10 @@ import org.mtr.tool.Drawing;
 import org.mtr.tool.GuiAnimation;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 
 public final class MapWidget extends ClickableWidgetBase {
 
@@ -61,6 +60,7 @@ public final class MapWidget extends ClickableWidgetBase {
 	private final boolean hasPermission = MinecraftClientData.hasPermission();
 	private final Consumer<AreaBase<?, ?>> onStartEditingArea;
 	private final BiConsumer<NameColorDataBase, DeleteDataRequest> onDeleteData;
+	@Nullable
 	private final ClientPlayerEntity player;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Platform>> flatPositionToPlatformsMap;
 	private final Object2ObjectAVLTreeMap<Position, ObjectArrayList<Siding>> flatPositionToSidingsMap;
@@ -142,7 +142,7 @@ public final class MapWidget extends ClickableWidgetBase {
 			for (double x = 0; x < width + tileSize; x += tileSize) {
 				for (double y = 0; y < height + tileSize; y += tileSize) {
 					final DoubleDoubleImmutablePair worldCoords = coordsToWorldPos(x, y);
-					final BlockPos tilePos = new BlockPos(clampTileSize(worldCoords.leftDouble()), player.getBlockPos().getY(), clampTileSize(worldCoords.rightDouble()));
+					final BlockPos tilePos = new BlockPos(clampTileSize(worldCoords.leftDouble()), player == null ? 0 : player.getBlockPos().getY(), clampTileSize(worldCoords.rightDouble()));
 					final long key = tilePos.asLong();
 					final VertexBuffer vertexBuffer = mapTileProvider.getTile(tilePos);
 

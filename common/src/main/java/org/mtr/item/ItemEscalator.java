@@ -12,15 +12,12 @@ import org.mtr.block.BlockEscalatorBase;
 import org.mtr.block.IBlock;
 import org.mtr.registry.Blocks;
 
-import javax.annotation.Nonnull;
-
 public class ItemEscalator extends Item implements IBlock {
 
 	public ItemEscalator(Item.Settings settings) {
 		super(settings);
 	}
 
-	@Nonnull
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		if (ItemPSDAPGBase.blocksNotReplaceable(context, 2, 2, null)) {

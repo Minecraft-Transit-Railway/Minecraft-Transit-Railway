@@ -5,11 +5,11 @@ import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
 import gg.essential.universal.vertex.UVertexConsumer;
+import org.jspecify.annotations.Nullable;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.GuiHelper;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Random;
 import java.util.function.DoubleConsumer;
@@ -44,55 +44,55 @@ public final class ColorInputComponent extends UIContainer {
 
 	public ColorInputComponent() {
 		saturationBrightnessBoxComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(this)
-				.setWidth(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)))
-				.setHeight(new RelativeConstraint())
-				.onMouseClickConsumer(clickEvent -> clickSaturationBrightness(clickEvent.getRelativeX(), clickEvent.getRelativeY()))
-				.onMouseDragConsumer((x, y, mouseButton) -> {
-					if (draggingSaturationBrightness) {
-						mouseClickHSB(x, y);
-					}
-				})
-				.onMouseReleaseRunnable(() -> draggingSaturationBrightness = false);
+			.setChildOf(this)
+			.setWidth(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING * 2)))
+			.setHeight(new RelativeConstraint())
+			.onMouseClickConsumer(clickEvent -> clickSaturationBrightness(clickEvent.getRelativeX(), clickEvent.getRelativeY()))
+			.onMouseDragConsumer((x, y, mouseButton) -> {
+				if (draggingSaturationBrightness) {
+					mouseClickHSB(x, y);
+				}
+			})
+			.onMouseReleaseRunnable(() -> draggingSaturationBrightness = false);
 
 		saturationBrightnessBoxComponent.setBackgroundColor(Color.BLACK);
 
 		hueBoxComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(this)
-				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new PixelConstraint(GuiHelper.DEFAULT_LINE_SIZE))
-				.setHeight(new RelativeConstraint())
-				.onMouseClickConsumer(clickEvent -> clickHue(clickEvent.getRelativeY()))
-				.onMouseDragConsumer((x, y, mouseButton) -> {
-					if (draggingHue) {
-						mouseClickHSB(0, y);
-					}
-				})
-				.onMouseReleaseRunnable(() -> draggingHue = false);
+			.setChildOf(this)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new PixelConstraint(GuiHelper.DEFAULT_LINE_SIZE))
+			.setHeight(new RelativeConstraint())
+			.onMouseClickConsumer(clickEvent -> clickHue(clickEvent.getRelativeY()))
+			.onMouseDragConsumer((x, y, mouseButton) -> {
+				if (draggingHue) {
+					mouseClickHSB(0, y);
+				}
+			})
+			.onMouseReleaseRunnable(() -> draggingHue = false);
 
 		hueBoxComponent.setBackgroundColor(Color.BLACK);
 
 		final UIContainer outerContainer = (UIContainer) new UIContainer()
-				.setChildOf(this)
-				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new PixelConstraint(RIGHT_PANEL_WIDTH))
-				.setHeight(new RelativeConstraint());
+			.setChildOf(this)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new PixelConstraint(RIGHT_PANEL_WIDTH))
+			.setHeight(new RelativeConstraint());
 
 		colorPreviewComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-				.setChildOf(outerContainer)
-				.setWidth(new PixelConstraint(RIGHT_PANEL_WIDTH))
-				.setHeight(new PixelConstraint(RIGHT_PANEL_WIDTH / 4F));
+			.setChildOf(outerContainer)
+			.setWidth(new PixelConstraint(RIGHT_PANEL_WIDTH))
+			.setHeight(new PixelConstraint(RIGHT_PANEL_WIDTH / 4F));
 
 		final ScrollComponent scrollComponent = ((ScrollPanelComponent) new ScrollPanelComponent(true)
-				.setChildOf(outerContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint())
-				.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
+			.setChildOf(outerContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
 
 		resetButton = (ButtonComponent) (new ButtonComponent(true)
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint()));
+			.setChildOf(scrollComponent)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint()));
 
 		resetButton.setDisabled(true);
 		resetButton.setText(TranslationProvider.GUI_MTR_RESET.getString());
@@ -103,9 +103,9 @@ public final class ColorInputComponent extends UIContainer {
 		});
 
 		final ButtonComponent randomButton = (ButtonComponent) (new ButtonComponent(true)
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint()));
+			.setChildOf(scrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint()));
 
 		randomButton.setText(TranslationProvider.GUI_MTR_COLOR_RANDOM.getString());
 		randomButton.onClick(this::setRandomColor);
@@ -114,10 +114,10 @@ public final class ColorInputComponent extends UIContainer {
 		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_COLOR_HEX.getString());
 
 		colorInputComponent = (TextInputComponent) new TextInputComponent()
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(20));
+			.setChildOf(scrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
 		colorInputComponent.setForceUpperCase(true);
 		colorInputComponent.setFilter("[^\\dA-F]");
@@ -129,10 +129,10 @@ public final class ColorInputComponent extends UIContainer {
 		GuiHelper.createLabel(scrollComponent, TranslationProvider.GUI_MTR_COLOR_RGB.getString());
 
 		final UIContainer rgbContainer = (UIContainer) new UIContainer()
-				.setChildOf(scrollComponent)
-				.setY(new SiblingConstraint())
-				.setWidth(new RelativeConstraint())
-				.setHeight(new PixelConstraint(NumberInputComponent.HEIGHT));
+			.setChildOf(scrollComponent)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(NumberInputComponent.HEIGHT));
 
 		redInputComponent = addColorInputComponents(rgbContainer, value -> setSelectedColor((int) value, null, null));
 		greenInputComponent = addColorInputComponents(rgbContainer, value -> setSelectedColor(null, (int) value, null));
@@ -145,7 +145,7 @@ public final class ColorInputComponent extends UIContainer {
 		ImageComponentBase.drawRectangle(vertexConsumer -> {
 			drawSlot(matrixStack, vertexConsumer, hueBoxComponent, 1, 0, 0F, hue, (relativeX, relativeY, indexX) -> new Color(Color.HSBtoRGB(getHue(relativeY), 1, 1)));
 			drawSlot(matrixStack, vertexConsumer, saturationBrightnessBoxComponent, 0, 0, brightness, saturation, (relativeX, relativeY, indexX) -> new Color(Color.HSBtoRGB(hue, getSaturation(relativeY), getBrightness(relativeX))));
-			drawSlot(matrixStack, vertexConsumer, colorPreviewComponent, 2, 1, null, null, (relativeX, relativeY, indexX) -> indexX > 0 ? oldColor : getSelectedColor());
+			drawSlot(matrixStack, vertexConsumer, colorPreviewComponent, 2, 1, null, null, (relativeX, relativeY, indexX) -> indexX > 0 ? oldColor == null ? Color.BLACK : oldColor : getSelectedColor());
 		}, false);
 
 		if (inputSourceCooldown <= INPUT_SOURCE_COOLDOWN_LIMIT) {
@@ -259,9 +259,9 @@ public final class ColorInputComponent extends UIContainer {
 
 	private static NumberInputComponent addColorInputComponents(UIContainer container, DoubleConsumer callback) {
 		return (NumberInputComponent) new NumberInputComponent(0, 0xFF, 1, false, callback)
-				.setChildOf(container)
-				.setX(new SiblingConstraint())
-				.setWidth(new ScaleConstraint(new RelativeConstraint(), 1F / 3));
+			.setChildOf(container)
+			.setX(new SiblingConstraint())
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 1F / 3));
 	}
 
 	private static void drawSlot(UMatrixStack matrixStack, UVertexConsumer vertexConsumer, SlotBackgroundComponent slotBackgroundComponent, int xDimensionCount, int yDimensionCount, @Nullable Float selectionX, @Nullable Float selectionY, DrawColor drawColor) {

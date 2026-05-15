@@ -9,6 +9,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import org.jspecify.annotations.Nullable;
 import org.mtr.Keys;
 import org.mtr.MTR;
 import org.mtr.Patreon;
@@ -20,8 +21,6 @@ import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.tool.Drawing;
 import org.mtr.widget.BetterSliderWidget;
-
-import javax.annotation.Nullable;
 
 public class ConfigScreen extends ScreenBase implements IGui {
 

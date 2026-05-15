@@ -4,6 +4,7 @@ import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import net.minecraft.text.Text;
+import org.jspecify.annotations.Nullable;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Station;
 import org.mtr.core.data.StationExit;
@@ -22,7 +23,6 @@ import org.mtr.widget.ListComponent;
 import org.mtr.widget.SlotBackgroundComponent;
 import org.mtr.widget.TextInputComponent;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 
 public final class StationScreen extends NameColorDataScreenBase<Station> {
