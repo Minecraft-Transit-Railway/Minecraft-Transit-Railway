@@ -51,13 +51,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements BlockEntityProv
 
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof EyeCandyBlockEntity) {
-				entity.markDirty();
-				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos));
-			}
-		});
+		return IBlock.checkHoldingBrush(world, player, () -> Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos)));
 	}
 
 	@Override

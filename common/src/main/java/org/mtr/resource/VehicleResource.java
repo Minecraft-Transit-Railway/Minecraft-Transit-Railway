@@ -161,7 +161,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	 * dispatch is unused.</p>
 	 *
 	 * @return the cached / freshly-built resource, or {@code null} if any underlying model
-	 *         is still parsing on the worker thread (the caller should retry next frame).
+	 * is still parsing on the worker thread (the caller should retry next frame).
 	 */
 	@Nullable
 	public VehicleResourceCache getCachedVehicleResource(int carNumber, int totalCars) {

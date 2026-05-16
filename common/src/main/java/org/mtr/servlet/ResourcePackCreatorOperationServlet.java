@@ -1,5 +1,6 @@
 package org.mtr.servlet;
 
+import gg.essential.universal.UMinecraft;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -57,7 +58,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 				preview(httpServletRequest, httpServletResponse, asyncContext);
 				break;
 			case "/force-reload":
-				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> UMinecraft.setCurrentScreenObj(new ReloadCustomResourcesScreen(() -> {
 					CustomResourceLoader.reload();
 					returnStandardResponse(httpServletResponse, asyncContext, "");
 				})));
@@ -78,9 +79,10 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 		asyncContext.setTimeout(0);
 		setEncoding(httpServletRequest, httpServletResponse);
 
-		switch (httpServletRequest.getPathInfo()) {
-			case "/update" -> update(httpServletRequest, httpServletResponse, asyncContext);
-			default -> returnErrorResponse(httpServletResponse, asyncContext);
+		if ("/update".equals(httpServletRequest.getPathInfo())) {
+			update(httpServletRequest, httpServletResponse, asyncContext);
+		} else {
+			returnErrorResponse(httpServletResponse, asyncContext);
 		}
 	}
 

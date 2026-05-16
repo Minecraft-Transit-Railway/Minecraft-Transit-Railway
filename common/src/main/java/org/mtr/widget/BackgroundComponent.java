@@ -24,7 +24,6 @@ public final class BackgroundComponent extends StitchedImageComponent {
 	private static final int TAB_WIDTH = 26;
 	private static final int TAB_HEIGHT = 32;
 	private static final int TAB_ICON_SIZE = 16;
-	private static final ReleasedDynamicTexture BRUSH_TEXTURE = ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get();
 
 	public BackgroundComponent(Window parent, ObjectImmutableList<ObjectObjectImmutablePair<ReleasedDynamicTexture, String>> tabs) {
 		super(256, 256, 176, 222, 6, -INNER_PADDING, 6, 6, 170, 16, ReleasedDynamicTextureRegistry.BACKGROUND_TEXTURE.get());
@@ -107,7 +106,7 @@ public final class BackgroundComponent extends StitchedImageComponent {
 	}
 
 	private void drawTabIcon(UMatrixStack matrixStack, ReleasedDynamicTexture releasedDynamicTexture, int currentTab) {
-		if (releasedDynamicTexture == BRUSH_TEXTURE) {
+		if (releasedDynamicTexture == ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get()) {
 			drawTabIcon(matrixStack, ReleasedDynamicTextureRegistry.STICK_TEXTURE.get(), currentTab);
 		}
 

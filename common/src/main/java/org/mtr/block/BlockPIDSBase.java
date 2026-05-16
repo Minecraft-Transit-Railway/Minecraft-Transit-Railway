@@ -49,7 +49,6 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 			final BlockPos newBlockPos = getBlockPosWithData.apply(world, pos);
 			final BlockEntity entity = world.getBlockEntity(newBlockPos);
 			if (entity instanceof BlockEntityBase blockEntityBase) {
-				entity.markDirty();
 				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenPIDSConfigScreen(newBlockPos, blockEntityBase.maxArrivals));
 			}
 		});

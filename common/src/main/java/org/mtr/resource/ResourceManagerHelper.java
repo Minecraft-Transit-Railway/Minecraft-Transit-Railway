@@ -98,12 +98,16 @@ public final class ResourceManagerHelper {
 		}
 	}
 
-	/** @return the resource-pack format version Minecraft expects on the current client. */
+	/**
+	 * @return the resource-pack format version Minecraft expects on the current client.
+	 */
 	public static int getResourcePackVersion() {
 		return MinecraftVersion.create().getResourceVersion(ResourceType.CLIENT_RESOURCES);
 	}
 
-	/** @return the data-pack format version Minecraft expects on the current server. */
+	/**
+	 * @return the data-pack format version Minecraft expects on the current server.
+	 */
 	public static int getDataPackVersion() {
 		return MinecraftVersion.create().getResourceVersion(ResourceType.SERVER_DATA);
 	}

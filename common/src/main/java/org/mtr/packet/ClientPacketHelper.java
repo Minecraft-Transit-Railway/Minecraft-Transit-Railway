@@ -31,6 +31,8 @@ public final class ClientPacketHelper {
 				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) blockEntity), screen -> screen instanceof TrainScheduleSensorScreen);
 			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase) {
 				openScreen(new TrainBasicSensorScreen(blockPos), screen -> screen instanceof TrainBasicSensorScreen);
+			} else if (blockEntity instanceof BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity) {
+				openScreen(new DriverKeyDispenserScreen(blockPos, (BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity) blockEntity), screen -> screen instanceof DriverKeyDispenserScreen);
 			} else if (blockEntity instanceof BlockRailwaySign.RailwaySignBlockEntity || blockEntity instanceof BlockRouteSignBase.BlockEntityBase) {
 				openScreen(new RailwaySignScreen(blockPos), screen -> screen instanceof RailwaySignScreen);
 			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
@@ -66,7 +68,7 @@ public final class ClientPacketHelper {
 	public static void openLiftCustomizationScreen(BlockPos blockPos) {
 		for (final Lift lift : MinecraftClientData.getInstance().lifts) {
 			if (lift.getFloorIndex(MTR.blockPosToPosition(blockPos)) >= 0) {
-				MinecraftClient.getInstance().setScreen(new LiftCustomizationScreen(lift));
+				UMinecraft.setCurrentScreenObj(new LiftCustomizationScreen(lift));
 				break;
 			}
 		}

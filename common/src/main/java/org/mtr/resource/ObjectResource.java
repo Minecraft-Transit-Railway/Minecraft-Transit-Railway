@@ -47,9 +47,8 @@ public final class ObjectResource extends ObjectResourceSchema implements Stored
 				matrixStack.translate(translation.getX(), translation.getY(), translation.getZ());
 				Drawing.rotateXDegrees(matrixStack, (float) rotation.getX());
 				Drawing.rotateYDegrees(matrixStack, (float) rotation.getY());
-				Drawing.rotateZDegrees(matrixStack, (float) rotation.getZ());
+				Drawing.rotateZDegrees(matrixStack, (float) rotation.getZ() + 180);
 				matrixStack.scale(clampNumber(scale.getX()), clampNumber(scale.getY()), clampNumber(scale.getZ()));
-//					matrixStack.mirror(mirror.getX(), mirror.getY(), mirror.getZ());
 			}
 		);
 		StoredModelResourceBase.super.render(newStoredMatrixTransformations, light);

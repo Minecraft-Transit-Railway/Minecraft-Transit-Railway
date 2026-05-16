@@ -1,213 +1,127 @@
 package org.mtr.screen;
 
-import net.minecraft.client.gui.DrawContext;
+import gg.essential.elementa.components.UIContainer;
+import gg.essential.elementa.components.UIWrappedText;
+import gg.essential.elementa.constraints.PixelConstraint;
+import gg.essential.elementa.constraints.RelativeConstraint;
+import gg.essential.elementa.constraints.ScaleConstraint;
+import gg.essential.elementa.constraints.SiblingConstraint;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
-import org.mtr.Keys;
-import org.mtr.MTR;
-import org.mtr.Patreon;
 import org.mtr.client.DynamicTextureCache;
-import org.mtr.client.IDrawing;
 import org.mtr.config.Client;
 import org.mtr.config.Config;
-import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
-import org.mtr.tool.Drawing;
-import org.mtr.widget.BetterSliderWidget;
+import org.mtr.tool.GuiHelper;
+import org.mtr.widget.ButtonComponent;
+import org.mtr.widget.NumberInputComponent;
 
-public class ConfigScreen extends ScreenBase implements IGui {
+import java.awt.*;
+
+/**
+ * Elementa configuration screen for client-side toggles and numeric options.
+ */
+public class ConfigScreen extends SingleTabBackgroundScreenBase {
 
 	private final Client client = Config.getClient();
+	private final NumberInputComponent dynamicTextureResolutionInput;
+	private final NumberInputComponent trainOscillationInput;
 
-	private final ButtonWidget buttonShowAnnouncementMessages;
-	private final ButtonWidget buttonUseTTSAnnouncements;
-	private final ButtonWidget buttonHideTranslucentParts;
-	private final ButtonWidget buttonLanguageOptions;
-	private final BetterSliderWidget sliderDynamicTextureResolution;
-	private final BetterSliderWidget sliderTrainOscillationMultiplier;
-	private final ButtonWidget buttonDefaultRail3D;
-	private final ButtonWidget buttonUseMTRFont;
-	private final ButtonWidget buttonDisableShadowsForShaders;
-	private final ButtonWidget buttonSupportPatreon;
+	public ConfigScreen(@Nullable Screen previousScreenLegacy) {
+		super(previousScreenLegacy, TranslationProvider.GUI_MTR_MTR_OPTIONS.getString());
+		createToggleRow(TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getString(), client.getChatAnnouncements(), client::toggleChatAnnouncements);
+		createToggleRow(TranslationProvider.OPTIONS_MTR_USE_TTS_ANNOUNCEMENTS.getString(), client.getTextToSpeechAnnouncements(), client::toggleTextToSpeechAnnouncements);
+		createToggleRow(TranslationProvider.OPTIONS_MTR_HIDE_TRANSLUCENT_PARTS.getString(), client.getHideTranslucentParts(), client::toggleHideTranslucentParts);
+		createLanguageRow();
 
-	private static final Identifier HEADER_LOGO = Identifier.of(MTR.MOD_ID, "textures/block/sign/logo.png");
-	private static final int HEADER_LOGO_SIZE = 40;
-	private static final int BUTTON_WIDTH = 60;
-	private static final int BUTTON_HEIGHT = TEXT_HEIGHT * 2;
+		dynamicTextureResolutionInput = createNumberRow(TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getString(), 0, Client.DYNAMIC_RESOLUTION_COUNT - 1, 1, client.getDynamicTextureResolution());
+		trainOscillationInput = createNumberRow(TranslationProvider.OPTIONS_MTR_VEHICLE_OSCILLATION_MULTIPLIER.getString(), 0, Client.TRAIN_OSCILLATION_COUNT, 1, (int) (client.getVehicleOscillationMultiplier() * 10));
+		trainOscillationInput.setSuffix("0%");
 
-	public ConfigScreen(@Nullable Screen previousScreen) {
-		super(previousScreen);
+		createToggleRow(TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getString(), client.getDefaultRail3D(), client::toggleDefaultRail3D);
+		createToggleRow(TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getString(), client.getUseMTRFont(), client::toggleUseMTRFont);
+		createToggleRow(TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getString(), client.getDisableShadowsForShaders(), client::toggleDisableShadowsForShaders);
 
-		buttonShowAnnouncementMessages = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleChatAnnouncements();
-			setButtonText(button, client.getChatAnnouncements());
-		}).build();
-		buttonUseTTSAnnouncements = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleTextToSpeechAnnouncements();
-			setButtonText(button, client.getTextToSpeechAnnouncements());
-		}).build();
-		buttonHideTranslucentParts = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleHideTranslucentParts();
-			setButtonText(button, client.getHideTranslucentParts());
-		}).build();
-		buttonLanguageOptions = ButtonWidget.builder(Text.empty(), button -> {
-			client.cycleLanguageDisplay();
-			button.setMessage(client.getLanguageDisplay().translationKey.getText());
-		}).build();
-		sliderDynamicTextureResolution = new BetterSliderWidget(Client.DYNAMIC_RESOLUTION_COUNT - 1, String::valueOf, "", BUTTON_WIDTH, null);
-		sliderTrainOscillationMultiplier = new BetterSliderWidget(Client.TRAIN_OSCILLATION_COUNT, i -> (i * 10) + "%", "", BUTTON_WIDTH, null);
-		buttonDefaultRail3D = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleDefaultRail3D();
-			setButtonText(button, client.getDefaultRail3D());
-		}).build();
-		buttonUseMTRFont = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleUseMTRFont();
-			setButtonText(button, client.getUseMTRFont());
-		}).build();
-		buttonDisableShadowsForShaders = ButtonWidget.builder(Text.empty(), button -> {
-			client.toggleDisableShadowsForShaders();
-			setButtonText(button, client.getDisableShadowsForShaders());
-		}).build();
-		buttonSupportPatreon = ButtonWidget.builder(Text.empty(), button -> Util.getOperatingSystem().open("https://www.patreon.com/minecraft_transit_railway")).build();
+		final ButtonComponent supportButton = (ButtonComponent) new ButtonComponent(false)
+			.setChildOf(contentContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint());
+		supportButton.setText(TranslationProvider.GUI_MTR_SUPPORT.getString());
+		supportButton.onClick(() -> Util.getOperatingSystem().open("https://www.patreon.com/minecraft_transit_railway"));
 	}
 
 	@Override
-	protected void init() {
-		super.init();
-
-		int startY = TEXT_PADDING;
-		int i = 1;
-		IDrawing.setPositionAndWidth(buttonShowAnnouncementMessages, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonUseTTSAnnouncements, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonHideTranslucentParts, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonLanguageOptions, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
-		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
-
-		buttonShowAnnouncementMessages.setHeight(BUTTON_HEIGHT);
-		buttonUseTTSAnnouncements.setHeight(BUTTON_HEIGHT);
-		buttonHideTranslucentParts.setHeight(BUTTON_HEIGHT);
-		buttonLanguageOptions.setHeight(BUTTON_HEIGHT);
-		buttonDefaultRail3D.setHeight(BUTTON_HEIGHT);
-		buttonUseMTRFont.setHeight(BUTTON_HEIGHT);
-		buttonDisableShadowsForShaders.setHeight(BUTTON_HEIGHT);
-		buttonSupportPatreon.setHeight(BUTTON_HEIGHT);
-
-		setButtonText(buttonShowAnnouncementMessages, client.getChatAnnouncements());
-		setButtonText(buttonUseTTSAnnouncements, client.getTextToSpeechAnnouncements());
-		setButtonText(buttonHideTranslucentParts, client.getHideTranslucentParts());
-		setButtonText(buttonDefaultRail3D, client.getDefaultRail3D());
-		setButtonText(buttonUseMTRFont, client.getUseMTRFont());
-		setButtonText(buttonDisableShadowsForShaders, client.getDisableShadowsForShaders());
-
-		buttonLanguageOptions.setMessage(client.getLanguageDisplay().translationKey.getText());
-		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
-		sliderDynamicTextureResolution.setValue(client.getDynamicTextureResolution());
-		sliderTrainOscillationMultiplier.setHeight(BUTTON_HEIGHT);
-		sliderTrainOscillationMultiplier.setValue((int) (client.getVehicleOscillationMultiplier() * 10));
-		buttonDefaultRail3D.active = true;
-		buttonSupportPatreon.setMessage(TranslationProvider.GUI_MTR_SUPPORT.getText());
-
-		addDrawableChild(buttonShowAnnouncementMessages);
-		addDrawableChild(buttonUseTTSAnnouncements);
-		addDrawableChild(buttonHideTranslucentParts);
-		addDrawableChild(buttonLanguageOptions);
-		addDrawableChild(sliderDynamicTextureResolution);
-		addDrawableChild(sliderTrainOscillationMultiplier);
-		addDrawableChild(buttonDefaultRail3D);
-		addDrawableChild(buttonUseMTRFont);
-		addDrawableChild(buttonDisableShadowsForShaders);
-		addDrawableChild(buttonSupportPatreon);
-	}
-
-	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		super.render(context, mouseX, mouseY, delta);
-		drawHeader(context);
-
-		final int yStart1 = SQUARE_SIZE + TEXT_PADDING + TEXT_PADDING / 2;
-		int i = 1;
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SHOW_ANNOUNCEMENT_MESSAGES.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_TTS_ANNOUNCEMENTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_HIDE_TRANSLUCENT_PARTS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_VEHICLE_OSCILLATION_MULTIPLIER.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, true);
-		context.drawText(textRenderer, TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, 0xFFFFFF66, true);
-
-		final int yStart2 = BUTTON_HEIGHT * (i + 1) + yStart1;
-		String tierTitle = "";
-		int y = 0;
-		int x = 0;
-		int maxWidth = 0;
-		for (final Patreon patreon : Patreon.PATREON_LIST) {
-			if (!patreon.tierTitle.equals(tierTitle)) {
-				x += maxWidth + TEXT_PADDING;
-				y = 0;
-				final String text = patreon.tierTitle;
-				maxWidth = textRenderer.getWidth(text);
-				context.drawText(textRenderer, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2, patreon.tierColor, false);
-			} else if (y + yStart2 + TEXT_HEIGHT + SQUARE_SIZE > height) {
-				x += maxWidth + TEXT_PADDING;
-				y = 0;
-				maxWidth = 0;
-			}
-
-			tierTitle = patreon.tierTitle;
-			final MutableText text = patreon.tierAmount < 1000 ? TranslationProvider.OPTIONS_MTR_ANONYMOUS.getMutableText() : Text.literal(patreon.name);
-			maxWidth = Math.max(maxWidth, textRenderer.getWidth(text));
-			context.drawText(textRenderer, text, SQUARE_SIZE - TEXT_PADDING + x, yStart2 + y + TEXT_HEIGHT + TEXT_PADDING, ARGB_LIGHT_GRAY, false);
-			y += TEXT_HEIGHT + 2;
-		}
-	}
-
-	@Override
-	public void close() {
-		super.close();
-		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
-		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
+	public void onScreenClose() {
+		client.setDynamicTextureResolution((int) dynamicTextureResolutionInput.getValue());
+		client.setVehicleOscillationMultiplier(trainOscillationInput.getValue() / 10.0);
 		DynamicTextureCache.instance.refresh();
 		Config.save();
+		super.onScreenClose();
 	}
 
-	private void drawHeader(DrawContext context) {
-		MutableText titleText = TranslationProvider.GUI_MTR_BRAND.getMutableText();
-		final MatrixStack matrixStack = context.getMatrices();
+	private void createToggleRow(String label, boolean initialState, Runnable toggleAction) {
+		final UIContainer row = (UIContainer) new UIContainer()
+			.setChildOf(contentContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
 
-		// Logo
-		matrixStack.push();
-		matrixStack.translate((width - (textRenderer.getWidth(titleText) * 1.5F) - HEADER_LOGO_SIZE - TEXT_PADDING) / 2, 0, 0);
-		new Drawing(matrixStack, RenderLayer.getGuiTextured(HEADER_LOGO)).setVerticesWH(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE).setUv().draw();
+		new UIWrappedText(label, false)
+			.setChildOf(row)
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.7F))
+			.setColor(new Color(GuiHelper.WHITE_COLOR));
 
-		matrixStack.translate(HEADER_LOGO_SIZE, 0, 0);
-		matrixStack.translate(TEXT_PADDING, 0, 0);
-
-		// Brand Name
-		matrixStack.push();
-		matrixStack.scale(1.5F, 1.5F, 1.5F);
-		context.drawText(textRenderer, titleText, 0, TEXT_PADDING, ARGB_WHITE, true);
-		matrixStack.pop();
-
-		// Version
-		context.drawText(textRenderer, Keys.MOD_VERSION, 0, (TEXT_PADDING * 4), ARGB_WHITE, true);
-		matrixStack.pop();
+		final ButtonComponent toggleButton = (ButtonComponent) new ButtonComponent(false)
+			.setChildOf(row)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint());
+		toggleButton.setText(getOnOffText(initialState));
+		toggleButton.onClick(() -> {
+			toggleAction.run();
+//			toggleButton.setText(getOnOffText(!toggleButton.getText().equals(getOnOffText(true))));
+		});
 	}
 
-	private static void setButtonText(ButtonWidget button, boolean state) {
-		button.setMessage((state ? TranslationProvider.OPTIONS_MTR_ON : TranslationProvider.OPTIONS_MTR_OFF).getText());
+	private void createLanguageRow() {
+		final UIContainer row = (UIContainer) new UIContainer()
+			.setChildOf(contentContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(20));
+
+		new UIWrappedText(TranslationProvider.OPTIONS_MTR_LANGUAGE_OPTIONS.getString(), false)
+			.setChildOf(row)
+			.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.7F))
+			.setColor(new Color(GuiHelper.WHITE_COLOR));
+
+		final ButtonComponent languageButton = (ButtonComponent) new ButtonComponent(false)
+			.setChildOf(row)
+			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint());
+		languageButton.setText(client.getLanguageDisplay().translationKey.getString());
+		languageButton.onClick(() -> {
+			client.cycleLanguageDisplay();
+			languageButton.setText(client.getLanguageDisplay().translationKey.getString());
+		});
+	}
+
+	private NumberInputComponent createNumberRow(String label, double min, double max, double step, double initialValue) {
+		new UIWrappedText(label, false)
+			.setChildOf(contentContainer)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.WHITE_COLOR));
+
+		final NumberInputComponent numberInputComponent = (NumberInputComponent) new NumberInputComponent(min, max, step, false, null)
+			.setChildOf(contentContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new PixelConstraint(80));
+		numberInputComponent.setValue(initialValue);
+		return numberInputComponent;
+	}
+
+	private static String getOnOffText(boolean state) {
+		return (state ? TranslationProvider.OPTIONS_MTR_ON : TranslationProvider.OPTIONS_MTR_OFF).getString();
 	}
 }

@@ -3,6 +3,7 @@ package org.mtr.screen;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.constraints.*;
 import net.minecraft.util.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectCollection;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> extends WindowBase {
 
 	private final ObjectArrayList<T> availableData = new ObjectArrayList<>();
-	private final ObjectArrayList<T> selectedData = new ObjectArrayList<>();
+	protected final ObjectArrayList<T> selectedData = new ObjectArrayList<>();
 	private final boolean canSelectMultiple;
 	private final boolean canSelectDuplicate;
 	private final boolean canManuallySortSelectedList;
@@ -27,8 +28,20 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 	private final ListComponent<T> availableListComponent = createMainComponents();
 	private final ListComponent<T> selectedListComponent = createMainComponents();
 
-	public ListSelectorScreen(boolean canSelectMultiple, boolean canSelectDuplicate, boolean canManuallySortSelectedList, Consumer<ObjectArrayList<T>> onClose, WindowBase previousScreen) {
+	public ListSelectorScreen(boolean canSelectMultiple, boolean canSelectDuplicate, boolean canManuallySortSelectedList, Consumer<ObjectArrayList<T>> onClose, @Nullable WindowBase previousScreen) {
 		super(previousScreen);
+		this.canSelectMultiple = canSelectMultiple;
+		this.canSelectDuplicate = canSelectDuplicate;
+		this.canManuallySortSelectedList = canManuallySortSelectedList;
+		this.onClose = onClose;
+	}
+
+	/**
+	 * Legacy constructor for opening list selectors from old {@link ScreenBase} screens.
+	 */
+	@Deprecated
+	public ListSelectorScreen(boolean canSelectMultiple, boolean canSelectDuplicate, boolean canManuallySortSelectedList, Consumer<ObjectArrayList<T>> onClose, @Nullable ScreenBase previousScreenLegacy) {
+		super(previousScreenLegacy);
 		this.canSelectMultiple = canSelectMultiple;
 		this.canSelectDuplicate = canSelectDuplicate;
 		this.canManuallySortSelectedList = canManuallySortSelectedList;
@@ -39,6 +52,9 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 	public void onScreenClose() {
 		super.onScreenClose();
 		onClose.accept(selectedData);
+	}
+
+	protected void onSelectionChanged() {
 	}
 
 	public void setAvailableList(ObjectCollection<T> availableList) {
@@ -60,6 +76,7 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 
 			updateAvailableData();
 			updateSelectedData();
+			onSelectionChanged();
 		}
 	}
 
@@ -108,6 +125,7 @@ public abstract class ListSelectorScreen<T extends U, U extends Comparable<U>> e
 
 			updateAvailableData();
 			updateSelectedData();
+			onSelectionChanged();
 		});
 
 		setData(selectedListComponent, selectedData, canManuallySortSelectedList ? ObjectArrayList.of(

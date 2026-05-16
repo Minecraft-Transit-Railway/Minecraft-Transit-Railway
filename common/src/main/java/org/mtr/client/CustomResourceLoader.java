@@ -244,7 +244,9 @@ public class CustomResourceLoader {
 		}
 	}
 
-	/** Visit every registered vehicle for the given transport mode. */
+	/**
+	 * Visit every registered vehicle for the given transport mode.
+	 */
 	public static void iterateVehicles(TransportMode transportMode, Consumer<VehicleResource> consumer) {
 		VEHICLES.get(transportMode).forEach(consumer);
 	}
@@ -292,8 +294,8 @@ public class CustomResourceLoader {
 
 	/**
 	 * @return the tag-organised vehicle index for the given transport mode:
-	 *         {@code tagKey -> tagValue -> [vehicleId, ...]}. Used by the dashboard's tag
-	 *         filter.
+	 * {@code tagKey -> tagValue -> [vehicleId, ...]}. Used by the dashboard's tag
+	 * filter.
 	 */
 	public static Object2ObjectAVLTreeMap<String, Object2ObjectAVLTreeMap<String, ObjectArrayList<String>>> getVehicleTags(TransportMode transportMode) {
 		return VEHICLES_TAGS.get(transportMode);

@@ -1,16 +1,15 @@
 package org.mtr.packet;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockRailwaySign;
 import org.mtr.block.BlockRouteSignBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 
-public final class PacketUpdateRailwaySignConfig extends PacketHandler {
+public final class PacketUpdateRailwaySignConfig extends BlockEntityPacketHandler {
 
 	private final BlockPos blockPos;
 	private final LongAVLTreeSet[] selectedIds;
@@ -61,19 +60,19 @@ public final class PacketUpdateRailwaySignConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (!MTR.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+	protected void setData(@Nullable World world) {
+		if (world == null || !MTR.isChunkLoaded(world, blockPos)) {
 			return;
 		}
 
-		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
+		final BlockEntity entity = world.getBlockEntity(blockPos);
 		if (entity != null) {
 			if (entity instanceof BlockRailwaySign.RailwaySignBlockEntity) {
 				((BlockRailwaySign.RailwaySignBlockEntity) entity).setData(selectedIds, signIds);
 			} else if (entity instanceof BlockRouteSignBase.BlockEntityBase) {
 				final long platformId = selectedIds.length == 0 || selectedIds[0].isEmpty() ? 0 : (long) selectedIds[0].getFirst();
 				((BlockRouteSignBase.BlockEntityBase) entity).setPlatformId(platformId);
-				final BlockEntity entityAbove = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos.up());
+				final BlockEntity entityAbove = world.getBlockEntity(blockPos.up());
 				if (entityAbove instanceof BlockRouteSignBase.BlockEntityBase) {
 					((BlockRouteSignBase.BlockEntityBase) entityAbove).setPlatformId(platformId);
 				}

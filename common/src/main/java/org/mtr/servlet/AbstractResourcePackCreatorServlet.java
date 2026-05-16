@@ -1,5 +1,6 @@
 package org.mtr.servlet;
 
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
@@ -45,7 +46,7 @@ public abstract class AbstractResourcePackCreatorServlet extends HttpServlet {
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
 				minecraftClient.execute(() -> {
 					if (refreshVehicleId.isEmpty()) {
-						minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> refreshVehicles(refreshVehicleId, vehiclesFlattened)));
+						UMinecraft.setCurrentScreenObj(new ReloadCustomResourcesScreen(() -> refreshVehicles(refreshVehicleId, vehiclesFlattened)));
 					} else {
 						refreshVehicles(refreshVehicleId, vehiclesFlattened);
 					}

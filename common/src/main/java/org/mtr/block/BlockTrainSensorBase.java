@@ -27,13 +27,7 @@ public abstract class BlockTrainSensorBase extends Block implements BlockEntityP
 
 	@Override
 	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-		return IBlock.checkHoldingBrush(world, player, () -> {
-			final BlockEntity entity = world.getBlockEntity(pos);
-			if (entity instanceof BlockEntityBase) {
-				entity.markDirty();
-				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos));
-			}
-		});
+		return IBlock.checkHoldingBrush(world, player, () -> Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(pos)));
 	}
 
 	public static boolean matchesFilter(World world, BlockPos pos, long routeId, double speed) {

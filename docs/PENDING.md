@@ -36,6 +36,72 @@ These items were addressed in earlier modernisation passes:
 
 ### Style / hygiene
 
+- ✅ **Elementa migration (simple modal screens)** — added
+  `CenteredBackgroundScreenBase` and migrated these screens from legacy
+  `ScreenBase` widgets to Elementa components:
+  - `DeleteConfirmationScreen`
+  - `ReloadCustomResourcesScreen`
+  - `TicketMachineScreen`
+  - `LiftTrackFloorScreen`
+  - `FakePauseScreen`
+
+  Callers were updated to open `WindowScreen`-based UIs via
+  `UMinecraft.setCurrentScreenObj(...)` / `ClientPacketHelper.openScreen(UScreen, ...)`
+  where applicable (`AbstractResourcePackCreatorServlet`,
+  `ResourcePackCreatorUploadServlet`, `ResourcePackCreatorOperationServlet`,
+  `ClientPacketHelper`).
+
+- ✅ **Dead screen cleanup** — removed unused
+  `common/src/main/java/org/mtr/screen/RailActionsScreen.java` after confirming
+  there were no call sites.
+
+- ✅ **Elementa migration (driver key dispenser)** — migrated
+  `DriverKeyDispenserScreen` from legacy `ScreenBase` widgets to
+  `CenteredBackgroundScreenBase` and reconnected
+  `ClientPacketHelper.openBlockEntityScreen(...)` for
+  `BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity` so the UI opens from
+  the block interaction packet again.
+
+- ✅ **Elementa migration (dashboard selectors + lift floor selection)** — migrated
+  selector flows from legacy `DashboardList` screens to `ListSelectorScreen`
+  infrastructure:
+  - `DashboardListSelectorScreen`
+  - `LiftStyleSelectorScreen`
+  - `RailStyleSelectorScreen`
+  - `EyeCandyObjectSelectionScreen`
+  - `LiftSelectionScreen`
+
+  Caller open paths were updated to `UMinecraft.setCurrentScreenObj(...)`
+  where these are launched (`VehicleRidingMovement`, `TrainSensorScreenBase`,
+  `PIDSConfigScreen`, `DepotScreen`, `LiftCustomizationScreen`,
+  `EyeCandyScreen`, `RailModifierScreen`).
+
+- ✅ **Elementa migration (signal color config)** — migrated
+  `SignalColorScreen` from legacy `ScreenBase` controls to
+  `CenteredBackgroundScreenBase` + Elementa components.
+
+- ✅ **Elementa migration (beta warning gate)** — migrated
+  `BetaWarningScreen` from legacy `ScreenBase` rendering/widgets to
+  `CenteredBackgroundScreenBase` and updated the screen open path to
+  `UMinecraft.setCurrentScreenObj(...)`.
+
+- ✅ **Elementa migration (sensor + PIDS configuration)** — migrated
+  `TrainSensorScreenBase` / `TrainScheduleSensorScreen` and
+  `PIDSConfigScreen` from legacy `ScreenBase` widgets to Elementa
+  (`CenteredBackgroundScreenBase`, `TextInputComponent`,
+  `CheckboxComponent`, `ButtonComponent`) and preserved route/platform
+  selector integration via `DashboardListSelectorScreen`.
+
+- ✅ **Elementa migration (eye-candy + lift customization)** — migrated
+  `EyeCandyScreen` and `LiftCustomizationScreen` from legacy
+  `ScreenBase` widgets to `CenteredBackgroundScreenBase` and updated
+  selectors/callers (`EyeCandyObjectSelectionScreen`,
+  `LiftStyleSelectorScreen`, `ClientPacketHelper.openLiftCustomizationScreen`).
+
+- ✅ **Elementa migration (client config screen)** — migrated
+  `ConfigScreen` to `CenteredBackgroundScreenBase` with Elementa
+  toggles/inputs and preserved client config persistence.
+
 - **Replace remaining `MTR.LOGGER.error("", e)` sites with descriptive messages** — §3.14 of
   `CODE_STYLES.md` forbids empty-message logging. As of this writing, twelve sites still
   use the empty form (already fixed: `CustomResourceLoader`, `DynamicTextureCache`,

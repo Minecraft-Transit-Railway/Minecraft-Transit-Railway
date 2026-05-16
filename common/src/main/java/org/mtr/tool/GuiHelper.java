@@ -97,14 +97,14 @@ public final class GuiHelper {
 	 * @param container the parent container
 	 * @param text      the text to render
 	 */
-	public static void createLabel(UIContainer container, String text) {
+	public static UIWrappedText createLabel(UIContainer container, String text) {
 		final UIContainer innerContainer = (UIContainer) new UIContainer()
 			.setChildOf(container)
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint())
 			.setHeight(new ChildBasedSizeConstraint());
 
-		new UIWrappedText(text, false)
+		final UIWrappedText uiWrappedText = (UIWrappedText) new UIWrappedText(text, false)
 			.setChildOf(innerContainer)
 			.setWidth(new RelativeConstraint())
 			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
@@ -115,6 +115,8 @@ public final class GuiHelper {
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint())
 			.setHeight(new PixelConstraint(1));
+
+		return uiWrappedText;
 	}
 
 	/**

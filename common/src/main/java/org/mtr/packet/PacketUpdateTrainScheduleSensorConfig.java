@@ -1,9 +1,9 @@
 package org.mtr.packet;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockTrainScheduleSensor;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -33,12 +33,12 @@ public class PacketUpdateTrainScheduleSensorConfig extends PacketUpdateTrainSens
 	}
 
 	@Override
-	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (!MTR.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+	protected void setData(@Nullable World world) {
+		if (world == null || !MTR.isChunkLoaded(world, blockPos)) {
 			return;
 		}
 
-		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
+		final BlockEntity entity = world.getBlockEntity(blockPos);
 		if (entity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) {
 			((BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) entity).setData(filterRouteIds, stoppedOnly, movingOnly, seconds, realtimeOnly);
 		}

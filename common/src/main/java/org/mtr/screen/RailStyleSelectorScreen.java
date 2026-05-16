@@ -23,13 +23,13 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 	private final ObjectImmutableList<RailResource> allRails = CustomResourceLoader.getRails();
 
 	private RailStyleSelectorScreen(Rail rail, ObjectImmutableList<DashboardListItem> rails, LongArrayList selectedRailIndices) {
-		super(rails, selectedRailIndices, false, false, null);
+		super(rails, selectedRailIndices, false, false, (ScreenBase) null);
 		this.rail = rail;
 	}
 
 	@Override
-	public void close() {
-		super.close();
+	public void onScreenClose() {
+		super.onScreenClose();
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;
 		if (clientPlayerEntity != null) {
 			RegistryClient.sendPacketToServer(new PacketUpdateLastRailStyles(clientPlayerEntity.getUuid(), rail.getTransportMode(), getStyles()));
@@ -37,8 +37,8 @@ public class RailStyleSelectorScreen extends DashboardListSelectorScreen {
 	}
 
 	@Override
-	protected void updateList() {
-		super.updateList();
+	protected void onSelectionChanged() {
+		super.onSelectionChanged();
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addRail(Rail.copy(rail, getStyles()))));
 	}
 

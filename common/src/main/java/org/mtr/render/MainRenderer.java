@@ -94,7 +94,9 @@ public class MainRenderer {
 	 */
 	private static final QueuedRenderLayer[] QUEUED_RENDER_LAYERS = QueuedRenderLayer.values();
 	private static final RenderStage[] RENDER_STAGES = RenderStage.values();
-	/** Reusable identifier for {@link #scheduleRender(QueuedRenderLayer, ScheduledRender)} — see {@code docs/PERFORMANCE.md} §4.3. */
+	/**
+	 * Reusable identifier for {@link #scheduleRender(QueuedRenderLayer, ScheduledRender)} — see {@code docs/PERFORMANCE.md} §4.3.
+	 */
 	private static final Identifier EMPTY_IDENTIFIER = Identifier.of("");
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
 	private static final ObjectArrayList<ObjectArrayList<Object2ObjectArrayMap<Identifier, ObjectArrayList<ScheduledRender>>>> CURRENT_RENDERS = new ObjectArrayList<>(TOTAL_RENDER_STAGES);
@@ -142,8 +144,6 @@ public class MainRenderer {
 		final long millisElapsed = getMillisElapsed();
 		timerMillis += millisElapsed;
 
-		MODEL_RENDERS.clear();
-		MODEL_RENDERS_TRANSLUCENT.clear();
 		MinecraftClientData.getInstance().blockedRailIds.clear();
 		MinecraftClientData.getInstance().vehicles.forEach(vehicle -> vehicle.simulate(millisElapsed));
 		MinecraftClientData.getInstance().lifts.forEach(lift -> {
@@ -166,6 +166,8 @@ public class MainRenderer {
 
 		renderModel(matrixStack, MODEL_RENDERS, offset);
 		renderModel(matrixStack, MODEL_RENDERS_TRANSLUCENT, offset);
+		MODEL_RENDERS.clear();
+		MODEL_RENDERS_TRANSLUCENT.clear();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QUEUED_RENDER_LAYERS.length; j++) {
@@ -203,9 +205,9 @@ public class MainRenderer {
 	 * at the given transformation and light level. Models are grouped by render stage —
 	 * translucent stages drain after opaque stages so transparency sorts correctly.
 	 *
-	 * @param models                       the pre-built optimised models keyed by render stage
-	 * @param storedMatrixTransformations  the transform applied at draw time
-	 * @param light                        packed lightmap value (block + sky in the low bits)
+	 * @param models                      the pre-built optimised models keyed by render stage
+	 * @param storedMatrixTransformations the transform applied at draw time
+	 * @param light                       packed lightmap value (block + sky in the low bits)
 	 */
 	public static void renderModel(Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<NewOptimizedModel>> models, StoredMatrixTransformations storedMatrixTransformations, int light) {
 		models.forEach((renderStage, newOptimizedModels) -> newOptimizedModels.forEach(newOptimizedModel -> (renderStage.isTranslucent ? MODEL_RENDERS_TRANSLUCENT : MODEL_RENDERS)
@@ -265,8 +267,8 @@ public class MainRenderer {
 
 	/**
 	 * @return a packed lightmap value that pulses sinusoidally between 0 and 0xF on a
-	 *         {@link #FLASHING_INTERVAL}-millisecond period. Suitable for signal-light and
-	 *         door-warning glows.
+	 * {@link #FLASHING_INTERVAL}-millisecond period. Suitable for signal-light and
+	 * door-warning glows.
 	 */
 	public static int getFlashingLight() {
 		final int light = (int) Math.round(((Math.sin(Math.PI * 2 * (getTimerMillis() % FLASHING_INTERVAL) / FLASHING_INTERVAL) + 1) / 2) * 0xF);

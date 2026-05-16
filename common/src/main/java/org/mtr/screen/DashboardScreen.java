@@ -84,7 +84,7 @@ public final class DashboardScreen extends ScreenBase {
 
 	private final BetterButtonWidget transportSystemMapButton = new BetterButtonWidget(GuiHelper.MAP_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> Util.getOperatingSystem().open(String.format("http://localhost:%s", MTRClient.getServerPort())));
 	private final BetterButtonWidget resourcePackCreatorButton = new BetterButtonWidget(GuiHelper.EDITOR_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> Util.getOperatingSystem().open(String.format("http://localhost:%s/creator/", MTRClient.getServerPort())));
-	private final BetterButtonWidget optionsButton = new BetterButtonWidget(GuiHelper.SETTINGS_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> MinecraftClient.getInstance().setScreen(new ConfigScreen(this)));
+	private final BetterButtonWidget optionsButton = new BetterButtonWidget(GuiHelper.SETTINGS_TEXTURE_ID, null, GuiHelper.DEFAULT_LINE_SIZE, () -> UMinecraft.setCurrentScreenObj(new ConfigScreen(this)));
 	private final BetterButtonWidget zoomInButton;
 	private final BetterButtonWidget zoomOutButton;
 

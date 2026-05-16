@@ -7,6 +7,7 @@ import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
 import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMatrixStack;
+import gg.essential.universal.UMinecraft;
 import gg.essential.universal.vertex.UVertexConsumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -112,7 +113,7 @@ public final class RailModifierScreen extends WindowBase {
 			.setWidth(new RelativeConstraint());
 
 		editStylesButtonComponent.setText(Text.translatable("selectWorld.edit").getString());
-		editStylesButtonComponent.onMouseClickConsumer(clickEvent -> MinecraftClient.getInstance().setScreen(RailStyleSelectorScreen.create(rail)));
+		editStylesButtonComponent.onMouseClickConsumer(clickEvent -> UMinecraft.setCurrentScreenObj(RailStyleSelectorScreen.create(rail)));
 
 		final ButtonComponent flipStylesButtonComponent = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(scrollComponent1)

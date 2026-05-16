@@ -19,7 +19,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.packet.PacketUpdateRailwaySignConfig;
-import org.mtr.registry.RegistryClient;
 import org.mtr.resource.SignResource;
 import org.mtr.tool.GuiHelper;
 import org.mtr.widget.*;
@@ -92,7 +91,7 @@ public final class RailwaySignScreen extends WindowBase {
 	public void onScreenClose() {
 		super.onScreenClose();
 		if (signPos != null) {
-			RegistryClient.sendPacketToServer(new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds));
+			new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds).send(MinecraftClient.getInstance().world);
 		}
 	}
 

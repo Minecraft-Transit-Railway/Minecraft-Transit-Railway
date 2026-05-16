@@ -336,8 +336,8 @@ public final class RenderRails implements IGui {
 	 */
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
 		rail.railMath.render((x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle) -> callback.renderRail(
-				BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1),
-				x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle
+			BlockPos.ofFloored(x1, y1 + LIGHT_REFERENCE_OFFSET, z1),
+			x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, tiltAngle
 		), interval, offsetRadius1, offsetRadius2);
 	}
 

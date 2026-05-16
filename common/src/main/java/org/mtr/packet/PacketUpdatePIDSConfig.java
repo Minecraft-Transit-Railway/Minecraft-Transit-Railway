@@ -1,14 +1,14 @@
 package org.mtr.packet;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockPIDSBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 
-public final class PacketUpdatePIDSConfig extends PacketHandler {
+public final class PacketUpdatePIDSConfig extends BlockEntityPacketHandler {
 
 	private final BlockPos blockPos;
 	private final String[] messages;
@@ -66,12 +66,12 @@ public final class PacketUpdatePIDSConfig extends PacketHandler {
 	}
 
 	@Override
-	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
-		if (!MTR.isChunkLoaded(serverPlayerEntity.getEntityWorld(), blockPos)) {
+	protected void setData(@Nullable World world) {
+		if (world == null || !MTR.isChunkLoaded(world, blockPos)) {
 			return;
 		}
 
-		final BlockEntity entity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
+		final BlockEntity entity = world.getBlockEntity(blockPos);
 		if (entity instanceof BlockPIDSBase.BlockEntityBase) {
 			((BlockPIDSBase.BlockEntityBase) entity).setData(messages, hideArrivalArray, platformIds, displayPage);
 		}

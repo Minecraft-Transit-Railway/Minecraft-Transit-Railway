@@ -1,7 +1,7 @@
 package org.mtr.client;
 
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
@@ -107,9 +107,8 @@ public class VehicleRidingMovement {
 			shiftHoldingTicks = 0;
 		} else {
 			if (KeyBindings.LIFT_MENU.isPressed()) {
-				final Screen currentScreen = minecraftClient.currentScreen;
-				if (MinecraftClientData.getLift(ridingVehicleId) != null && !(currentScreen instanceof LiftSelectionScreen)) {
-					minecraftClient.setScreen(new LiftSelectionScreen(ridingVehicleId));
+				if (MinecraftClientData.getLift(ridingVehicleId) != null && !(UMinecraft.getCurrentScreenObj() instanceof LiftSelectionScreen)) {
+					UMinecraft.setCurrentScreenObj(new LiftSelectionScreen(ridingVehicleId));
 				}
 			}
 

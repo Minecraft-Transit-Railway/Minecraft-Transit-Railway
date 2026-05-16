@@ -89,7 +89,7 @@ public final class VehicleModel extends VehicleModelSchema {
 
 	/**
 	 * @return a flattened wrapper suitable for handing to the resource-pack-creator over
-	 *         the wire — drops live loader state, keeps the addressing strings.
+	 * the wire — drops live loader state, keeps the addressing strings.
 	 */
 	public MinecraftModelResource getAsMinecraftResource() {
 		return new MinecraftModelResource(modelResource, modelPropertiesResource, positionDefinitionsResource);

@@ -37,12 +37,12 @@ public abstract class SpecialSignRouteStationExitRendererBase<T> extends Special
 		for (int i = 0; i < dataCount; i++) {
 			dataNames[i] = getOverlayText(Utilities.getElement(dataList, i), customText);
 			dataTextWidths[i] = calculateTextWidths() ? FontRenderHelper.render(null, dataNames[i], FontRenderOptions.builder()
-																									.font(font)
-																									.verticalSpace(height - signSize * SignResource.SMALL_SIGN_PADDING * 2)
-																									.cjkScaling(2)
-																									.maxFontSize(height / 4)
-																									.lineBreak(FontRenderOptions.LineBreak.SPLIT)
-																									.build()).leftFloat() : 0;
+				.font(font)
+				.verticalSpace(height - signSize * SignResource.SMALL_SIGN_PADDING * 2)
+				.cjkScaling(2)
+				.maxFontSize(height / 4)
+				.lineBreak(FontRenderOptions.LineBreak.SPLIT)
+				.build()).leftFloat() : 0;
 			rawWidth += dataTextWidths[i];
 		}
 

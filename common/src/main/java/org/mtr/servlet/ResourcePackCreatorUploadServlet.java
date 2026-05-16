@@ -1,5 +1,6 @@
 package org.mtr.servlet;
 
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -46,7 +47,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 			case "/reset":
 				reset();
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> UMinecraft.setCurrentScreenObj(new ReloadCustomResourcesScreen(() -> {
 					CustomResourceLoader.reload();
 					returnStandardResponse(httpServletResponse, asyncContext, null);
 				})));
@@ -147,7 +148,7 @@ public final class ResourcePackCreatorUploadServlet extends AbstractResourcePack
 
 				final JsonObject newCustomResourcesObject = customResourcesObject;
 				final MinecraftClient minecraftClient = MinecraftClient.getInstance();
-				minecraftClient.execute(() -> minecraftClient.setScreen(new ReloadCustomResourcesScreen(() -> {
+				minecraftClient.execute(() -> UMinecraft.setCurrentScreenObj(new ReloadCustomResourcesScreen(() -> {
 					final ObjectArrayList<VehicleResourceWrapper> vehicles = new ObjectArrayList<>();
 					CustomResourcesConverter.convert(newCustomResourcesObject, identifier -> jsonCache.getOrDefault(identifier.toString(), ResourceManagerHelper.readResource(identifier))).iterateVehicles(vehicleResource -> vehicles.add(vehicleResource.toVehicleResourceWrapper()));
 					resourceWrapper = new ResourceWrapper(vehicles, new ObjectArrayList<>(), new ObjectArrayList<>(), CustomResourceLoader.getMinecraftModelResources(), CustomResourceLoader.getTextureResources());

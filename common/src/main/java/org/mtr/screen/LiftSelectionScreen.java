@@ -1,7 +1,10 @@
 package org.mtr.screen;
 
+import gg.essential.elementa.components.UIWrappedText;
+import gg.essential.elementa.constraints.FillConstraint;
+import gg.essential.elementa.constraints.RelativeConstraint;
+import gg.essential.elementa.constraints.SiblingConstraint;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import org.mtr.MTR;
@@ -11,21 +14,33 @@ import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.data.IGui;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketPressLiftButton;
 import org.mtr.registry.RegistryClient;
 import org.mtr.render.RenderLifts;
+import org.mtr.tool.GuiHelper;
+import org.mtr.widget.BackgroundComponent;
+import org.mtr.widget.ListComponent;
+import org.mtr.widget.ListItem;
+import org.mtr.widget.SlotBackgroundComponent;
 
-public class LiftSelectionScreen extends ScreenBase implements IGui {
+import java.awt.*;
 
-	private final DashboardList selectionList;
+/**
+ * Elementa screen for selecting a lift floor while riding a lift car.
+ */
+public class LiftSelectionScreen extends WindowBase implements IGui {
+
 	private final ObjectArrayList<BlockPos> floorLevels = new ObjectArrayList<>();
 	private final ObjectArrayList<String> floorDescriptions = new ObjectArrayList<>();
 	private final long liftId;
 
+	private final ListComponent<DashboardListItem> listComponent;
+
 	public LiftSelectionScreen(long liftId) {
-		super();
 		this.liftId = liftId;
+
 		final Lift lift = MinecraftClientData.getLift(liftId);
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		if (lift != null && clientWorld != null) {
@@ -33,69 +48,56 @@ public class LiftSelectionScreen extends ScreenBase implements IGui {
 				final BlockPos blockPos = MTR.positionToBlockPos(floor.getPosition());
 				floorLevels.add(blockPos);
 				final ObjectObjectImmutablePair<LiftDirection, ObjectObjectImmutablePair<String, String>> liftDetails = RenderLifts.getLiftDetails(clientWorld, lift, blockPos);
-				floorDescriptions.add(String.format(
-					"%s %s",
-					liftDetails.right().left(),
-					IGui.formatStationName(String.join("|", liftDetails.right().right()))
-				));
+				floorDescriptions.add(String.format("%s %s", liftDetails.right().left(), IGui.formatStationName(String.join("|", liftDetails.right().right()))));
 			});
 		}
-		selectionList = new DashboardList(this::onPress, null, null, null, null, null, null, () -> "", text -> {
-		});
+
+		final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of());
+		new UIWrappedText("Select Floor", false)
+			.setChildOf(backgroundComponent.containers[0])
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
+
+		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
+			.setChildOf(backgroundComponent.containers[0])
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new FillConstraint());
+
+		listComponent = GuiHelper.createListComponent(slotBackgroundComponent);
 	}
 
 	@Override
-	protected void init() {
-		super.init();
-		selectionList.x = width / 2 - PANEL_WIDTH;
-		selectionList.y = SQUARE_SIZE;
-		selectionList.width = PANEL_WIDTH * 2;
-		selectionList.height = height - SQUARE_SIZE * 2;
-		selectionList.init(this::addDrawableChild);
-	}
-
-	@Override
-	public void tick() {
+	public void onTick() {
+		super.onTick();
 		final Lift lift = MinecraftClientData.getLift(liftId);
 		if (lift == null) {
-			close();
-		} else {
-			selectionList.tick();
-			final ObjectArrayList<DashboardListItem> list = new ObjectArrayList<>();
-			for (int i = floorLevels.size() - 1; i >= 0; i--) {
-				final BlockPos blockPos = floorLevels.get(i);
-				list.add(new DashboardListItem(
-					blockPos.asLong(),
-					floorDescriptions.get(i),
-					lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_BLACK
-				));
-			}
-			selectionList.setData(list, true, false, false, false, false, false);
+			MinecraftClient.getInstance().setScreen(null);
+			return;
 		}
+
+		final ObjectArrayList<ListItem<DashboardListItem>> listItems = new ObjectArrayList<>();
+		for (int i = floorLevels.size() - 1; i >= 0; i--) {
+			final BlockPos blockPos = floorLevels.get(i);
+			final int color = lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_WHITE;
+			final int floorIndexFromTop = i;
+			final DashboardListItem dashboardListItem = new DashboardListItem(blockPos.asLong(), floorDescriptions.get(i), color);
+			listItems.add(ListItem.createChild(
+				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(color).draw(),
+				null,
+				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
+				dashboardListItem,
+				dashboardListItem.getName(true),
+				ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, data) -> onPress(floorIndexFromTop)))
+			));
+		}
+		listComponent.setData(listItems);
 	}
 
-	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		renderBackground(context, mouseX, mouseY, delta);
-		selectionList.render(context);
-		super.render(context, mouseX, mouseY, delta);
-	}
-
-	@Override
-	public void mouseMoved(double mouseX, double mouseY) {
-		selectionList.mouseMoved(mouseX, mouseY);
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-		selectionList.mouseScrolled(mouseX, mouseY, verticalAmount);
-		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-	}
-
-	private void onPress(DashboardListItem dashboardListItem, int index) {
+	private void onPress(int floorIndexFromTop) {
 		final PressLift pressLift = new PressLift();
-		pressLift.add(MTR.blockPosToPosition(floorLevels.get(floorLevels.size() - index - 1)), LiftDirection.NONE);
+		pressLift.add(MTR.blockPosToPosition(floorLevels.get(floorIndexFromTop)), LiftDirection.NONE);
 		RegistryClient.sendPacketToServer(new PacketPressLiftButton(pressLift));
-		close();
+		MinecraftClient.getInstance().setScreen(null);
 	}
 }

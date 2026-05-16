@@ -1,6 +1,6 @@
 package org.mtr.screen;
 
-import net.minecraft.client.MinecraftClient;
+import gg.essential.universal.UMinecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -75,7 +75,7 @@ public final class DepotScreen extends ScrollableScreenBase {
 			close();
 			final ObjectArrayList<DashboardListItem> routes = new ObjectArrayList<>(MinecraftClientData.getFilteredDataSet(depot.getTransportMode(), MinecraftClientData.getDashboardInstance().routes));
 			Collections.sort(routes);
-			MinecraftClient.getInstance().setScreen(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), depot.getRouteIds(), false, true, this));
+			UMinecraft.setCurrentScreenObj(new DashboardListSelectorScreen(new ObjectImmutableList<>(routes), depot.getRouteIds(), false, true, this));
 		});
 		instantDeployButton = new BetterButtonWidget(null, TranslationProvider.GUI_MTR_INSTANT_DEPLOY.getString(), HALF_WIDGET_WIDTH, () -> {
 			final DepotOperationByIds depotOperationByIds = new DepotOperationByIds();

@@ -67,11 +67,17 @@ public final class WorkerThread {
 	private volatile Thread loopThread;
 
 	private static final int COOLDOWN = 100;
-	/** Maximum number of pending dynamic-texture jobs. Older jobs are dropped on overflow. */
+	/**
+	 * Maximum number of pending dynamic-texture jobs. Older jobs are dropped on overflow.
+	 */
 	private static final int DYNAMIC_TEXTURE_QUEUE_LIMIT = 256;
-	/** Maximum jobs drained per loop iteration, to keep occlusion culling responsive. */
+	/**
+	 * Maximum jobs drained per loop iteration, to keep occlusion culling responsive.
+	 */
 	private static final int DYNAMIC_TEXTURE_BATCH = 8;
-	/** Worker idle park duration when no occlusion work is pending. */
+	/**
+	 * Worker idle park duration when no occlusion work is pending.
+	 */
 	private static final long IDLE_PARK_NANOS = 10_000_000L; // 10 ms
 
 	/**
@@ -86,12 +92,12 @@ public final class WorkerThread {
 			worker.submit(() -> {
 				loopThread = Thread.currentThread();
 				while (isRunning()) {
-				if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null) {
-					updateInstance();
-					occlusionCullingInstance.resetCache();
-					run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
-					run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
-				}
+					if (occlusionQueueVehicle.get() != null || occlusionQueueLift.get() != null) {
+						updateInstance();
+						occlusionCullingInstance.resetCache();
+						run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
+						run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
+					}
 
 					drainDynamicTextureBatch();
 
@@ -116,7 +122,9 @@ public final class WorkerThread {
 		}
 	}
 
-	/** Stops the loop and cancels any in-flight virtual-thread submissions. */
+	/**
+	 * Stops the loop and cancels any in-flight virtual-thread submissions.
+	 */
 	public void shutdown() {
 		worker.shutdownNow();
 	}
@@ -131,7 +139,9 @@ public final class WorkerThread {
 		wake();
 	}
 
-	/** See {@link #scheduleVehicles(Consumer)}. */
+	/**
+	 * See {@link #scheduleVehicles(Consumer)}.
+	 */
 	public void scheduleLifts(Consumer<OcclusionCullingInstance> consumer) {
 		occlusionQueueLift.set(consumer);
 		wake();
