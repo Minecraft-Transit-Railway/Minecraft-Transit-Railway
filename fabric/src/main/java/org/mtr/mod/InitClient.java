@@ -552,6 +552,9 @@ public final class InitClient {
 	}
 
 	private static void setupWebserver(Webserver webserver) {
+		if (WebserverResources.get("index.html") == null) {
+			Init.LOGGER.error("Resource Pack Creator assets are missing. Build the website before running setupFiles so /creator/ can be served.");
+		}
 		webserver.addServlet(new ServletHolder(new ResourcePackCretorWebServlet(WebserverResources::get, "/creator/")), "/creator/*");
 		webserver.addServlet(new ServletHolder(new ResourcePackCreatorOperationServlet()), "/mtr/api/creator/operation/*");
 		final ServletHolder resourcePackCreatorUploadServletHolder = new ServletHolder(new ResourcePackCreatorUploadServlet());

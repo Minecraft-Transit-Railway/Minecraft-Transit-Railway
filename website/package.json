@@ -4,7 +4,7 @@
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve --host 0.0.0.0",
-		"build": "ng build --base-href a",
+		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
 		"update-all": "ng update @angular/core @angular/cli --allow-dirty && ng update @angular/material --allow-dirty && npm update --all --save --force && npm install --force"
