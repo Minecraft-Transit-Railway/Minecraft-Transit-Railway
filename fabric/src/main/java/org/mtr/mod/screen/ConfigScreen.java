@@ -25,9 +25,11 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	private final WidgetShorterSlider sliderDynamicTextureResolution;
 	private final WidgetShorterSlider sliderTrainOscillationMultiplier;
 	private final ButtonWidgetExtension buttonDefaultRail3D;
+	private final ButtonWidgetExtension buttonEnableGpuObjInstancing;
 	private final ButtonWidgetExtension buttonUseMTRFont;
 	private final ButtonWidgetExtension buttonDisableShadowsForShaders;
 	private final ButtonWidgetExtension buttonSupportPatreon;
+	private final boolean initialEnableGpuObjInstancing;
 
 	private static final Identifier HEADER_LOGO = new Identifier("mtr:textures/block/sign/logo.png");
 	private static final int HEADER_LOGO_SIZE = 40;
@@ -36,6 +38,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	public ConfigScreen(@Nullable Screen previousScreen) {
 		super(previousScreen);
+		initialEnableGpuObjInstancing = client.getEnableGpuObjInstancing();
 
 		buttonShowAnnouncementMessages = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleChatAnnouncements();
@@ -58,6 +61,10 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		buttonDefaultRail3D = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleDefaultRail3D();
 			setButtonText(button, client.getDefaultRail3D());
+		});
+		buttonEnableGpuObjInstancing = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
+			client.toggleEnableGpuObjInstancing();
+			setButtonText(button, client.getEnableGpuObjInstancing());
 		});
 		buttonUseMTRFont = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleUseMTRFont();
@@ -83,6 +90,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		IDrawing.setPositionAndWidth(sliderDynamicTextureResolution, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - GraphicsHolder.getTextWidth("100%"));
 		IDrawing.setPositionAndWidth(sliderTrainOscillationMultiplier, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH - TEXT_PADDING - GraphicsHolder.getTextWidth("100%"));
 		IDrawing.setPositionAndWidth(buttonDefaultRail3D, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
+		IDrawing.setPositionAndWidth(buttonEnableGpuObjInstancing, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonUseMTRFont, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonDisableShadowsForShaders, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * (i++) + SQUARE_SIZE, BUTTON_WIDTH);
 		IDrawing.setPositionAndWidth(buttonSupportPatreon, width - SQUARE_SIZE - BUTTON_WIDTH, startY + BUTTON_HEIGHT * i + SQUARE_SIZE, BUTTON_WIDTH);
@@ -90,6 +98,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		setButtonText(new ButtonWidget(buttonUseTTSAnnouncements), client.getTextToSpeechAnnouncements());
 		setButtonText(new ButtonWidget(buttonHideTranslucentParts), client.getHideTranslucentParts());
 		setButtonText(new ButtonWidget(buttonDefaultRail3D), client.getDefaultRail3D());
+		setButtonText(new ButtonWidget(buttonEnableGpuObjInstancing), client.getEnableGpuObjInstancing());
 		setButtonText(new ButtonWidget(buttonUseMTRFont), client.getUseMTRFont());
 		setButtonText(new ButtonWidget(buttonDisableShadowsForShaders), client.getDisableShadowsForShaders());
 		buttonLanguageOptions.setMessage2(client.getLanguageDisplay().translationKey.getText());
@@ -98,6 +107,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		sliderTrainOscillationMultiplier.setHeight(BUTTON_HEIGHT);
 		sliderTrainOscillationMultiplier.setValue((int)(client.getVehicleOscillationMultiplier() * 10));
 		buttonDefaultRail3D.active = OptimizedRenderer.hasOptimizedRendering();
+		buttonEnableGpuObjInstancing.active = OptimizedRenderer.hasOptimizedRendering();
 		buttonSupportPatreon.setMessage2(TranslationProvider.GUI_MTR_SUPPORT.getText());
 
 		addChild(new ClickableWidget(buttonShowAnnouncementMessages));
@@ -107,6 +117,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		addChild(new ClickableWidget(sliderDynamicTextureResolution));
 		addChild(new ClickableWidget(sliderTrainOscillationMultiplier));
 		addChild(new ClickableWidget(buttonDefaultRail3D));
+		addChild(new ClickableWidget(buttonEnableGpuObjInstancing));
 		addChild(new ClickableWidget(buttonUseMTRFont));
 		addChild(new ClickableWidget(buttonDisableShadowsForShaders));
 		addChild(new ClickableWidget(buttonSupportPatreon));
@@ -128,6 +139,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DYNAMIC_TEXTURE_RESOLUTION.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_VEHICLE_OSCILLATION_MULTIPLIER.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DEFAULT_RAIL_3D.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
+			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_ENABLE_GPU_OBJ_INSTANCING.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_USE_MTR_FONT.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_DISABLE_SHADOWS_FOR_SHADERS.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, ARGB_WHITE, false, GraphicsHolder.getDefaultLight());
 			graphicsHolder.drawText(TranslationProvider.OPTIONS_MTR_SUPPORT_PATREON.getMutableText(), SQUARE_SIZE, BUTTON_HEIGHT * (i++) + yStart1, 0xFFFFFF66, false, GraphicsHolder.getDefaultLight());
@@ -166,10 +178,14 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	@Override
 	public void onClose2() {
 		super.onClose2();
+		final boolean reloadResources = initialEnableGpuObjInstancing != client.getEnableGpuObjInstancing();
 		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
 		DynamicTextureCache.instance.refresh();
 		Config.save();
+		if (reloadResources) {
+			MinecraftClient.getInstance().submit(ConfigScreen::reloadResources);
+		}
 	}
 
 	private void drawHeader(GraphicsHolder graphicsHolder) {
@@ -199,5 +215,13 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	private static void setButtonText(ButtonWidget button, boolean state) {
 		button.setMessage((state ? TranslationProvider.OPTIONS_MTR_ON : TranslationProvider.OPTIONS_MTR_OFF).getText());
+	}
+
+	private static void reloadResources() {
+		try {
+			MinecraftClient.getInstance().data.getClass().getMethod("reloadResources").invoke(MinecraftClient.getInstance().data);
+		} catch (Exception e) {
+			Init.LOGGER.error("Failed to reload resources after toggling GPU OBJ instancing", e);
+		}
 	}
 }

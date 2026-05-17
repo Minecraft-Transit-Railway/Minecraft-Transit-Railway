@@ -31,6 +31,9 @@
 			"type": "boolean",
 			"default": true
 		},
+		"enableGpuObjInstancing": {
+			"type": "boolean"
+		},
 		"useMTRFont": {
 			"type": "boolean"
 		},
