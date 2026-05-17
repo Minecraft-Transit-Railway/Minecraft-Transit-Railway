@@ -29,7 +29,6 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	private final ButtonWidgetExtension buttonUseMTRFont;
 	private final ButtonWidgetExtension buttonDisableShadowsForShaders;
 	private final ButtonWidgetExtension buttonSupportPatreon;
-	private final boolean initialEnableGpuObjInstancing;
 
 	private static final Identifier HEADER_LOGO = new Identifier("mtr:textures/block/sign/logo.png");
 	private static final int HEADER_LOGO_SIZE = 40;
@@ -38,7 +37,6 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	public ConfigScreen(@Nullable Screen previousScreen) {
 		super(previousScreen);
-		initialEnableGpuObjInstancing = client.getEnableGpuObjInstancing();
 
 		buttonShowAnnouncementMessages = new ButtonWidgetExtension(0, 0, 0, BUTTON_HEIGHT, TextHelper.literal(""), button -> {
 			client.toggleChatAnnouncements();
@@ -178,14 +176,10 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 	@Override
 	public void onClose2() {
 		super.onClose2();
-		final boolean reloadResources = initialEnableGpuObjInstancing != client.getEnableGpuObjInstancing();
 		client.setDynamicTextureResolution(sliderDynamicTextureResolution.getIntValue());
 		client.setVehicleOscillationMultiplier(sliderTrainOscillationMultiplier.getIntValue() / 10.0);
 		DynamicTextureCache.instance.refresh();
 		Config.save();
-		if (reloadResources) {
-			MinecraftClient.getInstance().submit(ConfigScreen::reloadResources);
-		}
 	}
 
 	private void drawHeader(GraphicsHolder graphicsHolder) {
@@ -215,13 +209,5 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 
 	private static void setButtonText(ButtonWidget button, boolean state) {
 		button.setMessage((state ? TranslationProvider.OPTIONS_MTR_ON : TranslationProvider.OPTIONS_MTR_OFF).getText());
-	}
-
-	private static void reloadResources() {
-		try {
-			MinecraftClient.getInstance().data.getClass().getMethod("reloadResources").invoke(MinecraftClient.getInstance().data);
-		} catch (Exception e) {
-			Init.LOGGER.error("Failed to reload resources after toggling GPU OBJ instancing", e);
-		}
 	}
 }
