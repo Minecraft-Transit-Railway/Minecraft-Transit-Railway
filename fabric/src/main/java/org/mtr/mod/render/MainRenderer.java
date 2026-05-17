@@ -163,7 +163,9 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
+		GpuObjRenderer.INSTANCE.renderOpaque(offset);
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
+		GpuObjRenderer.INSTANCE.clear();
 	}
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
