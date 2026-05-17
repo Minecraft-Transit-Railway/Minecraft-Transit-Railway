@@ -16,9 +16,9 @@ public final class VehicleResourceCache {
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsDoorsClosed;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie1;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie2;
-	public final VehicleGpuCache vehicleGpuCache;
-	public final VehicleGpuCache bogie1GpuCache;
-	public final VehicleGpuCache bogie2GpuCache;
+	public final CachedResource<VehicleGpuCache> vehicleGpuCache;
+	public final CachedResource<VehicleGpuCache> bogie1GpuCache;
+	public final CachedResource<VehicleGpuCache> bogie2GpuCache;
 
 	public VehicleResourceCache(
 			ObjectImmutableList<Box> floors,
@@ -31,9 +31,9 @@ public final class VehicleResourceCache {
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie1,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie2,
-			VehicleGpuCache vehicleGpuCache,
-			VehicleGpuCache bogie1GpuCache,
-			VehicleGpuCache bogie2GpuCache
+			CachedResource<VehicleGpuCache> vehicleGpuCache,
+			CachedResource<VehicleGpuCache> bogie1GpuCache,
+			CachedResource<VehicleGpuCache> bogie2GpuCache
 	) {
 		this.floors = floors;
 		this.doorways = doorways;

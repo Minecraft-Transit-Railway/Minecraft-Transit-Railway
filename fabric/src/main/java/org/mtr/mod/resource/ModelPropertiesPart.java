@@ -177,17 +177,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	public void writeCache(
 			Map<String, OptimizedModel.ObjModel> nameToObjModels,
-			@Nullable GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStageDoorsClosed,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
 			double modelYOffset
 	) {
 		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
-		final ObjectArrayList<StaticObjMesh> gpuMeshes = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 		final Supplier<OptimizedModelWrapper> optimizedModelDoor;
 
@@ -197,13 +194,10 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
 				mutableBox.add(new Box(-objModel.getMinX(), -objModel.getMinY(), -objModel.getMinZ(), -objModel.getMaxX(), -objModel.getMaxY(), -objModel.getMaxZ()));
 			}
-			if (gpuObjModelWrapper != null) {
-				gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add);
-			}
 		});
 
 		optimizedModelDoor = () -> isDoor() ? OptimizedModelWrapper.fromObjModels(objModels) : null;
-		final boolean supportsGpuObjInstancing = supportsGpuObjInstancing() && gpuObjModelWrapper != null && !gpuMeshes.isEmpty();
+		final boolean supportsGpuObjInstancing = supportsGpuObjInstancing() && !objModels.isEmpty();
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			if (type == PartType.NORMAL) {
@@ -212,9 +206,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						addObjModelPosition(objModels, objModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
 					}
 					addObjModelPosition(objModels, objModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
-					if (supportsGpuObjInstancing) {
-						addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset);
-					} else {
+					if (!supportsGpuObjInstancing) {
 						if (!isDoor()) {
 							addObjModelPosition(objModels, fallbackObjModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
 						}
@@ -222,6 +214,29 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					}
 					partDetailsList.add(new PartDetails(new ObjectArrayList<>(), optimizedModelDoor.get(), addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
 				});
+			}
+		}));
+	}
+
+	public void writeGpuCache(
+			GpuObjModelWrapper gpuObjModelWrapper,
+			PositionDefinitions positionDefinitionsObject,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
+			double modelYOffset
+	) {
+		if (!supportsGpuObjInstancing()) {
+			return;
+		}
+
+		final ObjectArrayList<StaticObjMesh> gpuMeshes = new ObjectArrayList<>();
+		names.forEach(name -> gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add));
+		if (gpuMeshes.isEmpty()) {
+			return;
+		}
+
+		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
+			if (type == PartType.NORMAL) {
+				iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset));
 			}
 		}));
 	}

@@ -2,8 +2,10 @@ package org.mtr.mod.render;
 
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL33;
+import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.floats.FloatArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mapping.render.object.VertexArray;
@@ -31,28 +33,39 @@ public final class GpuObjRenderer implements IGui {
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
+	private static final int TRANSLATION_X_INDEX = 12;
+	private static final int TRANSLATION_Y_INDEX = 13;
+	private static final int TRANSLATION_Z_INDEX = 14;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
 	private final Object2ObjectOpenHashMap<ObjBatchKey, BatchEntry> batches = new Object2ObjectOpenHashMap<>();
 	private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INSTANCE_STRIDE);
 
-	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, ObjInstance objInstance) {
-		batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties)).meshes.computeIfAbsent(staticObjMesh, key -> new ObjectArrayList<>()).add(objInstance);
+	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset) {
+		final MeshEntry meshEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties)).meshes.computeIfAbsent(staticObjMesh, key -> new MeshEntry());
+		for (int i = 0; i < MATRIX_FLOATS; i++) {
+			meshEntry.matrixData.add(matrix.get(i / 4, i % 4));
+		}
+		meshEntry.packedColors.add(packedColor);
+		meshEntry.packedLights.add(packedLight);
+		meshEntry.useDefaultOffsets.add((byte) (useDefaultOffset ? 1 : 0));
 	}
 
 	public void renderOpaque(Vector3d offset) {
 		for (final RenderStage renderStage : RenderStage.values()) {
 			batches.forEach((batchKey, batchEntry) -> {
 				if (batchKey.renderStage == renderStage && !batchKey.translucent) {
-					batchEntry.meshes.forEach((staticObjMesh, instances) -> render(batchEntry.materialProperties, staticObjMesh, instances, offset));
+					shaderManager.setupShaderBatchState(batchEntry.materialProperties);
+					batchEntry.meshes.forEach((staticObjMesh, meshEntry) -> render(batchEntry.materialProperties, staticObjMesh, meshEntry, offset));
+					shaderManager.cleanupShaderBatchState();
 				}
 			});
 		}
 	}
 
 	public void clear() {
-		batches.values().forEach(batchEntry -> batchEntry.meshes.values().forEach(ObjectArrayList::clear));
+		batches.values().forEach(batchEntry -> batchEntry.meshes.values().forEach(MeshEntry::clear));
 	}
 
 	public static void setupInstanceAttributes(VertexArray vertexArray) {
@@ -64,33 +77,42 @@ public final class GpuObjRenderer implements IGui {
 		VertexArray.unbind();
 	}
 
-	private void render(MaterialProperties materialProperties, StaticObjMesh staticObjMesh, ObjectArrayList<ObjInstance> instances, Vector3d offset) {
-		if (instances.isEmpty()) {
+	private void render(MaterialProperties materialProperties, StaticObjMesh staticObjMesh, MeshEntry meshEntry, Vector3d offset) {
+		final int instanceCount = meshEntry.getInstanceCount();
+		if (instanceCount == 0) {
 			return;
 		}
 
-		ensureCapacity(instances.size());
+		ensureCapacity(instanceCount);
 		byteBuffer.clear();
 
-		for (int i = 0; i < instances.size(); i++) {
-			final ObjInstance objInstance = instances.get(i);
-			final Matrix4f matrix = objInstance.useDefaultOffset ? new Matrix4f(objInstance.matrix).translate((float) -offset.getXMapped(), (float) -offset.getYMapped(), (float) -offset.getZMapped()) : objInstance.matrix;
+		for (int i = 0; i < instanceCount; i++) {
+			final int baseIndex = i * MATRIX_FLOATS;
+			final boolean useDefaultOffset = meshEntry.useDefaultOffsets.getByte(i) != 0;
 			for (int j = 0; j < MATRIX_FLOATS; j++) {
-				byteBuffer.putFloat(matrix.get(j / 4, j % 4));
+				float value = meshEntry.matrixData.getFloat(baseIndex + j);
+				if (useDefaultOffset) {
+					if (j == TRANSLATION_X_INDEX) {
+						value -= (float) offset.getXMapped();
+					} else if (j == TRANSLATION_Y_INDEX) {
+						value -= (float) offset.getYMapped();
+					} else if (j == TRANSLATION_Z_INDEX) {
+						value -= (float) offset.getZMapped();
+					}
+				}
+				byteBuffer.putFloat(value);
 			}
-			byteBuffer.putInt(objInstance.packedColor);
-			byteBuffer.putShort((short) (objInstance.packedLight >> 16));
-			byteBuffer.putShort((short) objInstance.packedLight);
+			byteBuffer.putInt(meshEntry.packedColors.getInt(i));
+			byteBuffer.putShort((short) (meshEntry.packedLights.getInt(i) >> 16));
+			byteBuffer.putShort((short) meshEntry.packedLights.getInt(i));
 		}
 
 		byteBuffer.flip();
-		shaderManager.setupShaderBatchState(materialProperties);
 		staticObjMesh.vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
 		instanceBuffer.upload(byteBuffer, VertexBuffer.USAGE_STREAM_DRAW);
 		materialProperties.vertexAttributeState.apply();
-		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, staticObjMesh.vertexArray.indexBuffer.getVertexCount(), staticObjMesh.vertexArray.indexBuffer.indexType, 0, instances.size());
-		shaderManager.cleanupShaderBatchState();
+		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, staticObjMesh.vertexArray.indexBuffer.getVertexCount(), staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
 	}
 
 	private void ensureCapacity(int instanceCount) {
@@ -109,10 +131,29 @@ public final class GpuObjRenderer implements IGui {
 	private static final class BatchEntry {
 
 		private final MaterialProperties materialProperties;
-		private final Object2ObjectOpenHashMap<StaticObjMesh, ObjectArrayList<ObjInstance>> meshes = new Object2ObjectOpenHashMap<>();
+		private final Object2ObjectOpenHashMap<StaticObjMesh, MeshEntry> meshes = new Object2ObjectOpenHashMap<>();
 
 		private BatchEntry(MaterialProperties materialProperties) {
 			this.materialProperties = materialProperties;
+		}
+	}
+
+	private static final class MeshEntry {
+
+		private final FloatArrayList matrixData = new FloatArrayList();
+		private final IntArrayList packedColors = new IntArrayList();
+		private final IntArrayList packedLights = new IntArrayList();
+		private final ByteArrayList useDefaultOffsets = new ByteArrayList();
+
+		private int getInstanceCount() {
+			return packedLights.size();
+		}
+
+		private void clear() {
+			matrixData.clear();
+			packedColors.clear();
+			packedLights.clear();
+			useDefaultOffsets.clear();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package org.mtr.mod.resource;
 
+import org.mtr.core.data.Data;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
@@ -17,7 +18,6 @@ import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.render.MainRenderer;
-import org.mtr.mod.render.ObjInstance;
 import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
@@ -229,7 +229,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, PositionAndRotation positionAndRotation, double oscillationAmount, VehicleExtension vehicle, int carNumber, int totalCars, int light, boolean noOpenDoorways) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
-			if (Config.getClient().getEnableGpuObjInstancing() && hasGpuParts(vehicleResourceCache.vehicleGpuCache) && queueGpu(vehicleResourceCache.vehicleGpuCache, useDefaultOffset, positionAndRotation, oscillationAmount, vehicle, light, noOpenDoorways)) {
+			final VehicleGpuCache vehicleGpuCache = Config.getClient().getEnableGpuObjInstancing() ? vehicleResourceCache.vehicleGpuCache.getData(true) : null;
+			if (Config.getClient().getEnableGpuObjInstancing() && hasGpuParts(vehicleGpuCache) && queueGpu(vehicleGpuCache, useDefaultOffset, positionAndRotation, oscillationAmount, vehicle, light, noOpenDoorways)) {
 				if (noOpenDoorways) {
 					queue(vehicleResourceCache.fallbackOptimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
 				} else {
@@ -246,7 +247,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, PositionAndRotation positionAndRotation, VehicleExtension vehicle, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			final VehicleGpuCache bogieGpuCache = bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache;
+			final VehicleGpuCache bogieGpuCache = Config.getClient().getEnableGpuObjInstancing() ? (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(true) : null;
 			if (Config.getClient().getEnableGpuObjInstancing() && hasGpuParts(bogieGpuCache) && queueGpu(bogieGpuCache, useDefaultOffset, positionAndRotation, 0, vehicle, light, true)) {
 				queue(bogieIndex == 0 ? vehicleResourceCache.fallbackOptimizedModelsBogie1 : vehicleResourceCache.fallbackOptimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
 			} else {
@@ -456,12 +457,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie1Model = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie2Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsModel = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsBogie1Model = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsBogie2Model = new Object2ObjectOpenHashMap<>();
-
 				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed, fallbackObjModelsModel, fallbackObjModelsModelDoorsClosed, gpuPartsModel), force);
+				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed, fallbackObjModelsModel, fallbackObjModelsModelDoorsClosed), force);
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
 					Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
@@ -477,8 +474,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 
 				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)), force);
-				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model, fallbackObjModelsBogie1Model, new Object2ObjectOpenHashMap<>(), gpuPartsBogie1Model), force);
-				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model, fallbackObjModelsBogie2Model, new Object2ObjectOpenHashMap<>(), gpuPartsBogie2Model), force);
+				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model, fallbackObjModelsBogie1Model, new Object2ObjectOpenHashMap<>()), force);
+				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model, fallbackObjModelsBogie2Model, new Object2ObjectOpenHashMap<>()), force);
 
 				return new CachedResource<>(() -> {
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
@@ -489,7 +486,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, fallbackObjModelsModelDoorsClosed, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, fallbackObjModelsBogie1Model, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, fallbackObjModelsBogie2Model, modelLifespan);
-					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, fallbackOptimizedModels, fallbackOptimizedModelsDoorsClosed, fallbackOptimizedModelsBogie1, fallbackOptimizedModelsBogie2, new VehicleGpuCache(gpuPartsModel), new VehicleGpuCache(gpuPartsBogie1Model), new VehicleGpuCache(gpuPartsBogie2Model));
+					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, fallbackOptimizedModels, fallbackOptimizedModelsDoorsClosed, fallbackOptimizedModelsBogie1, fallbackOptimizedModelsBogie2, writeToGpuCache(allModelsList, modelLifespan), writeToGpuCache(bogie1Models, modelLifespan), writeToGpuCache(bogie2Models, modelLifespan));
 				}, modelLifespan);
 			}, modelLifespan);
 		}, modelLifespan);
@@ -563,6 +560,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 
 		final Matrix4f worldMatrix = createWorldMatrix(positionAndRotation, oscillationAmount);
+		final Matrix4f finalMatrix = new Matrix4f();
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
 		boolean queuedAny = false;
 
@@ -577,10 +575,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			}
 
 			queuedAny = true;
-			parts.forEach(part -> {
-				final Matrix4f finalMatrix = new Matrix4f(worldMatrix).mul(part.localTransform);
-				GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, new ObjInstance(finalMatrix, packedLight, 0xFFFFFFFF, 0, useDefaultOffset));
-			});
+			parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset));
 		}
 
 		return queuedAny;
@@ -631,6 +626,23 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}, modelLifespan);
 	}
 
+	private static CachedResource<VehicleGpuCache> writeToGpuCache(ObjectArrayList<VehicleModel> models, int modelLifespan) {
+		return new CachedResource<>(() -> {
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
+			models.forEach(vehicleModel -> {
+				final VehicleGpuCache vehicleGpuCache = vehicleModel.cachedGpuCache.getData(true);
+				if (vehicleGpuCache != null) {
+					vehicleGpuCache.partsByCondition.forEach((partCondition, parts) -> {
+						if (parts != null && !parts.isEmpty()) {
+							Data.put(gpuPartsForCondition, partCondition, parts, ObjectArrayList::new);
+						}
+					});
+				}
+			});
+			return new VehicleGpuCache(gpuPartsForCondition);
+		}, modelLifespan);
+	}
+
 	private static void forEachNonNull(ObjectArrayList<VehicleModel> models, Consumer<DynamicVehicleModel> consumer, boolean force) {
 		models.forEach(vehicleModel -> {
 			final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(force);
@@ -652,9 +664,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2;
-		private final VehicleGpuCache vehicleGpuCache;
-		private final VehicleGpuCache bogie1GpuCache;
-		private final VehicleGpuCache bogie2GpuCache;
+		private final CachedResource<VehicleGpuCache> vehicleGpuCache;
+		private final CachedResource<VehicleGpuCache> bogie1GpuCache;
+		private final CachedResource<VehicleGpuCache> bogie2GpuCache;
 
 		private VehicleResourceCacheHolder(
 				ObjectImmutableList<Box> floors, ObjectImmutableList<Box> doorways,
@@ -666,9 +678,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2,
-				VehicleGpuCache vehicleGpuCache,
-				VehicleGpuCache bogie1GpuCache,
-				VehicleGpuCache bogie2GpuCache
+				CachedResource<VehicleGpuCache> vehicleGpuCache,
+				CachedResource<VehicleGpuCache> bogie1GpuCache,
+				CachedResource<VehicleGpuCache> bogie2GpuCache
 		) {
 			this.floors = floors;
 			this.doorways = doorways;

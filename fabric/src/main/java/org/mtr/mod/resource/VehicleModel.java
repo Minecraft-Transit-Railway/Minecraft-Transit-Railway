@@ -4,6 +4,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.Identifier;
@@ -16,6 +17,7 @@ public final class VehicleModel extends VehicleModelSchema {
 
 	boolean shouldPreload = false;
 	final CachedResource<DynamicVehicleModel> cachedModel;
+	final CachedResource<VehicleGpuCache> cachedGpuCache;
 	private final JsonReader modelPropertiesJsonReader;
 	private final JsonReader positionDefinitionsJsonReader;
 
@@ -27,6 +29,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
 		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedGpuCache = new CachedResource<>(this::createGpuCache, shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 	}
 
 	public VehicleModel(ReaderBase readerBase, JsonReader modelPropertiesJsonReader, JsonReader positionDefinitionsJsonReader, String id, ResourceProvider resourceProvider) {
@@ -35,6 +38,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		this.modelPropertiesJsonReader = modelPropertiesJsonReader;
 		this.positionDefinitionsJsonReader = positionDefinitionsJsonReader;
 		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), id), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedGpuCache = new CachedResource<>(this::createGpuCache, shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 	}
 
 	VehicleModel(
@@ -56,6 +60,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		modelPropertiesJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelPropertiesResource, "json"))));
 		positionDefinitionsJsonReader = new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(positionDefinitionsResource, "json"))));
 		cachedModel = new CachedResource<>(() -> createModel(new ModelProperties(modelPropertiesJsonReader), new PositionDefinitions(positionDefinitionsJsonReader), modelPropertiesResource), shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
+		cachedGpuCache = new CachedResource<>(this::createGpuCache, shouldPreload ? Integer.MAX_VALUE : MODEL_LIFESPAN);
 	}
 
 	public MinecraftModelResource getAsMinecraftResource() {
@@ -128,7 +133,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
 			try {
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id, GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider));
+				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 				return dynamicVehicleModel;
 			} catch (Exception e) {
@@ -149,5 +154,23 @@ public final class VehicleModel extends VehicleModelSchema {
 		);
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		return dynamicVehicleModel;
+	}
+
+	private VehicleGpuCache createGpuCache() {
+		if (!modelResource.endsWith(".obj")) {
+			return VehicleGpuCache.EMPTY;
+		}
+
+		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+		final GpuObjModelWrapper gpuObjModelWrapper = GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider);
+		if (gpuObjModelWrapper == null) {
+			return VehicleGpuCache.EMPTY;
+		}
+
+		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
+		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, modelProperties.getModelYOffset()));
+		return new VehicleGpuCache(gpuPartsForCondition);
 	}
 }

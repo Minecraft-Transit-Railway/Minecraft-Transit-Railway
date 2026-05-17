@@ -9,6 +9,7 @@ import org.mtr.mod.render.StaticObjMesh;
 
 public final class VehicleGpuCache {
 
+	public static final VehicleGpuCache EMPTY = new VehicleGpuCache(new Object2ObjectOpenHashMap<>());
 	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition;
 
 	public VehicleGpuCache(Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition) {
