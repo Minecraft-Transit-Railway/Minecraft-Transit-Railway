@@ -6,7 +6,11 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.render.model.RawMesh;
+import org.mtr.mapping.render.obj.ObjModelLoader;
 
+import java.util.List;
+import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -58,6 +62,32 @@ public final class ModelResourceLoader {
 			return MqoModelConverter.convert(extractMqoContentFromMqoz(name, bytes)).getModelParts();
 		} else {
 			return getModelParts(name, new String(bytes, StandardCharsets.UTF_8));
+		}
+	}
+
+	public static Map<String, List<RawMesh>> loadRawModel(
+			String modelResource,
+			Identifier textureId,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider
+	) {
+		if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
+			final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
+			return ObjModelLoader.loadModel(
+					convertedModel.getObjContent(),
+					mtlString -> convertedModel.getMtlContent(),
+					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					null,
+					flipTextureV
+			);
+		} else {
+			return ObjModelLoader.loadModel(
+					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
+					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
+					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					null,
+					flipTextureV
+			);
 		}
 	}
 
