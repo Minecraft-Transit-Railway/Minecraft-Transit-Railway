@@ -229,7 +229,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void queue(StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, PositionAndRotation positionAndRotation, double oscillationAmount, VehicleExtension vehicle, int carNumber, int totalCars, int light, boolean noOpenDoorways) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
-			final VehicleGpuCache vehicleGpuCache = Config.getClient().getEnableGpuObjInstancing() ? vehicleResourceCache.vehicleGpuCache.getData(true) : null;
+			final VehicleGpuCache vehicleGpuCache = Config.getClient().getEnableGpuObjInstancing() ? vehicleResourceCache.vehicleGpuCache.getData(false) : null;
 			if (Config.getClient().getEnableGpuObjInstancing() && hasGpuParts(vehicleGpuCache) && queueGpu(vehicleGpuCache, useDefaultOffset, positionAndRotation, oscillationAmount, vehicle, light, noOpenDoorways)) {
 				if (noOpenDoorways) {
 					queue(vehicleResourceCache.fallbackOptimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
@@ -247,7 +247,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, PositionAndRotation positionAndRotation, VehicleExtension vehicle, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			final VehicleGpuCache bogieGpuCache = Config.getClient().getEnableGpuObjInstancing() ? (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(true) : null;
+			final VehicleGpuCache bogieGpuCache = Config.getClient().getEnableGpuObjInstancing() ? (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(false) : null;
 			if (Config.getClient().getEnableGpuObjInstancing() && hasGpuParts(bogieGpuCache) && queueGpu(bogieGpuCache, useDefaultOffset, positionAndRotation, 0, vehicle, light, true)) {
 				queue(bogieIndex == 0 ? vehicleResourceCache.fallbackOptimizedModelsBogie1 : vehicleResourceCache.fallbackOptimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
 			} else {
