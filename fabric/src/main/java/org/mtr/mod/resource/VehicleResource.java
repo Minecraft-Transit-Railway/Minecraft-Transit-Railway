@@ -210,7 +210,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2 = data3.optimizedModelsBogie2.getData(force);
 					if (optimizedModels != null && optimizedModelsDoorsClosed != null && optimizedModelsBogie1 != null && optimizedModelsBogie2 != null) {
-						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, data3.vehicleGpuCache, data3.bogie1GpuCache, data3.bogie2GpuCache);
 					}
 				}
 			}
@@ -433,9 +433,16 @@ public final class VehicleResource extends VehicleResourceSchema {
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsModel = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie1Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie2Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsModel = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsBogie1Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsBogie2Model = new Object2ObjectOpenHashMap<>();
 
 				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed), force);
+				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed, fallbackObjModelsModel, fallbackObjModelsModelDoorsClosed, gpuPartsModel), force);
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
 					Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
@@ -451,15 +458,19 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 
 				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)), force);
-				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model), force);
-				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model), force);
+				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model, fallbackObjModelsBogie1Model, new Object2ObjectOpenHashMap<>(), gpuPartsBogie1Model), force);
+				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model, fallbackObjModelsBogie2Model, new Object2ObjectOpenHashMap<>(), gpuPartsBogie2Model), force);
 
 				return new CachedResource<>(() -> {
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model, modelLifespan);
-					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels = writeToOptimizedModels(materialGroupsModel, fallbackObjModelsModel, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, fallbackObjModelsModelDoorsClosed, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, fallbackObjModelsBogie1Model, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, fallbackObjModelsBogie2Model, modelLifespan);
+					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, fallbackOptimizedModels, fallbackOptimizedModelsDoorsClosed, fallbackOptimizedModelsBogie1, fallbackOptimizedModelsBogie2, new VehicleGpuCache(gpuPartsModel), new VehicleGpuCache(gpuPartsBogie1Model), new VehicleGpuCache(gpuPartsBogie2Model));
 				}, modelLifespan);
 			}, modelLifespan);
 		}, modelLifespan);
@@ -569,13 +580,27 @@ public final class VehicleResource extends VehicleResourceSchema {
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2;
+		private final VehicleGpuCache vehicleGpuCache;
+		private final VehicleGpuCache bogie1GpuCache;
+		private final VehicleGpuCache bogie2GpuCache;
 
 		private VehicleResourceCacheHolder(
 				ObjectImmutableList<Box> floors, ObjectImmutableList<Box> doorways,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2,
+				VehicleGpuCache vehicleGpuCache,
+				VehicleGpuCache bogie1GpuCache,
+				VehicleGpuCache bogie2GpuCache
 		) {
 			this.floors = floors;
 			this.doorways = doorways;
@@ -583,6 +608,13 @@ public final class VehicleResource extends VehicleResourceSchema {
 			this.optimizedModelsDoorsClosed = optimizedModelsDoorsClosed;
 			this.optimizedModelsBogie1 = optimizedModelsBogie1;
 			this.optimizedModelsBogie2 = optimizedModelsBogie2;
+			this.fallbackOptimizedModels = fallbackOptimizedModels;
+			this.fallbackOptimizedModelsDoorsClosed = fallbackOptimizedModelsDoorsClosed;
+			this.fallbackOptimizedModelsBogie1 = fallbackOptimizedModelsBogie1;
+			this.fallbackOptimizedModelsBogie2 = fallbackOptimizedModelsBogie2;
+			this.vehicleGpuCache = vehicleGpuCache;
+			this.bogie1GpuCache = bogie1GpuCache;
+			this.bogie2GpuCache = bogie2GpuCache;
 		}
 	}
 

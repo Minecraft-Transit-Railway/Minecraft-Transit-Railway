@@ -128,7 +128,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
 			try {
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
+				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id, GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider));
 				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 				return dynamicVehicleModel;
 			} catch (Exception e) {

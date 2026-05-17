@@ -22,22 +22,13 @@ public final class GpuObjModelRegistry {
 		}
 		return CACHE.computeIfAbsent(new Key(modelResource, textureId.data.toString(), flipTextureV), key -> {
 			final Map<String, List<RawMesh>> rawModel = ModelResourceLoader.loadRawModel(modelResource, textureId, flipTextureV, resourceProvider);
-			return new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(rawMesh -> new StaticObjMesh(rawMesh, resolveRenderStage(rawMesh.materialProperties.shaderType))).collect(Collectors.toList()))));
+			return new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))));
 		});
 	}
 
 	public static void clear() {
 		CACHE.values().forEach(GpuObjModelWrapper::close);
 		CACHE.clear();
-	}
-
-	private static RenderStage resolveRenderStage(org.mtr.mapping.mapper.OptimizedModel.ShaderType shaderType) {
-		for (final RenderStage renderStage : RenderStage.values()) {
-			if (renderStage.shaderType == shaderType) {
-				return renderStage;
-			}
-		}
-		return RenderStage.EXTERIOR;
 	}
 
 	private GpuObjModelRegistry() {

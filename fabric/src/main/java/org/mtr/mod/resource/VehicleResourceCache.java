@@ -12,6 +12,9 @@ public final class VehicleResourceCache {
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2;
+	public final VehicleGpuCache vehicleGpuCache;
+	public final VehicleGpuCache bogie1GpuCache;
+	public final VehicleGpuCache bogie2GpuCache;
 
 	public VehicleResourceCache(
 			ObjectImmutableList<Box> floors,
@@ -19,7 +22,10 @@ public final class VehicleResourceCache {
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1,
-			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2
+			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2,
+			VehicleGpuCache vehicleGpuCache,
+			VehicleGpuCache bogie1GpuCache,
+			VehicleGpuCache bogie2GpuCache
 	) {
 		this.floors = floors;
 		this.doorways = doorways;
@@ -27,5 +33,8 @@ public final class VehicleResourceCache {
 		this.optimizedModelsDoorsClosed = optimizedModelsDoorsClosed;
 		this.optimizedModelsBogie1 = optimizedModelsBogie1;
 		this.optimizedModelsBogie2 = optimizedModelsBogie2;
+		this.vehicleGpuCache = vehicleGpuCache;
+		this.bogie1GpuCache = bogie1GpuCache;
+		this.bogie2GpuCache = bogie2GpuCache;
 	}
 }

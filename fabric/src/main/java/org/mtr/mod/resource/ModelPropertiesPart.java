@@ -8,6 +8,7 @@ import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
+import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.Init;
 import org.mtr.mod.MutableBox;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -25,6 +26,9 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.joml.Matrix4f;
+import org.mtr.mod.render.ObjBatchKey;
+import org.mtr.mod.render.StaticObjMesh;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -173,12 +177,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	public void writeCache(
 			Map<String, OptimizedModel.ObjModel> nameToObjModels,
+			@Nullable GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStage,
+			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStageDoorsClosed,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
 			double modelYOffset
 	) {
 		final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
+		final ObjectArrayList<StaticObjMesh> gpuMeshes = new ObjectArrayList<>();
 		final MutableBox mutableBox = new MutableBox();
 		final Supplier<OptimizedModelWrapper> optimizedModelDoor;
 
@@ -188,9 +197,13 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				objModels.add(new OptimizedModelWrapper.ObjModelWrapper(objModel));
 				mutableBox.add(new Box(-objModel.getMinX(), -objModel.getMinY(), -objModel.getMinZ(), -objModel.getMaxX(), -objModel.getMaxY(), -objModel.getMaxZ()));
 			}
+			if (gpuObjModelWrapper != null) {
+				gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add);
+			}
 		});
 
 		optimizedModelDoor = () -> isDoor() ? OptimizedModelWrapper.fromObjModels(objModels) : null;
+		final boolean supportsGpuObjInstancing = supportsGpuObjInstancing() && gpuObjModelWrapper != null && !gpuMeshes.isEmpty();
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			if (type == PartType.NORMAL) {
@@ -199,6 +212,14 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						addObjModelPosition(objModels, objModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
 					}
 					addObjModelPosition(objModels, objModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
+					if (supportsGpuObjInstancing) {
+						addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset);
+					} else {
+						if (!isDoor()) {
+							addObjModelPosition(objModels, fallbackObjModelsForPartConditionAndRenderStage, x, y, z, flipped, modelYOffset);
+						}
+						addObjModelPosition(objModels, fallbackObjModelsForPartConditionAndRenderStageDoorsClosed, x, y, z, flipped, modelYOffset);
+					}
 					partDetailsList.add(new PartDetails(new ObjectArrayList<>(), optimizedModelDoor.get(), addBox(mutableBox.get(), x, y, z, flipped), x, y, z, flipped));
 				});
 			}
@@ -537,6 +558,31 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			newObjModels.add(objModel);
 			return newObjModels;
 		}, Object2ObjectOpenHashMap::new));
+	}
+
+	private void addGpuObjParts(ObjectArrayList<StaticObjMesh> gpuMeshes, Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition, double x, double y, double z, boolean flipped, double modelYOffset) {
+		final Matrix4f localTransform = createLocalTransform(x, y, z, flipped, modelYOffset);
+		gpuMeshes.forEach(staticObjMesh -> {
+			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, renderStage, renderStage.shaderType, isTranslucentRenderStage(renderStage));
+			final MaterialProperties materialProperties = new MaterialProperties(renderStage.shaderType, staticObjMesh.texture, null);
+			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform)));
+		});
+	}
+
+	private boolean supportsGpuObjInstancing() {
+		return type == PartType.NORMAL && !isDoor() && renderStage != RenderStage.INTERIOR_TRANSLUCENT && renderStage != RenderStage.ALWAYS_ON_LIGHT && renderStage != RenderStage.LIGHT;
+	}
+
+	private static boolean isTranslucentRenderStage(RenderStage renderStage) {
+		return renderStage == RenderStage.INTERIOR_TRANSLUCENT || renderStage == RenderStage.ALWAYS_ON_LIGHT;
+	}
+
+	private static Matrix4f createLocalTransform(double x, double y, double z, boolean flipped, double modelYOffset) {
+		final Matrix4f matrix4f = new Matrix4f().translate((float) (x / 16), (float) (y / 16 - modelYOffset), (float) (z / 16));
+		if (flipped) {
+			matrix4f.rotateY((float) Math.PI);
+		}
+		return matrix4f;
 	}
 
 	private String formatText(Vehicle vehicle) {
