@@ -2,6 +2,7 @@ package org.mtr.mod.render;
 
 import com.logisticscraft.occlusionculling.OcclusionCullingInstance;
 import com.logisticscraft.occlusionculling.util.Vec3d;
+import org.joml.Matrix4f;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
@@ -266,7 +267,9 @@ public class RenderRails implements IGui {
 						graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
 						graphicsHolder.rotateZDegrees((float) ((x1 * z1) % 10) / 100);
 					});
-					railResource.render(storedMatrixTransformations, light);
+					if (!railResource.queueGpu(createRailMatrix((x1 + x3) / 2, (y1 + y2) / 2 + railResource.getModelYOffset(), (z1 + z3) / 2, yaw, pitch, flip, (float) ((x1 * z1) % 10) / 100), light, true)) {
+						railResource.render(storedMatrixTransformations, light);
+					}
 					renderType[1] = true;
 				}, railResource.getRepeatInterval(), 0, 0));
 			}
@@ -312,6 +315,14 @@ public class RenderRails implements IGui {
 				});
 			}, 1, u1 - 1, u2 - 1);
 		}
+	}
+
+	private static Matrix4f createRailMatrix(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees) {
+		return new Matrix4f()
+				.translate((float) x, (float) y, (float) z)
+				.rotateY((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)))
+				.rotateX((float) (Math.PI - pitch * (flip ? -1 : 1)))
+				.rotateZ((float) Math.toRadians(rollDegrees));
 	}
 
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {

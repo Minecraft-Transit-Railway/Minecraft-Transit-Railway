@@ -22,7 +22,8 @@ public final class GpuObjModelRegistry {
 		}
 		return CACHE.computeIfAbsent(new Key(modelResource, textureId.data.toString(), flipTextureV), key -> {
 			final Map<String, List<RawMesh>> rawModel = ModelResourceLoader.loadRawModel(modelResource, textureId, flipTextureV, resourceProvider);
-			return new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))));
+			final boolean hasTranslucentMeshes = rawModel.values().stream().flatMap(List::stream).anyMatch(rawMesh -> rawMesh.materialProperties.translucent);
+			return new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))), hasTranslucentMeshes);
 		});
 	}
 

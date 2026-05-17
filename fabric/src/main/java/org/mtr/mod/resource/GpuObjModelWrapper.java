@@ -13,8 +13,10 @@ public final class GpuObjModelWrapper implements Closeable {
 
 	private final Object2ObjectOpenHashMap<String, ObjectArrayList<StaticObjMesh>> nameToMeshes = new Object2ObjectOpenHashMap<>();
 	private final ObjectArrayList<StaticObjMesh> allMeshes = new ObjectArrayList<>();
+	private final boolean hasTranslucentMeshes;
 
-	GpuObjModelWrapper(Map<String, List<StaticObjMesh>> meshesByName) {
+	GpuObjModelWrapper(Map<String, List<StaticObjMesh>> meshesByName, boolean hasTranslucentMeshes) {
+		this.hasTranslucentMeshes = hasTranslucentMeshes;
 		meshesByName.forEach((groupName, meshes) -> {
 			final ObjectArrayList<StaticObjMesh> newMeshes = new ObjectArrayList<>(meshes);
 			nameToMeshes.put(groupName, newMeshes);
@@ -22,8 +24,16 @@ public final class GpuObjModelWrapper implements Closeable {
 		});
 	}
 
+	public Collection<StaticObjMesh> getAllMeshes() {
+		return allMeshes;
+	}
+
 	public Collection<StaticObjMesh> getMeshes(String name) {
 		return nameToMeshes.getOrDefault(name, new ObjectArrayList<>());
+	}
+
+	public boolean hasTranslucentMeshes() {
+		return hasTranslucentMeshes;
 	}
 
 	@Override
