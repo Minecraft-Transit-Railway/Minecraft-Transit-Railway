@@ -22,7 +22,7 @@ import net.minecraft.world.World;
 import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.packet.PacketOpenPIDSConfigScreen;
+import org.mtr.packet.PacketOpenBlockEntityScreen;
 import org.mtr.registry.Registry;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public abstract class BlockPIDSBase extends Block implements BlockEntityProvider
 		return IBlock.checkHoldingBrush(world, player, () -> {
 			final BlockPos newBlockPos = getBlockPosWithData.apply(world, pos);
 			final BlockEntity entity = world.getBlockEntity(newBlockPos);
-			if (entity instanceof BlockEntityBase blockEntityBase) {
-				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenPIDSConfigScreen(newBlockPos, blockEntityBase.maxArrivals));
+			if (entity instanceof BlockEntityBase) {
+				Registry.sendPacketToClient((ServerPlayerEntity) player, new PacketOpenBlockEntityScreen(newBlockPos));
 			}
 		});
 	}

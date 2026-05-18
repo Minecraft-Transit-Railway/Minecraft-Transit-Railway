@@ -16,15 +16,10 @@ import org.mtr.resource.LiftResource;
 
 import java.util.Objects;
 
-public class LiftStyleSelectorScreen extends DashboardListSelectorScreen {
+public final class LiftStyleSelectorScreen extends DashboardListSelectorScreen {
 
 	private final Lift lift;
 	private final ObjectImmutableList<LiftResource> allLifts = CustomResourceLoader.getLifts();
-
-	private LiftStyleSelectorScreen(Lift lift, ObjectImmutableList<DashboardListItem> lifts, LongArrayList selectedLiftIndices, @Nullable ScreenBase previousScreenLegacy) {
-		super(lifts, selectedLiftIndices, true, false, previousScreenLegacy);
-		this.lift = lift;
-	}
 
 	private LiftStyleSelectorScreen(Lift lift, ObjectImmutableList<DashboardListItem> lifts, LongArrayList selectedLiftIndices, @Nullable WindowBase previousScreen) {
 		super(lifts, selectedLiftIndices, true, false, previousScreen);
@@ -49,15 +44,7 @@ public class LiftStyleSelectorScreen extends DashboardListSelectorScreen {
 		RegistryClient.sendPacketToServer(new PacketUpdateData(new UpdateDataRequest(MinecraftClientData.getInstance()).addLift(lift)));
 	}
 
-	public static LiftStyleSelectorScreen create(Lift lift, @Nullable ScreenBase previousScreenLegacy) {
-		return createInternal(lift, previousScreenLegacy, null);
-	}
-
 	public static LiftStyleSelectorScreen create(Lift lift, @Nullable WindowBase previousScreen) {
-		return createInternal(lift, null, previousScreen);
-	}
-
-	private static LiftStyleSelectorScreen createInternal(Lift lift, @Nullable ScreenBase previousScreenLegacy, @Nullable WindowBase previousScreen) {
 		final ObjectImmutableList<LiftResource> allLifts = CustomResourceLoader.getLifts();
 		final ObjectArrayList<DashboardListItem> liftsForList = new ObjectArrayList<>();
 		final LongArrayList selectedIds = new LongArrayList();
@@ -70,6 +57,6 @@ public class LiftStyleSelectorScreen extends DashboardListSelectorScreen {
 			}
 		}
 
-		return previousScreen == null ? new LiftStyleSelectorScreen(lift, new ObjectImmutableList<>(liftsForList), selectedIds, previousScreenLegacy) : new LiftStyleSelectorScreen(lift, new ObjectImmutableList<>(liftsForList), selectedIds, previousScreen);
+		return new LiftStyleSelectorScreen(lift, new ObjectImmutableList<>(liftsForList), selectedIds, previousScreen);
 	}
 }

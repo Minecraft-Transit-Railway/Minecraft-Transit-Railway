@@ -7,7 +7,7 @@ import org.mtr.generated.config.ClientSchema;
 public final class Client extends ClientSchema {
 
 	public static final int DYNAMIC_RESOLUTION_COUNT = 8;
-	public static final int TRAIN_OSCILLATION_COUNT = 15;
+	public static final int TRAIN_OSCILLATION_COUNT = 150;
 
 	public Client(ReaderBase readerBase) {
 		super(readerBase);
@@ -79,7 +79,7 @@ public final class Client extends ClientSchema {
 	}
 
 	public void setVehicleOscillationMultiplier(double trainOscillationMultiplier) {
-		this.vehicleOscillationMultiplier = Math.clamp(trainOscillationMultiplier, 0, (TRAIN_OSCILLATION_COUNT / 10.0));
+		this.vehicleOscillationMultiplier = Math.clamp(trainOscillationMultiplier, 0, (TRAIN_OSCILLATION_COUNT / 100.0));
 	}
 
 	public void toggleDefaultRail3D() {

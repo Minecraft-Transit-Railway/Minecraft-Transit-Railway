@@ -1,17 +1,13 @@
 package org.mtr.screen;
 
+import gg.essential.elementa.components.ScrollComponent;
 import gg.essential.elementa.components.UIContainer;
 import gg.essential.elementa.components.UIWrappedText;
-import gg.essential.elementa.constraints.PixelConstraint;
-import gg.essential.elementa.constraints.RelativeConstraint;
-import gg.essential.elementa.constraints.ScaleConstraint;
-import gg.essential.elementa.constraints.SiblingConstraint;
+import gg.essential.elementa.constraints.*;
 import gg.essential.universal.UMinecraft;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockPIDSBase;
 import org.mtr.client.MinecraftClientData;
@@ -23,179 +19,105 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.packet.PacketUpdatePIDSConfig;
 import org.mtr.tool.GuiHelper;
-import org.mtr.widget.ButtonComponent;
-import org.mtr.widget.CheckboxComponent;
-import org.mtr.widget.TextInputComponent;
+import org.mtr.tool.ReleasedDynamicTextureRegistry;
+import org.mtr.widget.*;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
  * Elementa screen for configuring PIDS custom messages and platform filters.
  */
-public class PIDSConfigScreen extends SingleTabBackgroundScreenBase implements IGui {
+public class PIDSConfigScreen extends WindowBase {
 
 	private final BlockPos blockPos;
-	private final String[] messages;
-	private final boolean[] hideArrivalArray;
-	private final TextInputComponent[] textFieldMessages;
-	private final CheckboxComponent[] buttonsHideArrival;
-	private final TextInputComponent displayPageInput;
-	private final CheckboxComponent selectAllCheckbox;
-	private final ButtonComponent buttonPrevPage;
-	private final ButtonComponent buttonNextPage;
-	private final UIWrappedText filteredPlatformsText;
-	private final UIWrappedText pageIndicatorText;
 	private final LongAVLTreeSet filterPlatformIds;
-	private final int displayPage;
 	private final int maxArrivals;
-	private int page = 0;
 
-	private static final int MAX_MESSAGE_LENGTH = 2048;
-	private static final int ARRIVALS_PER_PAGE = 6;
+	private final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of(
+		new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.BRUSH_TEXTURE.get(), TranslationProvider.GUI_MTR_PIDS_OPTIONS.getString()),
+		new ObjectObjectImmutablePair<>(ReleasedDynamicTextureRegistry.OAK_SIGN_TEXTURE.get(), TranslationProvider.GUI_MTR_PIDS_MESSAGES.getString())
+	));
 
-	public PIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
-		super(TranslationProvider.BLOCK_MTR_PIDS_1.getString());
+	private final TextInputComponent[] messagesTextInputs;
+	private final CheckboxComponent[] hideArrivalCheckboxes;
+	private final NumberInputComponent displayPageNumberInput;
+	private final CheckboxComponent selectAllCheckbox;
+	private final UIWrappedText filteredPlatformsText;
+
+	private static final int LEFT_WIDTH = 96;
+
+	public PIDSConfigScreen(BlockPos blockPos, BlockPIDSBase.BlockEntityBase blockEntity) {
 		this.blockPos = blockPos;
-		this.maxArrivals = maxArrivals;
-		messages = new String[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
-			messages[i] = "";
-		}
-		hideArrivalArray = new boolean[maxArrivals];
+		this.maxArrivals = blockEntity.maxArrivals;
 
-		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
-		if (clientWorld == null) {
-			filterPlatformIds = new LongAVLTreeSet();
-			displayPage = 0;
-		} else {
-			final BlockEntity blockEntity = clientWorld.getBlockEntity(blockPos);
-			if (blockEntity instanceof BlockPIDSBase.BlockEntityBase) {
-				filterPlatformIds = ((BlockPIDSBase.BlockEntityBase) blockEntity).getPlatformIds();
-				for (int i = 0; i < maxArrivals; i++) {
-					messages[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity).getMessage(i);
-					hideArrivalArray[i] = ((BlockPIDSBase.BlockEntityBase) blockEntity).getHideArrival(i);
-				}
-				displayPage = ((BlockPIDSBase.BlockEntityBase) blockEntity).getDisplayPage();
-			} else {
-				filterPlatformIds = new LongAVLTreeSet();
-				displayPage = 0;
-			}
+		final String[] messages = new String[maxArrivals];
+		final boolean[] hideArrivalArray = new boolean[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			messages[i] = blockEntity.getMessage(i);
+			hideArrivalArray[i] = blockEntity.getHideArrival(i);
 		}
+
+		filterPlatformIds = blockEntity.getPlatformIds();
+
+		final ScrollComponent scrollComponent1 = createMainComponents(0, TranslationProvider.GUI_MTR_PIDS_OPTIONS);
+		filteredPlatformsText = GuiHelper.createLabel(scrollComponent1, "");
+
+		final ButtonComponent filterButton = (ButtonComponent) new ButtonComponent(false)
+			.setChildOf(scrollComponent1)
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new PixelConstraint(LEFT_WIDTH));
 
 		selectAllCheckbox = (CheckboxComponent) new CheckboxComponent()
-			.setChildOf(contentContainer)
+			.setChildOf(scrollComponent1)
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint());
+
+		filterButton.setText(Text.translatable("selectWorld.edit").getString());
+		filterButton.onClick(() -> openPlatformFilter(blockPos, selectAllCheckbox, filterPlatformIds, this));
 		selectAllCheckbox.setText(TranslationProvider.GUI_MTR_AUTOMATICALLY_DETECT_NEARBY_PLATFORM.getString());
 		selectAllCheckbox.setChecked(filterPlatformIds.isEmpty());
 
-		final ButtonComponent filterButton = (ButtonComponent) new ButtonComponent(false)
-			.setChildOf(contentContainer)
+		GuiHelper.createSpacing(scrollComponent1);
+		GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_DISPLAY_PAGE.getString());
+
+		displayPageNumberInput = (NumberInputComponent) new NumberInputComponent(1, 1000, 1, false, null)
+			.setChildOf(scrollComponent1)
 			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
-			.setWidth(new PixelConstraint(80));
-		filterButton.setText(net.minecraft.text.Text.translatable("selectWorld.edit").getString());
-		filterButton.onClick(() -> openPlatformFilter(blockPos, selectAllCheckbox, filterPlatformIds, this));
+			.setWidth(new PixelConstraint(LEFT_WIDTH));
 
-		displayPageInput = (TextInputComponent) new TextInputComponent()
-			.setChildOf(contentContainer)
-			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
-			.setWidth(new PixelConstraint(60))
-			.setHeight(new PixelConstraint(20));
-		displayPageInput.setFilter("\\D");
-		displayPageInput.setMaxLength(3);
-		displayPageInput.setText(String.valueOf(displayPage + 1));
-		displayPageInput.setPrefix(TranslationProvider.GUI_MTR_DISPLAY_PAGE.getString() + " ");
+		displayPageNumberInput.setValue(blockEntity.getDisplayPage() + 1);
 
-		final UIContainer pagingRow = (UIContainer) new UIContainer()
-			.setChildOf(contentContainer)
-			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-			.setWidth(new RelativeConstraint())
-			.setHeight(new PixelConstraint(20));
+		final ScrollComponent scrollComponent2 = createMainComponents(1, TranslationProvider.GUI_MTR_PIDS_MESSAGES);
 
-		buttonPrevPage = (ButtonComponent) new ButtonComponent(false)
-			.setChildOf(pagingRow)
-			.setWidth(new PixelConstraint(30));
-		buttonPrevPage.setText("<");
-		buttonPrevPage.onClick(() -> setPage(page - 1));
-
-		buttonNextPage = (ButtonComponent) new ButtonComponent(false)
-			.setChildOf(pagingRow)
-			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-			.setWidth(new PixelConstraint(30));
-		buttonNextPage.setText(">");
-		buttonNextPage.onClick(() -> setPage(page + 1));
-
-		pageIndicatorText = (UIWrappedText) new UIWrappedText("", false)
-			.setChildOf(pagingRow)
-			.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-			.setWidth(new RelativeConstraint())
-			.setColor(new java.awt.Color(GuiHelper.WHITE_COLOR));
-
-		filteredPlatformsText = (UIWrappedText) new UIWrappedText("", false)
-			.setChildOf(contentContainer)
-			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
-			.setWidth(new RelativeConstraint())
-			.setColor(new java.awt.Color(GuiHelper.WHITE_COLOR));
-
-		new UIWrappedText(TranslationProvider.GUI_MTR_PIDS_MESSAGE.getString(), false)
-			.setChildOf(contentContainer)
-			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
-			.setWidth(new RelativeConstraint())
-			.setColor(new java.awt.Color(GuiHelper.WHITE_COLOR));
-
-		textFieldMessages = new TextInputComponent[maxArrivals];
+		messagesTextInputs = new TextInputComponent[maxArrivals];
+		hideArrivalCheckboxes = new CheckboxComponent[maxArrivals];
 		for (int i = 0; i < maxArrivals; i++) {
-			final UIContainer row = (UIContainer) new UIContainer()
-				.setChildOf(contentContainer)
-				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING / 2F))
+			final UIContainer rowContainer = (UIContainer) new UIContainer()
+				.setChildOf(scrollComponent2)
+				.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 				.setWidth(new RelativeConstraint())
 				.setHeight(new PixelConstraint(20));
-			textFieldMessages[i] = (TextInputComponent) new TextInputComponent()
-				.setChildOf(row)
+
+			messagesTextInputs[i] = (TextInputComponent) new TextInputComponent()
+				.setChildOf(rowContainer)
 				.setWidth(new ScaleConstraint(new RelativeConstraint(), 0.75F))
 				.setHeight(new PixelConstraint(20));
-			textFieldMessages[i].setMaxLength(MAX_MESSAGE_LENGTH);
-			textFieldMessages[i].setText(messages[i]);
-		}
 
-		buttonsHideArrival = new CheckboxComponent[maxArrivals];
-		for (int i = 0; i < maxArrivals; i++) {
-			final CheckboxComponent checkboxComponent = (CheckboxComponent) new CheckboxComponent()
-				.setChildOf((UIContainer) textFieldMessages[i].getParent())
+			messagesTextInputs[i].setText(messages[i]);
+
+			hideArrivalCheckboxes[i] = (CheckboxComponent) new CheckboxComponent()
+				.setChildOf(rowContainer)
 				.setX(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
-				.setWidth(new RelativeConstraint());
-			checkboxComponent.setText(TranslationProvider.GUI_MTR_HIDE_ARRIVAL.getString());
-			checkboxComponent.setChecked(hideArrivalArray[i]);
-			buttonsHideArrival[i] = checkboxComponent;
-		}
+				.setWidth(new SubtractiveConstraint(new ScaleConstraint(new RelativeConstraint(), 0.25F), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
-		setPage(0);
-	}
-
-	private void setPage(int newPage) {
-		final int maxArrivalsPerPage = getMaxArrivalsPerPage();
-		final int maxPages = getMaxPages() - 1;
-		page = Math.clamp(newPage, 0, maxPages);
-		for (int i = 0; i < textFieldMessages.length; i++) {
-			if (i / maxArrivalsPerPage == page) {
-				textFieldMessages[i].unhide(true);
-			} else {
-				textFieldMessages[i].hide(true);
-			}
+			hideArrivalCheckboxes[i].setText(TranslationProvider.GUI_MTR_HIDE_ARRIVAL.getString());
+			hideArrivalCheckboxes[i].setChecked(hideArrivalArray[i]);
 		}
-		for (int i = 0; i < buttonsHideArrival.length; i++) {
-			if (i / maxArrivalsPerPage == page) {
-				buttonsHideArrival[i].unhide(true);
-			} else {
-				buttonsHideArrival[i].hide(true);
-			}
-		}
-		buttonPrevPage.setDisabled(page <= 0);
-		buttonNextPage.setDisabled(page >= maxPages);
-		pageIndicatorText.setText(getMaxPages() > 1 ? String.format("%s/%s", page + 1, getMaxPages()) : "");
 	}
 
 	@Override
@@ -206,33 +128,33 @@ public class PIDSConfigScreen extends SingleTabBackgroundScreenBase implements I
 
 	@Override
 	public void onScreenClose() {
-		for (int i = 0; i < textFieldMessages.length; i++) {
-			messages[i] = textFieldMessages[i].getText();
-			hideArrivalArray[i] = buttonsHideArrival[i].isChecked();
+		final String[] messages = new String[maxArrivals];
+		final boolean[] hideArrivalArray = new boolean[maxArrivals];
+		for (int i = 0; i < maxArrivals; i++) {
+			messages[i] = messagesTextInputs[i].getText();
+			hideArrivalArray[i] = hideArrivalCheckboxes[i].isChecked();
 		}
 
 		if (selectAllCheckbox.isChecked()) {
 			filterPlatformIds.clear();
 		}
 
-		int displayPage = 0;
-		try {
-			displayPage = Math.max(0, Integer.parseInt(displayPageInput.getText()) - 1);
-		} catch (Exception e) {
-			MTR.LOGGER.error("Failed to parse PIDS display page", e);
-		}
-
+		final int displayPage = (int) Math.max(0, displayPageNumberInput.getValue() - 1);
 		new PacketUpdatePIDSConfig(blockPos, messages, hideArrivalArray, filterPlatformIds, displayPage).send(MinecraftClient.getInstance().world);
-		;
 		super.onScreenClose();
 	}
 
-	private int getMaxArrivalsPerPage() {
-		return ARRIVALS_PER_PAGE;
-	}
+	private ScrollComponent createMainComponents(int index, TranslationProvider.TranslationHolder title) {
+		new UIWrappedText(title.getString(), false)
+			.setChildOf(backgroundComponent.containers[index])
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
-	private int getMaxPages() {
-		return (int) Math.ceil((float) maxArrivals / getMaxArrivalsPerPage());
+		return ((ScrollPanelComponent) new ScrollPanelComponent(true)
+			.setChildOf(backgroundComponent.containers[index])
+			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
+			.setWidth(new RelativeConstraint())
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)))).contentContainer;
 	}
 
 	public static void openPlatformFilter(BlockPos blockPos, CheckboxComponent selectAllCheckbox, LongAVLTreeSet filterPlatformIds, WindowBase thisScreen) {

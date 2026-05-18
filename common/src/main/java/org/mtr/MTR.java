@@ -125,7 +125,6 @@ public final class MTR {
 		Registry.registerPacket(PacketOpenBlockEntityScreen.class, PacketOpenBlockEntityScreen::new);
 		Registry.registerPacket(PacketOpenDashboardScreen.class, PacketOpenDashboardScreen::new);
 		Registry.registerPacket(PacketOpenLiftCustomizationScreen.class, PacketOpenLiftCustomizationScreen::new);
-		Registry.registerPacket(PacketOpenPIDSConfigScreen.class, PacketOpenPIDSConfigScreen::new);
 		Registry.registerPacket(PacketOpenTicketMachineScreen.class, PacketOpenTicketMachineScreen::new);
 		Registry.registerPacket(PacketPressLiftButton.class, PacketPressLiftButton::new);
 		Registry.registerPacket(PacketRequestData.class, PacketRequestData::new);

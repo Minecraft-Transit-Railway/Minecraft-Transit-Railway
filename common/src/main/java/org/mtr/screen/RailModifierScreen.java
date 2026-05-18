@@ -106,7 +106,7 @@ public final class RailModifierScreen extends WindowBase {
 		final ScrollComponent scrollComponent1 = mainComponents1.left();
 		previewBoxComponent1 = mainComponents1.right();
 
-		GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_RAIL_STYLES.getString());
+		GuiHelper.createLabel(scrollComponent1, TranslationProvider.GUI_MTR_STYLES.getString());
 		final ButtonComponent editStylesButtonComponent = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(scrollComponent1)
 			.setY(new SiblingConstraint())

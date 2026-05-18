@@ -25,22 +25,24 @@ public final class ClientPacketHelper {
 
 	public static void openBlockEntityScreen(BlockPos blockPos) {
 		getBlockEntity(blockPos, blockEntity -> {
-			if (blockEntity instanceof BlockTrainAnnouncer.TrainAnnouncerBlockEntity) {
-				openScreen(new TrainAnnouncerScreen(blockPos, (BlockTrainAnnouncer.TrainAnnouncerBlockEntity) blockEntity), screen -> screen instanceof TrainAnnouncerScreen);
-			} else if (blockEntity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) {
-				openScreen(new TrainScheduleSensorScreen(blockPos, (BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) blockEntity), screen -> screen instanceof TrainScheduleSensorScreen);
-			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase) {
-				openScreen(new TrainBasicSensorScreen(blockPos), screen -> screen instanceof TrainBasicSensorScreen);
-			} else if (blockEntity instanceof BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity) {
-				openScreen(new DriverKeyDispenserScreen(blockPos, (BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity) blockEntity), screen -> screen instanceof DriverKeyDispenserScreen);
+			if (blockEntity instanceof BlockTrainAnnouncer.TrainAnnouncerBlockEntity trainAnnouncerBlockEntity) {
+				openScreen(new TrainAnnouncerScreen(blockPos, trainAnnouncerBlockEntity), screen -> screen instanceof TrainAnnouncerScreen);
+			} else if (blockEntity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity trainScheduleSensorBlockEntity) {
+				openScreen(new TrainScheduleSensorScreen(blockPos, trainScheduleSensorBlockEntity), screen -> screen instanceof TrainScheduleSensorScreen);
+			} else if (blockEntity instanceof BlockTrainSensorBase.BlockEntityBase trainSensorBaseBlockEntity) {
+				openScreen(new TrainBasicSensorScreen(blockPos, trainSensorBaseBlockEntity), screen -> screen instanceof TrainBasicSensorScreen);
+			} else if (blockEntity instanceof BlockDriverKeyDispenser.DriverKeyDispenserBlockEntity driverKeyDispenserBlockEntity) {
+				openScreen(new DriverKeyDispenserScreen(blockPos, driverKeyDispenserBlockEntity), screen -> screen instanceof DriverKeyDispenserScreen);
+			} else if (blockEntity instanceof BlockPIDSBase.BlockEntityBase pidsBaseBlockEntity) {
+				openScreen(new PIDSConfigScreen(blockPos, pidsBaseBlockEntity), screen -> screen instanceof RailwaySignScreen);
 			} else if (blockEntity instanceof BlockRailwaySign.RailwaySignBlockEntity || blockEntity instanceof BlockRouteSignBase.BlockEntityBase) {
 				openScreen(new RailwaySignScreen(blockPos), screen -> screen instanceof RailwaySignScreen);
-			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity) {
-				openScreen(new LiftTrackFloorScreen(blockPos, (BlockLiftTrackFloor.LiftTrackFloorBlockEntity) blockEntity), screen -> screen instanceof LiftTrackFloorScreen);
-			} else if (blockEntity instanceof BlockSignalBase.BlockEntityBase) {
-				openScreen(new SignalColorScreen(blockPos, (BlockSignalBase.BlockEntityBase) blockEntity), screen -> screen instanceof SignalColorScreen);
-			} else if (blockEntity instanceof BlockEyeCandy.EyeCandyBlockEntity) {
-				openScreen(new EyeCandyScreen(blockPos, (BlockEyeCandy.EyeCandyBlockEntity) blockEntity), screen -> screen instanceof EyeCandyScreen);
+			} else if (blockEntity instanceof BlockLiftTrackFloor.LiftTrackFloorBlockEntity liftTrackFloorBlockEntity) {
+				openScreen(new LiftTrackFloorScreen(blockPos, liftTrackFloorBlockEntity), screen -> screen instanceof LiftTrackFloorScreen);
+			} else if (blockEntity instanceof BlockSignalBase.BlockEntityBase signalBaseBlockEntity) {
+				openScreen(new SignalColorScreen(blockPos, signalBaseBlockEntity), screen -> screen instanceof SignalColorScreen);
+			} else if (blockEntity instanceof BlockEyeCandy.EyeCandyBlockEntity eyeCandyBlockEntity) {
+				openScreen(new EyeCandyScreen(blockPos, eyeCandyBlockEntity), screen -> screen instanceof EyeCandyScreen);
 			}
 		});
 	}
@@ -72,14 +74,6 @@ public final class ClientPacketHelper {
 				break;
 			}
 		}
-	}
-
-	public static void openPIDSConfigScreen(BlockPos blockPos, int maxArrivals) {
-		getBlockEntity(blockPos, blockEntity -> {
-			if (blockEntity instanceof BlockPIDSBase.BlockEntityBase) {
-				openScreen(new PIDSConfigScreen(blockPos, maxArrivals), screen -> screen instanceof PIDSConfigScreen);
-			}
-		});
 	}
 
 	public static void openRailShapeModifierScreen(String railId) {

@@ -28,11 +28,11 @@ public final class LiftTrackFloorScreen extends SingleTabBackgroundScreenBase im
 	public LiftTrackFloorScreen(BlockPos blockPos, BlockLiftTrackFloor.LiftTrackFloorBlockEntity blockEntity) {
 		super(TranslationProvider.BLOCK_MTR_LIFT_TRACK_FLOOR_1.getString());
 		this.blockPos = blockPos;
-
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
 		final String initialFloorNumber;
 		final String initialFloorDescription;
 		final boolean initialShouldDing;
+
 		if (clientWorld == null) {
 			initialFloorNumber = "1";
 			initialFloorDescription = "";
@@ -44,25 +44,22 @@ public final class LiftTrackFloorScreen extends SingleTabBackgroundScreenBase im
 		}
 
 		GuiHelper.createLabel(contentContainer, TranslationProvider.GUI_MTR_LIFT_FLOOR_NUMBER.getString());
-
 		textFieldFloorNumber = (TextInputComponent) new TextInputComponent()
 			.setChildOf(contentContainer)
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint())
 			.setHeight(new PixelConstraint(20));
-		textFieldFloorNumber.setFilter("[^\\d-]");
-		textFieldFloorNumber.setMaxLength(8);
+
 		textFieldFloorNumber.setText(initialFloorNumber);
 
 		GuiHelper.createSpacing(contentContainer);
 		GuiHelper.createLabel(contentContainer, TranslationProvider.GUI_MTR_LIFT_FLOOR_DESCRIPTION.getString());
-
 		textFieldFloorDescription = (TextInputComponent) new TextInputComponent()
 			.setChildOf(contentContainer)
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint())
 			.setHeight(new PixelConstraint(20));
-		textFieldFloorDescription.setMaxLength(256);
+
 		textFieldFloorDescription.setText(initialFloorDescription);
 
 		GuiHelper.createSpacing(contentContainer);
@@ -70,6 +67,7 @@ public final class LiftTrackFloorScreen extends SingleTabBackgroundScreenBase im
 			.setChildOf(contentContainer)
 			.setY(new SiblingConstraint())
 			.setWidth(new RelativeConstraint());
+
 		checkboxShouldDing.setText(TranslationProvider.GUI_MTR_LIFT_SHOULD_DING.getString());
 		checkboxShouldDing.setChecked(initialShouldDing);
 	}
@@ -77,7 +75,6 @@ public final class LiftTrackFloorScreen extends SingleTabBackgroundScreenBase im
 	@Override
 	public void onScreenClose() {
 		new PacketUpdateLiftTrackFloorConfig(blockPos, textFieldFloorNumber.getText(), textFieldFloorDescription.getText(), checkboxShouldDing.isChecked()).send(MinecraftClient.getInstance().world);
-		;
 		super.onScreenClose();
 	}
 }

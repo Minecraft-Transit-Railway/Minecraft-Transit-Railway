@@ -1,9 +1,7 @@
 package org.mtr.screen;
 
 import gg.essential.elementa.components.UIWrappedText;
-import gg.essential.elementa.constraints.FillConstraint;
-import gg.essential.elementa.constraints.RelativeConstraint;
-import gg.essential.elementa.constraints.SiblingConstraint;
+import gg.essential.elementa.constraints.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -13,6 +11,7 @@ import org.mtr.core.data.Lift;
 import org.mtr.core.data.LiftDirection;
 import org.mtr.core.operation.PressLift;
 import org.mtr.data.IGui;
+import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -30,7 +29,7 @@ import java.awt.*;
 /**
  * Elementa screen for selecting a lift floor while riding a lift car.
  */
-public class LiftSelectionScreen extends WindowBase implements IGui {
+public final class LiftSelectionScreen extends WindowBase {
 
 	private final ObjectArrayList<BlockPos> floorLevels = new ObjectArrayList<>();
 	private final ObjectArrayList<String> floorDescriptions = new ObjectArrayList<>();
@@ -40,9 +39,9 @@ public class LiftSelectionScreen extends WindowBase implements IGui {
 
 	public LiftSelectionScreen(long liftId) {
 		this.liftId = liftId;
-
 		final Lift lift = MinecraftClientData.getLift(liftId);
 		final ClientWorld clientWorld = MinecraftClient.getInstance().world;
+
 		if (lift != null && clientWorld != null) {
 			lift.iterateFloors(floor -> {
 				final BlockPos blockPos = MTR.positionToBlockPos(floor.getPosition());
@@ -53,16 +52,16 @@ public class LiftSelectionScreen extends WindowBase implements IGui {
 		}
 
 		final BackgroundComponent backgroundComponent = new BackgroundComponent(getWindow(), ObjectImmutableList.of());
-		new UIWrappedText("Select Floor", false)
-			.setChildOf(backgroundComponent.containers[0])
+		new UIWrappedText(TranslationProvider.GUI_MTR_SELECT_FLOOR.getString(), false)
+			.setChildOf(backgroundComponent)
 			.setWidth(new RelativeConstraint())
 			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR));
 
 		final SlotBackgroundComponent slotBackgroundComponent = (SlotBackgroundComponent) new SlotBackgroundComponent()
-			.setChildOf(backgroundComponent.containers[0])
+			.setChildOf(backgroundComponent)
 			.setY(new SiblingConstraint(GuiHelper.DEFAULT_PADDING))
 			.setWidth(new RelativeConstraint())
-			.setHeight(new FillConstraint());
+			.setHeight(new SubtractiveConstraint(new FillConstraint(), new PixelConstraint(GuiHelper.DEFAULT_PADDING)));
 
 		listComponent = GuiHelper.createListComponent(slotBackgroundComponent);
 	}
@@ -79,9 +78,9 @@ public class LiftSelectionScreen extends WindowBase implements IGui {
 		final ObjectArrayList<ListItem<DashboardListItem>> listItems = new ObjectArrayList<>();
 		for (int i = floorLevels.size() - 1; i >= 0; i--) {
 			final BlockPos blockPos = floorLevels.get(i);
-			final int color = lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? 0xFFFF0000 : ARGB_WHITE;
+			final Color color = lift.hasInstruction(lift.getFloorIndex(MTR.blockPosToPosition(blockPos))).contains(LiftDirection.NONE) ? Color.RED : Color.WHITE;
 			final int floorIndexFromTop = i;
-			final DashboardListItem dashboardListItem = new DashboardListItem(blockPos.asLong(), floorDescriptions.get(i), color);
+			final DashboardListItem dashboardListItem = new DashboardListItem(blockPos.asLong(), floorDescriptions.get(i), color.getRGB());
 			listItems.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING, y + GuiHelper.DEFAULT_PADDING, GuiHelper.MINECRAFT_FONT_SIZE, GuiHelper.MINECRAFT_FONT_SIZE).setColor(color).draw(),
 				null,
@@ -91,6 +90,7 @@ public class LiftSelectionScreen extends WindowBase implements IGui {
 				ObjectArrayList.of(new ObjectObjectImmutablePair<>(GuiHelper.ADD_TEXTURE_ID, (indexList, data) -> onPress(floorIndexFromTop)))
 			));
 		}
+
 		listComponent.setData(listItems);
 	}
 
