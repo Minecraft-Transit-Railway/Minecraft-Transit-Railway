@@ -397,6 +397,7 @@ public final class InitClient {
 				webserver = null;
 			}
 			serverPort = 0;
+			GpuObjDebugStats.handleClientDisconnect();
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerStartClientTick(() -> {
@@ -406,6 +407,7 @@ public final class InitClient {
 			gameMillis += millisElapsed;
 			CachedResource.tick();
 			BetaWarningScreen.handle();
+			GpuObjDebugStats.tickWatch();
 
 			final ClientWorld clientWorld = MinecraftClient.getInstance().getWorldMapped();
 			if (clientWorld != null) {

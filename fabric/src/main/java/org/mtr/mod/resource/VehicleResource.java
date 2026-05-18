@@ -16,6 +16,7 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.PositionAndRotation;
@@ -555,13 +556,17 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	private static void queueIfPresent(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		if (hasRenderableModels(optimizedModels, vehicle, noOpenDoorways)) {
+		final int renderableModelCount = countRenderableModels(optimizedModels, vehicle, noOpenDoorways);
+		if (renderableModelCount > 0) {
+			GpuObjDebugStats.recordVehicleFallbackModels(renderableModelCount);
 			queue(optimizedModels, storedMatrixTransformations, vehicle, light, noOpenDoorways);
 		}
 	}
 
 	private static void queueIfPresent(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, Supplier<StoredMatrixTransformations> storedMatrixTransformationsSupplier, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		if (hasRenderableModels(optimizedModels, vehicle, noOpenDoorways)) {
+		final int renderableModelCount = countRenderableModels(optimizedModels, vehicle, noOpenDoorways);
+		if (renderableModelCount > 0) {
+			GpuObjDebugStats.recordVehicleFallbackModels(renderableModelCount);
 			queue(optimizedModels, storedMatrixTransformationsSupplier.get(), vehicle, light, noOpenDoorways);
 		}
 	}
@@ -575,6 +580,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final Matrix4f finalMatrix = new Matrix4f();
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
 		boolean queuedAny = false;
+		int queuedPartCount = 0;
 
 		for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
 			if (!matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways)) {
@@ -582,9 +588,11 @@ public final class VehicleResource extends VehicleResourceSchema {
 			}
 
 			queuedAny = true;
-			conditionBucket.parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset));
+			queuedPartCount += conditionBucket.parts.size();
+			conditionBucket.parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE));
 		}
 
+		GpuObjDebugStats.recordVehicleGpuQueue(queuedPartCount);
 		return queuedAny;
 	}
 
@@ -596,13 +604,14 @@ public final class VehicleResource extends VehicleResourceSchema {
 				.rotateZ((float) Math.toRadians(oscillationAmount));
 	}
 
-	private static boolean hasRenderableModels(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, VehicleExtension vehicle, boolean noOpenDoorways) {
+	private static int countRenderableModels(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, VehicleExtension vehicle, boolean noOpenDoorways) {
+		int count = 0;
 		for (final Object2ObjectMap.Entry<PartCondition, OptimizedModelWrapper> entry : optimizedModels.object2ObjectEntrySet()) {
 			if (entry.getValue().optimizedModel != null && matchesCondition(vehicle, entry.getKey(), noOpenDoorways)) {
-				return true;
+				count++;
 			}
 		}
-		return false;
+		return count;
 	}
 
 	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> writeToOptimizedModels(

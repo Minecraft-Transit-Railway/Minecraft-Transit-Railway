@@ -10,6 +10,7 @@ import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.render.ObjBatchKey;
 import org.mtr.mod.render.StaticObjMesh;
@@ -65,11 +66,13 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
 		if (!OptimizedRenderer.hasOptimizedRendering() || !Config.getClient().getEnableGpuObjInstancing()) {
+			GpuObjDebugStats.recordRailQueueResult(false);
 			return false;
 		}
 
 		final RailGpuCache railGpuCache = cachedGpuRailResource.getData(false);
 		if (railGpuCache == null || !railGpuCache.hasEntries()) {
+			GpuObjDebugStats.recordRailQueueResult(false);
 			return false;
 		}
 
@@ -82,8 +85,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		boolean queuedAny = false;
 		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 			queuedAny = true;
-			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, matrix, packedLight, 0xFFFFFFFF, useDefaultOffset);
+			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, matrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
 		}
+		GpuObjDebugStats.recordRailQueueResult(queuedAny);
 		return queuedAny;
 	}
 

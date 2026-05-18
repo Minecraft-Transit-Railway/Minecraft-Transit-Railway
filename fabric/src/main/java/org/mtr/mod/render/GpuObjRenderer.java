@@ -46,8 +46,9 @@ public final class GpuObjRenderer implements IGui {
 	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData);
 	private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INSTANCE_STRIDE);
 
-	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset) {
+	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
 		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
+		final boolean newBatch = !batchEntry.activeThisFrame;
 		if (!batchEntry.activeThisFrame) {
 			batchEntry.activeThisFrame = true;
 			activeBatches.add(batchEntry);
@@ -57,6 +58,7 @@ public final class GpuObjRenderer implements IGui {
 		}
 
 		final MeshEntry meshEntry = batchEntry.meshes.computeIfAbsent(staticObjMesh, MeshEntry::new);
+		final boolean newMesh = meshEntry.instanceCount == 0;
 		if (meshEntry.instanceCount == 0) {
 			batchEntry.activeMeshes.add(meshEntry);
 		}
@@ -68,6 +70,7 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.putInt(packedColor);
 		scratchInstanceBuffer.putInt(packedLight);
 		meshEntry.addInstance(scratchInstanceData, useDefaultOffset);
+		GpuObjDebugStats.recordInstanceQueued(source, newBatch, newMesh);
 	}
 
 	public void renderOpaque(Vector3d offset) {
@@ -128,6 +131,7 @@ public final class GpuObjRenderer implements IGui {
 		instanceBuffer.upload(byteBuffer, VertexBuffer.USAGE_STREAM_DRAW);
 		materialProperties.vertexAttributeState.apply();
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
+		GpuObjDebugStats.recordDrawInstanced();
 	}
 
 	private void ensureCapacity(int requiredBytes) {

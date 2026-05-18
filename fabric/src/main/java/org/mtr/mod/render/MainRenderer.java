@@ -108,6 +108,8 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			ArrivalsCacheClient.INSTANCE.tick();
 		}
 
+		GpuObjDebugStats.beginFrame(Config.getClient().getEnableGpuObjInstancing());
+
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
@@ -166,6 +168,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		GpuObjRenderer.INSTANCE.renderOpaque(offset);
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 		GpuObjRenderer.INSTANCE.clear();
+		GpuObjDebugStats.finishFrame();
 	}
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
