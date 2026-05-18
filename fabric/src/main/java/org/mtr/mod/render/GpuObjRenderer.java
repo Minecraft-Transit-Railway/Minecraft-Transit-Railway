@@ -3,8 +3,8 @@ package org.mtr.mod.render;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL33;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.floats.FloatArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.render.batch.MaterialProperties;
@@ -33,39 +33,67 @@ public final class GpuObjRenderer implements IGui {
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
-	private static final int TRANSLATION_X_INDEX = 12;
-	private static final int TRANSLATION_Y_INDEX = 13;
-	private static final int TRANSLATION_Z_INDEX = 14;
+	private static final int TRANSLATION_X_BYTE_OFFSET = 12 * Float.BYTES;
+	private static final int TRANSLATION_Y_BYTE_OFFSET = 13 * Float.BYTES;
+	private static final int TRANSLATION_Z_BYTE_OFFSET = 14 * Float.BYTES;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
 	private final Object2ObjectOpenHashMap<ObjBatchKey, BatchEntry> batches = new Object2ObjectOpenHashMap<>();
+	private final ObjectArrayList<BatchEntry> activeBatches = new ObjectArrayList<>();
+	private final ObjectArrayList<BatchEntry>[] activeOpaqueBatchesByStage = createBatchLists();
+	private final byte[] scratchInstanceData = new byte[INSTANCE_STRIDE];
+	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData);
 	private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INSTANCE_STRIDE);
 
 	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset) {
-		final MeshEntry meshEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties)).meshes.computeIfAbsent(staticObjMesh, key -> new MeshEntry());
-		for (int i = 0; i < MATRIX_FLOATS; i++) {
-			meshEntry.matrixData.add(matrix.get(i / 4, i % 4));
+		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
+		if (!batchEntry.activeThisFrame) {
+			batchEntry.activeThisFrame = true;
+			activeBatches.add(batchEntry);
+			if (!batchKey.translucent) {
+				activeOpaqueBatchesByStage[batchKey.renderStage.ordinal()].add(batchEntry);
+			}
 		}
-		meshEntry.packedColors.add(packedColor);
-		meshEntry.packedLights.add(packedLight);
-		meshEntry.useDefaultOffsets.add((byte) (useDefaultOffset ? 1 : 0));
+
+		final MeshEntry meshEntry = batchEntry.meshes.computeIfAbsent(staticObjMesh, MeshEntry::new);
+		if (meshEntry.instanceCount == 0) {
+			batchEntry.activeMeshes.add(meshEntry);
+		}
+
+		scratchInstanceBuffer.clear();
+		for (int i = 0; i < MATRIX_FLOATS; i++) {
+			scratchInstanceBuffer.putFloat(matrix.get(i / 4, i % 4));
+		}
+		scratchInstanceBuffer.putInt(packedColor);
+		scratchInstanceBuffer.putInt(packedLight);
+		meshEntry.addInstance(scratchInstanceData, useDefaultOffset);
 	}
 
 	public void renderOpaque(Vector3d offset) {
 		for (final RenderStage renderStage : RenderStage.values()) {
-			batches.forEach((batchKey, batchEntry) -> {
-				if (batchKey.renderStage == renderStage && !batchKey.translucent) {
-					shaderManager.setupShaderBatchState(batchEntry.materialProperties);
-					batchEntry.meshes.forEach((staticObjMesh, meshEntry) -> render(batchEntry.materialProperties, staticObjMesh, meshEntry, offset));
-					shaderManager.cleanupShaderBatchState();
+			final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
+			for (int i = 0; i < batchEntries.size(); i++) {
+				final BatchEntry batchEntry = batchEntries.get(i);
+				shaderManager.setupShaderBatchState(batchEntry.materialProperties);
+				for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
+					render(batchEntry.materialProperties, batchEntry.activeMeshes.get(j), offset);
 				}
-			});
+				shaderManager.cleanupShaderBatchState();
+			}
 		}
 	}
 
 	public void clear() {
-		batches.values().forEach(batchEntry -> batchEntry.meshes.values().forEach(MeshEntry::clear));
+		for (int i = 0; i < activeBatches.size(); i++) {
+			final BatchEntry batchEntry = activeBatches.get(i);
+			batchEntry.clear();
+			batchEntry.activeThisFrame = false;
+		}
+		activeBatches.clear();
+		for (final ObjectArrayList<BatchEntry> batchEntries : activeOpaqueBatchesByStage) {
+			batchEntries.clear();
+		}
 	}
 
 	public static void setupInstanceAttributes(VertexArray vertexArray) {
@@ -77,48 +105,35 @@ public final class GpuObjRenderer implements IGui {
 		VertexArray.unbind();
 	}
 
-	private void render(MaterialProperties materialProperties, StaticObjMesh staticObjMesh, MeshEntry meshEntry, Vector3d offset) {
-		final int instanceCount = meshEntry.getInstanceCount();
+	private void render(MaterialProperties materialProperties, MeshEntry meshEntry, Vector3d offset) {
+		final int instanceCount = meshEntry.instanceCount;
 		if (instanceCount == 0) {
 			return;
 		}
 
-		ensureCapacity(instanceCount);
+		ensureCapacity(meshEntry.payload.size());
 		byteBuffer.clear();
+		byteBuffer.put(meshEntry.payload.elements(), 0, meshEntry.payload.size());
 
-		for (int i = 0; i < instanceCount; i++) {
-			final int baseIndex = i * MATRIX_FLOATS;
-			final boolean useDefaultOffset = meshEntry.useDefaultOffsets.getByte(i) != 0;
-			for (int j = 0; j < MATRIX_FLOATS; j++) {
-				float value = meshEntry.matrixData.getFloat(baseIndex + j);
-				if (useDefaultOffset) {
-					if (j == TRANSLATION_X_INDEX) {
-						value -= (float) offset.getXMapped();
-					} else if (j == TRANSLATION_Y_INDEX) {
-						value -= (float) offset.getYMapped();
-					} else if (j == TRANSLATION_Z_INDEX) {
-						value -= (float) offset.getZMapped();
-					}
-				}
-				byteBuffer.putFloat(value);
-			}
-			byteBuffer.putInt(meshEntry.packedColors.getInt(i));
-			byteBuffer.putShort((short) (meshEntry.packedLights.getInt(i) >> 16));
-			byteBuffer.putShort((short) meshEntry.packedLights.getInt(i));
+		for (int i = 0; i < meshEntry.defaultOffsetInstanceIndices.size(); i++) {
+			final int baseByteOffset = meshEntry.defaultOffsetInstanceIndices.getInt(i) * INSTANCE_STRIDE;
+			byteBuffer.putFloat(baseByteOffset + TRANSLATION_X_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_X_BYTE_OFFSET) - (float) offset.getXMapped());
+			byteBuffer.putFloat(baseByteOffset + TRANSLATION_Y_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_Y_BYTE_OFFSET) - (float) offset.getYMapped());
+			byteBuffer.putFloat(baseByteOffset + TRANSLATION_Z_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_Z_BYTE_OFFSET) - (float) offset.getZMapped());
 		}
 
 		byteBuffer.flip();
-		staticObjMesh.vertexArray.bind();
+		meshEntry.staticObjMesh.vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
 		instanceBuffer.upload(byteBuffer, VertexBuffer.USAGE_STREAM_DRAW);
 		materialProperties.vertexAttributeState.apply();
-		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, staticObjMesh.vertexArray.indexBuffer.getVertexCount(), staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
+		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
 	}
 
-	private void ensureCapacity(int instanceCount) {
-		final int requiredBytes = Math.max(INSTANCE_STRIDE, instanceCount * INSTANCE_STRIDE);
+	private void ensureCapacity(int requiredBytes) {
+		final int minimumCapacity = Math.max(INSTANCE_STRIDE, requiredBytes);
 		if (byteBuffer.capacity() < requiredBytes) {
-			byteBuffer = ByteBuffer.allocateDirect(requiredBytes);
+			byteBuffer = ByteBuffer.allocateDirect(minimumCapacity);
 		}
 	}
 
@@ -128,32 +143,57 @@ public final class GpuObjRenderer implements IGui {
 		vertexAttributeType.setAttributeDivisor(1);
 	}
 
+	@SuppressWarnings("unchecked")
+	private static ObjectArrayList<BatchEntry>[] createBatchLists() {
+		final ObjectArrayList<BatchEntry>[] batchLists = new ObjectArrayList[RenderStage.values().length];
+		for (int i = 0; i < batchLists.length; i++) {
+			batchLists[i] = new ObjectArrayList<>();
+		}
+		return batchLists;
+	}
+
 	private static final class BatchEntry {
 
 		private final MaterialProperties materialProperties;
 		private final Object2ObjectOpenHashMap<StaticObjMesh, MeshEntry> meshes = new Object2ObjectOpenHashMap<>();
+		private final ObjectArrayList<MeshEntry> activeMeshes = new ObjectArrayList<>();
+		private boolean activeThisFrame;
 
 		private BatchEntry(MaterialProperties materialProperties) {
 			this.materialProperties = materialProperties;
+		}
+
+		private void clear() {
+			for (int i = 0; i < activeMeshes.size(); i++) {
+				activeMeshes.get(i).clear();
+			}
+			activeMeshes.clear();
 		}
 	}
 
 	private static final class MeshEntry {
 
-		private final FloatArrayList matrixData = new FloatArrayList();
-		private final IntArrayList packedColors = new IntArrayList();
-		private final IntArrayList packedLights = new IntArrayList();
-		private final ByteArrayList useDefaultOffsets = new ByteArrayList();
+		private final StaticObjMesh staticObjMesh;
+		private final ByteArrayList payload = new ByteArrayList();
+		private final IntArrayList defaultOffsetInstanceIndices = new IntArrayList();
+		private int instanceCount;
 
-		private int getInstanceCount() {
-			return packedLights.size();
+		private MeshEntry(StaticObjMesh staticObjMesh) {
+			this.staticObjMesh = staticObjMesh;
 		}
 
 		private void clear() {
-			matrixData.clear();
-			packedColors.clear();
-			packedLights.clear();
-			useDefaultOffsets.clear();
+			payload.clear();
+			defaultOffsetInstanceIndices.clear();
+			instanceCount = 0;
+		}
+
+		private void addInstance(byte[] instanceData, boolean useDefaultOffset) {
+			payload.addElements(payload.size(), instanceData, 0, INSTANCE_STRIDE);
+			if (useDefaultOffset) {
+				defaultOffsetInstanceIndices.add(instanceCount);
+			}
+			instanceCount++;
 		}
 	}
 }
