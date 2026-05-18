@@ -2,6 +2,7 @@ package org.mtr.mod.resource;
 
 import org.joml.Matrix4f;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.TextHelper;
@@ -19,7 +20,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 	public final boolean shouldPreload;
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
+	private final CachedResource<RailGpuCache> cachedGpuRailResource;
 	private final ResourceProvider resourceProvider;
+	private final Matrix4f gpuMatrix = new Matrix4f();
 
 	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -27,6 +30,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		shouldPreload = Config.getClient().matchesPreloadResourcePattern(id);
 		this.resourceProvider = resourceProvider;
 		cachedRailResource = new CachedResource<>(() -> load(modelResource, textureResource, flipTextureV, 0, resourceProvider), shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
+		cachedGpuRailResource = new CachedResource<>(this::createGpuCache, shouldPreload ? Integer.MAX_VALUE : VehicleModel.MODEL_LIFESPAN);
 	}
 
 	/**
@@ -37,6 +41,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		shouldPreload = false;
 		this.resourceProvider = resourceProvider;
 		cachedRailResource = new CachedResource<>(() -> null, Integer.MAX_VALUE);
+		cachedGpuRailResource = new CachedResource<>(() -> RailGpuCache.EMPTY, Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -56,26 +61,28 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	@Override
 	public void preload() {
 		cachedRailResource.getData(true);
-		getGpuObjModel();
 	}
 
-	public boolean queueGpu(Matrix4f matrix4f, int light, boolean useDefaultOffset) {
+	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
 		if (!OptimizedRenderer.hasOptimizedRendering() || !Config.getClient().getEnableGpuObjInstancing()) {
 			return false;
 		}
 
-		final GpuObjModelWrapper gpuObjModelWrapper = getGpuObjModel();
-		if (gpuObjModelWrapper == null || gpuObjModelWrapper.hasTranslucentMeshes()) {
+		final RailGpuCache railGpuCache = cachedGpuRailResource.getData(false);
+		if (railGpuCache == null || !railGpuCache.hasEntries()) {
 			return false;
 		}
 
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
+		final Matrix4f matrix = gpuMatrix.identity()
+				.translate((float) x, (float) y, (float) z)
+				.rotateY((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)))
+				.rotateX((float) (Math.PI - pitch * (flip ? -1 : 1)))
+				.rotateZ((float) Math.toRadians(rollDegrees));
 		boolean queuedAny = false;
-		for (final StaticObjMesh staticObjMesh : gpuObjModelWrapper.getAllMeshes()) {
+		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 			queuedAny = true;
-			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, RenderStage.EXTERIOR, RenderStage.EXTERIOR.shaderType, false);
-			final MaterialProperties materialProperties = new MaterialProperties(RenderStage.EXTERIOR.shaderType, staticObjMesh.texture, null);
-			GpuObjRenderer.INSTANCE.queue(batchKey, materialProperties, staticObjMesh, new Matrix4f(matrix4f), packedLight, 0xFFFFFFFF, useDefaultOffset);
+			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, matrix, packedLight, 0xFFFFFFFF, useDefaultOffset);
 		}
 		return queuedAny;
 	}
@@ -83,6 +90,21 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	@Nullable
 	private GpuObjModelWrapper getGpuObjModel() {
 		return modelResource.endsWith(".obj") ? GpuObjModelRegistry.getOrCreate(modelResource, CustomResourceTools.formatIdentifierWithDefault(textureResource, "png"), flipTextureV, resourceProvider) : null;
+	}
+
+	private RailGpuCache createGpuCache() {
+		final GpuObjModelWrapper gpuObjModelWrapper = getGpuObjModel();
+		if (gpuObjModelWrapper == null || gpuObjModelWrapper.hasTranslucentMeshes()) {
+			return RailGpuCache.EMPTY;
+		}
+
+		final ObjectArrayList<RailGpuCache.Entry> entries = new ObjectArrayList<>();
+		for (final StaticObjMesh staticObjMesh : gpuObjModelWrapper.getAllMeshes()) {
+			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, RenderStage.EXTERIOR, RenderStage.EXTERIOR.shaderType, false);
+			final MaterialProperties materialProperties = new MaterialProperties(RenderStage.EXTERIOR.shaderType, staticObjMesh.texture, null);
+			entries.add(new RailGpuCache.Entry(staticObjMesh, batchKey, materialProperties));
+		}
+		return entries.isEmpty() ? RailGpuCache.EMPTY : new RailGpuCache(entries);
 	}
 
 	public String getId() {
