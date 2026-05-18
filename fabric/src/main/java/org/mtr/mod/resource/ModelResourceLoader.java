@@ -7,6 +7,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.model.RawMesh;
+import org.mtr.mapping.render.obj.AtlasManager;
 import org.mtr.mapping.render.obj.ObjModelLoader;
 import org.mtr.mod.client.CustomResourceLoader;
 
@@ -74,13 +75,17 @@ public final class ModelResourceLoader {
 	) {
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 		try {
+			final AtlasManager atlasManager = CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.getAtlasManager();
+			if (atlasManager == null) {
+				throw new IllegalStateException("AtlasManager unavailable for GPU OBJ loading");
+			}
 			if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
 				final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
 				return ObjModelLoader.loadModel(
 						convertedModel.getObjContent(),
 						mtlString -> convertedModel.getMtlContent(),
 						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-						null,
+						atlasManager,
 						flipTextureV
 				);
 			} else {
@@ -88,7 +93,7 @@ public final class ModelResourceLoader {
 						resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 						mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
 						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-						null,
+						atlasManager,
 						flipTextureV
 				);
 			}

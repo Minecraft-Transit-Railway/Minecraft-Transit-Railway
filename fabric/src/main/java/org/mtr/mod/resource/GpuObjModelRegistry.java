@@ -18,10 +18,14 @@ public final class GpuObjModelRegistry {
 
 	private static final Object2ObjectOpenHashMap<Key, GpuObjModelWrapper> CACHE = new Object2ObjectOpenHashMap<>();
 	private static final ObjectSet<Key> FAILED_KEYS = new ObjectOpenHashSet<>();
+	private static boolean gpuObjLoadingUnavailable;
 
 	@Nullable
 	public static GpuObjModelWrapper getOrCreate(String modelResource, Identifier textureId, boolean flipTextureV, ResourceProvider resourceProvider) {
 		if (!modelResource.endsWith(".obj")) {
+			return null;
+		}
+		if (gpuObjLoadingUnavailable) {
 			return null;
 		}
 
@@ -41,6 +45,10 @@ public final class GpuObjModelRegistry {
 			final GpuObjModelWrapper gpuObjModelWrapper = new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))), hasTranslucentMeshes);
 			CACHE.put(key, gpuObjModelWrapper);
 			return gpuObjModelWrapper;
+		} catch (IllegalStateException e) {
+			gpuObjLoadingUnavailable = true;
+			Init.LOGGER.warn("GPU OBJ loading is unavailable in the current renderer context; falling back to standard rendering for this session.");
+			return null;
 		} catch (Exception e) {
 			FAILED_KEYS.add(key);
 			Init.LOGGER.error("[{}] Failed to build GPU OBJ cache, falling back to standard rendering", modelResource, e);
@@ -52,6 +60,7 @@ public final class GpuObjModelRegistry {
 		CACHE.values().forEach(GpuObjModelWrapper::close);
 		CACHE.clear();
 		FAILED_KEYS.clear();
+		gpuObjLoadingUnavailable = false;
 	}
 
 	private GpuObjModelRegistry() {
