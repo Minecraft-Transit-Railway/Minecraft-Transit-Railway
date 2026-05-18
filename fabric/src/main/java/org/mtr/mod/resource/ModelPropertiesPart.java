@@ -18,6 +18,7 @@ import org.mtr.mod.client.ScrollingText;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.ModelPropertiesPartSchema;
+import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
@@ -222,22 +223,19 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
-			double modelYOffset
+			Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition,
+			double modelYOffset,
+			GpuObjDebugStats.VehicleFallbackReason modelFallbackReason
 	) {
-		if (!supportsGpuObjInstancing()) {
-			return;
-		}
-
+		final GpuObjDebugStats.VehicleFallbackReason fallbackReason = getGpuFallbackReason(modelFallbackReason);
 		final ObjectArrayList<StaticObjMesh> gpuMeshes = new ObjectArrayList<>();
-		names.forEach(name -> gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add));
-		if (gpuMeshes.isEmpty()) {
-			return;
+		if (fallbackReason == null && gpuObjModelWrapper != null) {
+			names.forEach(name -> gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add));
 		}
+		final GpuObjDebugStats.VehicleFallbackReason resolvedFallbackReason = fallbackReason == null && gpuMeshes.isEmpty() ? GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND : fallbackReason;
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
-			if (type == PartType.NORMAL) {
-				iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset));
-			}
+			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuDebugPart(gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason));
 		}));
 	}
 
@@ -584,8 +582,41 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		});
 	}
 
+	private void addGpuDebugPart(
+			ObjectArrayList<StaticObjMesh> gpuMeshes,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition,
+			double x, double y, double z, boolean flipped, double modelYOffset,
+			GpuObjDebugStats.VehicleFallbackReason fallbackReason
+	) {
+		final VehicleGpuCache.PlacementStats placementStats = VehicleGpuCache.getOrCreatePlacementStats(placementStatsByCondition, condition);
+		if (fallbackReason == null) {
+			placementStats.incrementSupportedPlacementCount();
+			addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset);
+		} else {
+			placementStats.incrementUnsupportedReasonCount(fallbackReason);
+		}
+	}
+
+	private GpuObjDebugStats.VehicleFallbackReason getGpuFallbackReason(GpuObjDebugStats.VehicleFallbackReason modelFallbackReason) {
+		if (type != PartType.NORMAL) {
+			return GpuObjDebugStats.VehicleFallbackReason.PART_TYPE_UNSUPPORTED;
+		}
+		if (isDoor()) {
+			return GpuObjDebugStats.VehicleFallbackReason.DOOR_PART;
+		}
+		if (!supportsGpuRenderStage()) {
+			return GpuObjDebugStats.VehicleFallbackReason.RENDER_STAGE_UNSUPPORTED;
+		}
+		return modelFallbackReason;
+	}
+
 	private boolean supportsGpuObjInstancing() {
-		return type == PartType.NORMAL && !isDoor() && renderStage != RenderStage.INTERIOR_TRANSLUCENT && renderStage != RenderStage.ALWAYS_ON_LIGHT && renderStage != RenderStage.LIGHT;
+		return type == PartType.NORMAL && !isDoor() && supportsGpuRenderStage();
+	}
+
+	private boolean supportsGpuRenderStage() {
+		return renderStage != RenderStage.INTERIOR_TRANSLUCENT && renderStage != RenderStage.ALWAYS_ON_LIGHT && renderStage != RenderStage.LIGHT;
 	}
 
 	private static boolean isTranslucentRenderStage(RenderStage renderStage) {

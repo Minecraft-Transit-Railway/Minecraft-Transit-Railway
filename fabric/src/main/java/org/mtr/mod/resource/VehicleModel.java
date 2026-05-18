@@ -12,6 +12,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjDebugStats;
 
 public final class VehicleModel extends VehicleModelSchema {
 
@@ -157,20 +158,15 @@ public final class VehicleModel extends VehicleModelSchema {
 	}
 
 	private VehicleGpuCache createGpuCache() {
-		if (!modelResource.endsWith(".obj")) {
-			return VehicleGpuCache.EMPTY;
-		}
-
-		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-		final GpuObjModelWrapper gpuObjModelWrapper = GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider);
-		if (gpuObjModelWrapper == null) {
-			return VehicleGpuCache.EMPTY;
-		}
-
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, modelProperties.getModelYOffset()));
-		return new VehicleGpuCache(gpuPartsForCondition);
+		final Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition = new Object2ObjectOpenHashMap<>();
+		final boolean modelIsObj = modelResource.endsWith(".obj");
+		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+		final GpuObjModelWrapper gpuObjModelWrapper = modelIsObj ? GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider) : null;
+		final GpuObjDebugStats.VehicleFallbackReason modelFallbackReason = !modelIsObj ? GpuObjDebugStats.VehicleFallbackReason.MODEL_NOT_OBJ : gpuObjModelWrapper == null ? GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE : null;
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, placementStatsByCondition, modelProperties.getModelYOffset(), modelFallbackReason));
+		return new VehicleGpuCache(gpuPartsForCondition, placementStatsByCondition);
 	}
 }

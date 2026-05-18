@@ -42,7 +42,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		shouldPreload = false;
 		this.resourceProvider = resourceProvider;
 		cachedRailResource = new CachedResource<>(() -> null, Integer.MAX_VALUE);
-		cachedGpuRailResource = new CachedResource<>(() -> RailGpuCache.EMPTY, Integer.MAX_VALUE);
+		cachedGpuRailResource = new CachedResource<>(() -> new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.STYLE_NOT_OBJ), Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -65,14 +65,24 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
-		if (!OptimizedRenderer.hasOptimizedRendering() || !Config.getClient().getEnableGpuObjInstancing()) {
-			GpuObjDebugStats.recordRailQueueResult(false);
+		if (!Config.getClient().getEnableGpuObjInstancing()) {
+			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.CONFIG_DISABLED);
+			return false;
+		}
+
+		if (!OptimizedRenderer.hasOptimizedRendering()) {
+			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE);
 			return false;
 		}
 
 		final RailGpuCache railGpuCache = cachedGpuRailResource.getData(false);
-		if (railGpuCache == null || !railGpuCache.hasEntries()) {
-			GpuObjDebugStats.recordRailQueueResult(false);
+		if (railGpuCache == null) {
+			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.GPU_CACHE_UNAVAILABLE);
+			return false;
+		}
+
+		if (!railGpuCache.hasEntries()) {
+			GpuObjDebugStats.recordRailOutcome(false, railGpuCache.fallbackReason);
 			return false;
 		}
 
@@ -87,7 +97,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 			queuedAny = true;
 			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, matrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
 		}
-		GpuObjDebugStats.recordRailQueueResult(queuedAny);
+		GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
 		return queuedAny;
 	}
 
@@ -97,9 +107,17 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	private RailGpuCache createGpuCache() {
+		if (!modelResource.endsWith(".obj")) {
+			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.STYLE_NOT_OBJ);
+		}
+
 		final GpuObjModelWrapper gpuObjModelWrapper = getGpuObjModel();
-		if (gpuObjModelWrapper == null || gpuObjModelWrapper.hasTranslucentMeshes()) {
-			return RailGpuCache.EMPTY;
+		if (gpuObjModelWrapper == null) {
+			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.GPU_CACHE_UNAVAILABLE);
+		}
+
+		if (gpuObjModelWrapper.hasTranslucentMeshes()) {
+			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.HAS_TRANSLUCENT_MESH);
 		}
 
 		final ObjectArrayList<RailGpuCache.Entry> entries = new ObjectArrayList<>();
@@ -108,7 +126,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 			final MaterialProperties materialProperties = new MaterialProperties(RenderStage.EXTERIOR.shaderType, staticObjMesh.texture, null);
 			entries.add(new RailGpuCache.Entry(staticObjMesh, batchKey, materialProperties));
 		}
-		return entries.isEmpty() ? RailGpuCache.EMPTY : new RailGpuCache(entries);
+		return entries.isEmpty() ? new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.GPU_CACHE_EMPTY) : new RailGpuCache(entries, null);
 	}
 
 	public String getId() {

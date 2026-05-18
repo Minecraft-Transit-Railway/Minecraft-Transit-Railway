@@ -2,16 +2,19 @@ package org.mtr.mod.resource;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.render.batch.MaterialProperties;
+import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.ObjBatchKey;
 import org.mtr.mod.render.StaticObjMesh;
 
 public final class RailGpuCache {
 
-	public static final RailGpuCache EMPTY = new RailGpuCache(new ObjectArrayList<>());
+	public static final RailGpuCache EMPTY = new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.GPU_CACHE_EMPTY);
 	public final ObjectArrayList<Entry> entries;
+	public final GpuObjDebugStats.RailFallbackReason fallbackReason;
 
-	public RailGpuCache(ObjectArrayList<Entry> entries) {
+	public RailGpuCache(ObjectArrayList<Entry> entries, GpuObjDebugStats.RailFallbackReason fallbackReason) {
 		this.entries = entries;
+		this.fallbackReason = fallbackReason;
 	}
 
 	public boolean hasEntries() {
