@@ -22,7 +22,8 @@ public final class FabricDebugCommands {
 				ClientCommandManager.literal("mtrdebug")
 						.then(ClientCommandManager.literal("instancing")
 								.then(ClientCommandManager.literal("stats").executes(context -> {
-									GpuObjDebugStats.emitReport("command stats", line -> context.getSource().sendFeedback(Text.literal(line)));
+									GpuObjDebugStats.emitReport("command stats");
+									sendStatus(context.getSource(), "Wrote GPU instancing report to the backend log.");
 									return 1;
 								}))
 								.then(ClientCommandManager.literal("watch").executes(context -> {
@@ -37,7 +38,7 @@ public final class FabricDebugCommands {
 										}))
 										.then(ClientCommandManager.literal("stop").executes(context -> {
 											if (GpuObjDebugStats.isWatchActive()) {
-												GpuObjDebugStats.emitReport("watch stop", line -> context.getSource().sendFeedback(Text.literal(line)));
+												GpuObjDebugStats.emitReport("watch stop");
 												GpuObjDebugStats.stopWatch();
 												sendStatus(context.getSource(), "Stopped GPU instancing watch.");
 											} else {
