@@ -1,15 +1,10 @@
 package org.mtr.mod.render;
 
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.Text;
-import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 public final class GpuObjDebugStats {
 
@@ -176,15 +171,12 @@ public final class GpuObjDebugStats {
 		}
 
 		nextWatchReportMillis = currentGameMillis + WATCH_INTERVAL_MILLIS;
-		emitReport("watch", GpuObjDebugStats::sendChatMessage);
+		emitReport("watch");
 	}
 
-	public static void emitReport(String reason, Consumer<String> chatConsumer) {
+	public static void emitReport(String reason) {
 		final ObjectArrayList<String> lines = buildReportLines(reason);
-		lines.forEach(line -> {
-			Init.LOGGER.info(line);
-			chatConsumer.accept(line);
-		});
+		lines.forEach(Init.LOGGER::info);
 	}
 
 	public static ObjectArrayList<String> buildReportLines(String reason) {
@@ -242,13 +234,6 @@ public final class GpuObjDebugStats {
 
 	private static String getReasonLabel(Enum<?> reason) {
 		return reason instanceof RailFallbackReason ? ((RailFallbackReason) reason).label : ((VehicleFallbackReason) reason).label;
-	}
-
-	private static void sendChatMessage(String line) {
-		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
-		if (clientPlayerEntity != null) {
-			clientPlayerEntity.sendMessage(new Text(TextHelper.literal(line).data), false);
-		}
 	}
 
 	private static final class TimedSnapshot {
