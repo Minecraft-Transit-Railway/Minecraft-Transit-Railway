@@ -46,6 +46,10 @@ public final class GpuObjRenderer implements IGui {
 	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData);
 	private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INSTANCE_STRIDE);
 
+	public void reloadShaders() {
+		shaderManager.reloadShaders();
+	}
+
 	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
 		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
 		final boolean newBatch = !batchEntry.activeThisFrame;
@@ -74,6 +78,10 @@ public final class GpuObjRenderer implements IGui {
 	}
 
 	public void renderOpaque(Vector3d offset) {
+		if (!shaderManager.isReady()) {
+			shaderManager.reloadShaders();
+		}
+
 		for (final RenderStage renderStage : RenderStage.values()) {
 			final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
 			for (int i = 0; i < batchEntries.size(); i++) {

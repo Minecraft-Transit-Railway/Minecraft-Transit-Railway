@@ -12,6 +12,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.render.GpuObjDebugStats;
+import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.resource.*;
 
 import java.io.InputStream;
@@ -87,6 +88,7 @@ public class CustomResourceLoader {
 		LIFTS_CACHE.clear();
 		GpuObjDebugStats.resetSession();
 		GpuObjModelRegistry.clear();
+		GpuObjRenderer.INSTANCE.reloadShaders();
 		DynamicTextureCache.instance.reload();
 		TEST_DURATION = 0;
 
