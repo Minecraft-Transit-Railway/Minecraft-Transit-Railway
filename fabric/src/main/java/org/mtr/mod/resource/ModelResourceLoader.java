@@ -9,7 +9,7 @@ import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.model.RawMesh;
 import org.mtr.mapping.render.obj.AtlasManager;
 import org.mtr.mapping.render.obj.ObjModelLoader;
-import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.Init;
 
 import java.util.List;
 import java.util.Map;
@@ -18,8 +18,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.lang.reflect.Field;
 
 public final class ModelResourceLoader {
+
+	private static AtlasManager atlasManager;
+	private static boolean atlasManagerLookupFailed;
 
 	public static boolean isSupportedModelResource(String modelResource) {
 		return modelResource.endsWith(".obj") || modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz");
@@ -73,33 +77,51 @@ public final class ModelResourceLoader {
 			boolean flipTextureV,
 			ResourceProvider resourceProvider
 	) {
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-		try {
-			final AtlasManager atlasManager = CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.getAtlasManager();
-			if (atlasManager == null) {
-				throw new IllegalStateException("AtlasManager unavailable for GPU OBJ loading");
-			}
-			if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
-				final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
-				return ObjModelLoader.loadModel(
-						convertedModel.getObjContent(),
-						mtlString -> convertedModel.getMtlContent(),
-						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-						atlasManager,
-						flipTextureV
-				);
-			} else {
-				return ObjModelLoader.loadModel(
-						resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
-						mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-						atlasManager,
-						flipTextureV
-				);
-			}
-		} finally {
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
+		final AtlasManager atlasManager = getObjAtlasManager();
+		if (atlasManager == null) {
+			throw new IllegalStateException("AtlasManager unavailable for GPU OBJ loading");
 		}
+		if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
+			final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
+			return ObjModelLoader.loadModel(
+					convertedModel.getObjContent(),
+					mtlString -> convertedModel.getMtlContent(),
+					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					atlasManager,
+					flipTextureV
+			);
+		} else {
+			return ObjModelLoader.loadModel(
+					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
+					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
+					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+					atlasManager,
+					flipTextureV
+			);
+		}
+	}
+
+	private static AtlasManager getObjAtlasManager() {
+		if (atlasManager != null || atlasManagerLookupFailed) {
+			return atlasManager;
+		}
+		try {
+			final Field field = OptimizedModel.class.getDeclaredField("ATLAS_MANAGER");
+			field.setAccessible(true);
+			final Object object = field.get(null);
+			if (object instanceof AtlasManager) {
+				atlasManager = (AtlasManager) object;
+				return atlasManager;
+			}
+		} catch (Exception e) {
+			atlasManagerLookupFailed = true;
+			Init.LOGGER.warn("Failed to access OptimizedModel.ATLAS_MANAGER for GPU OBJ loading", e);
+			return null;
+		}
+
+		atlasManagerLookupFailed = true;
+		Init.LOGGER.warn("OptimizedModel.ATLAS_MANAGER is unavailable for GPU OBJ loading");
+		return null;
 	}
 
 	public static String extractMqoContentFromMqoz(String modelResource, byte[] bytes) {

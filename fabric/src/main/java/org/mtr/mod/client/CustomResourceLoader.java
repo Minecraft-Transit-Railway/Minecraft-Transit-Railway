@@ -7,7 +7,6 @@ import org.mtr.legacy.resource.CustomResourcesConverter;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
@@ -161,11 +160,10 @@ public class CustomResourceLoader {
 		Init.LOGGER.info("Loaded {} lifts", LIFTS.size());
 
 		final long time1 = System.currentTimeMillis();
-		final boolean preloadGpuObjInstancing = Config.getClient().getEnableGpuObjInstancing() && OptimizedRenderer.hasOptimizedRendering();
 
 		final int[] preloadedVehicleCount = {0};
 		VEHICLES.forEach((transportMode, vehicleResources) -> vehicleResources.forEach(vehicleResource -> {
-			if (vehicleResource.shouldPreload || preloadGpuObjInstancing) {
+			if (vehicleResource.shouldPreload) {
 				vehicleResource.getCachedVehicleResource(0, 0, true);
 				preloadedVehicleCount[0]++;
 			}
@@ -178,7 +176,7 @@ public class CustomResourceLoader {
 
 		final int[] preloadedRailCount = {0};
 		RAILS.forEach(railResource -> {
-			if (railResource.shouldPreload || preloadGpuObjInstancing) {
+			if (railResource.shouldPreload) {
 				railResource.preload();
 				preloadedRailCount[0]++;
 			}
