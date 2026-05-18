@@ -11,9 +11,28 @@ public final class VehicleGpuCache {
 
 	public static final VehicleGpuCache EMPTY = new VehicleGpuCache(new Object2ObjectOpenHashMap<>());
 	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition;
+	public final ObjectArrayList<ConditionBucket> conditionBuckets = new ObjectArrayList<>();
+	public final boolean hasParts;
 
 	public VehicleGpuCache(Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition) {
 		this.partsByCondition = partsByCondition;
+		partsByCondition.forEach((partCondition, parts) -> {
+			if (parts != null && !parts.isEmpty()) {
+				conditionBuckets.add(new ConditionBucket(partCondition, parts));
+			}
+		});
+		hasParts = !conditionBuckets.isEmpty();
+	}
+
+	public static final class ConditionBucket {
+
+		public final PartCondition condition;
+		public final ObjectArrayList<Part> parts;
+
+		private ConditionBucket(PartCondition condition, ObjectArrayList<Part> parts) {
+			this.condition = condition;
+			this.parts = parts;
+		}
 	}
 
 	public static final class Part {
