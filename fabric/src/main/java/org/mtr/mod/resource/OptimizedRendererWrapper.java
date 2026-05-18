@@ -11,30 +11,36 @@ public final class OptimizedRendererWrapper implements IGui {
 
 	@Nullable
 	private final OptimizedRenderer optimizedRenderer;
-	private int reloadDepth;
 
 	public OptimizedRendererWrapper() {
 		this.optimizedRenderer = OptimizedRenderer.hasOptimizedRendering() ? new OptimizedRenderer() : null;
 	}
 
 	public void beginReload() {
-		if (optimizedRenderer != null && reloadDepth++ == 0) {
+		if (optimizedRenderer != null) {
 			optimizedRenderer.beginReload();
 		}
 	}
 
 	public void finishReload() {
-		if (optimizedRenderer != null && reloadDepth > 0 && --reloadDepth == 0) {
+		if (optimizedRenderer != null) {
 			optimizedRenderer.finishReload();
 		}
 	}
 
-	public <T> T runWithReloadProtection(Supplier<T> supplier) {
-		beginReload();
-		try {
+	public void runWithProtectedState(Runnable runnable) {
+		if (optimizedRenderer != null) {
+			optimizedRenderer.runWithProtectedState(runnable);
+		} else {
+			runnable.run();
+		}
+	}
+
+	public <T> T runWithProtectedState(Supplier<T> supplier) {
+		if (optimizedRenderer != null) {
+			return optimizedRenderer.runWithProtectedState(supplier);
+		} else {
 			return supplier.get();
-		} finally {
-			finishReload();
 		}
 	}
 
