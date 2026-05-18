@@ -8,6 +8,7 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.model.RawMesh;
 import org.mtr.mapping.render.obj.ObjModelLoader;
+import org.mtr.mod.client.CustomResourceLoader;
 
 import java.util.List;
 import java.util.Map;
@@ -71,23 +72,28 @@ public final class ModelResourceLoader {
 			boolean flipTextureV,
 			ResourceProvider resourceProvider
 	) {
-		if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
-			final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
-			return ObjModelLoader.loadModel(
-					convertedModel.getObjContent(),
-					mtlString -> convertedModel.getMtlContent(),
-					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					null,
-					flipTextureV
-			);
-		} else {
-			return ObjModelLoader.loadModel(
-					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
-					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
-					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
-					null,
-					flipTextureV
-			);
+		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+		try {
+			if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
+				final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
+				return ObjModelLoader.loadModel(
+						convertedModel.getObjContent(),
+						mtlString -> convertedModel.getMtlContent(),
+						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+						null,
+						flipTextureV
+				);
+			} else {
+				return ObjModelLoader.loadModel(
+						resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
+						mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
+						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
+						null,
+						flipTextureV
+				);
+			}
+		} finally {
+			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		}
 	}
 
