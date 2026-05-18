@@ -32,6 +32,18 @@ public final class GpuObjModelWrapper implements Closeable {
 		return nameToMeshes.getOrDefault(name, new ObjectArrayList<>());
 	}
 
+	public Collection<String> getGroupNames() {
+		return nameToMeshes.keySet();
+	}
+
+	public int getGroupCount() {
+		return nameToMeshes.size();
+	}
+
+	public int getMeshCount() {
+		return allMeshes.size();
+	}
+
 	public boolean hasTranslucentMeshes() {
 		return hasTranslucentMeshes;
 	}

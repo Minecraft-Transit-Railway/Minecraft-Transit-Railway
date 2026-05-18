@@ -33,6 +33,7 @@ import org.mtr.mod.render.StaticObjMesh;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
+	private static final ObjectSet<String> LOGGED_MISSING_GPU_GROUPS = new ObjectOpenHashSet<>();
 	private final ObjectArrayList<PartDetails> partDetailsList = new ObjectArrayList<>();
 	private final ObjectArrayList<DisplayPartDetails> displayPartDetailsList = new ObjectArrayList<>();
 	private final int displayColorCjkInt;
@@ -220,6 +221,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	public void writeGpuCache(
+			String modelResource,
 			GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
@@ -233,10 +235,37 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			names.forEach(name -> gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add));
 		}
 		final GpuObjDebugStats.VehicleFallbackReason resolvedFallbackReason = fallbackReason == null && gpuMeshes.isEmpty() ? GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND : fallbackReason;
+		if (resolvedFallbackReason == GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND) {
+			logMissingGpuGroups(modelResource, gpuObjModelWrapper);
+		}
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
 			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuDebugPart(gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason));
 		}));
+	}
+
+	private void logMissingGpuGroups(String modelResource, @Nullable GpuObjModelWrapper gpuObjModelWrapper) {
+		final String signature = modelResource + "|" + names + "|" + renderStage + "|" + condition;
+		if (LOGGED_MISSING_GPU_GROUPS.add(signature)) {
+			Init.LOGGER.warn("[{}] GPU vehicle groups not found for part names={}, renderStage={}, condition={}, wrapperGroups={}, wrapperMeshes={}, sampleGroups={}", modelResource, names, renderStage, condition, gpuObjModelWrapper == null ? -1 : gpuObjModelWrapper.getGroupCount(), gpuObjModelWrapper == null ? -1 : gpuObjModelWrapper.getMeshCount(), gpuObjModelWrapper == null ? "<null>" : sampleGroups(gpuObjModelWrapper.getGroupNames()));
+		}
+	}
+
+	private static String sampleGroups(Iterable<String> groupNames) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		int count = 0;
+		for (final String groupName : groupNames) {
+			if (count >= 8) {
+				stringBuilder.append(", ...");
+				break;
+			}
+			if (count > 0) {
+				stringBuilder.append(", ");
+			}
+			stringBuilder.append(groupName);
+			count++;
+		}
+		return count == 0 ? "<none>" : stringBuilder.toString();
 	}
 
 	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways, boolean fromResourcePackCreator) {

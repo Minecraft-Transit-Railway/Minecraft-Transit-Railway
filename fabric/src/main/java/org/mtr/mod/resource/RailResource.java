@@ -2,11 +2,14 @@ package org.mtr.mod.resource;
 
 import org.joml.Matrix4f;
 import org.mtr.core.serializer.ReaderBase;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.render.batch.MaterialProperties;
+import org.mtr.mod.Init;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
@@ -19,6 +22,7 @@ import javax.annotation.Nullable;
 
 public final class RailResource extends RailResourceSchema implements StoredModelResourceBase {
 
+	private static final ObjectSet<String> LOGGED_EMPTY_GPU_CACHE_MODELS = new ObjectOpenHashSet<>();
 	public final boolean shouldPreload;
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 	private final CachedResource<RailGpuCache> cachedGpuRailResource;
@@ -127,7 +131,34 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 			final MaterialProperties materialProperties = new MaterialProperties(RenderStage.EXTERIOR.shaderType, staticObjMesh.texture, null);
 			entries.add(new RailGpuCache.Entry(staticObjMesh, batchKey, materialProperties));
 		}
-		return entries.isEmpty() ? new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.GPU_CACHE_EMPTY) : new RailGpuCache(entries, null);
+		if (entries.isEmpty()) {
+			logEmptyGpuCache(gpuObjModelWrapper);
+			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.GPU_CACHE_EMPTY);
+		}
+		return new RailGpuCache(entries, null);
+	}
+
+	private void logEmptyGpuCache(GpuObjModelWrapper gpuObjModelWrapper) {
+		if (LOGGED_EMPTY_GPU_CACHE_MODELS.add(modelResource)) {
+			Init.LOGGER.warn("[{}] GPU rail cache is empty; wrapper groups={}, meshes={}, translucent={}, sampleGroups={}", modelResource, gpuObjModelWrapper.getGroupCount(), gpuObjModelWrapper.getMeshCount(), gpuObjModelWrapper.hasTranslucentMeshes(), sampleGroups(gpuObjModelWrapper.getGroupNames()));
+		}
+	}
+
+	private static String sampleGroups(Iterable<String> groupNames) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		int count = 0;
+		for (final String groupName : groupNames) {
+			if (count >= 8) {
+				stringBuilder.append(", ...");
+				break;
+			}
+			if (count > 0) {
+				stringBuilder.append(", ");
+			}
+			stringBuilder.append(groupName);
+			count++;
+		}
+		return count == 0 ? "<none>" : stringBuilder.toString();
 	}
 
 	public String getId() {
