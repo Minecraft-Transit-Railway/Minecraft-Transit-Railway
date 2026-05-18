@@ -25,7 +25,11 @@ public final class FabricDebugCommands {
 									GpuObjDebugStats.emitReport("command stats", line -> context.getSource().sendFeedback(Text.literal(line)));
 									return 1;
 								}))
-								.then(ClientCommandManager.literal("watch")
+								.then(ClientCommandManager.literal("watch").executes(context -> {
+									GpuObjDebugStats.startWatch();
+									sendStatus(context.getSource(), "Started GPU instancing watch (1s interval).");
+									return 1;
+								})
 										.then(ClientCommandManager.literal("start").executes(context -> {
 											GpuObjDebugStats.startWatch();
 											sendStatus(context.getSource(), "Started GPU instancing watch (1s interval).");
