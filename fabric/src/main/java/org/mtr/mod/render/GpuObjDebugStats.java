@@ -35,6 +35,7 @@ public final class GpuObjDebugStats {
 		CONFIG_DISABLED("configDisabled"),
 		OPTIMIZED_RENDERING_UNAVAILABLE("optimizedUnavailable"),
 		MODEL_NOT_OBJ("modelNotObj"),
+		HAS_TRANSLUCENT_MESH("hasTranslucentMesh"),
 		PART_TYPE_UNSUPPORTED("partTypeUnsupported"),
 		DOOR_PART("doorPart"),
 		RENDER_STAGE_UNSUPPORTED("renderStageUnsupported"),

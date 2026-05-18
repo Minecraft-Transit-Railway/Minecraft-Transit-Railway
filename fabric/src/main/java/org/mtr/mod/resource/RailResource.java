@@ -62,6 +62,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	@Override
 	public void preload() {
 		cachedRailResource.getData(true);
+		cachedGpuRailResource.getData(true);
 	}
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {

@@ -165,7 +165,7 @@ public final class VehicleModel extends VehicleModelSchema {
 		final boolean modelIsObj = modelResource.endsWith(".obj");
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 		final GpuObjModelWrapper gpuObjModelWrapper = modelIsObj ? GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider) : null;
-		final GpuObjDebugStats.VehicleFallbackReason modelFallbackReason = !modelIsObj ? GpuObjDebugStats.VehicleFallbackReason.MODEL_NOT_OBJ : gpuObjModelWrapper == null ? GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE : null;
+		final GpuObjDebugStats.VehicleFallbackReason modelFallbackReason = !modelIsObj ? GpuObjDebugStats.VehicleFallbackReason.MODEL_NOT_OBJ : gpuObjModelWrapper == null ? GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE : gpuObjModelWrapper.hasTranslucentMeshes() ? GpuObjDebugStats.VehicleFallbackReason.HAS_TRANSLUCENT_MESH : null;
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, placementStatsByCondition, modelProperties.getModelYOffset(), modelFallbackReason));
 		return new VehicleGpuCache(gpuPartsForCondition, placementStatsByCondition);
 	}

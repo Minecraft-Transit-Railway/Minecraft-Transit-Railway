@@ -211,6 +211,11 @@ public final class VehicleResource extends VehicleResourceSchema {
 			if (data2 != null) {
 				final VehicleResourceCacheHolder data3 = data2.getData(force);
 				if (data3 != null) {
+					if (force) {
+						data3.vehicleGpuCache.getData(true);
+						data3.bogie1GpuCache.getData(true);
+						data3.bogie2GpuCache.getData(true);
+					}
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = data3.optimizedModels.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed = data3.optimizedModelsDoorsClosed.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
