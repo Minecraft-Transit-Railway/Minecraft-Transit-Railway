@@ -5,6 +5,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.render.model.RawMesh;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.Init;
 import org.mtr.mod.render.StaticObjMesh;
 
@@ -38,7 +39,7 @@ public final class GpuObjModelRegistry {
 		try {
 			final Map<String, List<RawMesh>> rawModel = ModelResourceLoader.loadRawModel(modelResource, textureId, flipTextureV, resourceProvider);
 			final boolean hasTranslucentMeshes = rawModel.values().stream().flatMap(List::stream).anyMatch(rawMesh -> rawMesh.materialProperties.translucent);
-			final GpuObjModelWrapper gpuObjModelWrapper = new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))), hasTranslucentMeshes);
+			final GpuObjModelWrapper gpuObjModelWrapper = CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.runWithReloadProtection(() -> new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(StaticObjMesh::new).collect(Collectors.toList()))), hasTranslucentMeshes));
 			CACHE.put(key, gpuObjModelWrapper);
 			return gpuObjModelWrapper;
 		} catch (Exception e) {
