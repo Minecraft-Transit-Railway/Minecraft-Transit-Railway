@@ -23,6 +23,7 @@ import org.mtr.mod.resource.OptimizedModelWrapper;
 import org.mtr.mod.resource.RenderStage;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public final class GpuObjRenderer implements IGui {
 
@@ -53,8 +54,8 @@ public final class GpuObjRenderer implements IGui {
 	private final ObjectArrayList<BatchEntry> activeBatches = new ObjectArrayList<>();
 	private final ObjectArrayList<BatchEntry>[] activeOpaqueBatchesByStage = createBatchLists();
 	private final byte[] scratchInstanceData = new byte[INSTANCE_STRIDE];
-	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData);
-	private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(INSTANCE_STRIDE);
+	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData).order(ByteOrder.nativeOrder());
+	private ByteBuffer byteBuffer = createByteBuffer(INSTANCE_STRIDE);
 
 	public void reloadShaders() {
 		shaderManager.reloadShaders();
@@ -184,8 +185,12 @@ public final class GpuObjRenderer implements IGui {
 	private void ensureCapacity(int requiredBytes) {
 		final int minimumCapacity = Math.max(INSTANCE_STRIDE, requiredBytes);
 		if (byteBuffer.capacity() < requiredBytes) {
-			byteBuffer = ByteBuffer.allocateDirect(minimumCapacity);
+			byteBuffer = createByteBuffer(minimumCapacity);
 		}
+	}
+
+	private static ByteBuffer createByteBuffer(int capacity) {
+		return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
 	}
 
 	private static void setupInstanceAttribute(VertexAttributeType vertexAttributeType) {
