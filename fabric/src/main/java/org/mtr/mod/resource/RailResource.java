@@ -93,15 +93,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		}
 
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
-		final StoredMatrixTransformations storedMatrixTransformations = useDefaultOffset ? new StoredMatrixTransformations(x, y, z) : new StoredMatrixTransformations();
-		if (!useDefaultOffset) {
-			storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(x, y, z));
-		}
-		storedMatrixTransformations.add(graphicsHolder -> {
-			graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
-			graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
-			graphicsHolder.rotateZDegrees(rollDegrees);
-		});
+		final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
 		final Matrix4f diagnosticMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
 		final Matrix4f drawMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
 		boolean queuedAny = false;
@@ -111,6 +103,19 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		}
 		GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
 		return queuedAny;
+	}
+
+	public static StoredMatrixTransformations createStoredMatrixTransformations(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, boolean useDefaultOffset) {
+		final StoredMatrixTransformations storedMatrixTransformations = useDefaultOffset ? new StoredMatrixTransformations(x, y, z) : new StoredMatrixTransformations();
+		if (!useDefaultOffset) {
+			storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(x, y, z));
+		}
+		storedMatrixTransformations.add(graphicsHolder -> {
+			graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
+			graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
+			graphicsHolder.rotateZDegrees(rollDegrees);
+		});
+		return storedMatrixTransformations;
 	}
 
 	@Nullable
