@@ -96,8 +96,9 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.putFloat(matrix.m31());
 		scratchInstanceBuffer.putFloat(matrix.m32());
 		scratchInstanceBuffer.putFloat(matrix.m33());
-		if (meshEntry.diagnosticSample == null) {
-			meshEntry.diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
+		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
+		if (diagnosticSample != null) {
+			meshEntry.diagnosticSample = diagnosticSample;
 		}
 		meshEntry.addInstance(scratchInstanceData, useDefaultOffset);
 		GpuObjDebugStats.recordInstanceQueued(source, newBatch, newMesh);

@@ -52,6 +52,9 @@ public final class GpuObjDebugStats {
 
 	private static final long WINDOW_MILLIS = 1000;
 	private static final long WATCH_INTERVAL_MILLIS = 1000;
+	private static final double NEAR_PLANE_EPSILON = 0.25;
+	private static final int RAIL_SAMPLE_COLOR = 0xFF00FFFF;
+	private static final int VEHICLE_SAMPLE_COLOR = 0xFFFFFF00;
 	private static final Snapshot CURRENT_FRAME = new Snapshot();
 	private static final Snapshot LAST_FRAME = new Snapshot();
 	private static final Snapshot WINDOW_SNAPSHOT = new Snapshot();
@@ -236,27 +239,37 @@ public final class GpuObjDebugStats {
 			return null;
 		}
 
+		final DiagnosticSample candidate = new DiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
 		if (source == Source.RAIL) {
-			if (currentRailDiagnosticSample != null) {
-				return null;
+			if (currentRailDiagnosticSample == null || candidate.shouldReplace(currentRailDiagnosticSample)) {
+				currentRailDiagnosticSample = candidate;
+				return currentRailDiagnosticSample;
 			}
-			currentRailDiagnosticSample = new DiagnosticSample(batchKey, staticObjMesh, matrix, useDefaultOffset);
-			return currentRailDiagnosticSample;
+			return null;
 		} else {
-			if (currentVehicleDiagnosticSample != null) {
-				return null;
+			if (currentVehicleDiagnosticSample == null || candidate.shouldReplace(currentVehicleDiagnosticSample)) {
+				currentVehicleDiagnosticSample = candidate;
+				return currentVehicleDiagnosticSample;
 			}
-			currentVehicleDiagnosticSample = new DiagnosticSample(batchKey, staticObjMesh, matrix, useDefaultOffset);
-			return currentVehicleDiagnosticSample;
+			return null;
 		}
 	}
 
 	public static void finalizeDiagnosticSample(@Nullable DiagnosticSample diagnosticSample, Vector3d offset, int instanceCount) {
-		if (diagnosticSample == null) {
+		if (diagnosticSample == null || diagnosticSample != currentRailDiagnosticSample && diagnosticSample != currentVehicleDiagnosticSample) {
 			return;
 		}
 
 		diagnosticSample.recordDraw(offset, instanceCount, shouldSkipCameraOffset(), shouldForceNoCull(), shouldForceWhiteCutout());
+	}
+
+	public static void scheduleDiagnosticRender() {
+		if (!diagnosticEnabled) {
+			return;
+		}
+
+		scheduleDiagnosticRender(currentRailDiagnosticSample, RAIL_SAMPLE_COLOR);
+		scheduleDiagnosticRender(currentVehicleDiagnosticSample, VEHICLE_SAMPLE_COLOR);
 	}
 
 	public static void startWatch() {
@@ -409,9 +422,25 @@ public final class GpuObjDebugStats {
 				diagnosticSample.cameraSpaceCenterY,
 				diagnosticSample.cameraSpaceCenterZ,
 				diagnosticSample.distanceFromCamera,
-				diagnosticSample.cameraSpaceCenterZ,
+				diagnosticSample.centerForwardZ,
 				!diagnosticSample.hasNonFiniteValues,
 				diagnosticSample.hasHugeCoordinates
+		));
+		lines.add(String.format(
+				"%s aabb camera-space z range=(%.5f, %.5f) queuedForwardZ=%.5f postOffsetForwardZ=%.5f queuedDistance=%.5f postOffsetDistance=%.5f nearPlaneCross=%s cornerSplit=%s maxAbsXY=(%.5f, %.5f) risk=%.5f reason=%s",
+				label,
+				diagnosticSample.minForwardZ,
+				diagnosticSample.maxForwardZ,
+				diagnosticSample.centerForwardZ,
+				diagnosticSample.postOffsetForwardZ,
+				diagnosticSample.distanceFromCamera,
+				diagnosticSample.postOffsetDistance,
+				diagnosticSample.crossesNearPlane,
+				diagnosticSample.hasCornerBehindAndAhead,
+				diagnosticSample.maxAbsCameraSpaceX,
+				diagnosticSample.maxAbsCameraSpaceY,
+				diagnosticSample.riskScore,
+				diagnosticSample.sampleReason
 		));
 		lines.add(String.format(
 				"%s draw toggles: skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s",
@@ -442,6 +471,7 @@ public final class GpuObjDebugStats {
 
 	public static final class DiagnosticSample {
 
+		private final Source source;
 		private final String textureId;
 		private final String renderStage;
 		private final String shaderType;
@@ -457,6 +487,16 @@ public final class GpuObjDebugStats {
 		private final float centerY;
 		private final float centerZ;
 		private final float[] queuedMatrix = new float[16];
+		private final Vector3d[] worldCorners = new Vector3d[8];
+		private final double minForwardZ;
+		private final double maxForwardZ;
+		private final double centerForwardZ;
+		private final double maxAbsCameraSpaceX;
+		private final double maxAbsCameraSpaceY;
+		private final double riskScore;
+		private final String sampleReason;
+		private final boolean crossesNearPlane;
+		private final boolean hasCornerBehindAndAhead;
 		private float worldOriginX;
 		private float worldOriginY;
 		private float worldOriginZ;
@@ -476,6 +516,8 @@ public final class GpuObjDebugStats {
 		private double cameraSpaceCenterY;
 		private double cameraSpaceCenterZ;
 		private double distanceFromCamera;
+		private double postOffsetForwardZ;
+		private double postOffsetDistance;
 		private int instanceCount;
 		private boolean drawn;
 		private boolean skipCameraOffset;
@@ -484,7 +526,8 @@ public final class GpuObjDebugStats {
 		private boolean hasNonFiniteValues;
 		private boolean hasHugeCoordinates;
 
-		private DiagnosticSample(ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
+		private DiagnosticSample(Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
+			this.source = source;
 			textureId = String.valueOf(batchKey.texture);
 			renderStage = batchKey.renderStage.name();
 			shaderType = batchKey.shaderType.name();
@@ -508,6 +551,48 @@ public final class GpuObjDebugStats {
 			worldCenterX = worldCenter.x;
 			worldCenterY = worldCenter.y;
 			worldCenterZ = worldCenter.z;
+
+			final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
+			if (camera == null) {
+				minForwardZ = Double.NEGATIVE_INFINITY;
+				maxForwardZ = Double.NEGATIVE_INFINITY;
+				centerForwardZ = Double.NEGATIVE_INFINITY;
+				maxAbsCameraSpaceX = 0;
+				maxAbsCameraSpaceY = 0;
+				riskScore = Double.NEGATIVE_INFINITY;
+				sampleReason = "no_camera";
+				crossesNearPlane = false;
+				hasCornerBehindAndAhead = false;
+				return;
+			}
+
+			double minForward = Double.POSITIVE_INFINITY;
+			double maxForward = Double.NEGATIVE_INFINITY;
+			double maxAbsX = 0;
+			double maxAbsY = 0;
+			for (int i = 0; i < 8; i++) {
+				final Vector3d worldCorner = createWorldCorner(matrix, staticObjMesh, i);
+				worldCorners[i] = worldCorner;
+				final Vector3d cameraSpaceCorner = toCameraSpace(worldCorner, camera);
+				minForward = Math.min(minForward, cameraSpaceCorner.getZMapped());
+				maxForward = Math.max(maxForward, cameraSpaceCorner.getZMapped());
+				maxAbsX = Math.max(maxAbsX, Math.abs(cameraSpaceCorner.getXMapped()));
+				maxAbsY = Math.max(maxAbsY, Math.abs(cameraSpaceCorner.getYMapped()));
+			}
+
+			final Vector3d centerCameraSpace = toCameraSpace(new Vector3d(worldCenterX, worldCenterY, worldCenterZ), camera);
+			centerForwardZ = centerCameraSpace.getZMapped();
+			distanceFromCamera = distance(worldCenterX, worldCenterY, worldCenterZ, camera.getPos());
+			postOffsetForwardZ = centerForwardZ;
+			postOffsetDistance = distanceFromCamera;
+			minForwardZ = minForward;
+			maxForwardZ = maxForward;
+			maxAbsCameraSpaceX = maxAbsX;
+			maxAbsCameraSpaceY = maxAbsY;
+			crossesNearPlane = minForward <= NEAR_PLANE_EPSILON && maxForward >= -NEAR_PLANE_EPSILON;
+			hasCornerBehindAndAhead = minForward < 0 && maxForward > 0;
+			riskScore = computeRiskScore(useDefaultOffset, crossesNearPlane, centerForwardZ, distanceFromCamera, maxAbsX, maxAbsY);
+			sampleReason = describeSampleReason(crossesNearPlane, centerForwardZ);
 		}
 
 		private void recordDraw(Vector3d offset, int instanceCount, boolean skipCameraOffset, boolean forceNoCull, boolean forceWhiteCutout) {
@@ -548,6 +633,17 @@ public final class GpuObjDebugStats {
 				cameraSpaceCenterY = cameraSpaceCenter.getYMapped();
 				cameraSpaceCenterZ = cameraSpaceCenter.getZMapped();
 				distanceFromCamera = Math.sqrt(relativeCenterX * relativeCenterX + relativeCenterY * relativeCenterY + relativeCenterZ * relativeCenterZ);
+				final Vector3f adjustedCenter = adjustedMatrix.transformPosition(new Vector3f(centerX, centerY, centerZ));
+				final Vector3d adjustedRelativeCenter = useDefaultOffset && !skipCameraOffset ? new Vector3d(adjustedCenter.x, adjustedCenter.y, adjustedCenter.z) : new Vector3d(adjustedCenter.x, adjustedCenter.y, adjustedCenter.z).subtract(camera.getPos());
+				final Vector3d adjustedCameraSpaceCenter = new Vector3d(adjustedRelativeCenter.getXMapped(), adjustedRelativeCenter.getYMapped(), adjustedRelativeCenter.getZMapped())
+						.rotateY((float) Math.toRadians(camera.getYaw()))
+						.rotateX((float) Math.toRadians(camera.getPitch()));
+				postOffsetForwardZ = adjustedCameraSpaceCenter.getZMapped();
+				postOffsetDistance = Math.sqrt(
+						adjustedRelativeCenter.getXMapped() * adjustedRelativeCenter.getXMapped() +
+								adjustedRelativeCenter.getYMapped() * adjustedRelativeCenter.getYMapped() +
+								adjustedRelativeCenter.getZMapped() * adjustedRelativeCenter.getZMapped()
+				);
 			}
 
 			hasNonFiniteValues = !isFinite(worldOriginX) || !isFinite(worldOriginY) || !isFinite(worldOriginZ) || !isFinite(worldCenterX) || !isFinite(worldCenterY) || !isFinite(worldCenterZ) || !isFinite(drawTranslationX) || !isFinite(drawTranslationY) || !isFinite(drawTranslationZ) || !isFinite(relativeCenterX) || !isFinite(relativeCenterY) || !isFinite(relativeCenterZ) || !isFinite(cameraSpaceCenterX) || !isFinite(cameraSpaceCenterY) || !isFinite(cameraSpaceCenterZ);
@@ -562,6 +658,25 @@ public final class GpuObjDebugStats {
 					queuedMatrix[8], queuedMatrix[9], queuedMatrix[10], queuedMatrix[11],
 					queuedMatrix[12], queuedMatrix[13], queuedMatrix[14], queuedMatrix[15]
 			);
+		}
+
+		private boolean shouldReplace(DiagnosticSample other) {
+			if (useDefaultOffset != other.useDefaultOffset) {
+				return useDefaultOffset;
+			}
+			if (crossesNearPlane != other.crossesNearPlane) {
+				return crossesNearPlane;
+			}
+			if (hasCornerBehindAndAhead != other.hasCornerBehindAndAhead) {
+				return hasCornerBehindAndAhead;
+			}
+			if ((centerForwardZ > 0) != (other.centerForwardZ > 0)) {
+				return centerForwardZ > 0;
+			}
+			if (Double.compare(riskScore, other.riskScore) != 0) {
+				return riskScore > other.riskScore;
+			}
+			return distanceFromCamera < other.distanceFromCamera;
 		}
 	}
 
@@ -690,5 +805,89 @@ public final class GpuObjDebugStats {
 
 	private static boolean isHuge(double value) {
 		return Math.abs(value) > 1_000_000;
+	}
+
+	private static void scheduleDiagnosticRender(@Nullable DiagnosticSample diagnosticSample, int color) {
+		if (diagnosticSample == null) {
+			return;
+		}
+
+		MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 0, 1, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 1, 2, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 2, 3, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 3, 0, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 4, 5, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 5, 6, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 6, 7, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 7, 4, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 0, 4, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 1, 5, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 2, 6, color);
+			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 3, 7, color);
+		});
+	}
+
+	private static void drawEdge(org.mtr.mapping.mapper.GraphicsHolder graphicsHolder, Vector3d[] corners, Vector3d offset, int index1, int index2, int color) {
+		final Vector3d corner1 = corners[index1];
+		final Vector3d corner2 = corners[index2];
+		if (corner1 == null || corner2 == null) {
+			return;
+		}
+		graphicsHolder.drawLineInWorld(
+				(float) (corner1.getXMapped() - offset.getXMapped()),
+				(float) (corner1.getYMapped() - offset.getYMapped()),
+				(float) (corner1.getZMapped() - offset.getZMapped()),
+				(float) (corner2.getXMapped() - offset.getXMapped()),
+				(float) (corner2.getYMapped() - offset.getYMapped()),
+				(float) (corner2.getZMapped() - offset.getZMapped()),
+				color
+		);
+	}
+
+	private static Vector3d createWorldCorner(Matrix4f matrix, StaticObjMesh staticObjMesh, int index) {
+		final float localX = (index & 1) == 0 ? staticObjMesh.minX : staticObjMesh.maxX;
+		final float localY = (index & 2) == 0 ? staticObjMesh.minY : staticObjMesh.maxY;
+		final float localZ = (index & 4) == 0 ? staticObjMesh.minZ : staticObjMesh.maxZ;
+		final Vector3f transformed = matrix.transformPosition(new Vector3f(localX, localY, localZ));
+		return new Vector3d(transformed.x, transformed.y, transformed.z);
+	}
+
+	private static Vector3d toCameraSpace(Vector3d worldPosition, Camera camera) {
+		return new Vector3d(worldPosition.getXMapped(), worldPosition.getYMapped(), worldPosition.getZMapped())
+				.subtract(camera.getPos())
+				.rotateY((float) Math.toRadians(camera.getYaw()))
+				.rotateX((float) Math.toRadians(camera.getPitch()));
+	}
+
+	private static double computeRiskScore(boolean useDefaultOffset, boolean crossesNearPlane, double centerForwardZ, double distance, double maxAbsX, double maxAbsY) {
+		double score = 0;
+		if (useDefaultOffset) {
+			score += 1_000_000;
+		}
+		if (crossesNearPlane) {
+			score += 500_000;
+		}
+		score += 100_000 / (1 + Math.abs(centerForwardZ));
+		score += 10_000 / (1 + distance);
+		score += Math.min(10_000, maxAbsX + maxAbsY);
+		return score;
+	}
+
+	private static String describeSampleReason(boolean crossesNearPlane, double centerForwardZ) {
+		if (crossesNearPlane) {
+			return "near_plane_crossing";
+		}
+		if (centerForwardZ > 0) {
+			return "nearest_visible";
+		}
+		return "closest_fallback_candidate";
+	}
+
+	private static double distance(double x, double y, double z, Vector3d cameraPosition) {
+		final double dx = x - cameraPosition.getXMapped();
+		final double dy = y - cameraPosition.getYMapped();
+		final double dz = z - cameraPosition.getZMapped();
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 }

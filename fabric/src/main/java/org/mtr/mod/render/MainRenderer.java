@@ -114,6 +114,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
+		GpuObjDebugStats.scheduleDiagnosticRender();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
