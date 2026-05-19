@@ -7,6 +7,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.model.RawMesh;
+import org.mtr.mapping.render.obj.ObjModelLoader;
 
 import java.util.List;
 import java.util.Map;
@@ -72,21 +73,19 @@ public final class ModelResourceLoader {
 	) {
 		if (modelResource.endsWith(".mqo") || modelResource.endsWith(".mqoz")) {
 			final MqoModelConverter.ConvertedModel convertedModel = MqoModelConverter.convert(getMqoContent(modelResource, resourceProvider));
-			return OptimizedModel.ObjModel.loadRawModel(
+			return ObjModelLoader.loadModel(
 					convertedModel.getObjContent(),
 					mtlString -> convertedModel.getMtlContent(),
 					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					null,
-					true,
 					flipTextureV
 			);
 		} else {
-			return OptimizedModel.ObjModel.loadRawModel(
+			return ObjModelLoader.loadModel(
 					resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "obj")),
 					mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
 					textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 					null,
-					true,
 					flipTextureV
 			);
 		}
