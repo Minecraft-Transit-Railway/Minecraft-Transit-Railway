@@ -48,8 +48,12 @@ public final class OptimizedRendererWrapper implements IGui {
 	}
 
 	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int light) {
+		queue(optimizedModel, graphicsHolder, IGui.ARGB_WHITE, light);
+	}
+
+	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int color, int light) {
 		if (optimizedRenderer != null && optimizedModel.optimizedModel != null) {
-			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, ARGB_WHITE, light);
+			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, color, light);
 		}
 	}
 

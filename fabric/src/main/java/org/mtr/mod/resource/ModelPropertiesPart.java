@@ -222,6 +222,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	public void writeGpuCache(
 			String modelResource,
+			Identifier textureId,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider,
 			GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
@@ -240,7 +243,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
-			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuDebugPart(gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason));
+			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuDebugPart(modelResource, textureId, flipTextureV, resourceProvider, gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason));
 		}));
 	}
 
@@ -602,16 +605,31 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		}, Object2ObjectOpenHashMap::new));
 	}
 
-	private void addGpuObjParts(ObjectArrayList<StaticObjMesh> gpuMeshes, Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition, double x, double y, double z, boolean flipped, double modelYOffset) {
+	private void addGpuObjParts(
+			String modelResource,
+			Identifier textureId,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider,
+			ObjectArrayList<StaticObjMesh> gpuMeshes,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
+			double x, double y, double z, boolean flipped, double modelYOffset
+	) {
 		final Matrix4f localTransform = createLocalTransform(x, y, z, flipped, modelYOffset);
+		final StoredMatrixTransformations normalReferenceLocalTransformations = createLocalStoredMatrixTransformations(x, y, z, flipped, modelYOffset);
+		final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset);
+		final String debugSampleId = String.format("condition=%s stage=%s names=%s local=(%.5f, %.5f, %.5f) flipped=%s", condition, renderStage, names, x / 16, y / 16 - modelYOffset, z / 16, flipped);
 		gpuMeshes.forEach(staticObjMesh -> {
 			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, renderStage, renderStage.shaderType, isTranslucentRenderStage(renderStage));
 			final MaterialProperties materialProperties = new MaterialProperties(renderStage.shaderType, staticObjMesh.texture, null);
-			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform)));
+			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
 		});
 	}
 
 	private void addGpuDebugPart(
+			String modelResource,
+			Identifier textureId,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider,
 			ObjectArrayList<StaticObjMesh> gpuMeshes,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition,
@@ -621,7 +639,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		final VehicleGpuCache.PlacementStats placementStats = VehicleGpuCache.getOrCreatePlacementStats(placementStatsByCondition, condition);
 		if (fallbackReason == null) {
 			placementStats.incrementSupportedPlacementCount();
-			addGpuObjParts(gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset);
+			addGpuObjParts(modelResource, textureId, flipTextureV, resourceProvider, gpuMeshes, gpuPartsForPartCondition, x, y, z, flipped, modelYOffset);
 		} else {
 			placementStats.incrementUnsupportedReasonCount(fallbackReason);
 		}
@@ -658,6 +676,41 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			matrix4f.rotateY((float) Math.PI);
 		}
 		return matrix4f;
+	}
+
+	private static StoredMatrixTransformations createLocalStoredMatrixTransformations(double x, double y, double z, boolean flipped, double modelYOffset) {
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+		storedMatrixTransformations.add(graphicsHolder -> {
+			graphicsHolder.translate(x / 16, y / 16 - modelYOffset, z / 16);
+			if (flipped) {
+				graphicsHolder.rotateYDegrees(180);
+			}
+		});
+		return storedMatrixTransformations;
+	}
+
+	private Supplier<OptimizedModelWrapper> createNormalReferenceModelSupplier(String modelResource, Identifier textureId, boolean flipTextureV, ResourceProvider resourceProvider, ObjectArrayList<String> partNames, double x, double y, double z, boolean flipped, double modelYOffset) {
+		return () -> {
+			try {
+				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+				final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider);
+				final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = new ObjectArrayList<>();
+				partNames.forEach(name -> {
+					final OptimizedModel.ObjModel objModel = rawModels.get(name);
+					if (objModel != null) {
+						final OptimizedModelWrapper.ObjModelWrapper objModelWrapper = new OptimizedModelWrapper.ObjModelWrapper(objModel);
+						objModelWrapper.addTransformation(renderStage.shaderType, (x + doorAnimationType.getDoorAnimationX(doorXMultiplier, flipped, 0)) / 16, y / 16 - modelYOffset, (z + doorAnimationType.getDoorAnimationZ(doorZMultiplier, flipped, 0, false)) / 16, flipped);
+						objModels.add(objModelWrapper);
+					}
+				});
+				return objModels.isEmpty() ? null : OptimizedModelWrapper.fromObjModels(objModels);
+			} catch (Exception e) {
+				Init.LOGGER.error("[{}] Failed to create diagnostic normal-reference model for names={}", modelResource, partNames, e);
+				return null;
+			} finally {
+				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
+			}
+		};
 	}
 
 	private String formatText(Vehicle vehicle) {

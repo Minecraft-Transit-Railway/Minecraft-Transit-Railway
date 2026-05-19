@@ -612,7 +612,16 @@ public final class VehicleResource extends VehicleResourceSchema {
 			eligiblePartCount += conditionBucket.supportedPlacementCount;
 			if (!conditionBucket.parts.isEmpty()) {
 				queuedAny = true;
-				conditionBucket.parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalDrawMatrix.set(drawMatrix).mul(part.localTransform), finalWorldMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE));
+				conditionBucket.parts.forEach(part -> {
+					final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
+					final Matrix4f partWorldMatrix = finalWorldMatrix.set(worldMatrix).mul(part.localTransform);
+					final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, partDrawMatrix, partWorldMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE);
+					if (diagnosticSample != null) {
+						final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
+						normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
+						diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
+					}
+				});
 			}
 		}
 

@@ -7,9 +7,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.ObjBatchKey;
+import org.mtr.mod.render.StoredMatrixTransformations;
 import org.mtr.mod.render.StaticObjMesh;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 public final class VehicleGpuCache {
 
@@ -95,13 +98,30 @@ public final class VehicleGpuCache {
 		public final ObjBatchKey batchKey;
 		public final MaterialProperties materialProperties;
 		public final Matrix4f localTransform;
+		public final StoredMatrixTransformations normalReferenceLocalTransformations;
+		public final String debugSampleId;
+		@Nullable
+		private final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier;
+		@Nullable
+		private OptimizedModelWrapper normalReferenceModel;
 
-		public Part(PartCondition condition, StaticObjMesh mesh, ObjBatchKey batchKey, MaterialProperties materialProperties, Matrix4f localTransform) {
+		public Part(PartCondition condition, StaticObjMesh mesh, ObjBatchKey batchKey, MaterialProperties materialProperties, Matrix4f localTransform, StoredMatrixTransformations normalReferenceLocalTransformations, String debugSampleId, @Nullable Supplier<OptimizedModelWrapper> normalReferenceModelSupplier) {
 			this.condition = condition;
 			this.mesh = mesh;
 			this.batchKey = batchKey;
 			this.materialProperties = materialProperties;
 			this.localTransform = localTransform;
+			this.normalReferenceLocalTransformations = normalReferenceLocalTransformations;
+			this.debugSampleId = debugSampleId;
+			this.normalReferenceModelSupplier = normalReferenceModelSupplier;
+		}
+
+		@Nullable
+		public OptimizedModelWrapper getOrCreateNormalReferenceModel() {
+			if (normalReferenceModel == null && normalReferenceModelSupplier != null) {
+				normalReferenceModel = normalReferenceModelSupplier.get();
+			}
+			return normalReferenceModel;
 		}
 	}
 }

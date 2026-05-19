@@ -6,9 +6,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Camera;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Vector3d;
+import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.resource.OptimizedModelWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -56,6 +59,8 @@ public final class GpuObjDebugStats {
 	private static final double NEAR_PLANE_EPSILON = 0.25;
 	private static final int RAIL_SAMPLE_COLOR = 0xFF00FFFF;
 	private static final int VEHICLE_SAMPLE_COLOR = 0xFFFFFF00;
+	private static final int RAIL_NORMAL_REFERENCE_COLOR = 0xFFFF8080;
+	private static final int VEHICLE_NORMAL_REFERENCE_COLOR = 0xFF80FF80;
 	private static final Snapshot CURRENT_FRAME = new Snapshot();
 	private static final Snapshot LAST_FRAME = new Snapshot();
 	private static final Snapshot WINDOW_SNAPSHOT = new Snapshot();
@@ -281,6 +286,8 @@ public final class GpuObjDebugStats {
 
 		scheduleDiagnosticRender(currentRailDiagnosticSample, RAIL_SAMPLE_COLOR);
 		scheduleDiagnosticRender(currentVehicleDiagnosticSample, VEHICLE_SAMPLE_COLOR);
+		scheduleNormalReferenceRender(currentRailDiagnosticSample, RAIL_NORMAL_REFERENCE_COLOR);
+		scheduleNormalReferenceRender(currentVehicleDiagnosticSample, VEHICLE_NORMAL_REFERENCE_COLOR);
 	}
 
 	public static void startWatch() {
@@ -415,17 +422,50 @@ public final class GpuObjDebugStats {
 		));
 		lines.add(String.format("%s queued matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
 		lines.add(String.format("%s prepared draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
-		if (diagnosticSample.hasCpuReferenceMatrix()) {
-			lines.add(String.format("%s cpu reference matrix: %s", label, diagnosticSample.formatCpuReferenceMatrix()));
+		if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
+			lines.add(String.format("%s single-draw reference matrix: %s", label, diagnosticSample.formatSingleDrawReferenceMatrix()));
 			lines.add(String.format(
-					"%s cpu/gpu delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					"%s instanced vs single-draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 					label,
-					diagnosticSample.getCpuReferenceTranslationDeltaX(),
-					diagnosticSample.getCpuReferenceTranslationDeltaY(),
-					diagnosticSample.getCpuReferenceTranslationDeltaZ(),
-					diagnosticSample.getCpuReferenceMaxAbsEntryDelta()
+					diagnosticSample.getSingleDrawReferenceTranslationDeltaX(),
+					diagnosticSample.getSingleDrawReferenceTranslationDeltaY(),
+					diagnosticSample.getSingleDrawReferenceTranslationDeltaZ(),
+					diagnosticSample.getSingleDrawReferenceMaxAbsEntryDelta()
 			));
 		}
+		if (diagnosticSample.hasNormalReferenceMatrix()) {
+			lines.add(String.format("%s normal-render reference matrix: %s", label, diagnosticSample.formatNormalReferenceMatrix()));
+			lines.add(String.format(
+					"%s instanced vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					label,
+					diagnosticSample.getNormalReferenceTranslationDeltaX(),
+					diagnosticSample.getNormalReferenceTranslationDeltaY(),
+					diagnosticSample.getNormalReferenceTranslationDeltaZ(),
+					diagnosticSample.getNormalReferenceMaxAbsEntryDelta()
+			));
+			if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
+				lines.add(String.format(
+						"%s single-draw vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+						label,
+						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaX(),
+						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaY(),
+						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaZ(),
+						diagnosticSample.getSingleDrawVsNormalReferenceMaxAbsEntryDelta()
+				));
+			}
+		}
+		lines.add(String.format(
+				"%s normal-render reference: matched=%s sample=%s origin=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.normalReferenceMatched,
+				diagnosticSample.normalReferenceSampleId,
+				diagnosticSample.normalReferenceWorldOriginX,
+				diagnosticSample.normalReferenceWorldOriginY,
+				diagnosticSample.normalReferenceWorldOriginZ,
+				diagnosticSample.normalReferenceWorldCenterX,
+				diagnosticSample.normalReferenceWorldCenterY,
+				diagnosticSample.normalReferenceWorldCenterZ
+		));
 		lines.add(String.format(
 				"%s world origin=(%.5f, %.5f, %.5f) world center=(%.5f, %.5f, %.5f)",
 				label,
@@ -524,7 +564,8 @@ public final class GpuObjDebugStats {
 		private final float centerZ;
 		private final float[] queuedMatrix = new float[16];
 		private final float[] preparedDrawMatrix = new float[16];
-		private final float[] cpuReferenceMatrix = new float[16];
+		private final float[] singleDrawReferenceMatrix = new float[16];
+		private final float[] normalReferenceMatrix = new float[16];
 		private final Vector3d[] worldCorners = new Vector3d[8];
 		private final double minForwardZ;
 		private final double maxForwardZ;
@@ -558,13 +599,26 @@ public final class GpuObjDebugStats {
 		private double postOffsetDistance;
 		private int instanceCount;
 		private boolean hasPreparedDrawMatrix;
-		private boolean hasCpuReferenceMatrix;
+		private boolean hasSingleDrawReferenceMatrix;
+		private boolean hasNormalReferenceMatrix;
 		private boolean drawn;
 		private boolean skipCameraOffset;
 		private boolean forceNoCull;
 		private boolean forceWhiteCutout;
 		private boolean hasNonFiniteValues;
 		private boolean hasHugeCoordinates;
+		private boolean normalReferenceMatched;
+		private float normalReferenceWorldOriginX;
+		private float normalReferenceWorldOriginY;
+		private float normalReferenceWorldOriginZ;
+		private float normalReferenceWorldCenterX;
+		private float normalReferenceWorldCenterY;
+		private float normalReferenceWorldCenterZ;
+		private String normalReferenceSampleId = "none";
+		@Nullable
+		private StoredMatrixTransformations normalReferenceTransformations;
+		@Nullable
+		private OptimizedModelWrapper normalReferenceModel;
 
 		private DiagnosticSample(Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
 			this.source = source;
@@ -692,13 +746,34 @@ public final class GpuObjDebugStats {
 			hasPreparedDrawMatrix = true;
 		}
 
-		void setCpuReferenceMatrix(Matrix4f matrix) {
-			storeMatrix(matrix, cpuReferenceMatrix);
-			hasCpuReferenceMatrix = true;
+		void setSingleDrawReferenceMatrix(Matrix4f matrix) {
+			storeMatrix(matrix, singleDrawReferenceMatrix);
+			hasSingleDrawReferenceMatrix = true;
+		}
+
+		void setNormalReference(@Nullable OptimizedModelWrapper model, StoredMatrixTransformations transformations, Matrix4f matrix, boolean matched, String sampleId) {
+			normalReferenceModel = model;
+			normalReferenceTransformations = transformations;
+			storeMatrix(matrix, normalReferenceMatrix);
+			hasNormalReferenceMatrix = true;
+			normalReferenceMatched = matched;
+			normalReferenceSampleId = sampleId;
+			final Vector3f normalOrigin = matrix.transformPosition(new Vector3f());
+			final Vector3f normalCenter = matrix.transformPosition(new Vector3f(centerX, centerY, centerZ));
+			normalReferenceWorldOriginX = normalOrigin.x;
+			normalReferenceWorldOriginY = normalOrigin.y;
+			normalReferenceWorldOriginZ = normalOrigin.z;
+			normalReferenceWorldCenterX = normalCenter.x;
+			normalReferenceWorldCenterY = normalCenter.y;
+			normalReferenceWorldCenterZ = normalCenter.z;
 		}
 
 		boolean isDrawn() {
 			return drawn;
+		}
+
+		boolean hasNormalReferenceRenderable() {
+			return normalReferenceModel != null && normalReferenceTransformations != null;
 		}
 
 		StaticObjMesh getStaticObjMesh() {
@@ -713,35 +788,94 @@ public final class GpuObjDebugStats {
 			return createMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 		}
 
-		boolean hasCpuReferenceMatrix() {
-			return hasCpuReferenceMatrix;
+		@Nullable
+		OptimizedModelWrapper getNormalReferenceModel() {
+			return normalReferenceModel;
+		}
+
+		@Nullable
+		StoredMatrixTransformations getNormalReferenceTransformations() {
+			return normalReferenceTransformations;
+		}
+
+		boolean hasSingleDrawReferenceMatrix() {
+			return hasSingleDrawReferenceMatrix;
+		}
+
+		boolean hasNormalReferenceMatrix() {
+			return hasNormalReferenceMatrix;
 		}
 
 		String formatPreparedDrawMatrix() {
 			return formatMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 		}
 
-		String formatCpuReferenceMatrix() {
-			return formatMatrix(cpuReferenceMatrix);
+		String formatSingleDrawReferenceMatrix() {
+			return formatMatrix(singleDrawReferenceMatrix);
 		}
 
-		double getCpuReferenceTranslationDeltaX() {
-			return cpuReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
+		String formatNormalReferenceMatrix() {
+			return formatMatrix(normalReferenceMatrix);
 		}
 
-		double getCpuReferenceTranslationDeltaY() {
-			return cpuReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
+		double getSingleDrawReferenceTranslationDeltaX() {
+			return singleDrawReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
 		}
 
-		double getCpuReferenceTranslationDeltaZ() {
-			return cpuReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		double getSingleDrawReferenceTranslationDeltaY() {
+			return singleDrawReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
 		}
 
-		double getCpuReferenceMaxAbsEntryDelta() {
+		double getSingleDrawReferenceTranslationDeltaZ() {
+			return singleDrawReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		}
+
+		double getSingleDrawReferenceMaxAbsEntryDelta() {
 			double max = 0;
 			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
-			for (int i = 0; i < cpuReferenceMatrix.length; i++) {
-				max = Math.max(max, Math.abs(cpuReferenceMatrix[i] - reference[i]));
+			for (int i = 0; i < singleDrawReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(singleDrawReferenceMatrix[i] - reference[i]));
+			}
+			return max;
+		}
+
+		double getNormalReferenceTranslationDeltaX() {
+			return normalReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
+		}
+
+		double getNormalReferenceTranslationDeltaY() {
+			return normalReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
+		}
+
+		double getNormalReferenceTranslationDeltaZ() {
+			return normalReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		}
+
+		double getNormalReferenceMaxAbsEntryDelta() {
+			double max = 0;
+			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
+			for (int i = 0; i < normalReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - reference[i]));
+			}
+			return max;
+		}
+
+		double getSingleDrawVsNormalReferenceTranslationDeltaX() {
+			return normalReferenceMatrix[12] - singleDrawReferenceMatrix[12];
+		}
+
+		double getSingleDrawVsNormalReferenceTranslationDeltaY() {
+			return normalReferenceMatrix[13] - singleDrawReferenceMatrix[13];
+		}
+
+		double getSingleDrawVsNormalReferenceTranslationDeltaZ() {
+			return normalReferenceMatrix[14] - singleDrawReferenceMatrix[14];
+		}
+
+		double getSingleDrawVsNormalReferenceMaxAbsEntryDelta() {
+			double max = 0;
+			for (int i = 0; i < normalReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - singleDrawReferenceMatrix[i]));
 			}
 			return max;
 		}
@@ -929,6 +1063,24 @@ public final class GpuObjDebugStats {
 			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 1, 5, color);
 			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 2, 6, color);
 			drawEdge(graphicsHolder, diagnosticSample.worldCorners, offset, 3, 7, color);
+		});
+	}
+
+	private static void scheduleNormalReferenceRender(@Nullable DiagnosticSample diagnosticSample, int color) {
+		if (diagnosticSample == null || !diagnosticSample.isDrawn() || !diagnosticSample.hasNormalReferenceRenderable()) {
+			return;
+		}
+
+		final OptimizedModelWrapper normalReferenceModel = diagnosticSample.getNormalReferenceModel();
+		final StoredMatrixTransformations normalReferenceTransformations = diagnosticSample.getNormalReferenceTransformations();
+		if (normalReferenceModel == null || normalReferenceTransformations == null) {
+			return;
+		}
+
+		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			normalReferenceTransformations.transform(graphicsHolder, offset);
+			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(normalReferenceModel, graphicsHolder, color, GraphicsHolder.getDefaultLight());
+			graphicsHolder.pop();
 		});
 	}
 

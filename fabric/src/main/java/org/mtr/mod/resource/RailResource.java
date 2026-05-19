@@ -96,10 +96,14 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
 		final Matrix4f diagnosticMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
 		final Matrix4f drawMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+		final OptimizedModelWrapper normalReferenceModel = getOptimizedModel();
 		boolean queuedAny = false;
 		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 			queuedAny = true;
-			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
+			final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
+			if (diagnosticSample != null) {
+				diagnosticSample.setNormalReference(normalReferenceModel, storedMatrixTransformations.copy(), diagnosticMatrix, true, "rail=" + id);
+			}
 		}
 		GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
 		return queuedAny;

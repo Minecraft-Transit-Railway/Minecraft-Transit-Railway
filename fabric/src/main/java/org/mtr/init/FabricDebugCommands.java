@@ -22,16 +22,13 @@ public final class FabricDebugCommands {
 		dispatcher.register(
 				ClientCommandManager.literal("mtrdebug")
 						.then(ClientCommandManager.literal("instancing")
-								.then(ClientCommandManager.literal("stats").executes(context -> writeReport(context.getSource(), "command stats")))
-								.then(ClientCommandManager.literal("report").executes(context -> writeReport(context.getSource(), "command report")))
-								.then(ClientCommandManager.literal("status").executes(context -> writeStatus(context.getSource(), "command status")))
 								.then(createWatchCommand())
 								.then(createDiagnoseCommand()))
 		);
 	}
 
 	private static LiteralArgumentBuilder<FabricClientCommandSource> createWatchCommand() {
-		return ClientCommandManager.literal("watch").executes(context -> startWatch(context.getSource()))
+		return ClientCommandManager.literal("watch")
 				.then(ClientCommandManager.literal("start").executes(context -> startWatch(context.getSource())))
 				.then(ClientCommandManager.literal("stop").executes(context -> {
 					if (GpuObjDebugStats.isWatchActive()) {
@@ -46,7 +43,7 @@ public final class FabricDebugCommands {
 	}
 
 	private static LiteralArgumentBuilder<FabricClientCommandSource> createDiagnoseCommand() {
-		return ClientCommandManager.literal("diagnose").executes(context -> writeStatus(context.getSource(), "command diagnose"))
+		return ClientCommandManager.literal("diagnose")
 				.then(ClientCommandManager.literal("start").executes(context -> {
 					GpuObjDebugStats.enableDiagnostics();
 					sendStatus(context.getSource(), "Enabled GPU instancing diagnostics. " + GpuObjDebugStats.getStatusSummary());
@@ -58,30 +55,15 @@ public final class FabricDebugCommands {
 					return 1;
 				}))
 				.then(ClientCommandManager.literal("status").executes(context -> writeStatus(context.getSource(), "command diagnose status")))
-				.then(ClientCommandManager.literal("skipOffset")
-						.then(ClientCommandManager.literal("on").executes(context -> setSkipOffset(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setSkipOffset(context.getSource(), false))))
 				.then(ClientCommandManager.literal("cameraOffset")
 						.then(ClientCommandManager.literal("on").executes(context -> setSkipOffset(context.getSource(), true)))
 						.then(ClientCommandManager.literal("off").executes(context -> setSkipOffset(context.getSource(), false))))
-				.then(ClientCommandManager.literal("forceNoCull")
-						.then(ClientCommandManager.literal("on").executes(context -> setForceNoCull(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setForceNoCull(context.getSource(), false))))
 				.then(ClientCommandManager.literal("noCull")
 						.then(ClientCommandManager.literal("on").executes(context -> setForceNoCull(context.getSource(), true)))
 						.then(ClientCommandManager.literal("off").executes(context -> setForceNoCull(context.getSource(), false))))
-				.then(ClientCommandManager.literal("forceWhiteCutout")
-						.then(ClientCommandManager.literal("on").executes(context -> setForceWhiteCutout(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setForceWhiteCutout(context.getSource(), false))))
 				.then(ClientCommandManager.literal("whiteCutout")
 						.then(ClientCommandManager.literal("on").executes(context -> setForceWhiteCutout(context.getSource(), true)))
 						.then(ClientCommandManager.literal("off").executes(context -> setForceWhiteCutout(context.getSource(), false))));
-	}
-
-	private static int writeReport(FabricClientCommandSource source, String reason) {
-		GpuObjDebugStats.emitReport(reason);
-		sendStatus(source, "Wrote GPU instancing report to the backend log. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
 	}
 
 	private static int writeStatus(FabricClientCommandSource source, String reason) {
@@ -98,19 +80,19 @@ public final class FabricDebugCommands {
 
 	private static int setSkipOffset(FabricClientCommandSource source, boolean enabled) {
 		GpuObjDebugStats.setDiagnosticSkipCameraOffset(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: skipCameraOffset. " + GpuObjDebugStats.getStatusSummary());
+		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: cameraOffset. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 
 	private static int setForceNoCull(FabricClientCommandSource source, boolean enabled) {
 		GpuObjDebugStats.setDiagnosticForceNoCull(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: forceNoCull. " + GpuObjDebugStats.getStatusSummary());
+		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: noCull. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 
 	private static int setForceWhiteCutout(FabricClientCommandSource source, boolean enabled) {
 		GpuObjDebugStats.setDiagnosticForceWhiteCutout(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: forceWhiteCutout. " + GpuObjDebugStats.getStatusSummary());
+		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: whiteCutout. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 

@@ -76,7 +76,8 @@ public final class GpuObjRenderer implements IGui {
 		return new Vector3d(frameOffsetX, frameOffsetY, frameOffsetZ);
 	}
 
-	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
+	@Nullable
+	public GpuObjDebugStats.DiagnosticSample queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
 		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
 		final boolean newBatch = !batchEntry.activeThisFrame;
 		if (!batchEntry.activeThisFrame) {
@@ -119,6 +120,7 @@ public final class GpuObjRenderer implements IGui {
 		}
 		meshEntry.addInstance(scratchInstanceData);
 		GpuObjDebugStats.recordInstanceQueued(source, newBatch, newMesh);
+		return diagnosticSample;
 	}
 
 	public void renderOpaque(Vector3d offset) {
@@ -197,7 +199,7 @@ public final class GpuObjRenderer implements IGui {
 		}
 
 		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
-		diagnosticSample.setCpuReferenceMatrix(referenceMatrix);
+		diagnosticSample.setSingleDrawReferenceMatrix(referenceMatrix);
 		final MaterialProperties referenceMaterial = new MaterialProperties(diagnosticSample.getShaderTypeEnum(), OptimizedModelWrapper.WHITE_TEXTURE, null);
 		final VertexArray diagnosticVertexArray = diagnosticSample.getStaticObjMesh().getDiagnosticVertexArray(referenceMaterial);
 		final VertexAttributeState referenceState = new VertexAttributeState(color, GraphicsHolder.getDefaultLight(), new org.mtr.mapping.holder.Matrix4f(new org.joml.Matrix4f(referenceMatrix)));
