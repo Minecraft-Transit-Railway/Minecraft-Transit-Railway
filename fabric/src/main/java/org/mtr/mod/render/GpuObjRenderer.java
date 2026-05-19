@@ -35,12 +35,20 @@ public final class GpuObjRenderer implements IGui {
 			.set(VertexAttributeType.UV_LIGHTMAP, VertexAttributeSource.INSTANCE_BUFFER)
 			.set(VertexAttributeType.MATRIX_MODEL, VertexAttributeSource.INSTANCE_BUFFER)
 			.build();
+	public static final VertexAttributeMapping DIAGNOSTIC_VERTEX_ATTRIBUTE_MAPPING = new VertexAttributeMapping.Builder()
+			.set(VertexAttributeType.COLOR, VertexAttributeSource.GLOBAL)
+			.set(VertexAttributeType.UV_OVERLAY, VertexAttributeSource.GLOBAL)
+			.set(VertexAttributeType.UV_LIGHTMAP, VertexAttributeSource.GLOBAL)
+			.set(VertexAttributeType.MATRIX_MODEL, VertexAttributeSource.GLOBAL)
+			.build();
 
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
 	private static final MaterialProperties DEBUG_WHITE_CUTOUT_MATERIAL = new MaterialProperties(OptimizedModel.ShaderType.CUTOUT, OptimizedModelWrapper.WHITE_TEXTURE, null);
+	private static final int RAIL_REFERENCE_COLOR = 0xA000FFFF;
+	private static final int VEHICLE_REFERENCE_COLOR = 0xA0FFFF00;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
@@ -136,6 +144,8 @@ public final class GpuObjRenderer implements IGui {
 				shaderManager.cleanupShaderBatchState();
 			}
 		}
+		renderDiagnosticReference(GpuObjDebugStats.getCurrentRailDiagnosticSample(), RAIL_REFERENCE_COLOR);
+		renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
 	}
 
 	public void clear() {
@@ -179,6 +189,28 @@ public final class GpuObjRenderer implements IGui {
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
 		GpuObjDebugStats.recordDrawInstanced();
+	}
+
+	private void renderDiagnosticReference(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample, int color) {
+		if (diagnosticSample == null || !diagnosticSample.isDrawn()) {
+			return;
+		}
+
+		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
+		diagnosticSample.setCpuReferenceMatrix(referenceMatrix);
+		final MaterialProperties referenceMaterial = new MaterialProperties(diagnosticSample.getShaderTypeEnum(), OptimizedModelWrapper.WHITE_TEXTURE, null);
+		final VertexArray diagnosticVertexArray = diagnosticSample.getStaticObjMesh().getDiagnosticVertexArray(referenceMaterial);
+		final VertexAttributeState referenceState = new VertexAttributeState(color, GraphicsHolder.getDefaultLight(), new org.mtr.mapping.holder.Matrix4f(new org.joml.Matrix4f(referenceMatrix)));
+		shaderManager.setupShaderBatchState(referenceMaterial);
+		RenderSystem.disableCull();
+		RenderSystem.disableDepthTest();
+		diagnosticVertexArray.bind();
+		referenceState.apply();
+		diagnosticVertexArray.materialProperties.vertexAttributeState.apply();
+		diagnosticVertexArray.draw();
+		RenderSystem.enableDepthTest();
+		RenderSystem.enableCull();
+		shaderManager.cleanupShaderBatchState();
 	}
 
 	private void ensureCapacity(int requiredBytes) {

@@ -11,6 +11,7 @@ public final class StaticObjMesh implements Closeable {
 
 	public final Identifier texture;
 	public final VertexArray vertexArray;
+	private final VertexArray diagnosticVertexArray;
 	public final int vertexCount;
 	public final float minX;
 	public final float minY;
@@ -51,11 +52,17 @@ public final class StaticObjMesh implements Closeable {
 		centerZ = (this.minZ + this.maxZ) / 2;
 		mesh = rawMesh.upload(GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING);
 		vertexArray = new VertexArray(mesh, GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING);
+		diagnosticVertexArray = new VertexArray(mesh, GpuObjRenderer.DIAGNOSTIC_VERTEX_ATTRIBUTE_MAPPING);
 		GpuObjRenderer.setupInstanceAttributes(vertexArray);
+	}
+
+	public VertexArray getDiagnosticVertexArray(org.mtr.mapping.render.batch.MaterialProperties materialProperties) {
+		return new VertexArray(diagnosticVertexArray, materialProperties);
 	}
 
 	@Override
 	public void close() {
+		diagnosticVertexArray.close();
 		vertexArray.close();
 		mesh.close();
 	}

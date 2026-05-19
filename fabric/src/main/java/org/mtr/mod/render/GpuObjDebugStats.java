@@ -6,6 +6,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Camera;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Vector3d;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 
@@ -263,6 +264,16 @@ public final class GpuObjDebugStats {
 		diagnosticSample.recordDraw(offset, instanceCount, shouldSkipCameraOffset(), shouldForceNoCull(), shouldForceWhiteCutout());
 	}
 
+	@Nullable
+	static DiagnosticSample getCurrentRailDiagnosticSample() {
+		return currentRailDiagnosticSample;
+	}
+
+	@Nullable
+	static DiagnosticSample getCurrentVehicleDiagnosticSample() {
+		return currentVehicleDiagnosticSample;
+	}
+
 	public static void scheduleDiagnosticRender() {
 		if (!diagnosticEnabled) {
 			return;
@@ -403,6 +414,18 @@ public final class GpuObjDebugStats {
 				diagnosticSample.centerZ
 		));
 		lines.add(String.format("%s queued matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
+		lines.add(String.format("%s prepared draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
+		if (diagnosticSample.hasCpuReferenceMatrix()) {
+			lines.add(String.format("%s cpu reference matrix: %s", label, diagnosticSample.formatCpuReferenceMatrix()));
+			lines.add(String.format(
+					"%s cpu/gpu delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					label,
+					diagnosticSample.getCpuReferenceTranslationDeltaX(),
+					diagnosticSample.getCpuReferenceTranslationDeltaY(),
+					diagnosticSample.getCpuReferenceTranslationDeltaZ(),
+					diagnosticSample.getCpuReferenceMaxAbsEntryDelta()
+			));
+		}
 		lines.add(String.format(
 				"%s world origin=(%.5f, %.5f, %.5f) world center=(%.5f, %.5f, %.5f)",
 				label,
@@ -486,6 +509,8 @@ public final class GpuObjDebugStats {
 		private final String textureId;
 		private final String renderStage;
 		private final String shaderType;
+		private final OptimizedModel.ShaderType shaderTypeEnum;
+		private final StaticObjMesh staticObjMesh;
 		private final int vertexCount;
 		private final boolean useDefaultOffset;
 		private final float minX;
@@ -499,6 +524,7 @@ public final class GpuObjDebugStats {
 		private final float centerZ;
 		private final float[] queuedMatrix = new float[16];
 		private final float[] preparedDrawMatrix = new float[16];
+		private final float[] cpuReferenceMatrix = new float[16];
 		private final Vector3d[] worldCorners = new Vector3d[8];
 		private final double minForwardZ;
 		private final double maxForwardZ;
@@ -532,6 +558,7 @@ public final class GpuObjDebugStats {
 		private double postOffsetDistance;
 		private int instanceCount;
 		private boolean hasPreparedDrawMatrix;
+		private boolean hasCpuReferenceMatrix;
 		private boolean drawn;
 		private boolean skipCameraOffset;
 		private boolean forceNoCull;
@@ -544,6 +571,8 @@ public final class GpuObjDebugStats {
 			textureId = String.valueOf(batchKey.texture);
 			renderStage = batchKey.renderStage.name();
 			shaderType = batchKey.shaderType.name();
+			shaderTypeEnum = batchKey.shaderType;
+			this.staticObjMesh = staticObjMesh;
 			vertexCount = staticObjMesh.vertexCount;
 			this.useDefaultOffset = useDefaultOffset;
 			minX = staticObjMesh.minX;
@@ -655,18 +684,66 @@ public final class GpuObjDebugStats {
 		}
 
 		private String formatQueuedMatrix() {
-			return String.format(
-					"[%.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f]",
-					queuedMatrix[0], queuedMatrix[1], queuedMatrix[2], queuedMatrix[3],
-					queuedMatrix[4], queuedMatrix[5], queuedMatrix[6], queuedMatrix[7],
-					queuedMatrix[8], queuedMatrix[9], queuedMatrix[10], queuedMatrix[11],
-					queuedMatrix[12], queuedMatrix[13], queuedMatrix[14], queuedMatrix[15]
-			);
+			return formatMatrix(queuedMatrix);
 		}
 
 		void setPreparedDrawMatrix(Matrix4f matrix) {
 			storeMatrix(matrix, preparedDrawMatrix);
 			hasPreparedDrawMatrix = true;
+		}
+
+		void setCpuReferenceMatrix(Matrix4f matrix) {
+			storeMatrix(matrix, cpuReferenceMatrix);
+			hasCpuReferenceMatrix = true;
+		}
+
+		boolean isDrawn() {
+			return drawn;
+		}
+
+		StaticObjMesh getStaticObjMesh() {
+			return staticObjMesh;
+		}
+
+		OptimizedModel.ShaderType getShaderTypeEnum() {
+			return shaderTypeEnum;
+		}
+
+		Matrix4f getPreparedDrawMatrix() {
+			return createMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
+		}
+
+		boolean hasCpuReferenceMatrix() {
+			return hasCpuReferenceMatrix;
+		}
+
+		String formatPreparedDrawMatrix() {
+			return formatMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
+		}
+
+		String formatCpuReferenceMatrix() {
+			return formatMatrix(cpuReferenceMatrix);
+		}
+
+		double getCpuReferenceTranslationDeltaX() {
+			return cpuReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
+		}
+
+		double getCpuReferenceTranslationDeltaY() {
+			return cpuReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
+		}
+
+		double getCpuReferenceTranslationDeltaZ() {
+			return cpuReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		}
+
+		double getCpuReferenceMaxAbsEntryDelta() {
+			double max = 0;
+			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
+			for (int i = 0; i < cpuReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(cpuReferenceMatrix[i] - reference[i]));
+			}
+			return max;
 		}
 
 		private boolean shouldReplace(DiagnosticSample other) {
@@ -806,6 +883,16 @@ public final class GpuObjDebugStats {
 		target[13] = matrix.m31();
 		target[14] = matrix.m32();
 		target[15] = matrix.m33();
+	}
+
+	private static String formatMatrix(float[] values) {
+		return String.format(
+				"[%.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f]",
+				values[0], values[1], values[2], values[3],
+				values[4], values[5], values[6], values[7],
+				values[8], values[9], values[10], values[11],
+				values[12], values[13], values[14], values[15]
+		);
 	}
 
 	private static Matrix4f createMatrix(float[] values) {
