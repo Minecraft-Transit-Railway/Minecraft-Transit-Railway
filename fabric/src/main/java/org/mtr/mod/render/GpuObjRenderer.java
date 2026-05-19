@@ -38,9 +38,12 @@ public final class GpuObjRenderer implements IGui {
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
-	private static final int TRANSLATION_X_BYTE_OFFSET = 12 * Float.BYTES;
-	private static final int TRANSLATION_Y_BYTE_OFFSET = 13 * Float.BYTES;
-	private static final int TRANSLATION_Z_BYTE_OFFSET = 14 * Float.BYTES;
+	private static final int INSTANCE_COLOR_BYTES = Integer.BYTES;
+	private static final int INSTANCE_LIGHT_BYTES = Integer.BYTES;
+	private static final int MATRIX_BYTE_OFFSET = INSTANCE_COLOR_BYTES + INSTANCE_LIGHT_BYTES;
+	private static final int TRANSLATION_X_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 12 * Float.BYTES;
+	private static final int TRANSLATION_Y_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 13 * Float.BYTES;
+	private static final int TRANSLATION_Z_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 14 * Float.BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
 	private static final MaterialProperties DEBUG_WHITE_CUTOUT_MATERIAL = new MaterialProperties(OptimizedModel.ShaderType.CUTOUT, OptimizedModelWrapper.WHITE_TEXTURE, null);
 
@@ -75,6 +78,8 @@ public final class GpuObjRenderer implements IGui {
 		}
 
 		scratchInstanceBuffer.clear();
+		scratchInstanceBuffer.putInt(packedColor);
+		scratchInstanceBuffer.putInt(packedLight);
 		scratchInstanceBuffer.putFloat(matrix.m00());
 		scratchInstanceBuffer.putFloat(matrix.m01());
 		scratchInstanceBuffer.putFloat(matrix.m02());
@@ -91,8 +96,6 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.putFloat(matrix.m31());
 		scratchInstanceBuffer.putFloat(matrix.m32());
 		scratchInstanceBuffer.putFloat(matrix.m33());
-		scratchInstanceBuffer.putInt(packedColor);
-		scratchInstanceBuffer.putInt(packedLight);
 		if (meshEntry.diagnosticSample == null) {
 			meshEntry.diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
 		}
