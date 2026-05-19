@@ -15,8 +15,10 @@ import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
+import org.mtr.mod.render.InstancingMatrixHelper;
 import org.mtr.mod.render.ObjBatchKey;
 import org.mtr.mod.render.StaticObjMesh;
+import org.mtr.mod.render.StoredMatrixTransformations;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +29,6 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	private final CachedResource<ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel>> cachedRailResource;
 	private final CachedResource<RailGpuCache> cachedGpuRailResource;
 	private final ResourceProvider resourceProvider;
-	private final Matrix4f gpuMatrix = new Matrix4f();
 
 	public RailResource(ReaderBase readerBase, ResourceProvider resourceProvider) {
 		super(readerBase, resourceProvider);
@@ -92,15 +93,21 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		}
 
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
-		final Matrix4f matrix = gpuMatrix.identity()
-				.translate((float) x, (float) y, (float) z)
-				.rotateY((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)))
-				.rotateX((float) (Math.PI - pitch * (flip ? -1 : 1)))
-				.rotateZ((float) Math.toRadians(rollDegrees));
+		final StoredMatrixTransformations storedMatrixTransformations = useDefaultOffset ? new StoredMatrixTransformations(x, y, z) : new StoredMatrixTransformations();
+		if (!useDefaultOffset) {
+			storedMatrixTransformations.add(graphicsHolder -> graphicsHolder.translate(x, y, z));
+		}
+		storedMatrixTransformations.add(graphicsHolder -> {
+			graphicsHolder.rotateYRadians((float) (Math.PI / 2 - yaw + (flip ? Math.PI : 0)));
+			graphicsHolder.rotateXRadians((float) (Math.PI - pitch * (flip ? -1 : 1)));
+			graphicsHolder.rotateZDegrees(rollDegrees);
+		});
+		final Matrix4f diagnosticMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
+		final Matrix4f drawMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
 		boolean queuedAny = false;
 		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 			queuedAny = true;
-			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, matrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
+			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
 		}
 		GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
 		return queuedAny;

@@ -21,6 +21,7 @@ import org.mtr.mod.data.IGui;
 import org.mtr.mod.resource.OptimizedModelWrapper;
 import org.mtr.mod.resource.RenderStage;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -48,7 +49,6 @@ public final class GpuObjRenderer implements IGui {
 	private final ObjectArrayList<BatchEntry>[] activeOpaqueBatchesByStage = createBatchLists();
 	private final byte[] scratchInstanceData = new byte[INSTANCE_STRIDE];
 	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData).order(ByteOrder.nativeOrder());
-	private final Matrix4f scratchMatrix = new Matrix4f();
 	private ByteBuffer byteBuffer = createByteBuffer(INSTANCE_STRIDE);
 	private double frameOffsetX;
 	private double frameOffsetY;
@@ -64,7 +64,11 @@ public final class GpuObjRenderer implements IGui {
 		shaderManager.reloadShaders();
 	}
 
-	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f matrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
+	public Vector3d getFrameOffset() {
+		return new Vector3d(frameOffsetX, frameOffsetY, frameOffsetZ);
+	}
+
+	public void queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
 		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
 		final boolean newBatch = !batchEntry.activeThisFrame;
 		if (!batchEntry.activeThisFrame) {
@@ -79,13 +83,6 @@ public final class GpuObjRenderer implements IGui {
 		final boolean newMesh = meshEntry.instanceCount == 0;
 		if (meshEntry.instanceCount == 0) {
 			batchEntry.activeMeshes.add(meshEntry);
-		}
-
-		final Matrix4f drawMatrix;
-		if (useDefaultOffset && !GpuObjDebugStats.shouldSkipCameraOffset()) {
-			drawMatrix = scratchMatrix.set(matrix).translateLocal((float) -frameOffsetX, (float) -frameOffsetY, (float) -frameOffsetZ);
-		} else {
-			drawMatrix = scratchMatrix.set(matrix);
 		}
 
 		scratchInstanceBuffer.clear();
@@ -107,7 +104,7 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.putFloat(drawMatrix.m31());
 		scratchInstanceBuffer.putFloat(drawMatrix.m32());
 		scratchInstanceBuffer.putFloat(drawMatrix.m33());
-		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
+		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, diagnosticMatrix == null ? drawMatrix : diagnosticMatrix, useDefaultOffset);
 		if (diagnosticSample != null) {
 			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;

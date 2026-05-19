@@ -19,6 +19,7 @@ import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
+import org.mtr.mod.render.InstancingMatrixHelper;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.QueuedRenderLayer;
@@ -239,7 +240,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final boolean instancingEnabled = Config.getClient().getEnableGpuObjInstancing();
 			final boolean optimizedRenderingAvailable = OptimizedRenderer.hasOptimizedRendering();
 			final VehicleGpuCache vehicleGpuCache = vehicleResourceCache.vehicleGpuCache.getData(false);
-			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && vehicleGpuCache != null && vehicleGpuCache.hasParts && queueGpu(vehicleGpuCache, useDefaultOffset, positionAndRotation, oscillationAmount, vehicle, light, noOpenDoorways);
+			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && vehicleGpuCache != null && vehicleGpuCache.hasParts && queueGpu(vehicleGpuCache, storedMatrixTransformations, useDefaultOffset, vehicle, light, noOpenDoorways);
 			if (gpuQueued) {
 				recordVehicleCoverage(vehicleGpuCache, vehicle, noOpenDoorways, null, 0);
 				if (noOpenDoorways) {
@@ -267,14 +268,15 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final boolean optimizedRenderingAvailable = OptimizedRenderer.hasOptimizedRendering();
 			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2;
 			final VehicleGpuCache bogieGpuCache = (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(false);
-			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && bogieGpuCache != null && bogieGpuCache.hasParts && queueGpu(bogieGpuCache, useDefaultOffset, positionAndRotation, 0, vehicle, light, true);
+			final StoredMatrixTransformations storedMatrixTransformations = storedMatrixTransformationsSupplier.get();
+			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && bogieGpuCache != null && bogieGpuCache.hasParts && queueGpu(bogieGpuCache, storedMatrixTransformations, useDefaultOffset, vehicle, light, true);
 			if (gpuQueued) {
 				recordVehicleCoverage(bogieGpuCache, vehicle, true, null, 0);
-				queueIfPresent(bogieIndex == 0 ? vehicleResourceCache.fallbackOptimizedModelsBogie1 : vehicleResourceCache.fallbackOptimizedModelsBogie2, storedMatrixTransformationsSupplier, vehicle, light, true);
+				queueIfPresent(bogieIndex == 0 ? vehicleResourceCache.fallbackOptimizedModelsBogie1 : vehicleResourceCache.fallbackOptimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
 			} else {
 				final GpuObjDebugStats.VehicleFallbackReason supportedFallbackReason = !instancingEnabled ? GpuObjDebugStats.VehicleFallbackReason.CONFIG_DISABLED : !optimizedRenderingAvailable ? GpuObjDebugStats.VehicleFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE : GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE;
 				recordVehicleCoverage(bogieGpuCache, vehicle, true, supportedFallbackReason, countRenderableModels(optimizedModels, vehicle, true));
-				queueIfPresent(optimizedModels, storedMatrixTransformationsSupplier, vehicle, light, true);
+				queueIfPresent(optimizedModels, storedMatrixTransformations, vehicle, light, true);
 			}
 		}
 	}
@@ -589,13 +591,15 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}
 	}
 
-	private static boolean queueGpu(@Nullable VehicleGpuCache vehicleGpuCache, boolean useDefaultOffset, PositionAndRotation positionAndRotation, double oscillationAmount, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+	private static boolean queueGpu(@Nullable VehicleGpuCache vehicleGpuCache, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
 		if (vehicleGpuCache == null) {
 			return false;
 		}
 
-		final Matrix4f worldMatrix = createWorldMatrix(positionAndRotation, oscillationAmount);
-		final Matrix4f finalMatrix = new Matrix4f();
+		final Matrix4f worldMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
+		final Matrix4f drawMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+		final Matrix4f finalWorldMatrix = new Matrix4f();
+		final Matrix4f finalDrawMatrix = new Matrix4f();
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
 		boolean queuedAny = false;
 		long eligiblePartCount = 0;
@@ -608,7 +612,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			eligiblePartCount += conditionBucket.supportedPlacementCount;
 			if (!conditionBucket.parts.isEmpty()) {
 				queuedAny = true;
-				conditionBucket.parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE));
+				conditionBucket.parts.forEach(part -> GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, finalDrawMatrix.set(drawMatrix).mul(part.localTransform), finalWorldMatrix.set(worldMatrix).mul(part.localTransform), packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE));
 			}
 		}
 
@@ -647,14 +651,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 				GpuObjDebugStats.recordVehicleFallbackParts(reason, conditionBucket.getUnsupportedPlacementCount(reason));
 			}
 		}
-	}
-
-	private static Matrix4f createWorldMatrix(PositionAndRotation positionAndRotation, double oscillationAmount) {
-		return new Matrix4f()
-				.translate((float) positionAndRotation.position.x, (float) positionAndRotation.position.y, (float) positionAndRotation.position.z)
-				.rotateY((float) (positionAndRotation.yaw + Math.PI))
-				.rotateX((float) (positionAndRotation.pitch + Math.PI))
-				.rotateZ((float) Math.toRadians(oscillationAmount));
 	}
 
 	private static int countRenderableModels(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, VehicleExtension vehicle, boolean noOpenDoorways) {
