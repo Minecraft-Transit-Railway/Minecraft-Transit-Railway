@@ -288,6 +288,17 @@ public final class GpuObjDebugStats {
 		return watchActive;
 	}
 
+	public static String getStatusSummary() {
+		return String.format(
+				"diagnostics=%s watch=%s skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s",
+				diagnosticEnabled,
+				watchActive,
+				diagnosticSkipCameraOffset,
+				diagnosticForceNoCull,
+				diagnosticForceWhiteCutout
+		);
+	}
+
 	public static void handleClientDisconnect() {
 		stopWatch();
 	}
