@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL33;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Vector3d;
@@ -39,12 +38,6 @@ public final class GpuObjRenderer implements IGui {
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
-	private static final int INSTANCE_COLOR_BYTES = Integer.BYTES;
-	private static final int INSTANCE_LIGHT_BYTES = Integer.BYTES;
-	private static final int MATRIX_BYTE_OFFSET = INSTANCE_COLOR_BYTES + INSTANCE_LIGHT_BYTES;
-	private static final int TRANSLATION_X_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 12 * Float.BYTES;
-	private static final int TRANSLATION_Y_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 13 * Float.BYTES;
-	private static final int TRANSLATION_Z_BYTE_OFFSET = MATRIX_BYTE_OFFSET + 14 * Float.BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
 	private static final MaterialProperties DEBUG_WHITE_CUTOUT_MATERIAL = new MaterialProperties(OptimizedModel.ShaderType.CUTOUT, OptimizedModelWrapper.WHITE_TEXTURE, null);
 
@@ -55,7 +48,17 @@ public final class GpuObjRenderer implements IGui {
 	private final ObjectArrayList<BatchEntry>[] activeOpaqueBatchesByStage = createBatchLists();
 	private final byte[] scratchInstanceData = new byte[INSTANCE_STRIDE];
 	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData).order(ByteOrder.nativeOrder());
+	private final Matrix4f scratchMatrix = new Matrix4f();
 	private ByteBuffer byteBuffer = createByteBuffer(INSTANCE_STRIDE);
+	private double frameOffsetX;
+	private double frameOffsetY;
+	private double frameOffsetZ;
+
+	public void beginFrame(Vector3d offset) {
+		frameOffsetX = offset.getXMapped();
+		frameOffsetY = offset.getYMapped();
+		frameOffsetZ = offset.getZMapped();
+	}
 
 	public void reloadShaders() {
 		shaderManager.reloadShaders();
@@ -78,30 +81,38 @@ public final class GpuObjRenderer implements IGui {
 			batchEntry.activeMeshes.add(meshEntry);
 		}
 
+		final Matrix4f drawMatrix;
+		if (useDefaultOffset && !GpuObjDebugStats.shouldSkipCameraOffset()) {
+			drawMatrix = scratchMatrix.set(matrix).translateLocal((float) -frameOffsetX, (float) -frameOffsetY, (float) -frameOffsetZ);
+		} else {
+			drawMatrix = scratchMatrix.set(matrix);
+		}
+
 		scratchInstanceBuffer.clear();
 		scratchInstanceBuffer.putInt(packedColor);
 		scratchInstanceBuffer.putInt(packedLight);
-		scratchInstanceBuffer.putFloat(matrix.m00());
-		scratchInstanceBuffer.putFloat(matrix.m01());
-		scratchInstanceBuffer.putFloat(matrix.m02());
-		scratchInstanceBuffer.putFloat(matrix.m03());
-		scratchInstanceBuffer.putFloat(matrix.m10());
-		scratchInstanceBuffer.putFloat(matrix.m11());
-		scratchInstanceBuffer.putFloat(matrix.m12());
-		scratchInstanceBuffer.putFloat(matrix.m13());
-		scratchInstanceBuffer.putFloat(matrix.m20());
-		scratchInstanceBuffer.putFloat(matrix.m21());
-		scratchInstanceBuffer.putFloat(matrix.m22());
-		scratchInstanceBuffer.putFloat(matrix.m23());
-		scratchInstanceBuffer.putFloat(matrix.m30());
-		scratchInstanceBuffer.putFloat(matrix.m31());
-		scratchInstanceBuffer.putFloat(matrix.m32());
-		scratchInstanceBuffer.putFloat(matrix.m33());
+		scratchInstanceBuffer.putFloat(drawMatrix.m00());
+		scratchInstanceBuffer.putFloat(drawMatrix.m01());
+		scratchInstanceBuffer.putFloat(drawMatrix.m02());
+		scratchInstanceBuffer.putFloat(drawMatrix.m03());
+		scratchInstanceBuffer.putFloat(drawMatrix.m10());
+		scratchInstanceBuffer.putFloat(drawMatrix.m11());
+		scratchInstanceBuffer.putFloat(drawMatrix.m12());
+		scratchInstanceBuffer.putFloat(drawMatrix.m13());
+		scratchInstanceBuffer.putFloat(drawMatrix.m20());
+		scratchInstanceBuffer.putFloat(drawMatrix.m21());
+		scratchInstanceBuffer.putFloat(drawMatrix.m22());
+		scratchInstanceBuffer.putFloat(drawMatrix.m23());
+		scratchInstanceBuffer.putFloat(drawMatrix.m30());
+		scratchInstanceBuffer.putFloat(drawMatrix.m31());
+		scratchInstanceBuffer.putFloat(drawMatrix.m32());
+		scratchInstanceBuffer.putFloat(drawMatrix.m33());
 		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, matrix, useDefaultOffset);
 		if (diagnosticSample != null) {
+			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;
 		}
-		meshEntry.addInstance(scratchInstanceData, useDefaultOffset);
+		meshEntry.addInstance(scratchInstanceData);
 		GpuObjDebugStats.recordInstanceQueued(source, newBatch, newMesh);
 	}
 
@@ -160,15 +171,6 @@ public final class GpuObjRenderer implements IGui {
 		ensureCapacity(meshEntry.payload.size());
 		byteBuffer.clear();
 		byteBuffer.put(meshEntry.payload.elements(), 0, meshEntry.payload.size());
-
-		if (!GpuObjDebugStats.shouldSkipCameraOffset()) {
-			for (int i = 0; i < meshEntry.defaultOffsetInstanceIndices.size(); i++) {
-				final int baseByteOffset = meshEntry.defaultOffsetInstanceIndices.getInt(i) * INSTANCE_STRIDE;
-				byteBuffer.putFloat(baseByteOffset + TRANSLATION_X_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_X_BYTE_OFFSET) - (float) offset.getXMapped());
-				byteBuffer.putFloat(baseByteOffset + TRANSLATION_Y_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_Y_BYTE_OFFSET) - (float) offset.getYMapped());
-				byteBuffer.putFloat(baseByteOffset + TRANSLATION_Z_BYTE_OFFSET, byteBuffer.getFloat(baseByteOffset + TRANSLATION_Z_BYTE_OFFSET) - (float) offset.getZMapped());
-			}
-		}
 
 		byteBuffer.flip();
 		meshEntry.staticObjMesh.vertexArray.bind();
@@ -231,7 +233,6 @@ public final class GpuObjRenderer implements IGui {
 
 		private final StaticObjMesh staticObjMesh;
 		private final ByteArrayList payload = new ByteArrayList();
-		private final IntArrayList defaultOffsetInstanceIndices = new IntArrayList();
 		private GpuObjDebugStats.DiagnosticSample diagnosticSample;
 		private int instanceCount;
 
@@ -241,16 +242,12 @@ public final class GpuObjRenderer implements IGui {
 
 		private void clear() {
 			payload.clear();
-			defaultOffsetInstanceIndices.clear();
 			diagnosticSample = null;
 			instanceCount = 0;
 		}
 
-		private void addInstance(byte[] instanceData, boolean useDefaultOffset) {
+		private void addInstance(byte[] instanceData) {
 			payload.addElements(payload.size(), instanceData, 0, INSTANCE_STRIDE);
-			if (useDefaultOffset) {
-				defaultOffsetInstanceIndices.add(instanceCount);
-			}
 			instanceCount++;
 		}
 	}

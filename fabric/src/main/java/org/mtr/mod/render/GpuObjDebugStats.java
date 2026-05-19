@@ -498,6 +498,7 @@ public final class GpuObjDebugStats {
 		private final float centerY;
 		private final float centerZ;
 		private final float[] queuedMatrix = new float[16];
+		private final float[] preparedDrawMatrix = new float[16];
 		private final Vector3d[] worldCorners = new Vector3d[8];
 		private final double minForwardZ;
 		private final double maxForwardZ;
@@ -530,6 +531,7 @@ public final class GpuObjDebugStats {
 		private double postOffsetForwardZ;
 		private double postOffsetDistance;
 		private int instanceCount;
+		private boolean hasPreparedDrawMatrix;
 		private boolean drawn;
 		private boolean skipCameraOffset;
 		private boolean forceNoCull;
@@ -616,16 +618,7 @@ public final class GpuObjDebugStats {
 			cameraOffsetY = offset.getYMapped();
 			cameraOffsetZ = offset.getZMapped();
 
-			final Matrix4f adjustedMatrix = new Matrix4f()
-					.m00(queuedMatrix[0]).m01(queuedMatrix[1]).m02(queuedMatrix[2]).m03(queuedMatrix[3])
-					.m10(queuedMatrix[4]).m11(queuedMatrix[5]).m12(queuedMatrix[6]).m13(queuedMatrix[7])
-					.m20(queuedMatrix[8]).m21(queuedMatrix[9]).m22(queuedMatrix[10]).m23(queuedMatrix[11])
-					.m30(queuedMatrix[12]).m31(queuedMatrix[13]).m32(queuedMatrix[14]).m33(queuedMatrix[15]);
-			if (useDefaultOffset && !skipCameraOffset) {
-				adjustedMatrix.m30(adjustedMatrix.m30() - (float) cameraOffsetX);
-				adjustedMatrix.m31(adjustedMatrix.m31() - (float) cameraOffsetY);
-				adjustedMatrix.m32(adjustedMatrix.m32() - (float) cameraOffsetZ);
-			}
+			final Matrix4f adjustedMatrix = createMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 
 			drawTranslationX = adjustedMatrix.m30();
 			drawTranslationY = adjustedMatrix.m31();
@@ -669,6 +662,11 @@ public final class GpuObjDebugStats {
 					queuedMatrix[8], queuedMatrix[9], queuedMatrix[10], queuedMatrix[11],
 					queuedMatrix[12], queuedMatrix[13], queuedMatrix[14], queuedMatrix[15]
 			);
+		}
+
+		void setPreparedDrawMatrix(Matrix4f matrix) {
+			storeMatrix(matrix, preparedDrawMatrix);
+			hasPreparedDrawMatrix = true;
 		}
 
 		private boolean shouldReplace(DiagnosticSample other) {
@@ -808,6 +806,14 @@ public final class GpuObjDebugStats {
 		target[13] = matrix.m31();
 		target[14] = matrix.m32();
 		target[15] = matrix.m33();
+	}
+
+	private static Matrix4f createMatrix(float[] values) {
+		return new Matrix4f()
+				.m00(values[0]).m01(values[1]).m02(values[2]).m03(values[3])
+				.m10(values[4]).m11(values[5]).m12(values[6]).m13(values[7])
+				.m20(values[8]).m21(values[9]).m22(values[10]).m23(values[11])
+				.m30(values[12]).m31(values[13]).m32(values[14]).m33(values[15]);
 	}
 
 	private static boolean isFinite(double value) {
