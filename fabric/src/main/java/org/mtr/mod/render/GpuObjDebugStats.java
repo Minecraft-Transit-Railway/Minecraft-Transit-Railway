@@ -1,9 +1,15 @@
 package org.mtr.mod.render;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.mapping.holder.Camera;
+import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public final class GpuObjDebugStats {
@@ -52,6 +58,18 @@ public final class GpuObjDebugStats {
 	private static final Snapshot RELOAD_SESSION = new Snapshot();
 	private static final Snapshot WATCH_SESSION = new Snapshot();
 	private static final ObjectArrayList<TimedSnapshot> WINDOW_HISTORY = new ObjectArrayList<>();
+	private static boolean diagnosticEnabled;
+	private static boolean diagnosticSkipCameraOffset;
+	private static boolean diagnosticForceNoCull;
+	private static boolean diagnosticForceWhiteCutout;
+	@Nullable
+	private static DiagnosticSample currentRailDiagnosticSample;
+	@Nullable
+	private static DiagnosticSample currentVehicleDiagnosticSample;
+	@Nullable
+	private static DiagnosticSample lastRailDiagnosticSample;
+	@Nullable
+	private static DiagnosticSample lastVehicleDiagnosticSample;
 	private static boolean instancingEnabled;
 	private static boolean watchActive;
 	private static long nextWatchReportMillis;
@@ -62,6 +80,8 @@ public final class GpuObjDebugStats {
 	public static void beginFrame(boolean newInstancingEnabled) {
 		instancingEnabled = newInstancingEnabled;
 		CURRENT_FRAME.clear();
+		currentRailDiagnosticSample = null;
+		currentVehicleDiagnosticSample = null;
 	}
 
 	public static void recordInstanceQueued(Source source, boolean newBatch, boolean newMesh) {
@@ -123,6 +143,8 @@ public final class GpuObjDebugStats {
 		if (watchActive) {
 			WATCH_SESSION.add(CURRENT_FRAME);
 		}
+		lastRailDiagnosticSample = currentRailDiagnosticSample;
+		lastVehicleDiagnosticSample = currentVehicleDiagnosticSample;
 
 		final TimedSnapshot timedSnapshot = new TimedSnapshot(InitClient.getGameMillis(), CURRENT_FRAME.copy());
 		WINDOW_HISTORY.add(timedSnapshot);
@@ -135,9 +157,106 @@ public final class GpuObjDebugStats {
 		WINDOW_SNAPSHOT.clear();
 		RELOAD_SESSION.clear();
 		WINDOW_HISTORY.clear();
+		currentRailDiagnosticSample = null;
+		currentVehicleDiagnosticSample = null;
+		lastRailDiagnosticSample = null;
+		lastVehicleDiagnosticSample = null;
 		if (watchActive) {
 			WATCH_SESSION.clear();
 		}
+	}
+
+	public static void enableDiagnostics() {
+		diagnosticEnabled = true;
+	}
+
+	public static void disableDiagnostics() {
+		diagnosticEnabled = false;
+		diagnosticSkipCameraOffset = false;
+		diagnosticForceNoCull = false;
+		diagnosticForceWhiteCutout = false;
+		currentRailDiagnosticSample = null;
+		currentVehicleDiagnosticSample = null;
+		lastRailDiagnosticSample = null;
+		lastVehicleDiagnosticSample = null;
+	}
+
+	public static boolean isDiagnosticEnabled() {
+		return diagnosticEnabled;
+	}
+
+	public static void setDiagnosticSkipCameraOffset(boolean enabled) {
+		if (enabled) {
+			diagnosticEnabled = true;
+		}
+		diagnosticSkipCameraOffset = enabled;
+	}
+
+	public static boolean shouldSkipCameraOffset() {
+		return diagnosticEnabled && diagnosticSkipCameraOffset;
+	}
+
+	public static boolean isDiagnosticSkipCameraOffsetEnabled() {
+		return diagnosticSkipCameraOffset;
+	}
+
+	public static void setDiagnosticForceNoCull(boolean enabled) {
+		if (enabled) {
+			diagnosticEnabled = true;
+		}
+		diagnosticForceNoCull = enabled;
+	}
+
+	public static boolean shouldForceNoCull() {
+		return diagnosticEnabled && diagnosticForceNoCull;
+	}
+
+	public static boolean isDiagnosticForceNoCullEnabled() {
+		return diagnosticForceNoCull;
+	}
+
+	public static void setDiagnosticForceWhiteCutout(boolean enabled) {
+		if (enabled) {
+			diagnosticEnabled = true;
+		}
+		diagnosticForceWhiteCutout = enabled;
+	}
+
+	public static boolean shouldForceWhiteCutout() {
+		return diagnosticEnabled && diagnosticForceWhiteCutout;
+	}
+
+	public static boolean isDiagnosticForceWhiteCutoutEnabled() {
+		return diagnosticForceWhiteCutout;
+	}
+
+	@Nullable
+	public static DiagnosticSample captureDiagnosticSample(Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
+		if (!diagnosticEnabled) {
+			return null;
+		}
+
+		if (source == Source.RAIL) {
+			if (currentRailDiagnosticSample != null) {
+				return null;
+			}
+			currentRailDiagnosticSample = new DiagnosticSample(batchKey, staticObjMesh, matrix, useDefaultOffset);
+			return currentRailDiagnosticSample;
+		} else {
+			if (currentVehicleDiagnosticSample != null) {
+				return null;
+			}
+			currentVehicleDiagnosticSample = new DiagnosticSample(batchKey, staticObjMesh, matrix, useDefaultOffset);
+			return currentVehicleDiagnosticSample;
+		}
+	}
+
+	public static void finalizeDiagnosticSample(@Nullable DiagnosticSample diagnosticSample, Vector3d offset, int instanceCount) {
+		if (diagnosticSample == null) {
+			return;
+		}
+
+		diagnosticSample.recordDraw(offset, instanceCount, shouldSkipCameraOffset(), shouldForceNoCull(), shouldForceWhiteCutout());
 	}
 
 	public static void startWatch() {
@@ -189,6 +308,7 @@ public final class GpuObjDebugStats {
 			appendSnapshot(lines, "Watch (since start)", WATCH_SESSION);
 		}
 		appendSnapshot(lines, "Session (since reload)", RELOAD_SESSION);
+		appendDiagnostic(lines);
 		return lines;
 	}
 
@@ -218,6 +338,90 @@ public final class GpuObjDebugStats {
 		lines.add(String.format("%s vehicle fallback reasons: %s", label, formatReasons(snapshot.vehicleFallbackReasons, VehicleFallbackReason.values())));
 	}
 
+	private static void appendDiagnostic(ObjectArrayList<String> lines) {
+		if (!diagnosticEnabled && lastRailDiagnosticSample == null && lastVehicleDiagnosticSample == null) {
+			return;
+		}
+
+		lines.add(String.format("Diagnostic enabled: %s | skipCameraOffset: %s | forceNoCull: %s | forceWhiteCutout: %s", diagnosticEnabled, diagnosticSkipCameraOffset, diagnosticForceNoCull, diagnosticForceWhiteCutout));
+		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
+		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
+	}
+
+	private static void appendDiagnosticSample(ObjectArrayList<String> lines, String label, @Nullable DiagnosticSample diagnosticSample) {
+		if (diagnosticSample == null) {
+			lines.add(label + " sample: none captured");
+			return;
+		}
+
+		lines.add(String.format(
+				"%s sample: texture=%s stage=%s shader=%s vertices=%d instances=%d useDefaultOffset=%s drawn=%s",
+				label,
+				diagnosticSample.textureId,
+				diagnosticSample.renderStage,
+				diagnosticSample.shaderType,
+				diagnosticSample.vertexCount,
+				diagnosticSample.instanceCount,
+				diagnosticSample.useDefaultOffset,
+				diagnosticSample.drawn
+		));
+		lines.add(String.format(
+				"%s bounds: min=(%.5f, %.5f, %.5f) max=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.minX,
+				diagnosticSample.minY,
+				diagnosticSample.minZ,
+				diagnosticSample.maxX,
+				diagnosticSample.maxY,
+				diagnosticSample.maxZ,
+				diagnosticSample.centerX,
+				diagnosticSample.centerY,
+				diagnosticSample.centerZ
+		));
+		lines.add(String.format("%s queued matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
+		lines.add(String.format(
+				"%s world origin=(%.5f, %.5f, %.5f) world center=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.worldOriginX,
+				diagnosticSample.worldOriginY,
+				diagnosticSample.worldOriginZ,
+				diagnosticSample.worldCenterX,
+				diagnosticSample.worldCenterY,
+				diagnosticSample.worldCenterZ
+		));
+		lines.add(String.format(
+				"%s draw matrix translation=(%.5f, %.5f, %.5f) camera offset=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.drawTranslationX,
+				diagnosticSample.drawTranslationY,
+				diagnosticSample.drawTranslationZ,
+				diagnosticSample.cameraOffsetX,
+				diagnosticSample.cameraOffsetY,
+				diagnosticSample.cameraOffsetZ
+		));
+		lines.add(String.format(
+				"%s camera relative center=(%.5f, %.5f, %.5f) camera space center=(%.5f, %.5f, %.5f) distance=%.5f forwardZ=%.5f finite=%s huge=%s",
+				label,
+				diagnosticSample.relativeCenterX,
+				diagnosticSample.relativeCenterY,
+				diagnosticSample.relativeCenterZ,
+				diagnosticSample.cameraSpaceCenterX,
+				diagnosticSample.cameraSpaceCenterY,
+				diagnosticSample.cameraSpaceCenterZ,
+				diagnosticSample.distanceFromCamera,
+				diagnosticSample.cameraSpaceCenterZ,
+				!diagnosticSample.hasNonFiniteValues,
+				diagnosticSample.hasHugeCoordinates
+		));
+		lines.add(String.format(
+				"%s draw toggles: skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s",
+				label,
+				diagnosticSample.skipCameraOffset,
+				diagnosticSample.forceNoCull,
+				diagnosticSample.forceWhiteCutout
+		));
+	}
+
 	private static <T extends Enum<T>> String formatReasons(long[] counts, T[] reasons) {
 		final StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < counts.length; i++) {
@@ -234,6 +438,131 @@ public final class GpuObjDebugStats {
 
 	private static String getReasonLabel(Enum<?> reason) {
 		return reason instanceof RailFallbackReason ? ((RailFallbackReason) reason).label : ((VehicleFallbackReason) reason).label;
+	}
+
+	public static final class DiagnosticSample {
+
+		private final String textureId;
+		private final String renderStage;
+		private final String shaderType;
+		private final int vertexCount;
+		private final boolean useDefaultOffset;
+		private final float minX;
+		private final float minY;
+		private final float minZ;
+		private final float maxX;
+		private final float maxY;
+		private final float maxZ;
+		private final float centerX;
+		private final float centerY;
+		private final float centerZ;
+		private final float[] queuedMatrix = new float[16];
+		private float worldOriginX;
+		private float worldOriginY;
+		private float worldOriginZ;
+		private float worldCenterX;
+		private float worldCenterY;
+		private float worldCenterZ;
+		private float drawTranslationX;
+		private float drawTranslationY;
+		private float drawTranslationZ;
+		private double cameraOffsetX;
+		private double cameraOffsetY;
+		private double cameraOffsetZ;
+		private double relativeCenterX;
+		private double relativeCenterY;
+		private double relativeCenterZ;
+		private double cameraSpaceCenterX;
+		private double cameraSpaceCenterY;
+		private double cameraSpaceCenterZ;
+		private double distanceFromCamera;
+		private int instanceCount;
+		private boolean drawn;
+		private boolean skipCameraOffset;
+		private boolean forceNoCull;
+		private boolean forceWhiteCutout;
+		private boolean hasNonFiniteValues;
+		private boolean hasHugeCoordinates;
+
+		private DiagnosticSample(ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
+			textureId = String.valueOf(batchKey.texture);
+			renderStage = batchKey.renderStage.name();
+			shaderType = batchKey.shaderType.name();
+			vertexCount = staticObjMesh.vertexCount;
+			this.useDefaultOffset = useDefaultOffset;
+			minX = staticObjMesh.minX;
+			minY = staticObjMesh.minY;
+			minZ = staticObjMesh.minZ;
+			maxX = staticObjMesh.maxX;
+			maxY = staticObjMesh.maxY;
+			maxZ = staticObjMesh.maxZ;
+			centerX = staticObjMesh.centerX;
+			centerY = staticObjMesh.centerY;
+			centerZ = staticObjMesh.centerZ;
+			storeMatrix(matrix, queuedMatrix);
+			final Vector3f worldOrigin = matrix.transformPosition(new Vector3f());
+			final Vector3f worldCenter = matrix.transformPosition(new Vector3f(centerX, centerY, centerZ));
+			worldOriginX = worldOrigin.x;
+			worldOriginY = worldOrigin.y;
+			worldOriginZ = worldOrigin.z;
+			worldCenterX = worldCenter.x;
+			worldCenterY = worldCenter.y;
+			worldCenterZ = worldCenter.z;
+		}
+
+		private void recordDraw(Vector3d offset, int instanceCount, boolean skipCameraOffset, boolean forceNoCull, boolean forceWhiteCutout) {
+			drawn = true;
+			this.instanceCount = instanceCount;
+			this.skipCameraOffset = skipCameraOffset;
+			this.forceNoCull = forceNoCull;
+			this.forceWhiteCutout = forceWhiteCutout;
+			cameraOffsetX = offset.getXMapped();
+			cameraOffsetY = offset.getYMapped();
+			cameraOffsetZ = offset.getZMapped();
+
+			final Matrix4f adjustedMatrix = new Matrix4f()
+					.m00(queuedMatrix[0]).m01(queuedMatrix[1]).m02(queuedMatrix[2]).m03(queuedMatrix[3])
+					.m10(queuedMatrix[4]).m11(queuedMatrix[5]).m12(queuedMatrix[6]).m13(queuedMatrix[7])
+					.m20(queuedMatrix[8]).m21(queuedMatrix[9]).m22(queuedMatrix[10]).m23(queuedMatrix[11])
+					.m30(queuedMatrix[12]).m31(queuedMatrix[13]).m32(queuedMatrix[14]).m33(queuedMatrix[15]);
+			if (useDefaultOffset && !skipCameraOffset) {
+				adjustedMatrix.m30(adjustedMatrix.m30() - (float) cameraOffsetX);
+				adjustedMatrix.m31(adjustedMatrix.m31() - (float) cameraOffsetY);
+				adjustedMatrix.m32(adjustedMatrix.m32() - (float) cameraOffsetZ);
+			}
+
+			drawTranslationX = adjustedMatrix.m30();
+			drawTranslationY = adjustedMatrix.m31();
+			drawTranslationZ = adjustedMatrix.m32();
+
+			final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
+			if (camera != null) {
+				final Vector3d cameraRelativeCenter = new Vector3d(worldCenterX, worldCenterY, worldCenterZ).subtract(camera.getPos());
+				relativeCenterX = cameraRelativeCenter.getXMapped();
+				relativeCenterY = cameraRelativeCenter.getYMapped();
+				relativeCenterZ = cameraRelativeCenter.getZMapped();
+				final Vector3d cameraSpaceCenter = new Vector3d(relativeCenterX, relativeCenterY, relativeCenterZ)
+						.rotateY((float) Math.toRadians(camera.getYaw()))
+						.rotateX((float) Math.toRadians(camera.getPitch()));
+				cameraSpaceCenterX = cameraSpaceCenter.getXMapped();
+				cameraSpaceCenterY = cameraSpaceCenter.getYMapped();
+				cameraSpaceCenterZ = cameraSpaceCenter.getZMapped();
+				distanceFromCamera = Math.sqrt(relativeCenterX * relativeCenterX + relativeCenterY * relativeCenterY + relativeCenterZ * relativeCenterZ);
+			}
+
+			hasNonFiniteValues = !isFinite(worldOriginX) || !isFinite(worldOriginY) || !isFinite(worldOriginZ) || !isFinite(worldCenterX) || !isFinite(worldCenterY) || !isFinite(worldCenterZ) || !isFinite(drawTranslationX) || !isFinite(drawTranslationY) || !isFinite(drawTranslationZ) || !isFinite(relativeCenterX) || !isFinite(relativeCenterY) || !isFinite(relativeCenterZ) || !isFinite(cameraSpaceCenterX) || !isFinite(cameraSpaceCenterY) || !isFinite(cameraSpaceCenterZ);
+			hasHugeCoordinates = isHuge(worldOriginX) || isHuge(worldOriginY) || isHuge(worldOriginZ) || isHuge(worldCenterX) || isHuge(worldCenterY) || isHuge(worldCenterZ) || isHuge(drawTranslationX) || isHuge(drawTranslationY) || isHuge(drawTranslationZ);
+		}
+
+		private String formatQueuedMatrix() {
+			return String.format(
+					"[%.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f | %.5f %.5f %.5f %.5f]",
+					queuedMatrix[0], queuedMatrix[1], queuedMatrix[2], queuedMatrix[3],
+					queuedMatrix[4], queuedMatrix[5], queuedMatrix[6], queuedMatrix[7],
+					queuedMatrix[8], queuedMatrix[9], queuedMatrix[10], queuedMatrix[11],
+					queuedMatrix[12], queuedMatrix[13], queuedMatrix[14], queuedMatrix[15]
+			);
+		}
 	}
 
 	private static final class TimedSnapshot {
@@ -334,5 +663,32 @@ public final class GpuObjDebugStats {
 				target[i] += source[i];
 			}
 		}
+	}
+
+	private static void storeMatrix(Matrix4f matrix, float[] target) {
+		target[0] = matrix.m00();
+		target[1] = matrix.m01();
+		target[2] = matrix.m02();
+		target[3] = matrix.m03();
+		target[4] = matrix.m10();
+		target[5] = matrix.m11();
+		target[6] = matrix.m12();
+		target[7] = matrix.m13();
+		target[8] = matrix.m20();
+		target[9] = matrix.m21();
+		target[10] = matrix.m22();
+		target[11] = matrix.m23();
+		target[12] = matrix.m30();
+		target[13] = matrix.m31();
+		target[14] = matrix.m32();
+		target[15] = matrix.m33();
+	}
+
+	private static boolean isFinite(double value) {
+		return !Double.isNaN(value) && !Double.isInfinite(value);
+	}
+
+	private static boolean isHuge(double value) {
+		return Math.abs(value) > 1_000_000;
 	}
 }
