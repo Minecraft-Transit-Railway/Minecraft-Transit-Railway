@@ -433,6 +433,13 @@ public final class GpuObjDebugStats {
 		}
 
 		lines.add(String.format("Diagnostic enabled: %s | skipCameraOffset: %s | forceNoCull: %s | forceWhiteCutout: %s | railView: %s", diagnosticEnabled, diagnosticSkipCameraOffset, diagnosticForceNoCull, diagnosticForceWhiteCutout, railViewMode.label));
+		lines.add(String.format(
+				"Instance mapping: stride=%d colorPtr=%d lightPtr=%d matrixPtr=%d expected=72/0/4/8",
+				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.strideInstance,
+				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.COLOR),
+				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.UV_LIGHTMAP),
+				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.MATRIX_MODEL)
+		));
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
@@ -1083,6 +1090,18 @@ public final class GpuObjDebugStats {
 		private boolean shouldReplace(DiagnosticSample other) {
 			if (useDefaultOffset != other.useDefaultOffset) {
 				return useDefaultOffset;
+			}
+			if (source == Source.RAIL) {
+				if (crossesNearPlane != other.crossesNearPlane) {
+					return !crossesNearPlane;
+				}
+				if (hasCornerBehindAndAhead != other.hasCornerBehindAndAhead) {
+					return !hasCornerBehindAndAhead;
+				}
+				if ((centerForwardZ > NEAR_PLANE_EPSILON) != (other.centerForwardZ > NEAR_PLANE_EPSILON)) {
+					return centerForwardZ > NEAR_PLANE_EPSILON;
+				}
+				return distanceFromCamera < other.distanceFromCamera;
 			}
 			if (crossesNearPlane != other.crossesNearPlane) {
 				return crossesNearPlane;
