@@ -203,6 +203,9 @@ public final class GpuObjRenderer implements IGui {
 		DEFAULT_DRAW_STATE.apply();
 		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : meshEntry.staticObjMesh.vertexArray.materialProperties).vertexAttributeState.apply();
 		materialProperties.vertexAttributeState.apply();
+		if (meshEntry.diagnosticSample != null) {
+			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
+		}
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
 		GpuObjDebugStats.recordDrawInstanced();
@@ -299,6 +302,33 @@ public final class GpuObjRenderer implements IGui {
 		vertexAttributeType.toggleAttributeArray(true);
 		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
 		vertexAttributeType.setAttributeDivisor(1);
+	}
+
+	private static String describeVaoAttributeState() {
+		return String.format(
+				"vao=%d arrayBuffer=%d | %s | %s | %s | %s | %s | %s",
+				GL33.glGetInteger(GL33.GL_VERTEX_ARRAY_BINDING),
+				GL33.glGetInteger(GL33.GL_ARRAY_BUFFER_BINDING),
+				describeAttribute("COLOR", VertexAttributeType.COLOR.location),
+				describeAttribute("LIGHT", VertexAttributeType.UV_LIGHTMAP.location),
+				describeAttribute("MATRIX0", VertexAttributeType.MATRIX_MODEL.location),
+				describeAttribute("MATRIX1", VertexAttributeType.MATRIX_MODEL.location + 1),
+				describeAttribute("MATRIX2", VertexAttributeType.MATRIX_MODEL.location + 2),
+				describeAttribute("MATRIX3", VertexAttributeType.MATRIX_MODEL.location + 3)
+		);
+	}
+
+	private static String describeAttribute(String label, int location) {
+		return String.format(
+				"%s loc=%d enabled=%s stride=%d pointer=%d divisor=%d buffer=%d",
+				label,
+				location,
+				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_ENABLED) != 0,
+				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_STRIDE),
+				GL33.glGetVertexAttribPointer(location, GL33.GL_VERTEX_ATTRIB_ARRAY_POINTER),
+				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_DIVISOR),
+				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING)
+		);
 	}
 
 	@SuppressWarnings("unchecked")

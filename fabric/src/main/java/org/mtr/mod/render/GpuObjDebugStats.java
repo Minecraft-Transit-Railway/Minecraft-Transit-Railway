@@ -311,6 +311,14 @@ public final class GpuObjDebugStats {
 		diagnosticSample.recordDraw(offset, instanceCount, shouldSkipCameraOffset(), shouldForceNoCull(), shouldForceWhiteCutout());
 	}
 
+	public static void recordVaoAttributeState(@Nullable DiagnosticSample diagnosticSample, String vaoAttributeState) {
+		if (diagnosticSample == null || diagnosticSample != currentRailDiagnosticSample && diagnosticSample != currentVehicleDiagnosticSample) {
+			return;
+		}
+
+		diagnosticSample.setVaoAttributeState(vaoAttributeState);
+	}
+
 	@Nullable
 	static DiagnosticSample getCurrentRailDiagnosticSample() {
 		return currentRailDiagnosticSample;
@@ -608,6 +616,9 @@ public final class GpuObjDebugStats {
 				diagnosticSample.forceNoCull,
 				diagnosticSample.forceWhiteCutout
 		));
+		if (!diagnosticSample.vaoAttributeState.isEmpty()) {
+			lines.add(String.format("%s VAO attributes: %s", label, diagnosticSample.vaoAttributeState));
+		}
 	}
 
 	private static <T extends Enum<T>> String formatReasons(long[] counts, T[] reasons) {
@@ -704,6 +715,7 @@ public final class GpuObjDebugStats {
 		private float normalReferenceWorldCenterX;
 		private float normalReferenceWorldCenterY;
 		private float normalReferenceWorldCenterZ;
+		private String vaoAttributeState = "";
 		private String normalReferenceSampleId = "none";
 		@Nullable
 		private StoredMatrixTransformations normalReferenceTransformations;
@@ -864,6 +876,10 @@ public final class GpuObjDebugStats {
 			normalReferenceWorldCenterY = normalCenter.y;
 			normalReferenceWorldCenterZ = normalCenter.z;
 			updateNormalReferenceDrawMatrix();
+		}
+
+		private void setVaoAttributeState(String vaoAttributeState) {
+			this.vaoAttributeState = vaoAttributeState;
 		}
 
 		boolean isDrawn() {
