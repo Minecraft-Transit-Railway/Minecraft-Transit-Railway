@@ -71,43 +71,48 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
-		if (!Config.getClient().getEnableGpuObjInstancing()) {
-			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.CONFIG_DISABLED);
-			return false;
-		}
-
-		if (!OptimizedRenderer.hasOptimizedRendering()) {
-			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE);
-			return false;
-		}
-
-		final RailGpuCache railGpuCache = cachedGpuRailResource.getData(false);
-		if (railGpuCache == null) {
-			GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.GPU_CACHE_UNAVAILABLE);
-			return false;
-		}
-
-		if (!railGpuCache.hasEntries()) {
-			GpuObjDebugStats.recordRailOutcome(false, railGpuCache.fallbackReason);
-			return false;
-		}
-
-		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
-		final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
-		final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
-		final Matrix4f diagnosticMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
-		final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
-		final OptimizedModelWrapper normalReferenceModel = diagnosticsEnabled ? getOptimizedModel() : null;
-		boolean queuedAny = false;
-		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
-			queuedAny = true;
-			final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
-			if (diagnosticSample != null) {
-				diagnosticSample.setNormalReference(normalReferenceModel, storedMatrixTransformations.copy(), diagnosticMatrix, true, "rail=" + id);
+		final long startNanos = System.nanoTime();
+		try {
+			if (!Config.getClient().getEnableGpuObjInstancing()) {
+				GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.CONFIG_DISABLED);
+				return false;
 			}
+
+			if (!OptimizedRenderer.hasOptimizedRendering()) {
+				GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE);
+				return false;
+			}
+
+			final RailGpuCache railGpuCache = cachedGpuRailResource.getData(false);
+			if (railGpuCache == null) {
+				GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.GPU_CACHE_UNAVAILABLE);
+				return false;
+			}
+
+			if (!railGpuCache.hasEntries()) {
+				GpuObjDebugStats.recordRailOutcome(false, railGpuCache.fallbackReason);
+				return false;
+			}
+
+			final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
+			final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
+			final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
+			final Matrix4f diagnosticMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
+			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+			final OptimizedModelWrapper normalReferenceModel = diagnosticsEnabled ? getOptimizedModel() : null;
+			boolean queuedAny = false;
+			for (final RailGpuCache.Entry entry : railGpuCache.entries) {
+				queuedAny = true;
+				final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
+				if (diagnosticSample != null) {
+					diagnosticSample.setNormalReference(normalReferenceModel, storedMatrixTransformations.copy(), diagnosticMatrix, true, "rail=" + id);
+				}
+			}
+			GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
+			return queuedAny;
+		} finally {
+			GpuObjDebugStats.recordRailQueueNanos(System.nanoTime() - startNanos);
 		}
-		GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
-		return queuedAny;
 	}
 
 	public static StoredMatrixTransformations createStoredMatrixTransformations(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, boolean useDefaultOffset) {

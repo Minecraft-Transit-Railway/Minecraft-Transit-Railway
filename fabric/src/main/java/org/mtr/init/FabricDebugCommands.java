@@ -80,7 +80,7 @@ public final class FabricDebugCommands {
 
 	private static int writeRailReport(FabricClientCommandSource source) {
 		GpuObjDebugStats.requestRailReport();
-		sendStatus(source, "Queued rail diagnostic report for the next rendered frame. " + GpuObjDebugStats.getStatusSummary());
+		sendStatus(source, "Queued GPU instancing report for the next rendered frame. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 

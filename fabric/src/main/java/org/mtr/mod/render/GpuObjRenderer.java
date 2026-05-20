@@ -158,30 +158,35 @@ public final class GpuObjRenderer implements IGui {
 	}
 
 	public void renderOpaque(Vector3d offset) {
-		if (!shaderManager.isReady()) {
-			shaderManager.reloadShaders();
-		}
-
-		for (final RenderStage renderStage : RenderStage.values()) {
-			final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
-			for (int i = 0; i < batchEntries.size(); i++) {
-				final BatchEntry batchEntry = batchEntries.get(i);
-				final MaterialProperties activeMaterialProperties = GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : batchEntry.materialProperties;
-				shaderManager.setupShaderBatchState(activeMaterialProperties);
-				if (GpuObjDebugStats.shouldForceNoCull()) {
-					RenderSystem.disableCull();
-				}
-				for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
-					render(activeMaterialProperties, batchEntry.activeMeshes.get(j), offset);
-				}
-				if (GpuObjDebugStats.shouldForceNoCull()) {
-					RenderSystem.enableCull();
-				}
-				shaderManager.cleanupShaderBatchState();
+		final long startNanos = System.nanoTime();
+		try {
+			if (!shaderManager.isReady()) {
+				shaderManager.reloadShaders();
 			}
+
+			for (final RenderStage renderStage : RenderStage.values()) {
+				final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
+				for (int i = 0; i < batchEntries.size(); i++) {
+					final BatchEntry batchEntry = batchEntries.get(i);
+					final MaterialProperties activeMaterialProperties = GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : batchEntry.materialProperties;
+					shaderManager.setupShaderBatchState(activeMaterialProperties);
+					if (GpuObjDebugStats.shouldForceNoCull()) {
+						RenderSystem.disableCull();
+					}
+					for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
+						render(activeMaterialProperties, batchEntry.activeMeshes.get(j), offset);
+					}
+					if (GpuObjDebugStats.shouldForceNoCull()) {
+						RenderSystem.enableCull();
+					}
+					shaderManager.cleanupShaderBatchState();
+				}
+			}
+			renderRailDiagnosticReferences(GpuObjDebugStats.getCurrentRailDiagnosticSample());
+			renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
+		} finally {
+			GpuObjDebugStats.recordRenderOpaqueNanos(System.nanoTime() - startNanos);
 		}
-		renderRailDiagnosticReferences(GpuObjDebugStats.getCurrentRailDiagnosticSample());
-		renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
 	}
 
 	public void clear() {
@@ -218,7 +223,9 @@ public final class GpuObjRenderer implements IGui {
 		byteBuffer.flip();
 		meshEntry.staticObjMesh.vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
+		final long uploadStartNanos = System.nanoTime();
 		instanceBuffer.upload(byteBuffer, meshEntry.payload.size(), VertexBuffer.USAGE_STREAM_DRAW);
+		GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
 		DEFAULT_DRAW_STATE.apply();
 		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : meshEntry.staticObjMesh.vertexArray.materialProperties).vertexAttributeState.apply();
 		materialProperties.vertexAttributeState.apply();
@@ -226,7 +233,9 @@ public final class GpuObjRenderer implements IGui {
 			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
 		}
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
+		final long drawStartNanos = System.nanoTime();
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
+		GpuObjDebugStats.recordInstanceDrawNanos(System.nanoTime() - drawStartNanos);
 		GpuObjDebugStats.recordDrawInstanced();
 	}
 

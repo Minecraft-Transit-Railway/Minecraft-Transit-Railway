@@ -592,46 +592,51 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	private static boolean queueGpu(@Nullable VehicleGpuCache vehicleGpuCache, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		if (vehicleGpuCache == null) {
-			return false;
-		}
-
-		final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
-		final Matrix4f worldMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
-		final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
-		final Matrix4f finalWorldMatrix = diagnosticsEnabled ? new Matrix4f() : null;
-		final Matrix4f finalDrawMatrix = new Matrix4f();
-		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
-		boolean queuedAny = false;
-		long eligiblePartCount = 0;
-
-		for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
-			if (!matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways)) {
-				continue;
+		final long startNanos = System.nanoTime();
+		try {
+			if (vehicleGpuCache == null) {
+				return false;
 			}
 
-			eligiblePartCount += conditionBucket.supportedPlacementCount;
-			if (!conditionBucket.parts.isEmpty()) {
-				queuedAny = true;
-				conditionBucket.parts.forEach(part -> {
-					final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
-					final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
-					final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, partDrawMatrix, partWorldMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE);
-					if (diagnosticSample != null) {
-						final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
-						normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
-						diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
-					}
-				});
-			}
-		}
+			final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
+			final Matrix4f worldMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
+			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+			final Matrix4f finalWorldMatrix = diagnosticsEnabled ? new Matrix4f() : null;
+			final Matrix4f finalDrawMatrix = new Matrix4f();
+			final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
+			boolean queuedAny = false;
+			long eligiblePartCount = 0;
 
-		GpuObjDebugStats.recordVehicleEligibleParts(eligiblePartCount);
-		if (eligiblePartCount > 0) {
-			GpuObjDebugStats.recordVehicleGpuQueueCall();
+			for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
+				if (!matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways)) {
+					continue;
+				}
+
+				eligiblePartCount += conditionBucket.supportedPlacementCount;
+				if (!conditionBucket.parts.isEmpty()) {
+					queuedAny = true;
+					conditionBucket.parts.forEach(part -> {
+						final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
+						final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
+						final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, partDrawMatrix, partWorldMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE);
+						if (diagnosticSample != null) {
+							final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
+							normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
+							diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
+						}
+					});
+				}
+			}
+
+			GpuObjDebugStats.recordVehicleEligibleParts(eligiblePartCount);
+			if (eligiblePartCount > 0) {
+				GpuObjDebugStats.recordVehicleGpuQueueCall();
+			}
+			GpuObjDebugStats.recordVehicleQueuedParts(eligiblePartCount);
+			return queuedAny;
+		} finally {
+			GpuObjDebugStats.recordVehicleQueueNanos(System.nanoTime() - startNanos);
 		}
-		GpuObjDebugStats.recordVehicleQueuedParts(eligiblePartCount);
-		return queuedAny;
 	}
 
 	private static void recordVehicleCoverage(@Nullable VehicleGpuCache vehicleGpuCache, VehicleExtension vehicle, boolean noOpenDoorways, @Nullable GpuObjDebugStats.VehicleFallbackReason supportedFallbackReason, long approximateFallbackCountIfCacheUnavailable) {

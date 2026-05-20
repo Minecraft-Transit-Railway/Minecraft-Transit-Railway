@@ -130,6 +130,26 @@ public final class GpuObjDebugStats {
 		CURRENT_FRAME.instancedDraws++;
 	}
 
+	public static void recordRailQueueNanos(long nanos) {
+		CURRENT_FRAME.railQueueNanos += nanos;
+	}
+
+	public static void recordVehicleQueueNanos(long nanos) {
+		CURRENT_FRAME.vehicleQueueNanos += nanos;
+	}
+
+	public static void recordRenderOpaqueNanos(long nanos) {
+		CURRENT_FRAME.renderOpaqueNanos += nanos;
+	}
+
+	public static void recordInstanceUploadNanos(long nanos) {
+		CURRENT_FRAME.instanceUploadNanos += nanos;
+	}
+
+	public static void recordInstanceDrawNanos(long nanos) {
+		CURRENT_FRAME.instanceDrawNanos += nanos;
+	}
+
 	public static void recordRailOutcome(boolean success, RailFallbackReason fallbackReason) {
 		CURRENT_FRAME.railAttemptedSegments++;
 		if (success) {
@@ -275,10 +295,11 @@ public final class GpuObjDebugStats {
 	}
 
 	public static void requestRailReport() {
-		diagnosticEnabled = true;
 		pendingRailReport = true;
 		pendingRailReportRestoreRailViewMode = railViewMode;
-		railViewMode = RailViewMode.ALL;
+		if (diagnosticEnabled) {
+			railViewMode = RailViewMode.ALL;
+		}
 	}
 
 	@Nullable
@@ -428,11 +449,24 @@ public final class GpuObjDebugStats {
 	private static void appendSnapshot(ObjectArrayList<String> lines, String label, Snapshot snapshot) {
 		lines.add(String.format("%s instances total/rails/vehicles: %d/%d/%d", label, snapshot.instancesTotal, snapshot.railInstances, snapshot.vehicleInstances));
 		lines.add(String.format("%s active batches/meshes/instanced draws: %d/%d/%d", label, snapshot.activeBatches, snapshot.activeMeshes, snapshot.instancedDraws));
+		lines.add(String.format(
+				"%s GPU timings ms railQueue/vehicleQueue/render/upload/draw: %.3f/%.3f/%.3f/%.3f/%.3f",
+				label,
+				nanosToMillis(snapshot.railQueueNanos),
+				nanosToMillis(snapshot.vehicleQueueNanos),
+				nanosToMillis(snapshot.renderOpaqueNanos),
+				nanosToMillis(snapshot.instanceUploadNanos),
+				nanosToMillis(snapshot.instanceDrawNanos)
+		));
 		lines.add(String.format("%s rail attempted/gpu/fallback: %d/%d/%d", label, snapshot.railAttemptedSegments, snapshot.railGpuQueuedSegments, snapshot.railFallbackSegments));
 		lines.add(String.format("%s rail fallback reasons: %s", label, formatReasons(snapshot.railFallbackReasons, RailFallbackReason.values())));
 		lines.add(String.format("%s vehicle eligible/gpu/fallback/filtered: %d/%d/%d/%d", label, snapshot.vehicleEligibleParts, snapshot.vehicleGpuParts, snapshot.vehicleFallbackParts, snapshot.vehicleConditionFilteredParts));
 		lines.add(String.format("%s vehicle gpu queue calls: %d", label, snapshot.vehicleGpuQueues));
 		lines.add(String.format("%s vehicle fallback reasons: %s", label, formatReasons(snapshot.vehicleFallbackReasons, VehicleFallbackReason.values())));
+	}
+
+	private static double nanosToMillis(long nanos) {
+		return nanos / 1_000_000D;
 	}
 
 	private static void appendDiagnostic(ObjectArrayList<String> lines) {
@@ -1167,6 +1201,11 @@ public final class GpuObjDebugStats {
 		private long activeBatches;
 		private long activeMeshes;
 		private long instancedDraws;
+		private long railQueueNanos;
+		private long vehicleQueueNanos;
+		private long renderOpaqueNanos;
+		private long instanceUploadNanos;
+		private long instanceDrawNanos;
 		private long railAttemptedSegments;
 		private long railGpuQueuedSegments;
 		private long railFallbackSegments;
@@ -1185,6 +1224,11 @@ public final class GpuObjDebugStats {
 			activeBatches += snapshot.activeBatches;
 			activeMeshes += snapshot.activeMeshes;
 			instancedDraws += snapshot.instancedDraws;
+			railQueueNanos += snapshot.railQueueNanos;
+			vehicleQueueNanos += snapshot.vehicleQueueNanos;
+			renderOpaqueNanos += snapshot.renderOpaqueNanos;
+			instanceUploadNanos += snapshot.instanceUploadNanos;
+			instanceDrawNanos += snapshot.instanceDrawNanos;
 			railAttemptedSegments += snapshot.railAttemptedSegments;
 			railGpuQueuedSegments += snapshot.railGpuQueuedSegments;
 			railFallbackSegments += snapshot.railFallbackSegments;
@@ -1204,6 +1248,11 @@ public final class GpuObjDebugStats {
 			activeBatches = 0;
 			activeMeshes = 0;
 			instancedDraws = 0;
+			railQueueNanos = 0;
+			vehicleQueueNanos = 0;
+			renderOpaqueNanos = 0;
+			instanceUploadNanos = 0;
+			instanceDrawNanos = 0;
 			railAttemptedSegments = 0;
 			railGpuQueuedSegments = 0;
 			railFallbackSegments = 0;
@@ -1223,6 +1272,11 @@ public final class GpuObjDebugStats {
 			activeBatches = snapshot.activeBatches;
 			activeMeshes = snapshot.activeMeshes;
 			instancedDraws = snapshot.instancedDraws;
+			railQueueNanos = snapshot.railQueueNanos;
+			vehicleQueueNanos = snapshot.vehicleQueueNanos;
+			renderOpaqueNanos = snapshot.renderOpaqueNanos;
+			instanceUploadNanos = snapshot.instanceUploadNanos;
+			instanceDrawNanos = snapshot.instanceDrawNanos;
 			railAttemptedSegments = snapshot.railAttemptedSegments;
 			railGpuQueuedSegments = snapshot.railGpuQueuedSegments;
 			railFallbackSegments = snapshot.railFallbackSegments;
