@@ -43,6 +43,16 @@ public final class GpuObjRenderer implements IGui {
 			.set(VertexAttributeType.MATRIX_MODEL, VertexAttributeSource.GLOBAL)
 			.build();
 
+	static {
+		Init.LOGGER.info(
+				"GPU instance mapping: stride={}, colorPtr={}, lightPtr={}, matrixPtr={}",
+				VERTEX_ATTRIBUTE_MAPPING.strideInstance,
+				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.COLOR),
+				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.UV_LIGHTMAP),
+				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.MATRIX_MODEL)
+		);
+	}
+
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
@@ -65,13 +75,6 @@ public final class GpuObjRenderer implements IGui {
 	private double frameOffsetZ;
 
 	private GpuObjRenderer() {
-		Init.LOGGER.info(
-				"GPU instance mapping: stride={}, colorPtr={}, lightPtr={}, matrixPtr={}",
-				VERTEX_ATTRIBUTE_MAPPING.strideInstance,
-				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.COLOR),
-				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.UV_LIGHTMAP),
-				VERTEX_ATTRIBUTE_MAPPING.pointers.get(VertexAttributeType.MATRIX_MODEL)
-		);
 	}
 
 	public void beginFrame(Vector3d offset) {
