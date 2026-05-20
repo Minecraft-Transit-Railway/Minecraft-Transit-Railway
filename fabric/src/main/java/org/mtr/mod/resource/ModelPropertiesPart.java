@@ -653,7 +653,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset);
 		final String debugSampleId = String.format("condition=%s stage=%s names=%s local=(%.5f, %.5f, %.5f) flipped=%s", condition, renderStage, names, x / 16, y / 16 - modelYOffset, z / 16, flipped);
 		gpuMeshes.forEach(staticObjMesh -> {
-			final OptimizedModel.ShaderType shaderType = getGpuShaderType(staticObjMesh);
+			final OptimizedModel.ShaderType shaderType = renderStage.shaderType;
 			final MaterialProperties materialProperties = new MaterialProperties(shaderType, staticObjMesh.texture, null);
 			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, renderStage, shaderType, materialProperties.translucent);
 			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
@@ -704,10 +704,6 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private boolean supportsGpuRenderStage() {
 		return renderStage != RenderStage.INTERIOR_TRANSLUCENT && renderStage != RenderStage.ALWAYS_ON_LIGHT && renderStage != RenderStage.LIGHT;
-	}
-
-	private OptimizedModel.ShaderType getGpuShaderType(StaticObjMesh staticObjMesh) {
-		return staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT ? renderStage.shaderType : staticObjMesh.shaderType;
 	}
 
 	private static Matrix4f createLocalTransform(double x, double y, double z, boolean flipped, double modelYOffset) {
