@@ -18,6 +18,7 @@ import org.mtr.mapping.render.vertex.VertexAttributeState;
 import org.mtr.mapping.render.vertex.VertexAttributeSource;
 import org.mtr.mapping.render.vertex.VertexAttributeType;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.Init;
 import org.mtr.mod.resource.OptimizedModelWrapper;
 import org.mtr.mod.resource.RenderStage;
 
@@ -222,21 +223,34 @@ public final class GpuObjRenderer implements IGui {
 			return;
 		}
 
-		switch (GpuObjDebugStats.getRailViewMode()) {
-			case INSTANCED:
-				renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
-				break;
-			case STATIC_MATCHED:
-				renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
-				break;
-			case NORMAL:
-				break;
-			case ALL:
-			default:
-				renderDiagnosticReference(diagnosticSample, RAIL_REFERENCE_COLOR);
-				renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
-				renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
-				break;
+		final GpuObjDebugStats.RailViewMode railViewMode = GpuObjDebugStats.getRailViewMode();
+		try {
+			switch (railViewMode) {
+				case INSTANCED:
+					renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
+					break;
+				case STATIC_MATCHED:
+					renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
+					break;
+				case NORMAL:
+					break;
+				case ALL:
+				default:
+					renderDiagnosticReference(diagnosticSample, RAIL_REFERENCE_COLOR);
+					renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
+					renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
+					break;
+			}
+		} catch (RuntimeException e) {
+			Init.LOGGER.error(
+					"[MTR Debug] Rail diagnostic render failed for railView={} sample={} shader={} texture={}",
+					railViewMode.label,
+					diagnosticSample.getSourceSampleId(),
+					diagnosticSample.getShaderType(),
+					diagnosticSample.getTextureId(),
+					e
+			);
+			GpuObjDebugStats.setRailViewMode(GpuObjDebugStats.RailViewMode.NORMAL);
 		}
 	}
 

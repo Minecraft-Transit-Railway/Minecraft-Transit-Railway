@@ -86,7 +86,7 @@ public final class GpuObjDebugStats {
 	private static boolean diagnosticSkipCameraOffset;
 	private static boolean diagnosticForceNoCull;
 	private static boolean diagnosticForceWhiteCutout;
-	private static RailViewMode railViewMode = RailViewMode.ALL;
+	private static RailViewMode railViewMode = RailViewMode.NORMAL;
 	@Nullable
 	private static DiagnosticSample currentRailDiagnosticSample;
 	@Nullable
@@ -193,6 +193,7 @@ public final class GpuObjDebugStats {
 
 	public static void enableDiagnostics() {
 		diagnosticEnabled = true;
+		railViewMode = RailViewMode.NORMAL;
 	}
 
 	public static void disableDiagnostics() {
@@ -200,7 +201,7 @@ public final class GpuObjDebugStats {
 		diagnosticSkipCameraOffset = false;
 		diagnosticForceNoCull = false;
 		diagnosticForceWhiteCutout = false;
-		railViewMode = RailViewMode.ALL;
+		railViewMode = RailViewMode.NORMAL;
 		currentRailDiagnosticSample = null;
 		currentVehicleDiagnosticSample = null;
 		lastRailDiagnosticSample = null;
@@ -844,6 +845,18 @@ public final class GpuObjDebugStats {
 
 		OptimizedModel.ShaderType getShaderTypeEnum() {
 			return shaderTypeEnum;
+		}
+
+		String getShaderType() {
+			return shaderType;
+		}
+
+		String getTextureId() {
+			return textureId;
+		}
+
+		String getSourceSampleId() {
+			return sourceSampleId;
 		}
 
 		Matrix4f getPreparedDrawMatrix() {
