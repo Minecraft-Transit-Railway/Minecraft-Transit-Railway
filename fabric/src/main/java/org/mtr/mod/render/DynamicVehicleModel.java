@@ -112,13 +112,6 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 		fallbackObjModelsForPartConditionAndRenderStage.forEach((partCondition, objModelsForRenderStage) -> Data.put(fallbackObjModelsForPartCondition, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 		fallbackObjModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(fallbackObjModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
-
-		materialGroupsForPartConditionAndRenderStage.clear();
-		materialGroupsForPartConditionAndRenderStageDoorsClosed.clear();
-		objModelsForPartConditionAndRenderStage.clear();
-		objModelsForPartConditionAndRenderStageDoorsClosed.clear();
-		fallbackObjModelsForPartConditionAndRenderStage.clear();
-		fallbackObjModelsForPartConditionAndRenderStageDoorsClosed.clear();
 	}
 
 	/**
