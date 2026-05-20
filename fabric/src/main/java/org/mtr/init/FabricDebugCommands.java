@@ -58,6 +58,11 @@ public final class FabricDebugCommands {
 				.then(ClientCommandManager.literal("cameraOffset")
 						.then(ClientCommandManager.literal("on").executes(context -> setSkipOffset(context.getSource(), true)))
 						.then(ClientCommandManager.literal("off").executes(context -> setSkipOffset(context.getSource(), false))))
+				.then(ClientCommandManager.literal("railView")
+						.then(ClientCommandManager.literal("all").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.ALL)))
+						.then(ClientCommandManager.literal("instanced").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.INSTANCED)))
+						.then(ClientCommandManager.literal("staticMatched").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.STATIC_MATCHED)))
+						.then(ClientCommandManager.literal("normal").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.NORMAL))))
 				.then(ClientCommandManager.literal("noCull")
 						.then(ClientCommandManager.literal("on").executes(context -> setForceNoCull(context.getSource(), true)))
 						.then(ClientCommandManager.literal("off").executes(context -> setForceNoCull(context.getSource(), false))))
@@ -93,6 +98,12 @@ public final class FabricDebugCommands {
 	private static int setForceWhiteCutout(FabricClientCommandSource source, boolean enabled) {
 		GpuObjDebugStats.setDiagnosticForceWhiteCutout(enabled);
 		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: whiteCutout. " + GpuObjDebugStats.getStatusSummary());
+		return 1;
+	}
+
+	private static int setRailView(FabricClientCommandSource source, GpuObjDebugStats.RailViewMode railViewMode) {
+		GpuObjDebugStats.setRailViewMode(railViewMode);
+		sendStatus(source, "Set GPU instancing diagnostic railView to " + railViewMode.label + ". " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 

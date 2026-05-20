@@ -49,6 +49,8 @@ public final class GpuObjRenderer implements IGui {
 	private static final MaterialProperties DEBUG_WHITE_CUTOUT_MATERIAL = new MaterialProperties(OptimizedModel.ShaderType.CUTOUT, OptimizedModelWrapper.WHITE_TEXTURE, null);
 	private static final int RAIL_REFERENCE_COLOR = 0xA000FFFF;
 	private static final int VEHICLE_REFERENCE_COLOR = 0xA0FFFF00;
+	private static final int RAIL_INSTANCED_SAMPLE_COLOR = 0x80FF8080;
+	private static final int RAIL_STATIC_MATCHED_SAMPLE_COLOR = 0x8000FF80;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
@@ -146,7 +148,7 @@ public final class GpuObjRenderer implements IGui {
 				shaderManager.cleanupShaderBatchState();
 			}
 		}
-		renderDiagnosticReference(GpuObjDebugStats.getCurrentRailDiagnosticSample(), RAIL_REFERENCE_COLOR);
+		renderRailDiagnosticReferences(GpuObjDebugStats.getCurrentRailDiagnosticSample());
 		renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
 	}
 
@@ -212,6 +214,91 @@ public final class GpuObjRenderer implements IGui {
 		diagnosticVertexArray.draw();
 		RenderSystem.enableDepthTest();
 		RenderSystem.enableCull();
+		shaderManager.cleanupShaderBatchState();
+	}
+
+	private void renderRailDiagnosticReferences(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample) {
+		if (diagnosticSample == null || !diagnosticSample.isDrawn()) {
+			return;
+		}
+
+		switch (GpuObjDebugStats.getRailViewMode()) {
+			case INSTANCED:
+				renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
+				break;
+			case STATIC_MATCHED:
+				renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
+				break;
+			case NORMAL:
+				break;
+			case ALL:
+			default:
+				renderDiagnosticReference(diagnosticSample, RAIL_REFERENCE_COLOR);
+				renderInstancedSampleReference(diagnosticSample, RAIL_INSTANCED_SAMPLE_COLOR);
+				renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
+				break;
+		}
+	}
+
+	private void renderInstancedSampleReference(GpuObjDebugStats.DiagnosticSample diagnosticSample, int packedColor) {
+		final MaterialProperties referenceMaterial = diagnosticSample.createMatchedMaterialProperties();
+		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
+		final byte[] instanceData = new byte[INSTANCE_STRIDE];
+		final ByteBuffer instanceDataBuffer = ByteBuffer.wrap(instanceData).order(ByteOrder.nativeOrder());
+		instanceDataBuffer.putInt(packedColor);
+		instanceDataBuffer.putInt(GraphicsHolder.getDefaultLight());
+		instanceDataBuffer.putFloat(referenceMatrix.m00());
+		instanceDataBuffer.putFloat(referenceMatrix.m01());
+		instanceDataBuffer.putFloat(referenceMatrix.m02());
+		instanceDataBuffer.putFloat(referenceMatrix.m03());
+		instanceDataBuffer.putFloat(referenceMatrix.m10());
+		instanceDataBuffer.putFloat(referenceMatrix.m11());
+		instanceDataBuffer.putFloat(referenceMatrix.m12());
+		instanceDataBuffer.putFloat(referenceMatrix.m13());
+		instanceDataBuffer.putFloat(referenceMatrix.m20());
+		instanceDataBuffer.putFloat(referenceMatrix.m21());
+		instanceDataBuffer.putFloat(referenceMatrix.m22());
+		instanceDataBuffer.putFloat(referenceMatrix.m23());
+		instanceDataBuffer.putFloat(referenceMatrix.m30());
+		instanceDataBuffer.putFloat(referenceMatrix.m31());
+		instanceDataBuffer.putFloat(referenceMatrix.m32());
+		instanceDataBuffer.putFloat(referenceMatrix.m33());
+		instanceDataBuffer.flip();
+
+		shaderManager.setupShaderBatchState(referenceMaterial);
+		if (GpuObjDebugStats.shouldForceNoCull()) {
+			RenderSystem.disableCull();
+		}
+		diagnosticSample.getStaticObjMesh().vertexArray.bind();
+		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
+		instanceBuffer.upload(instanceDataBuffer, VertexBuffer.USAGE_STREAM_DRAW);
+		DEFAULT_DRAW_STATE.apply();
+		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : diagnosticSample.getStaticObjMesh().vertexArray.materialProperties).vertexAttributeState.apply();
+		referenceMaterial.vertexAttributeState.apply();
+		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, diagnosticSample.getStaticObjMesh().vertexArray.indexBuffer.getVertexCount(), diagnosticSample.getStaticObjMesh().vertexArray.indexBuffer.indexType, 0, 1);
+		if (GpuObjDebugStats.shouldForceNoCull()) {
+			RenderSystem.enableCull();
+		}
+		shaderManager.cleanupShaderBatchState();
+	}
+
+	private void renderStaticMatchedReference(GpuObjDebugStats.DiagnosticSample diagnosticSample, int packedColor) {
+		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
+		diagnosticSample.setStaticMatchedReferenceMatrix(referenceMatrix);
+		final MaterialProperties referenceMaterial = GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : diagnosticSample.createMatchedMaterialProperties();
+		final VertexArray diagnosticVertexArray = diagnosticSample.getStaticObjMesh().getDiagnosticVertexArray(referenceMaterial);
+		final VertexAttributeState referenceState = new VertexAttributeState(packedColor, GraphicsHolder.getDefaultLight(), new org.mtr.mapping.holder.Matrix4f(new org.joml.Matrix4f(referenceMatrix)));
+		shaderManager.setupShaderBatchState(referenceMaterial);
+		if (GpuObjDebugStats.shouldForceNoCull()) {
+			RenderSystem.disableCull();
+		}
+		diagnosticVertexArray.bind();
+		referenceState.apply();
+		diagnosticVertexArray.materialProperties.vertexAttributeState.apply();
+		diagnosticVertexArray.draw();
+		if (GpuObjDebugStats.shouldForceNoCull()) {
+			RenderSystem.enableCull();
+		}
 		shaderManager.cleanupShaderBatchState();
 	}
 

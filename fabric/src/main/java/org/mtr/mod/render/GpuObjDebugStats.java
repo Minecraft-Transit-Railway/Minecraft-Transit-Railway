@@ -4,10 +4,12 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Camera;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -19,6 +21,19 @@ import java.util.Arrays;
 public final class GpuObjDebugStats {
 
 	public enum Source {RAIL, VEHICLE}
+
+	public enum RailViewMode {
+		ALL("all"),
+		INSTANCED("instanced"),
+		STATIC_MATCHED("staticMatched"),
+		NORMAL("normal");
+
+		public final String label;
+
+		RailViewMode(String label) {
+			this.label = label;
+		}
+	}
 
 	public enum RailFallbackReason {
 		CONFIG_DISABLED("configDisabled"),
@@ -71,6 +86,7 @@ public final class GpuObjDebugStats {
 	private static boolean diagnosticSkipCameraOffset;
 	private static boolean diagnosticForceNoCull;
 	private static boolean diagnosticForceWhiteCutout;
+	private static RailViewMode railViewMode = RailViewMode.ALL;
 	@Nullable
 	private static DiagnosticSample currentRailDiagnosticSample;
 	@Nullable
@@ -184,6 +200,7 @@ public final class GpuObjDebugStats {
 		diagnosticSkipCameraOffset = false;
 		diagnosticForceNoCull = false;
 		diagnosticForceWhiteCutout = false;
+		railViewMode = RailViewMode.ALL;
 		currentRailDiagnosticSample = null;
 		currentVehicleDiagnosticSample = null;
 		lastRailDiagnosticSample = null;
@@ -239,6 +256,15 @@ public final class GpuObjDebugStats {
 		return diagnosticForceWhiteCutout;
 	}
 
+	public static void setRailViewMode(RailViewMode newRailViewMode) {
+		diagnosticEnabled = true;
+		railViewMode = newRailViewMode;
+	}
+
+	public static RailViewMode getRailViewMode() {
+		return railViewMode;
+	}
+
 	@Nullable
 	public static DiagnosticSample captureDiagnosticSample(Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
 		if (!diagnosticEnabled) {
@@ -284,9 +310,13 @@ public final class GpuObjDebugStats {
 			return;
 		}
 
-		scheduleDiagnosticRender(currentRailDiagnosticSample, RAIL_SAMPLE_COLOR);
+		if (railViewMode == RailViewMode.ALL) {
+			scheduleDiagnosticRender(currentRailDiagnosticSample, RAIL_SAMPLE_COLOR);
+		}
 		scheduleDiagnosticRender(currentVehicleDiagnosticSample, VEHICLE_SAMPLE_COLOR);
-		scheduleNormalReferenceRender(currentRailDiagnosticSample, RAIL_NORMAL_REFERENCE_COLOR);
+		if (railViewMode == RailViewMode.ALL || railViewMode == RailViewMode.NORMAL) {
+			scheduleNormalReferenceRender(currentRailDiagnosticSample, RAIL_NORMAL_REFERENCE_COLOR);
+		}
 		scheduleNormalReferenceRender(currentVehicleDiagnosticSample, VEHICLE_NORMAL_REFERENCE_COLOR);
 	}
 
@@ -308,12 +338,13 @@ public final class GpuObjDebugStats {
 
 	public static String getStatusSummary() {
 		return String.format(
-				"diagnostics=%s watch=%s skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s",
+				"diagnostics=%s watch=%s skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s railView=%s",
 				diagnosticEnabled,
 				watchActive,
 				diagnosticSkipCameraOffset,
 				diagnosticForceNoCull,
-				diagnosticForceWhiteCutout
+				diagnosticForceWhiteCutout,
+				railViewMode.label
 		);
 	}
 
@@ -385,7 +416,7 @@ public final class GpuObjDebugStats {
 			return;
 		}
 
-		lines.add(String.format("Diagnostic enabled: %s | skipCameraOffset: %s | forceNoCull: %s | forceWhiteCutout: %s", diagnosticEnabled, diagnosticSkipCameraOffset, diagnosticForceNoCull, diagnosticForceWhiteCutout));
+		lines.add(String.format("Diagnostic enabled: %s | skipCameraOffset: %s | forceNoCull: %s | forceWhiteCutout: %s | railView: %s", diagnosticEnabled, diagnosticSkipCameraOffset, diagnosticForceNoCull, diagnosticForceWhiteCutout, railViewMode.label));
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
@@ -407,6 +438,7 @@ public final class GpuObjDebugStats {
 				diagnosticSample.useDefaultOffset,
 				diagnosticSample.drawn
 		));
+		lines.add(String.format("%s sample metadata: source=%s reason=%s normalSample=%s", label, diagnosticSample.source, diagnosticSample.sampleReason, diagnosticSample.normalReferenceSampleId));
 		lines.add(String.format(
 				"%s bounds: min=(%.5f, %.5f, %.5f) max=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
 				label,
@@ -423,14 +455,25 @@ public final class GpuObjDebugStats {
 		lines.add(String.format("%s queued matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
 		lines.add(String.format("%s prepared draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
 		if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
-			lines.add(String.format("%s single-draw reference matrix: %s", label, diagnosticSample.formatSingleDrawReferenceMatrix()));
+			lines.add(String.format("%s single-draw debug reference matrix: %s", label, diagnosticSample.formatSingleDrawReferenceMatrix()));
 			lines.add(String.format(
-					"%s instanced vs single-draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					"%s instanced vs single-draw debug delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 					label,
 					diagnosticSample.getSingleDrawReferenceTranslationDeltaX(),
 					diagnosticSample.getSingleDrawReferenceTranslationDeltaY(),
 					diagnosticSample.getSingleDrawReferenceTranslationDeltaZ(),
 					diagnosticSample.getSingleDrawReferenceMaxAbsEntryDelta()
+			));
+		}
+		if (diagnosticSample.hasStaticMatchedReferenceMatrix()) {
+			lines.add(String.format("%s single-draw material-matched reference matrix: %s", label, diagnosticSample.formatStaticMatchedReferenceMatrix()));
+			lines.add(String.format(
+					"%s instanced vs single-draw material-matched delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					label,
+					diagnosticSample.getStaticMatchedReferenceTranslationDeltaX(),
+					diagnosticSample.getStaticMatchedReferenceTranslationDeltaY(),
+					diagnosticSample.getStaticMatchedReferenceTranslationDeltaZ(),
+					diagnosticSample.getStaticMatchedReferenceMaxAbsEntryDelta()
 			));
 		}
 		if (diagnosticSample.hasNormalReferenceMatrix()) {
@@ -445,12 +488,22 @@ public final class GpuObjDebugStats {
 			));
 			if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
 				lines.add(String.format(
-						"%s single-draw vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+						"%s single-draw debug vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 						label,
 						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaX(),
 						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaY(),
 						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaZ(),
 						diagnosticSample.getSingleDrawVsNormalReferenceMaxAbsEntryDelta()
+				));
+			}
+			if (diagnosticSample.hasStaticMatchedReferenceMatrix()) {
+				lines.add(String.format(
+						"%s single-draw material-matched vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+						label,
+						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaX(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaY(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaZ(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceMaxAbsEntryDelta()
 				));
 			}
 		}
@@ -547,6 +600,7 @@ public final class GpuObjDebugStats {
 
 		private final Source source;
 		private final String textureId;
+		private final Identifier texture;
 		private final String renderStage;
 		private final String shaderType;
 		private final OptimizedModel.ShaderType shaderTypeEnum;
@@ -565,6 +619,7 @@ public final class GpuObjDebugStats {
 		private final float[] queuedMatrix = new float[16];
 		private final float[] preparedDrawMatrix = new float[16];
 		private final float[] singleDrawReferenceMatrix = new float[16];
+		private final float[] staticMatchedReferenceMatrix = new float[16];
 		private final float[] normalReferenceMatrix = new float[16];
 		private final Vector3d[] worldCorners = new Vector3d[8];
 		private final double minForwardZ;
@@ -600,6 +655,7 @@ public final class GpuObjDebugStats {
 		private int instanceCount;
 		private boolean hasPreparedDrawMatrix;
 		private boolean hasSingleDrawReferenceMatrix;
+		private boolean hasStaticMatchedReferenceMatrix;
 		private boolean hasNormalReferenceMatrix;
 		private boolean drawn;
 		private boolean skipCameraOffset;
@@ -622,6 +678,7 @@ public final class GpuObjDebugStats {
 
 		private DiagnosticSample(Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f matrix, boolean useDefaultOffset) {
 			this.source = source;
+			texture = batchKey.texture;
 			textureId = String.valueOf(batchKey.texture);
 			renderStage = batchKey.renderStage.name();
 			shaderType = batchKey.shaderType.name();
@@ -751,6 +808,11 @@ public final class GpuObjDebugStats {
 			hasSingleDrawReferenceMatrix = true;
 		}
 
+		void setStaticMatchedReferenceMatrix(Matrix4f matrix) {
+			storeMatrix(matrix, staticMatchedReferenceMatrix);
+			hasStaticMatchedReferenceMatrix = true;
+		}
+
 		public void setNormalReference(@Nullable OptimizedModelWrapper model, StoredMatrixTransformations transformations, Matrix4f matrix, boolean matched, String sampleId) {
 			normalReferenceModel = model;
 			normalReferenceTransformations = transformations;
@@ -806,6 +868,10 @@ public final class GpuObjDebugStats {
 			return hasNormalReferenceMatrix;
 		}
 
+		boolean hasStaticMatchedReferenceMatrix() {
+			return hasStaticMatchedReferenceMatrix;
+		}
+
 		String formatPreparedDrawMatrix() {
 			return formatMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 		}
@@ -816,6 +882,10 @@ public final class GpuObjDebugStats {
 
 		String formatNormalReferenceMatrix() {
 			return formatMatrix(normalReferenceMatrix);
+		}
+
+		String formatStaticMatchedReferenceMatrix() {
+			return formatMatrix(staticMatchedReferenceMatrix);
 		}
 
 		double getSingleDrawReferenceTranslationDeltaX() {
@@ -878,6 +948,51 @@ public final class GpuObjDebugStats {
 				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - singleDrawReferenceMatrix[i]));
 			}
 			return max;
+		}
+
+		double getStaticMatchedReferenceTranslationDeltaX() {
+			return staticMatchedReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
+		}
+
+		double getStaticMatchedReferenceTranslationDeltaY() {
+			return staticMatchedReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
+		}
+
+		double getStaticMatchedReferenceTranslationDeltaZ() {
+			return staticMatchedReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		}
+
+		double getStaticMatchedReferenceMaxAbsEntryDelta() {
+			double max = 0;
+			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
+			for (int i = 0; i < staticMatchedReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(staticMatchedReferenceMatrix[i] - reference[i]));
+			}
+			return max;
+		}
+
+		double getStaticMatchedVsNormalReferenceTranslationDeltaX() {
+			return normalReferenceMatrix[12] - staticMatchedReferenceMatrix[12];
+		}
+
+		double getStaticMatchedVsNormalReferenceTranslationDeltaY() {
+			return normalReferenceMatrix[13] - staticMatchedReferenceMatrix[13];
+		}
+
+		double getStaticMatchedVsNormalReferenceTranslationDeltaZ() {
+			return normalReferenceMatrix[14] - staticMatchedReferenceMatrix[14];
+		}
+
+		double getStaticMatchedVsNormalReferenceMaxAbsEntryDelta() {
+			double max = 0;
+			for (int i = 0; i < normalReferenceMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - staticMatchedReferenceMatrix[i]));
+			}
+			return max;
+		}
+
+		MaterialProperties createMatchedMaterialProperties() {
+			return new MaterialProperties(shaderTypeEnum, texture, null);
 		}
 
 		private boolean shouldReplace(DiagnosticSample other) {
