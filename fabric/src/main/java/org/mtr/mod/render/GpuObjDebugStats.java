@@ -579,6 +579,13 @@ public final class GpuObjDebugStats {
 				formatNullableHex(diagnosticSample.vertexArrayMaterialColor)
 		));
 		lines.add(String.format(
+				"%s draw vertex array: shader=%s translucent=%s color=%s",
+				label,
+				diagnosticSample.drawVertexArrayShaderType,
+				diagnosticSample.drawVertexArrayTranslucent,
+				formatNullableHex(diagnosticSample.drawVertexArrayMaterialColor)
+		));
+		lines.add(String.format(
 				"%s light: raw=0x%08X exchanged=0x%08X instance=0x%08X",
 				label,
 				diagnosticSample.rawLight,
@@ -684,12 +691,16 @@ public final class GpuObjDebugStats {
 		private int exchangedLight;
 		private String batchShaderType = "unset";
 		private String vertexArrayShaderType = "unset";
+		private String drawVertexArrayShaderType = "unset";
 		private boolean batchTranslucent;
 		private boolean vertexArrayTranslucent;
+		private boolean drawVertexArrayTranslucent;
 		@Nullable
 		private Integer batchMaterialColor;
 		@Nullable
 		private Integer vertexArrayMaterialColor;
+		@Nullable
+		private Integer drawVertexArrayMaterialColor;
 		private boolean hasPreparedDrawMatrix;
 		private boolean hasSingleDrawReferenceMatrix;
 		private boolean hasStaticMatchedReferenceMatrix;
@@ -861,6 +872,12 @@ public final class GpuObjDebugStats {
 			vertexArrayShaderType = staticObjMesh.vertexArray.materialProperties.shaderType.name();
 			vertexArrayTranslucent = staticObjMesh.vertexArray.materialProperties.translucent;
 			vertexArrayMaterialColor = staticObjMesh.vertexArray.materialProperties.vertexAttributeState.color;
+		}
+
+		public void setDrawVertexArrayState(MaterialProperties drawVertexArrayMaterialProperties) {
+			drawVertexArrayShaderType = drawVertexArrayMaterialProperties.shaderType.name();
+			drawVertexArrayTranslucent = drawVertexArrayMaterialProperties.translucent;
+			drawVertexArrayMaterialColor = drawVertexArrayMaterialProperties.vertexAttributeState.color;
 		}
 
 		public void setLight(int rawLight, int exchangedLight) {

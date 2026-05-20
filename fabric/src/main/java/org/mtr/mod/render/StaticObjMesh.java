@@ -2,6 +2,7 @@ package org.mtr.mod.render;
 
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
+import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mapping.render.model.Mesh;
 import org.mtr.mapping.render.model.RawMesh;
 import org.mtr.mapping.render.object.VertexArray;
@@ -62,6 +63,12 @@ public final class StaticObjMesh implements Closeable {
 		vertexArray = new VertexArray(mesh, GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING);
 		diagnosticVertexArray = new VertexArray(mesh, GpuObjRenderer.DIAGNOSTIC_VERTEX_ATTRIBUTE_MAPPING);
 		GpuObjRenderer.setupInstanceAttributes(vertexArray);
+	}
+
+	public VertexArray createVertexArray(MaterialProperties materialProperties) {
+		final VertexArray newVertexArray = new VertexArray(vertexArray, materialProperties);
+		GpuObjRenderer.setupInstanceAttributes(newVertexArray);
+		return newVertexArray;
 	}
 
 	public VertexArray getDiagnosticVertexArray(org.mtr.mapping.render.batch.MaterialProperties materialProperties) {

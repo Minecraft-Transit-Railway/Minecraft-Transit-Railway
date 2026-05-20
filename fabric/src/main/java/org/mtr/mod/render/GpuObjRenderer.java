@@ -220,12 +220,14 @@ public final class GpuObjRenderer implements IGui {
 			return;
 		}
 
-		meshEntry.staticObjMesh.vertexArray.bind();
+		final VertexArray vertexArray = meshEntry.getOrCreateVertexArray(materialProperties);
+		vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
 		setupInstanceAttributePointers(meshEntry.instanceOffsetBytes);
 		DEFAULT_DRAW_STATE.apply();
 		materialProperties.vertexAttributeState.apply();
 		if (meshEntry.diagnosticSample != null) {
+			meshEntry.diagnosticSample.setDrawVertexArrayState(vertexArray.materialProperties);
 			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
 		}
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
@@ -444,6 +446,7 @@ public final class GpuObjRenderer implements IGui {
 	private static final class MeshEntry {
 
 		private final StaticObjMesh staticObjMesh;
+		private VertexArray vertexArray;
 		private GpuObjDebugStats.DiagnosticSample diagnosticSample;
 		private int instanceOffsetBytes;
 		private int instanceCount;
@@ -456,6 +459,13 @@ public final class GpuObjRenderer implements IGui {
 			diagnosticSample = null;
 			instanceOffsetBytes = 0;
 			instanceCount = 0;
+		}
+
+		private VertexArray getOrCreateVertexArray(MaterialProperties materialProperties) {
+			if (vertexArray == null) {
+				vertexArray = staticObjMesh.createVertexArray(materialProperties);
+			}
+			return vertexArray;
 		}
 	}
 }
