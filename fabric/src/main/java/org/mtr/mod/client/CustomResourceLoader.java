@@ -88,7 +88,7 @@ public class CustomResourceLoader {
 		LIFTS_CACHE.clear();
 		GpuObjDebugStats.resetSession();
 		GpuObjModelRegistry.clear();
-		GpuObjRenderer.INSTANCE.reloadShaders();
+		GpuObjRenderer.INSTANCE.reload();
 		DynamicTextureCache.instance.reload();
 		TEST_DURATION = 0;
 

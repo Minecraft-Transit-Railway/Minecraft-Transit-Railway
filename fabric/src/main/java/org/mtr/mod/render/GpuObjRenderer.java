@@ -93,6 +93,12 @@ public final class GpuObjRenderer implements IGui {
 		shaderManager.reloadShaders();
 	}
 
+	public void reload() {
+		clear();
+		batches.clear();
+		shaderManager.reloadShaders();
+	}
+
 	public Vector3d getFrameOffset() {
 		return new Vector3d(frameOffsetX, frameOffsetY, frameOffsetZ);
 	}
