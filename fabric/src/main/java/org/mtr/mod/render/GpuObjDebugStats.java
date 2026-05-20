@@ -453,8 +453,8 @@ public final class GpuObjDebugStats {
 				diagnosticSample.centerY,
 				diagnosticSample.centerZ
 		));
-		lines.add(String.format("%s queued matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
-		lines.add(String.format("%s prepared draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
+		lines.add(String.format("%s queued world matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
+		lines.add(String.format("%s prepared instanced draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
 		if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
 			lines.add(String.format("%s single-draw debug reference matrix: %s", label, diagnosticSample.formatSingleDrawReferenceMatrix()));
 			lines.add(String.format(
@@ -478,33 +478,42 @@ public final class GpuObjDebugStats {
 			));
 		}
 		if (diagnosticSample.hasNormalReferenceMatrix()) {
-			lines.add(String.format("%s normal-render reference matrix: %s", label, diagnosticSample.formatNormalReferenceMatrix()));
+			lines.add(String.format("%s normal-render world matrix: %s", label, diagnosticSample.formatNormalReferenceMatrix()));
+			lines.add(String.format("%s normal-render draw matrix: %s", label, diagnosticSample.formatNormalReferenceDrawMatrix()));
 			lines.add(String.format(
-					"%s instanced vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					"%s queued world vs normal-render world delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 					label,
-					diagnosticSample.getNormalReferenceTranslationDeltaX(),
-					diagnosticSample.getNormalReferenceTranslationDeltaY(),
-					diagnosticSample.getNormalReferenceTranslationDeltaZ(),
-					diagnosticSample.getNormalReferenceMaxAbsEntryDelta()
+					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaX(),
+					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaY(),
+					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaZ(),
+					diagnosticSample.getQueuedVsNormalReferenceMaxAbsEntryDelta()
+			));
+			lines.add(String.format(
+					"%s instanced draw vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+					label,
+					diagnosticSample.getNormalReferenceDrawTranslationDeltaX(),
+					diagnosticSample.getNormalReferenceDrawTranslationDeltaY(),
+					diagnosticSample.getNormalReferenceDrawTranslationDeltaZ(),
+					diagnosticSample.getNormalReferenceDrawMaxAbsEntryDelta()
 			));
 			if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
 				lines.add(String.format(
-						"%s single-draw debug vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+						"%s single-draw debug vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 						label,
-						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaX(),
-						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaY(),
-						diagnosticSample.getSingleDrawVsNormalReferenceTranslationDeltaZ(),
-						diagnosticSample.getSingleDrawVsNormalReferenceMaxAbsEntryDelta()
+						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaX(),
+						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaY(),
+						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaZ(),
+						diagnosticSample.getSingleDrawVsNormalReferenceDrawMaxAbsEntryDelta()
 				));
 			}
 			if (diagnosticSample.hasStaticMatchedReferenceMatrix()) {
 				lines.add(String.format(
-						"%s single-draw material-matched vs normal-render delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
+						"%s single-draw material-matched vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
 						label,
-						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaX(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaY(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceTranslationDeltaZ(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceMaxAbsEntryDelta()
+						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaX(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaY(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaZ(),
+						diagnosticSample.getStaticMatchedVsNormalReferenceDrawMaxAbsEntryDelta()
 				));
 			}
 		}
@@ -622,6 +631,7 @@ public final class GpuObjDebugStats {
 		private final float[] singleDrawReferenceMatrix = new float[16];
 		private final float[] staticMatchedReferenceMatrix = new float[16];
 		private final float[] normalReferenceMatrix = new float[16];
+		private final float[] normalReferenceDrawMatrix = new float[16];
 		private final Vector3d[] worldCorners = new Vector3d[8];
 		private final double minForwardZ;
 		private final double maxForwardZ;
@@ -658,6 +668,7 @@ public final class GpuObjDebugStats {
 		private boolean hasSingleDrawReferenceMatrix;
 		private boolean hasStaticMatchedReferenceMatrix;
 		private boolean hasNormalReferenceMatrix;
+		private boolean hasNormalReferenceDrawMatrix;
 		private boolean drawn;
 		private boolean skipCameraOffset;
 		private boolean forceNoCull;
@@ -764,6 +775,7 @@ public final class GpuObjDebugStats {
 			drawTranslationX = adjustedMatrix.m30();
 			drawTranslationY = adjustedMatrix.m31();
 			drawTranslationZ = adjustedMatrix.m32();
+			updateNormalReferenceDrawMatrix();
 
 			final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
 			if (camera != null) {
@@ -829,6 +841,7 @@ public final class GpuObjDebugStats {
 			normalReferenceWorldCenterX = normalCenter.x;
 			normalReferenceWorldCenterY = normalCenter.y;
 			normalReferenceWorldCenterZ = normalCenter.z;
+			updateNormalReferenceDrawMatrix();
 		}
 
 		boolean isDrawn() {
@@ -863,6 +876,20 @@ public final class GpuObjDebugStats {
 			return createMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 		}
 
+		private void updateNormalReferenceDrawMatrix() {
+			if (!hasNormalReferenceMatrix) {
+				hasNormalReferenceDrawMatrix = false;
+				return;
+			}
+
+			final Matrix4f adjustedMatrix = createMatrix(normalReferenceMatrix);
+			if (useDefaultOffset && drawn && !skipCameraOffset) {
+				adjustedMatrix.translate((float) -cameraOffsetX, (float) -cameraOffsetY, (float) -cameraOffsetZ);
+			}
+			storeMatrix(adjustedMatrix, normalReferenceDrawMatrix);
+			hasNormalReferenceDrawMatrix = true;
+		}
+
 		@Nullable
 		OptimizedModelWrapper getNormalReferenceModel() {
 			return normalReferenceModel;
@@ -881,6 +908,10 @@ public final class GpuObjDebugStats {
 			return hasNormalReferenceMatrix;
 		}
 
+		boolean hasNormalReferenceDrawMatrix() {
+			return hasNormalReferenceDrawMatrix;
+		}
+
 		boolean hasStaticMatchedReferenceMatrix() {
 			return hasStaticMatchedReferenceMatrix;
 		}
@@ -895,6 +926,10 @@ public final class GpuObjDebugStats {
 
 		String formatNormalReferenceMatrix() {
 			return formatMatrix(normalReferenceMatrix);
+		}
+
+		String formatNormalReferenceDrawMatrix() {
+			return formatMatrix(hasNormalReferenceDrawMatrix ? normalReferenceDrawMatrix : normalReferenceMatrix);
 		}
 
 		String formatStaticMatchedReferenceMatrix() {
@@ -922,43 +957,63 @@ public final class GpuObjDebugStats {
 			return max;
 		}
 
-		double getNormalReferenceTranslationDeltaX() {
-			return normalReferenceMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
+		double getQueuedVsNormalReferenceTranslationDeltaX() {
+			return normalReferenceMatrix[12] - queuedMatrix[12];
 		}
 
-		double getNormalReferenceTranslationDeltaY() {
-			return normalReferenceMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
+		double getQueuedVsNormalReferenceTranslationDeltaY() {
+			return normalReferenceMatrix[13] - queuedMatrix[13];
 		}
 
-		double getNormalReferenceTranslationDeltaZ() {
-			return normalReferenceMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
+		double getQueuedVsNormalReferenceTranslationDeltaZ() {
+			return normalReferenceMatrix[14] - queuedMatrix[14];
 		}
 
-		double getNormalReferenceMaxAbsEntryDelta() {
+		double getQueuedVsNormalReferenceMaxAbsEntryDelta() {
 			double max = 0;
-			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
 			for (int i = 0; i < normalReferenceMatrix.length; i++) {
-				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - reference[i]));
+				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - queuedMatrix[i]));
 			}
 			return max;
 		}
 
-		double getSingleDrawVsNormalReferenceTranslationDeltaX() {
-			return normalReferenceMatrix[12] - singleDrawReferenceMatrix[12];
+		double getNormalReferenceDrawTranslationDeltaX() {
+			return normalReferenceDrawMatrix[12] - (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]);
 		}
 
-		double getSingleDrawVsNormalReferenceTranslationDeltaY() {
-			return normalReferenceMatrix[13] - singleDrawReferenceMatrix[13];
+		double getNormalReferenceDrawTranslationDeltaY() {
+			return normalReferenceDrawMatrix[13] - (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]);
 		}
 
-		double getSingleDrawVsNormalReferenceTranslationDeltaZ() {
-			return normalReferenceMatrix[14] - singleDrawReferenceMatrix[14];
+		double getNormalReferenceDrawTranslationDeltaZ() {
+			return normalReferenceDrawMatrix[14] - (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]);
 		}
 
-		double getSingleDrawVsNormalReferenceMaxAbsEntryDelta() {
+		double getNormalReferenceDrawMaxAbsEntryDelta() {
 			double max = 0;
-			for (int i = 0; i < normalReferenceMatrix.length; i++) {
-				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - singleDrawReferenceMatrix[i]));
+			final float[] reference = hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix;
+			for (int i = 0; i < normalReferenceDrawMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceDrawMatrix[i] - reference[i]));
+			}
+			return max;
+		}
+
+		double getSingleDrawVsNormalReferenceDrawTranslationDeltaX() {
+			return normalReferenceDrawMatrix[12] - singleDrawReferenceMatrix[12];
+		}
+
+		double getSingleDrawVsNormalReferenceDrawTranslationDeltaY() {
+			return normalReferenceDrawMatrix[13] - singleDrawReferenceMatrix[13];
+		}
+
+		double getSingleDrawVsNormalReferenceDrawTranslationDeltaZ() {
+			return normalReferenceDrawMatrix[14] - singleDrawReferenceMatrix[14];
+		}
+
+		double getSingleDrawVsNormalReferenceDrawMaxAbsEntryDelta() {
+			double max = 0;
+			for (int i = 0; i < normalReferenceDrawMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceDrawMatrix[i] - singleDrawReferenceMatrix[i]));
 			}
 			return max;
 		}
@@ -984,22 +1039,22 @@ public final class GpuObjDebugStats {
 			return max;
 		}
 
-		double getStaticMatchedVsNormalReferenceTranslationDeltaX() {
-			return normalReferenceMatrix[12] - staticMatchedReferenceMatrix[12];
+		double getStaticMatchedVsNormalReferenceDrawTranslationDeltaX() {
+			return normalReferenceDrawMatrix[12] - staticMatchedReferenceMatrix[12];
 		}
 
-		double getStaticMatchedVsNormalReferenceTranslationDeltaY() {
-			return normalReferenceMatrix[13] - staticMatchedReferenceMatrix[13];
+		double getStaticMatchedVsNormalReferenceDrawTranslationDeltaY() {
+			return normalReferenceDrawMatrix[13] - staticMatchedReferenceMatrix[13];
 		}
 
-		double getStaticMatchedVsNormalReferenceTranslationDeltaZ() {
-			return normalReferenceMatrix[14] - staticMatchedReferenceMatrix[14];
+		double getStaticMatchedVsNormalReferenceDrawTranslationDeltaZ() {
+			return normalReferenceDrawMatrix[14] - staticMatchedReferenceMatrix[14];
 		}
 
-		double getStaticMatchedVsNormalReferenceMaxAbsEntryDelta() {
+		double getStaticMatchedVsNormalReferenceDrawMaxAbsEntryDelta() {
 			double max = 0;
-			for (int i = 0; i < normalReferenceMatrix.length; i++) {
-				max = Math.max(max, Math.abs(normalReferenceMatrix[i] - staticMatchedReferenceMatrix[i]));
+			for (int i = 0; i < normalReferenceDrawMatrix.length; i++) {
+				max = Math.max(max, Math.abs(normalReferenceDrawMatrix[i] - staticMatchedReferenceMatrix[i]));
 			}
 			return max;
 		}

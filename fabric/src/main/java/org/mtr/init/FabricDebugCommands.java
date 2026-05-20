@@ -21,6 +21,7 @@ public final class FabricDebugCommands {
 	private static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, net.minecraft.command.CommandRegistryAccess registryAccess) {
 		dispatcher.register(
 				ClientCommandManager.literal("mtrdebug")
+						.then(ClientCommandManager.literal("report").executes(context -> writeRailReport(context.getSource())))
 						.then(ClientCommandManager.literal("instancing")
 								.then(createWatchCommand())
 								.then(createDiagnoseCommand()))
@@ -74,6 +75,21 @@ public final class FabricDebugCommands {
 	private static int writeStatus(FabricClientCommandSource source, String reason) {
 		GpuObjDebugStats.emitReport(reason);
 		sendStatus(source, "Wrote GPU instancing status report to the backend log. " + GpuObjDebugStats.getStatusSummary());
+		return 1;
+	}
+
+	private static int writeRailReport(FabricClientCommandSource source) {
+		GpuObjDebugStats.enableDiagnostics();
+		final GpuObjDebugStats.RailViewMode previousRailViewMode = GpuObjDebugStats.getRailViewMode();
+		try {
+			for (final GpuObjDebugStats.RailViewMode railViewMode : new GpuObjDebugStats.RailViewMode[]{GpuObjDebugStats.RailViewMode.INSTANCED, GpuObjDebugStats.RailViewMode.STATIC_MATCHED, GpuObjDebugStats.RailViewMode.NORMAL}) {
+				GpuObjDebugStats.setRailViewMode(railViewMode);
+				GpuObjDebugStats.emitReport("command report railView=" + railViewMode.label);
+			}
+		} finally {
+			GpuObjDebugStats.setRailViewMode(previousRailViewMode);
+		}
+		sendStatus(source, "Wrote combined rail diagnostic reports to the backend log. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 
