@@ -7,6 +7,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.Init;
@@ -152,8 +153,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 		final ObjectArrayList<RailGpuCache.Entry> entries = new ObjectArrayList<>();
 		for (final StaticObjMesh staticObjMesh : gpuObjModelWrapper.getAllMeshes()) {
-			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, RenderStage.EXTERIOR, RenderStage.EXTERIOR.shaderType, false);
-			final MaterialProperties materialProperties = new MaterialProperties(RenderStage.EXTERIOR.shaderType, staticObjMesh.texture, null);
+			final OptimizedModel.ShaderType shaderType = staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT ? RenderStage.EXTERIOR.shaderType : staticObjMesh.shaderType;
+			final MaterialProperties materialProperties = new MaterialProperties(shaderType, staticObjMesh.texture, null);
+			final ObjBatchKey batchKey = new ObjBatchKey(RenderStage.EXTERIOR, materialProperties);
 			entries.add(new RailGpuCache.Entry(staticObjMesh, batchKey, materialProperties));
 		}
 		if (entries.isEmpty()) {

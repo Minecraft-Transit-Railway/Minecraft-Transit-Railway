@@ -655,7 +655,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		gpuMeshes.forEach(staticObjMesh -> {
 			final OptimizedModel.ShaderType shaderType = staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT ? renderStage.shaderType : staticObjMesh.shaderType;
 			final MaterialProperties materialProperties = new MaterialProperties(shaderType, staticObjMesh.texture, null);
-			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, renderStage, shaderType, materialProperties.translucent);
+			final ObjBatchKey batchKey = new ObjBatchKey(renderStage, materialProperties);
 			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
 		});
 	}
