@@ -116,6 +116,7 @@ public final class GpuObjRenderer implements IGui {
 		final MeshEntry meshEntry = batchEntry.meshes.computeIfAbsent(staticObjMesh, MeshEntry::new);
 		final boolean newMesh = meshEntry.instanceCount == 0;
 		if (meshEntry.instanceCount == 0) {
+			meshEntry.instanceOffsetBytes = batchEntry.payload.size();
 			batchEntry.activeMeshes.add(meshEntry);
 		}
 
@@ -145,7 +146,7 @@ public final class GpuObjRenderer implements IGui {
 			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;
 		}
-		meshEntry.addInstance(scratchInstanceData);
+		batchEntry.addInstance(meshEntry, scratchInstanceData);
 		GpuObjDebugStats.recordInstanceQueued(source, newBatch, newMesh);
 		return diagnosticSample;
 	}
@@ -173,6 +174,7 @@ public final class GpuObjRenderer implements IGui {
 					if (GpuObjDebugStats.shouldForceNoCull()) {
 						RenderSystem.disableCull();
 					}
+					uploadBatchInstances(batchEntry);
 					for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
 						render(activeMaterialProperties, batchEntry.activeMeshes.get(j), offset);
 					}
@@ -216,16 +218,9 @@ public final class GpuObjRenderer implements IGui {
 			return;
 		}
 
-		ensureCapacity(meshEntry.payload.size());
-		byteBuffer.clear();
-		byteBuffer.put(meshEntry.payload.elements(), 0, meshEntry.payload.size());
-
-		byteBuffer.flip();
 		meshEntry.staticObjMesh.vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		final long uploadStartNanos = System.nanoTime();
-		instanceBuffer.upload(byteBuffer, meshEntry.payload.size(), VertexBuffer.USAGE_STREAM_DRAW);
-		GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
+		setupInstanceAttributePointers(meshEntry.instanceOffsetBytes);
 		DEFAULT_DRAW_STATE.apply();
 		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : meshEntry.staticObjMesh.vertexArray.materialProperties).vertexAttributeState.apply();
 		materialProperties.vertexAttributeState.apply();
@@ -237,6 +232,22 @@ public final class GpuObjRenderer implements IGui {
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
 		GpuObjDebugStats.recordInstanceDrawNanos(System.nanoTime() - drawStartNanos);
 		GpuObjDebugStats.recordDrawInstanced();
+	}
+
+	private void uploadBatchInstances(BatchEntry batchEntry) {
+		final int payloadSize = batchEntry.payload.size();
+		if (payloadSize == 0) {
+			return;
+		}
+
+		ensureCapacity(payloadSize);
+		byteBuffer.clear();
+		byteBuffer.put(batchEntry.payload.elements(), 0, payloadSize);
+		byteBuffer.flip();
+		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
+		final long uploadStartNanos = System.nanoTime();
+		instanceBuffer.upload(byteBuffer, payloadSize, VertexBuffer.USAGE_STREAM_DRAW);
+		GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
 	}
 
 	private void renderDiagnosticReference(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample, int color) {
@@ -332,6 +343,16 @@ public final class GpuObjRenderer implements IGui {
 		applyInstanceAttributeDivisor(vertexAttributeType);
 	}
 
+	private static void setupInstanceAttributePointers(int instanceOffsetBytes) {
+		setupInstanceAttributePointer(VertexAttributeType.COLOR, instanceOffsetBytes);
+		setupInstanceAttributePointer(VertexAttributeType.UV_LIGHTMAP, instanceOffsetBytes);
+		setupInstanceAttributePointer(VertexAttributeType.MATRIX_MODEL, instanceOffsetBytes);
+	}
+
+	private static void setupInstanceAttributePointer(VertexAttributeType vertexAttributeType, int instanceOffsetBytes) {
+		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, instanceOffsetBytes + VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
+	}
+
 	private static void applyInstanceAttributeDivisor(VertexAttributeType vertexAttributeType) {
 		for (int i = 0; i < vertexAttributeType.span; i++) {
 			applyInstanceAttributeDivisor(vertexAttributeType.location + i);
@@ -398,6 +419,7 @@ public final class GpuObjRenderer implements IGui {
 		private final MaterialProperties materialProperties;
 		private final Object2ObjectOpenHashMap<StaticObjMesh, MeshEntry> meshes = new Object2ObjectOpenHashMap<>();
 		private final ObjectArrayList<MeshEntry> activeMeshes = new ObjectArrayList<>();
+		private final ByteArrayList payload = new ByteArrayList();
 		private boolean activeThisFrame;
 
 		private BatchEntry(MaterialProperties materialProperties) {
@@ -408,15 +430,21 @@ public final class GpuObjRenderer implements IGui {
 			for (int i = 0; i < activeMeshes.size(); i++) {
 				activeMeshes.get(i).clear();
 			}
+			payload.clear();
 			activeMeshes.clear();
+		}
+
+		private void addInstance(MeshEntry meshEntry, byte[] instanceData) {
+			payload.addElements(payload.size(), instanceData, 0, INSTANCE_STRIDE);
+			meshEntry.instanceCount++;
 		}
 	}
 
 	private static final class MeshEntry {
 
 		private final StaticObjMesh staticObjMesh;
-		private final ByteArrayList payload = new ByteArrayList();
 		private GpuObjDebugStats.DiagnosticSample diagnosticSample;
+		private int instanceOffsetBytes;
 		private int instanceCount;
 
 		private MeshEntry(StaticObjMesh staticObjMesh) {
@@ -424,14 +452,9 @@ public final class GpuObjRenderer implements IGui {
 		}
 
 		private void clear() {
-			payload.clear();
 			diagnosticSample = null;
+			instanceOffsetBytes = 0;
 			instanceCount = 0;
-		}
-
-		private void addInstance(byte[] instanceData) {
-			payload.addElements(payload.size(), instanceData, 0, INSTANCE_STRIDE);
-			instanceCount++;
 		}
 	}
 }
