@@ -71,14 +71,16 @@ public final class StaticObjMesh implements Closeable {
 				stringBuilder.append(" | ");
 			}
 			stringBuilder.append(String.format(
-					"v%d pos=(%.5f, %.5f, %.5f) normal=(%.5f, %.5f, %.5f)",
+					"v%d pos=(%.5f, %.5f, %.5f) normal=(%.5f, %.5f, %.5f) uv=(%.5f, %.5f)",
 					i,
 					getX(vertex.position),
 					getY(vertex.position),
 					getZ(vertex.position),
 					getX(vertex.normal),
 					getY(vertex.normal),
-					getZ(vertex.normal)
+					getZ(vertex.normal),
+					vertex.u,
+					vertex.v
 			));
 		}
 		return stringBuilder.length() == 0 ? "none" : stringBuilder.toString();

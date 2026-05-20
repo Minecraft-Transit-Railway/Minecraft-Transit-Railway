@@ -42,6 +42,9 @@ public final class GpuObjModelRegistry {
 			final boolean hasTranslucentMeshes = rawModel.values().stream().flatMap(List::stream).anyMatch(rawMesh -> rawMesh.materialProperties.translucent);
 			final GpuObjModelWrapper gpuObjModelWrapper = CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.runWithProtectedState(() -> new GpuObjModelWrapper(rawModel.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream().filter(rawMesh -> !rawMesh.materialProperties.translucent).map(rawMesh -> {
 				rawMesh.applyRotation(new Vector3f(1, 0, 0), 180);
+				if (flipTextureV) {
+					rawMesh.applyUVMirror(false, true);
+				}
 				return new StaticObjMesh(rawMesh);
 			}).collect(Collectors.toList()))), hasTranslucentMeshes));
 			CACHE.put(key, gpuObjModelWrapper);

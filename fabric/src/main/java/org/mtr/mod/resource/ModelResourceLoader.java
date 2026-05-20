@@ -88,7 +88,7 @@ public final class ModelResourceLoader {
 						mtlString -> convertedModel.getMtlContent(),
 						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 						atlasManager,
-						flipTextureV
+						true
 				);
 			} else {
 				return ObjModelLoader.loadModel(
@@ -96,7 +96,7 @@ public final class ModelResourceLoader {
 						mtlString -> resourceProvider.get(CustomResourceTools.getResourceFromSamePath(modelResource, mtlString, "mtl")),
 						textureString -> StringUtils.isEmpty(textureString) ? OptimizedModelWrapper.WHITE_TEXTURE : StringUtils.equals(textureString, "default.png") ? textureId : CustomResourceTools.getResourceFromSamePath(modelResource, textureString, "png"),
 						atlasManager,
-						flipTextureV
+						true
 				);
 			}
 		} finally {

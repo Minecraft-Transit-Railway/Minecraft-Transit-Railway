@@ -450,6 +450,7 @@ public final class GpuObjDebugStats {
 		));
 		lines.add("Shader ModelMat patch: Position -> (MODELVIEWMAT * ModelMat * vec4(Position, 1.0)).xyz; Normal -> normalize(mat3(MODELVIEWMAT * ModelMat) * Normal); original ModelViewMat tokens are replaced with mat4(1.0) after sentinel substitution.");
 		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path now applies the same X180 before StaticObjMesh upload.");
+		lines.add("OBJ UV note: normal OptimizedModel.ObjModel applies global flipTextureV with rawMesh.applyUVMirror(false, true); GPU RawMesh path now applies the same global UV mirror after X180.");
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
