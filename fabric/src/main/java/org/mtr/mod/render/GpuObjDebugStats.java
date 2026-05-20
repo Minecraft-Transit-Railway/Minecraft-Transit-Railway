@@ -449,7 +449,7 @@ public final class GpuObjDebugStats {
 				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.MATRIX_MODEL)
 		));
 		lines.add("Shader ModelMat patch: Position -> (MODELVIEWMAT * ModelMat * vec4(Position, 1.0)).xyz; Normal -> normalize(mat3(MODELVIEWMAT * ModelMat) * Normal); original ModelViewMat tokens are replaced with mat4(1.0) after sentinel substitution.");
-		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path currently samples ObjModelLoader output before that normal-path rotation.");
+		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path now applies the same X180 before StaticObjMesh upload.");
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
