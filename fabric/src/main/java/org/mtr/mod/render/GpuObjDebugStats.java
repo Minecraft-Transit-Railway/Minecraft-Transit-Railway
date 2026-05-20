@@ -97,6 +97,8 @@ public final class GpuObjDebugStats {
 	private static DiagnosticSample lastVehicleDiagnosticSample;
 	private static boolean instancingEnabled;
 	private static boolean watchActive;
+	private static boolean pendingRailReport;
+	private static RailViewMode pendingRailReportRestoreRailViewMode = RailViewMode.NORMAL;
 	private static long nextWatchReportMillis;
 
 	private GpuObjDebugStats() {
@@ -174,6 +176,12 @@ public final class GpuObjDebugStats {
 		final TimedSnapshot timedSnapshot = new TimedSnapshot(InitClient.getGameMillis(), CURRENT_FRAME.copy());
 		WINDOW_HISTORY.add(timedSnapshot);
 		pruneWindowHistory(timedSnapshot.timeMillis);
+
+		if (pendingRailReport) {
+			pendingRailReport = false;
+			emitReport("command report");
+			railViewMode = pendingRailReportRestoreRailViewMode;
+		}
 	}
 
 	public static void resetSession() {
@@ -264,6 +272,13 @@ public final class GpuObjDebugStats {
 
 	public static RailViewMode getRailViewMode() {
 		return railViewMode;
+	}
+
+	public static void requestRailReport() {
+		diagnosticEnabled = true;
+		pendingRailReport = true;
+		pendingRailReportRestoreRailViewMode = railViewMode;
+		railViewMode = RailViewMode.ALL;
 	}
 
 	@Nullable

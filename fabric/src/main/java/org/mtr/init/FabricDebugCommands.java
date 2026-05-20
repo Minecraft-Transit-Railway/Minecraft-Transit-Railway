@@ -79,17 +79,8 @@ public final class FabricDebugCommands {
 	}
 
 	private static int writeRailReport(FabricClientCommandSource source) {
-		GpuObjDebugStats.enableDiagnostics();
-		final GpuObjDebugStats.RailViewMode previousRailViewMode = GpuObjDebugStats.getRailViewMode();
-		try {
-			for (final GpuObjDebugStats.RailViewMode railViewMode : new GpuObjDebugStats.RailViewMode[]{GpuObjDebugStats.RailViewMode.INSTANCED, GpuObjDebugStats.RailViewMode.STATIC_MATCHED, GpuObjDebugStats.RailViewMode.NORMAL}) {
-				GpuObjDebugStats.setRailViewMode(railViewMode);
-				GpuObjDebugStats.emitReport("command report railView=" + railViewMode.label);
-			}
-		} finally {
-			GpuObjDebugStats.setRailViewMode(previousRailViewMode);
-		}
-		sendStatus(source, "Wrote combined rail diagnostic reports to the backend log. " + GpuObjDebugStats.getStatusSummary());
+		GpuObjDebugStats.requestRailReport();
+		sendStatus(source, "Queued rail diagnostic report for the next rendered frame. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 
