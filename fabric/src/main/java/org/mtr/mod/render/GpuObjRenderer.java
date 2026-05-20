@@ -301,7 +301,10 @@ public final class GpuObjRenderer implements IGui {
 	private static void setupInstanceAttribute(VertexAttributeType vertexAttributeType) {
 		vertexAttributeType.toggleAttributeArray(true);
 		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
-		vertexAttributeType.setAttributeDivisor(1);
+		final int locationCount = vertexAttributeType == VertexAttributeType.MATRIX_MODEL ? 4 : 1;
+		for (int i = 0; i < locationCount; i++) {
+			GL33.glVertexAttribDivisor(vertexAttributeType.location + i, 1);
+		}
 	}
 
 	private static String describeVaoAttributeState() {
