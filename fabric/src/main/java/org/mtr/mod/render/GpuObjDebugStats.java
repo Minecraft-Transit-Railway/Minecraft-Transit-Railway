@@ -546,23 +546,6 @@ public final class GpuObjDebugStats {
 				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.UV_LIGHTMAP),
 				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.MATRIX_MODEL)
 		));
-		lines.add("Shader ModelMat patch: Position -> (MODELVIEWMAT * ModelMat * vec4(Position, 1.0)).xyz; Normal -> normalize(mat3(MODELVIEWMAT * ModelMat) * Normal); original ModelViewMat tokens are replaced with mat4(1.0) after sentinel substitution.");
-		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path now applies the same X180 before StaticObjMesh upload.");
-		lines.add("OBJ UV note: normal OptimizedModel.ObjModel applies global flipTextureV with rawMesh.applyUVMirror(false, true); GPU RawMesh path now applies the same global UV mirror after X180.");
-		if (LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.isEmpty()) {
-			lines.add("Vehicle condition bucket samples: none captured");
-		} else {
-			for (int i = 0; i < LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.size(); i++) {
-				lines.add(String.format("Vehicle condition bucket sample %d: %s", i + 1, LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.get(i)));
-			}
-		}
-		if (LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.isEmpty()) {
-			lines.add("Vehicle fallback queue samples: none captured");
-		} else {
-			for (int i = 0; i < LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.size(); i++) {
-				lines.add(String.format("Vehicle fallback queue sample %d: %s", i + 1, LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.get(i)));
-			}
-		}
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
@@ -574,153 +557,26 @@ public final class GpuObjDebugStats {
 		}
 
 		lines.add(String.format(
-				"%s sample: texture=%s stage=%s shader=%s vertices=%d instances=%d useDefaultOffset=%s drawn=%s",
+				"%s sample: stage=%s shader=%s meshShader=%s vertices=%d instances=%d drawn=%s",
 				label,
-				diagnosticSample.textureId,
 				diagnosticSample.renderStage,
 				diagnosticSample.shaderType,
+				diagnosticSample.meshShaderType,
 				diagnosticSample.vertexCount,
 				diagnosticSample.instanceCount,
-				diagnosticSample.useDefaultOffset,
 				diagnosticSample.drawn
 		));
-		lines.add(String.format("%s colors: material=0x%08X instance=0x%08X", label, diagnosticSample.materialColor, diagnosticSample.instanceColor));
-		lines.add(String.format("%s sample metadata: source=%s reason=%s normalSample=%s", label, diagnosticSample.source, diagnosticSample.sampleReason, diagnosticSample.normalReferenceSampleId));
 		lines.add(String.format(
-				"%s bounds: min=(%.5f, %.5f, %.5f) max=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
+				"%s material states: batchShader=%s batchTranslucent=%s batchColor=%s | meshShader=%s meshColor=0x%08X | vertexArrayShader=%s vertexArrayTranslucent=%s vertexArrayColor=%s",
 				label,
-				diagnosticSample.minX,
-				diagnosticSample.minY,
-				diagnosticSample.minZ,
-				diagnosticSample.maxX,
-				diagnosticSample.maxY,
-				diagnosticSample.maxZ,
-				diagnosticSample.centerX,
-				diagnosticSample.centerY,
-				diagnosticSample.centerZ
-		));
-		lines.add(String.format("%s GPU raw vertex sample: %s", label, diagnosticSample.staticObjMesh.rawVertexSample));
-		lines.add(String.format("%s queued world matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
-		lines.add(String.format("%s prepared instanced draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
-		if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
-			lines.add(String.format("%s single-draw debug reference matrix: %s", label, diagnosticSample.formatSingleDrawReferenceMatrix()));
-			lines.add(String.format(
-					"%s instanced vs single-draw debug delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-					label,
-					diagnosticSample.getSingleDrawReferenceTranslationDeltaX(),
-					diagnosticSample.getSingleDrawReferenceTranslationDeltaY(),
-					diagnosticSample.getSingleDrawReferenceTranslationDeltaZ(),
-					diagnosticSample.getSingleDrawReferenceMaxAbsEntryDelta()
-			));
-		}
-		if (diagnosticSample.hasStaticMatchedReferenceMatrix()) {
-			lines.add(String.format("%s single-draw material-matched reference matrix: %s", label, diagnosticSample.formatStaticMatchedReferenceMatrix()));
-			lines.add(String.format(
-					"%s instanced vs single-draw material-matched delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-					label,
-					diagnosticSample.getStaticMatchedReferenceTranslationDeltaX(),
-					diagnosticSample.getStaticMatchedReferenceTranslationDeltaY(),
-					diagnosticSample.getStaticMatchedReferenceTranslationDeltaZ(),
-					diagnosticSample.getStaticMatchedReferenceMaxAbsEntryDelta()
-			));
-		}
-		if (diagnosticSample.hasNormalReferenceMatrix()) {
-			lines.add(String.format("%s normal-render world matrix: %s", label, diagnosticSample.formatNormalReferenceMatrix()));
-			lines.add(String.format("%s normal-render draw matrix: %s", label, diagnosticSample.formatNormalReferenceDrawMatrix()));
-			lines.add(String.format(
-					"%s queued world vs normal-render world delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-					label,
-					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaX(),
-					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaY(),
-					diagnosticSample.getQueuedVsNormalReferenceTranslationDeltaZ(),
-					diagnosticSample.getQueuedVsNormalReferenceMaxAbsEntryDelta()
-			));
-			lines.add(String.format(
-					"%s instanced draw vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-					label,
-					diagnosticSample.getNormalReferenceDrawTranslationDeltaX(),
-					diagnosticSample.getNormalReferenceDrawTranslationDeltaY(),
-					diagnosticSample.getNormalReferenceDrawTranslationDeltaZ(),
-					diagnosticSample.getNormalReferenceDrawMaxAbsEntryDelta()
-			));
-			if (diagnosticSample.hasSingleDrawReferenceMatrix()) {
-				lines.add(String.format(
-						"%s single-draw debug vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-						label,
-						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaX(),
-						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaY(),
-						diagnosticSample.getSingleDrawVsNormalReferenceDrawTranslationDeltaZ(),
-						diagnosticSample.getSingleDrawVsNormalReferenceDrawMaxAbsEntryDelta()
-				));
-			}
-			if (diagnosticSample.hasStaticMatchedReferenceMatrix()) {
-				lines.add(String.format(
-						"%s single-draw material-matched vs normal-render draw delta translation=(%.5f, %.5f, %.5f) maxAbsEntryDelta=%.5f",
-						label,
-						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaX(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaY(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceDrawTranslationDeltaZ(),
-						diagnosticSample.getStaticMatchedVsNormalReferenceDrawMaxAbsEntryDelta()
-				));
-			}
-		}
-		lines.add(String.format(
-				"%s normal-render reference: matched=%s sample=%s origin=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
-				label,
-				diagnosticSample.normalReferenceMatched,
-				diagnosticSample.normalReferenceSampleId,
-				diagnosticSample.normalReferenceWorldOriginX,
-				diagnosticSample.normalReferenceWorldOriginY,
-				diagnosticSample.normalReferenceWorldOriginZ,
-				diagnosticSample.normalReferenceWorldCenterX,
-				diagnosticSample.normalReferenceWorldCenterY,
-				diagnosticSample.normalReferenceWorldCenterZ
-		));
-		lines.add(String.format(
-				"%s world origin=(%.5f, %.5f, %.5f) world center=(%.5f, %.5f, %.5f)",
-				label,
-				diagnosticSample.worldOriginX,
-				diagnosticSample.worldOriginY,
-				diagnosticSample.worldOriginZ,
-				diagnosticSample.worldCenterX,
-				diagnosticSample.worldCenterY,
-				diagnosticSample.worldCenterZ
-		));
-		lines.add(String.format(
-				"%s draw matrix translation=(%.5f, %.5f, %.5f) render offset=(%.5f, %.5f, %.5f)",
-				label,
-				diagnosticSample.drawTranslationX,
-				diagnosticSample.drawTranslationY,
-				diagnosticSample.drawTranslationZ,
-				diagnosticSample.renderOffsetX,
-				diagnosticSample.renderOffsetY,
-				diagnosticSample.renderOffsetZ
-		));
-		lines.add(String.format(
-				"%s offsets: capture=(%.5f, %.5f, %.5f) render=(%.5f, %.5f, %.5f) normalCallback=(%.5f, %.5f, %.5f) captureMinusRender=(%.5f, %.5f, %.5f) normalMinusRender=(%.5f, %.5f, %.5f)",
-				label,
-				diagnosticSample.captureOffsetX,
-				diagnosticSample.captureOffsetY,
-				diagnosticSample.captureOffsetZ,
-				diagnosticSample.renderOffsetX,
-				diagnosticSample.renderOffsetY,
-				diagnosticSample.renderOffsetZ,
-				diagnosticSample.normalReferenceRenderOffsetX,
-				diagnosticSample.normalReferenceRenderOffsetY,
-				diagnosticSample.normalReferenceRenderOffsetZ,
-				diagnosticSample.captureOffsetX - diagnosticSample.renderOffsetX,
-				diagnosticSample.captureOffsetY - diagnosticSample.renderOffsetY,
-				diagnosticSample.captureOffsetZ - diagnosticSample.renderOffsetZ,
-				diagnosticSample.normalReferenceRenderOffsetX - diagnosticSample.renderOffsetX,
-				diagnosticSample.normalReferenceRenderOffsetY - diagnosticSample.renderOffsetY,
-				diagnosticSample.normalReferenceRenderOffsetZ - diagnosticSample.renderOffsetZ
-		));
-		lines.add(String.format(
-				"%s instanced draw vs queuedWorld-minus-captureOffset delta translation=(%.5f, %.5f, %.5f)",
-				label,
-				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaX(),
-				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaY(),
-				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaZ()
+				diagnosticSample.batchShaderType,
+				diagnosticSample.batchTranslucent,
+				formatNullableHex(diagnosticSample.batchMaterialColor),
+				diagnosticSample.meshShaderType,
+				diagnosticSample.materialColor,
+				diagnosticSample.vertexArrayShaderType,
+				diagnosticSample.vertexArrayTranslucent,
+				formatNullableHex(diagnosticSample.vertexArrayMaterialColor)
 		));
 		lines.add(String.format(
 				"%s light: raw=0x%08X exchanged=0x%08X instance=0x%08X",
@@ -728,43 +584,6 @@ public final class GpuObjDebugStats {
 				diagnosticSample.rawLight,
 				diagnosticSample.exchangedLight,
 				diagnosticSample.instanceLight
-		));
-		lines.add(String.format(
-				"%s camera relative center=(%.5f, %.5f, %.5f) camera space center=(%.5f, %.5f, %.5f) distance=%.5f forwardZ=%.5f finite=%s huge=%s",
-				label,
-				diagnosticSample.relativeCenterX,
-				diagnosticSample.relativeCenterY,
-				diagnosticSample.relativeCenterZ,
-				diagnosticSample.cameraSpaceCenterX,
-				diagnosticSample.cameraSpaceCenterY,
-				diagnosticSample.cameraSpaceCenterZ,
-				diagnosticSample.distanceFromCamera,
-				diagnosticSample.centerForwardZ,
-				!diagnosticSample.hasNonFiniteValues,
-				diagnosticSample.hasHugeCoordinates
-		));
-		lines.add(String.format(
-				"%s aabb camera-space z range=(%.5f, %.5f) queuedForwardZ=%.5f postOffsetForwardZ=%.5f queuedDistance=%.5f postOffsetDistance=%.5f nearPlaneCross=%s cornerSplit=%s maxAbsXY=(%.5f, %.5f) risk=%.5f reason=%s",
-				label,
-				diagnosticSample.minForwardZ,
-				diagnosticSample.maxForwardZ,
-				diagnosticSample.centerForwardZ,
-				diagnosticSample.postOffsetForwardZ,
-				diagnosticSample.distanceFromCamera,
-				diagnosticSample.postOffsetDistance,
-				diagnosticSample.crossesNearPlane,
-				diagnosticSample.hasCornerBehindAndAhead,
-				diagnosticSample.maxAbsCameraSpaceX,
-				diagnosticSample.maxAbsCameraSpaceY,
-				diagnosticSample.riskScore,
-				diagnosticSample.sampleReason
-		));
-		lines.add(String.format(
-				"%s draw toggles: skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s",
-				label,
-				diagnosticSample.skipCameraOffset,
-				diagnosticSample.forceNoCull,
-				diagnosticSample.forceWhiteCutout
 		));
 		if (!diagnosticSample.vaoAttributeState.isEmpty()) {
 			lines.add(String.format("%s VAO attributes: %s", label, diagnosticSample.vaoAttributeState));
@@ -789,6 +608,10 @@ public final class GpuObjDebugStats {
 		return reason instanceof RailFallbackReason ? ((RailFallbackReason) reason).label : ((VehicleFallbackReason) reason).label;
 	}
 
+	private static String formatNullableHex(@Nullable Integer value) {
+		return value == null ? "null" : String.format("0x%08X", value);
+	}
+
 	public static final class DiagnosticSample {
 
 		private final Source source;
@@ -797,6 +620,7 @@ public final class GpuObjDebugStats {
 		private final String renderStage;
 		private final String shaderType;
 		private final OptimizedModel.ShaderType shaderTypeEnum;
+		private final String meshShaderType;
 		private final StaticObjMesh staticObjMesh;
 		private final int vertexCount;
 		private final int materialColor;
@@ -858,6 +682,14 @@ public final class GpuObjDebugStats {
 		private int instanceLight;
 		private int rawLight;
 		private int exchangedLight;
+		private String batchShaderType = "unset";
+		private String vertexArrayShaderType = "unset";
+		private boolean batchTranslucent;
+		private boolean vertexArrayTranslucent;
+		@Nullable
+		private Integer batchMaterialColor;
+		@Nullable
+		private Integer vertexArrayMaterialColor;
 		private boolean hasPreparedDrawMatrix;
 		private boolean hasSingleDrawReferenceMatrix;
 		private boolean hasStaticMatchedReferenceMatrix;
@@ -891,6 +723,7 @@ public final class GpuObjDebugStats {
 			shaderType = batchKey.shaderType.name();
 			shaderTypeEnum = batchKey.shaderType;
 			this.staticObjMesh = staticObjMesh;
+			meshShaderType = staticObjMesh.shaderType.name();
 			vertexCount = staticObjMesh.vertexCount;
 			materialColor = staticObjMesh.materialColor;
 			instanceColor = staticObjMesh.materialColor;
@@ -1019,6 +852,15 @@ public final class GpuObjDebugStats {
 
 		void setInstanceLight(int instanceLight) {
 			this.instanceLight = instanceLight;
+		}
+
+		void setMaterialState(MaterialProperties batchMaterialProperties, StaticObjMesh staticObjMesh) {
+			batchShaderType = batchMaterialProperties.shaderType.name();
+			batchTranslucent = batchMaterialProperties.translucent;
+			batchMaterialColor = batchMaterialProperties.vertexAttributeState.color;
+			vertexArrayShaderType = staticObjMesh.vertexArray.materialProperties.shaderType.name();
+			vertexArrayTranslucent = staticObjMesh.vertexArray.materialProperties.translucent;
+			vertexArrayMaterialColor = staticObjMesh.vertexArray.materialProperties.vertexAttributeState.color;
 		}
 
 		public void setLight(int rawLight, int exchangedLight) {

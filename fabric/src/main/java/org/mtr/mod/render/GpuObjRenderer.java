@@ -144,6 +144,7 @@ public final class GpuObjRenderer implements IGui {
 		if (diagnosticSample != null) {
 			diagnosticSample.setInstanceColor(effectivePackedColor);
 			diagnosticSample.setInstanceLight(packedLight);
+			diagnosticSample.setMaterialState(materialProperties, staticObjMesh);
 			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;
 		}
