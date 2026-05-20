@@ -653,7 +653,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset);
 		final String debugSampleId = String.format("condition=%s stage=%s names=%s local=(%.5f, %.5f, %.5f) flipped=%s", condition, renderStage, names, x / 16, y / 16 - modelYOffset, z / 16, flipped);
 		gpuMeshes.forEach(staticObjMesh -> {
-			final OptimizedModel.ShaderType shaderType = renderStage.shaderType;
+			final OptimizedModel.ShaderType shaderType = staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT ? renderStage.shaderType : staticObjMesh.shaderType;
 			final MaterialProperties materialProperties = new MaterialProperties(shaderType, staticObjMesh.texture, null);
 			final ObjBatchKey batchKey = new ObjBatchKey(staticObjMesh.texture, renderStage, shaderType, materialProperties.translucent);
 			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
