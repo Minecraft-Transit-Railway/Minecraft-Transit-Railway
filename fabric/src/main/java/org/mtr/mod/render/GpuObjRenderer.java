@@ -224,7 +224,6 @@ public final class GpuObjRenderer implements IGui {
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
 		setupInstanceAttributePointers(meshEntry.instanceOffsetBytes);
 		DEFAULT_DRAW_STATE.apply();
-		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : meshEntry.staticObjMesh.vertexArray.materialProperties).vertexAttributeState.apply();
 		materialProperties.vertexAttributeState.apply();
 		if (meshEntry.diagnosticSample != null) {
 			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
