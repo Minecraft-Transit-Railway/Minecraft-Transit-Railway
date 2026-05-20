@@ -2,7 +2,7 @@ GPU OBJ instancing 潜在风险记录
 
 高风险
 
-1. MainRenderer 仍然用 OPTIMIZED_RENDERER_WRAPPER.runWithProtectedState 包住 GpuObjRenderer.renderOpaque。
+1. 已处理：MainRenderer 曾经用 OPTIMIZED_RENDERER_WRAPPER.runWithProtectedState 包住 GpuObjRenderer.renderOpaque。
    这个方法内部会调用 beginReload/finishReload，因此它是 reload 生命周期保护，不是普通 GL state 保护。
    如果在实际渲染阶段调用，可能清空或扰乱 optimized renderer 队列。
 

@@ -167,7 +167,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.runWithProtectedState(() -> GpuObjRenderer.INSTANCE.renderOpaque(offset));
+		GpuObjRenderer.INSTANCE.renderOpaque(offset);
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 		GpuObjRenderer.INSTANCE.clear();
 		GpuObjDebugStats.finishFrame();
