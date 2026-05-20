@@ -261,7 +261,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> {
 				addGpuDebugPart(modelResource, textureId, flipTextureV, resourceProvider, gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason);
 				if (shouldAddGpuNormalFallbackPart(resolvedFallbackReason)) {
-					addGpuFallbackPart(modelResource, textureId, flipTextureV, resourceProvider, fallbackPartsForPartCondition, x, y, z, flipped, modelYOffset);
+					addGpuFallbackPart(modelResource, textureId, flipTextureV, resourceProvider, fallbackPartsForPartCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason);
 				}
 			});
 		}));
@@ -273,10 +273,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			boolean flipTextureV,
 			ResourceProvider resourceProvider,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForPartCondition,
-			double x, double y, double z, boolean flipped, double modelYOffset
+			double x, double y, double z, boolean flipped, double modelYOffset,
+			GpuObjDebugStats.VehicleFallbackReason reason
 	) {
 		final OptimizedModelWrapper fallbackModel = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset).get();
-		fallbackPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.FallbackPart(condition, fallbackModel));
+		final String debugSampleId = String.format("stage=%s names=%s local=(%.5f, %.5f, %.5f) flipped=%s", renderStage, names, x / 16, y / 16 - modelYOffset, z / 16, flipped);
+		fallbackPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.FallbackPart(condition, fallbackModel, reason, debugSampleId));
 	}
 
 	private void logMissingGpuGroups(String modelResource, @Nullable GpuObjModelWrapper gpuObjModelWrapper) {

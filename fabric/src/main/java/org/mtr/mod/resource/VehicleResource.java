@@ -608,7 +608,20 @@ public final class VehicleResource extends VehicleResourceSchema {
 			long eligiblePartCount = 0;
 
 			for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
-				if (!matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways)) {
+				final boolean matchesCondition = matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways);
+				if (diagnosticsEnabled) {
+					GpuObjDebugStats.recordVehicleConditionBucketSample(String.format(
+							"condition=%s matched=%s gpuParts=%d fallbackParts=%d supportedPlacements=%d unsupportedPlacements=%d noOpenDoorways=%s",
+							conditionBucket.condition,
+							matchesCondition,
+							conditionBucket.parts.size(),
+							conditionBucket.fallbackParts.size(),
+							conditionBucket.supportedPlacementCount,
+							conditionBucket.getTotalUnsupportedPlacementCount(),
+							noOpenDoorways
+					));
+				}
+				if (!matchesCondition) {
 					continue;
 				}
 
@@ -630,7 +643,11 @@ public final class VehicleResource extends VehicleResourceSchema {
 					queuedAny = true;
 					conditionBucket.fallbackParts.forEach(fallbackPart -> {
 						final OptimizedModelWrapper fallbackModel = fallbackPart.getOrCreateModel();
-						if (fallbackModel != null && fallbackModel.optimizedModel != null) {
+						final boolean renderable = fallbackModel != null && fallbackModel.optimizedModel != null;
+						if (diagnosticsEnabled) {
+							GpuObjDebugStats.recordVehicleFallbackQueueSample(fallbackPart.describeQueueState(renderable));
+						}
+						if (renderable) {
 							final StoredMatrixTransformations fallbackTransformations = storedMatrixTransformations.copy();
 							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 								fallbackTransformations.transform(graphicsHolder, offset);

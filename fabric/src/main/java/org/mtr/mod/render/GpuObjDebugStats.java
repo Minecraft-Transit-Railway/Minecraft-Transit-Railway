@@ -76,12 +76,18 @@ public final class GpuObjDebugStats {
 	private static final int VEHICLE_SAMPLE_COLOR = 0xFFFFFF00;
 	private static final int RAIL_NORMAL_REFERENCE_COLOR = 0xFFFF8080;
 	private static final int VEHICLE_NORMAL_REFERENCE_COLOR = 0xFF80FF80;
+	private static final int MAX_VEHICLE_FALLBACK_QUEUE_SAMPLES = 8;
+	private static final int MAX_VEHICLE_CONDITION_BUCKET_SAMPLES = 8;
 	private static final Snapshot CURRENT_FRAME = new Snapshot();
 	private static final Snapshot LAST_FRAME = new Snapshot();
 	private static final Snapshot WINDOW_SNAPSHOT = new Snapshot();
 	private static final Snapshot RELOAD_SESSION = new Snapshot();
 	private static final Snapshot WATCH_SESSION = new Snapshot();
 	private static final ObjectArrayList<TimedSnapshot> WINDOW_HISTORY = new ObjectArrayList<>();
+	private static final ObjectArrayList<String> CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES = new ObjectArrayList<>();
+	private static final ObjectArrayList<String> LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES = new ObjectArrayList<>();
+	private static final ObjectArrayList<String> CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES = new ObjectArrayList<>();
+	private static final ObjectArrayList<String> LAST_VEHICLE_CONDITION_BUCKET_SAMPLES = new ObjectArrayList<>();
 	private static boolean diagnosticEnabled;
 	private static boolean diagnosticSkipCameraOffset;
 	private static boolean diagnosticForceNoCull;
@@ -107,6 +113,8 @@ public final class GpuObjDebugStats {
 	public static void beginFrame(boolean newInstancingEnabled) {
 		instancingEnabled = newInstancingEnabled;
 		CURRENT_FRAME.clear();
+		CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES.clear();
+		CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES.clear();
 		currentRailDiagnosticSample = null;
 		currentVehicleDiagnosticSample = null;
 	}
@@ -184,8 +192,24 @@ public final class GpuObjDebugStats {
 		CURRENT_FRAME.vehicleConditionFilteredParts += count;
 	}
 
+	public static void recordVehicleFallbackQueueSample(String sample) {
+		if (diagnosticEnabled && CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES.size() < MAX_VEHICLE_FALLBACK_QUEUE_SAMPLES) {
+			CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES.add(sample);
+		}
+	}
+
+	public static void recordVehicleConditionBucketSample(String sample) {
+		if (diagnosticEnabled && CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES.size() < MAX_VEHICLE_CONDITION_BUCKET_SAMPLES) {
+			CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES.add(sample);
+		}
+	}
+
 	public static void finishFrame() {
 		LAST_FRAME.copyFrom(CURRENT_FRAME);
+		LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.clear();
+		LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.addAll(CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES);
+		LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.clear();
+		LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.addAll(CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES);
 		RELOAD_SESSION.add(CURRENT_FRAME);
 		if (watchActive) {
 			WATCH_SESSION.add(CURRENT_FRAME);
@@ -214,6 +238,10 @@ public final class GpuObjDebugStats {
 		currentVehicleDiagnosticSample = null;
 		lastRailDiagnosticSample = null;
 		lastVehicleDiagnosticSample = null;
+		CURRENT_VEHICLE_FALLBACK_QUEUE_SAMPLES.clear();
+		LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.clear();
+		CURRENT_VEHICLE_CONDITION_BUCKET_SAMPLES.clear();
+		LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.clear();
 		if (watchActive) {
 			WATCH_SESSION.clear();
 		}
@@ -485,6 +513,20 @@ public final class GpuObjDebugStats {
 		lines.add("Shader ModelMat patch: Position -> (MODELVIEWMAT * ModelMat * vec4(Position, 1.0)).xyz; Normal -> normalize(mat3(MODELVIEWMAT * ModelMat) * Normal); original ModelViewMat tokens are replaced with mat4(1.0) after sentinel substitution.");
 		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path now applies the same X180 before StaticObjMesh upload.");
 		lines.add("OBJ UV note: normal OptimizedModel.ObjModel applies global flipTextureV with rawMesh.applyUVMirror(false, true); GPU RawMesh path now applies the same global UV mirror after X180.");
+		if (LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.isEmpty()) {
+			lines.add("Vehicle condition bucket samples: none captured");
+		} else {
+			for (int i = 0; i < LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.size(); i++) {
+				lines.add(String.format("Vehicle condition bucket sample %d: %s", i + 1, LAST_VEHICLE_CONDITION_BUCKET_SAMPLES.get(i)));
+			}
+		}
+		if (LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.isEmpty()) {
+			lines.add("Vehicle fallback queue samples: none captured");
+		} else {
+			for (int i = 0; i < LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.size(); i++) {
+				lines.add(String.format("Vehicle fallback queue sample %d: %s", i + 1, LAST_VEHICLE_FALLBACK_QUEUE_SAMPLES.get(i)));
+			}
+		}
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}

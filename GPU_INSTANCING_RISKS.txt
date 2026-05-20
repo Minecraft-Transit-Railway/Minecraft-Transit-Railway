@@ -1,0 +1,31 @@
+GPU OBJ instancing 潜在风险记录
+
+高风险
+
+1. MainRenderer 仍然用 OPTIMIZED_RENDERER_WRAPPER.runWithProtectedState 包住 GpuObjRenderer.renderOpaque。
+   这个方法内部会调用 beginReload/finishReload，因此它是 reload 生命周期保护，不是普通 GL state 保护。
+   如果在实际渲染阶段调用，可能清空或扰乱 optimized renderer 队列。
+
+2. ModelPropertiesPart.createNormalReferenceModelSupplier 仍然会调用 beginReload/finishReload。
+   普通渲染现在应该安全，因为 fallback model 已经提前创建；但 diagnostics 路径仍可能在采样时触发它。
+
+3. StaticObjMesh 构造函数里会上传 RawMesh 并配置 VAO attributes。
+   这要求调用方一定处在 render thread 且有 current GL context，否则可能复现 native GL 崩溃。
+
+中风险
+
+4. 车辆 translucent 处理目前是 part-level 保守策略。
+   只要 ModelPropertiesPart 里的任意 OBJ group name 含 translucent mesh，整个 part 都会 fallback，而不是只 fallback 透明 group。
+
+5. GpuObjRenderer 写 instance payload 时仍按固定顺序 color/light/matrix 写入。
+   当前 mapping 是正确的；但更稳的写法是按 VERTEX_ATTRIBUTE_MAPPING.pointers 写入，避免未来 mapping 顺序变化再次影响矩阵。
+
+6. 当前 GPU 渲染路径只实现 renderOpaque，translucent GPU batch 不会被绘制。
+   现在 translucent mesh 会被过滤到 fallback，所以通常安全；但未来如果直接 queue translucent GPU mesh，会静默不可见。
+
+低风险 / 性能
+
+7. GpuObjModelWrapper.getMeshes 在 group miss 时每次都会 new ObjectArrayList。
+
+8. 车辆 fallback model 现在在 cache 构建阶段创建。
+   这避免了 render-time reload，但透明 fallback placement 很多时会增加 cache 构建时间和内存。

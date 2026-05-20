@@ -104,17 +104,25 @@ public final class VehicleGpuCache {
 	public static final class FallbackPart {
 
 		public final PartCondition condition;
+		public final GpuObjDebugStats.VehicleFallbackReason reason;
+		public final String debugSampleId;
 		@Nullable
 		private final OptimizedModelWrapper model;
 
-		public FallbackPart(PartCondition condition, @Nullable OptimizedModelWrapper model) {
+		public FallbackPart(PartCondition condition, @Nullable OptimizedModelWrapper model, GpuObjDebugStats.VehicleFallbackReason reason, String debugSampleId) {
 			this.condition = condition;
 			this.model = model;
+			this.reason = reason;
+			this.debugSampleId = debugSampleId;
 		}
 
 		@Nullable
 		public OptimizedModelWrapper getOrCreateModel() {
 			return model;
+		}
+
+		public String describeQueueState(boolean renderable) {
+			return String.format("condition=%s reason=%s renderable=%s sample=%s", condition, reason.label, renderable, debugSampleId);
 		}
 	}
 
