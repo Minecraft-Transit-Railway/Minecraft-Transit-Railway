@@ -119,8 +119,9 @@ public final class GpuObjRenderer implements IGui {
 			batchEntry.activeMeshes.add(meshEntry);
 		}
 
+		final int effectivePackedColor = packedColor == ARGB_WHITE ? staticObjMesh.materialColor : packedColor;
 		scratchInstanceBuffer.clear();
-		scratchInstanceBuffer.putInt(packedColor);
+		scratchInstanceBuffer.putInt(effectivePackedColor);
 		scratchInstanceBuffer.putInt(packedLight);
 		scratchInstanceBuffer.putFloat(drawMatrix.m00());
 		scratchInstanceBuffer.putFloat(drawMatrix.m01());
@@ -140,6 +141,7 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.putFloat(drawMatrix.m33());
 		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, diagnosticMatrix == null ? drawMatrix : diagnosticMatrix, useDefaultOffset);
 		if (diagnosticSample != null) {
+			diagnosticSample.setInstanceColor(effectivePackedColor);
 			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;
 		}

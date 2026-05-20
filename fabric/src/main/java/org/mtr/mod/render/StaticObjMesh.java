@@ -22,11 +22,14 @@ public final class StaticObjMesh implements Closeable {
 	public final float centerX;
 	public final float centerY;
 	public final float centerZ;
+	public final int materialColor;
 	public final String rawVertexSample;
 	private final Mesh mesh;
 
 	public StaticObjMesh(RawMesh rawMesh) {
 		this.texture = rawMesh.materialProperties.getTexture();
+		final Integer rawMaterialColor = rawMesh.materialProperties.vertexAttributeState.color;
+		materialColor = rawMaterialColor == null ? 0xFFFFFFFF : rawMaterialColor;
 		vertexCount = rawMesh.vertices.size();
 		float minX = Float.POSITIVE_INFINITY;
 		float minY = Float.POSITIVE_INFINITY;

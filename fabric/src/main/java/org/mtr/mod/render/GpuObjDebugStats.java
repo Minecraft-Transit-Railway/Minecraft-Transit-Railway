@@ -472,6 +472,7 @@ public final class GpuObjDebugStats {
 				diagnosticSample.useDefaultOffset,
 				diagnosticSample.drawn
 		));
+		lines.add(String.format("%s colors: material=0x%08X instance=0x%08X", label, diagnosticSample.materialColor, diagnosticSample.instanceColor));
 		lines.add(String.format("%s sample metadata: source=%s reason=%s normalSample=%s", label, diagnosticSample.source, diagnosticSample.sampleReason, diagnosticSample.normalReferenceSampleId));
 		lines.add(String.format(
 				"%s bounds: min=(%.5f, %.5f, %.5f) max=(%.5f, %.5f, %.5f) center=(%.5f, %.5f, %.5f)",
@@ -653,6 +654,7 @@ public final class GpuObjDebugStats {
 		private final OptimizedModel.ShaderType shaderTypeEnum;
 		private final StaticObjMesh staticObjMesh;
 		private final int vertexCount;
+		private final int materialColor;
 		private final boolean useDefaultOffset;
 		private final float minX;
 		private final float minY;
@@ -701,6 +703,7 @@ public final class GpuObjDebugStats {
 		private double postOffsetForwardZ;
 		private double postOffsetDistance;
 		private int instanceCount;
+		private int instanceColor;
 		private boolean hasPreparedDrawMatrix;
 		private boolean hasSingleDrawReferenceMatrix;
 		private boolean hasStaticMatchedReferenceMatrix;
@@ -735,6 +738,8 @@ public final class GpuObjDebugStats {
 			shaderTypeEnum = batchKey.shaderType;
 			this.staticObjMesh = staticObjMesh;
 			vertexCount = staticObjMesh.vertexCount;
+			materialColor = staticObjMesh.materialColor;
+			instanceColor = staticObjMesh.materialColor;
 			this.useDefaultOffset = useDefaultOffset;
 			minX = staticObjMesh.minX;
 			minY = staticObjMesh.minY;
@@ -852,6 +857,10 @@ public final class GpuObjDebugStats {
 		void setPreparedDrawMatrix(Matrix4f matrix) {
 			storeMatrix(matrix, preparedDrawMatrix);
 			hasPreparedDrawMatrix = true;
+		}
+
+		void setInstanceColor(int instanceColor) {
+			this.instanceColor = instanceColor;
 		}
 
 		void setSingleDrawReferenceMatrix(Matrix4f matrix) {
