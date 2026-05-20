@@ -884,7 +884,9 @@ public final class GpuObjDebugStats {
 
 			final Matrix4f adjustedMatrix = createMatrix(normalReferenceMatrix);
 			if (useDefaultOffset && drawn && !skipCameraOffset) {
-				adjustedMatrix.translate((float) -cameraOffsetX, (float) -cameraOffsetY, (float) -cameraOffsetZ);
+				adjustedMatrix.m30(adjustedMatrix.m30() - (float) cameraOffsetX);
+				adjustedMatrix.m31(adjustedMatrix.m31() - (float) cameraOffsetY);
+				adjustedMatrix.m32(adjustedMatrix.m32() - (float) cameraOffsetZ);
 			}
 			storeMatrix(adjustedMatrix, normalReferenceDrawMatrix);
 			hasNormalReferenceDrawMatrix = true;
