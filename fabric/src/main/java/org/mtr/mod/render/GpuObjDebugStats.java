@@ -751,7 +751,7 @@ public final class GpuObjDebugStats {
 			hasSingleDrawReferenceMatrix = true;
 		}
 
-		void setNormalReference(@Nullable OptimizedModelWrapper model, StoredMatrixTransformations transformations, Matrix4f matrix, boolean matched, String sampleId) {
+		public void setNormalReference(@Nullable OptimizedModelWrapper model, StoredMatrixTransformations transformations, Matrix4f matrix, boolean matched, String sampleId) {
 			normalReferenceModel = model;
 			normalReferenceTransformations = transformations;
 			storeMatrix(matrix, normalReferenceMatrix);
