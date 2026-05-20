@@ -2,6 +2,8 @@ package org.mtr.mod.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.ARBInstancedArrays;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -61,6 +63,7 @@ public final class GpuObjRenderer implements IGui {
 	private static final int RAIL_REFERENCE_COLOR = 0xA000FFFF;
 	private static final int VEHICLE_REFERENCE_COLOR = 0xA0FFFF00;
 	private static final int RAIL_STATIC_MATCHED_SAMPLE_COLOR = 0x8000FF80;
+	private static boolean loggedMissingInstanceDivisorSupport;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
@@ -313,7 +316,26 @@ public final class GpuObjRenderer implements IGui {
 
 	private static void applyInstanceAttributeDivisor(VertexAttributeType vertexAttributeType, int locationCount) {
 		for (int i = 0; i < locationCount; i++) {
-			GL33.glVertexAttribDivisor(vertexAttributeType.location + i, 1);
+			applyInstanceAttributeDivisor(vertexAttributeType.location + i);
+		}
+	}
+
+	private static void applyInstanceAttributeDivisor(int location) {
+		try {
+			final org.lwjgl.opengl.GLCapabilities capabilities = GL.getCapabilities();
+			if (capabilities.OpenGL33) {
+				GL33.glVertexAttribDivisor(location, 1);
+			} else if (capabilities.GL_ARB_instanced_arrays) {
+				ARBInstancedArrays.glVertexAttribDivisorARB(location, 1);
+			} else if (!loggedMissingInstanceDivisorSupport) {
+				loggedMissingInstanceDivisorSupport = true;
+				Init.LOGGER.warn("[MTR Debug] GPU instancing is missing glVertexAttribDivisor support; instance attributes will not advance per instance.");
+			}
+		} catch (IllegalStateException e) {
+			if (!loggedMissingInstanceDivisorSupport) {
+				loggedMissingInstanceDivisorSupport = true;
+				Init.LOGGER.warn("[MTR Debug] GPU instancing could not query GL capabilities for instance divisors.", e);
+			}
 		}
 	}
 
