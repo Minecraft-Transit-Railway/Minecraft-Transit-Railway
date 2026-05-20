@@ -123,7 +123,7 @@ public final class GpuObjRenderer implements IGui {
 		final int effectivePackedColor = packedColor == ARGB_WHITE ? staticObjMesh.materialColor : packedColor;
 		scratchInstanceBuffer.clear();
 		putPackedColor(effectivePackedColor);
-		scratchInstanceBuffer.putInt(packedLight);
+		putPackedLight(packedLight);
 		scratchInstanceBuffer.putFloat(drawMatrix.m00());
 		scratchInstanceBuffer.putFloat(drawMatrix.m01());
 		scratchInstanceBuffer.putFloat(drawMatrix.m02());
@@ -158,6 +158,11 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.put((byte) ((packedColor >>> 16) & 0xFF));
 		scratchInstanceBuffer.put((byte) ((packedColor >>> 8) & 0xFF));
 		scratchInstanceBuffer.put((byte) (packedColor & 0xFF));
+	}
+
+	private void putPackedLight(int packedLight) {
+		scratchInstanceBuffer.putShort((short) (packedLight >>> 16));
+		scratchInstanceBuffer.putShort((short) packedLight);
 	}
 
 	public void renderOpaque(Vector3d offset) {

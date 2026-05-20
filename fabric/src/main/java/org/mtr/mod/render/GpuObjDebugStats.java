@@ -586,11 +586,14 @@ public final class GpuObjDebugStats {
 				formatNullableHex(diagnosticSample.drawVertexArrayMaterialColor)
 		));
 		lines.add(String.format(
-				"%s light: raw=0x%08X exchanged=0x%08X instance=0x%08X",
+				"%s light: raw=0x%08X exchanged=0x%08X globalShorts=(%d,%d) instanceAttrShorts=(%d,%d)",
 				label,
 				diagnosticSample.rawLight,
 				diagnosticSample.exchangedLight,
-				diagnosticSample.instanceLight
+				(diagnosticSample.exchangedLight >>> 16) & 0xFFFF,
+				diagnosticSample.exchangedLight & 0xFFFF,
+				(diagnosticSample.instanceLight >>> 16) & 0xFFFF,
+				diagnosticSample.instanceLight & 0xFFFF
 		));
 		if (!diagnosticSample.vaoAttributeState.isEmpty()) {
 			lines.add(String.format("%s VAO attributes: %s", label, diagnosticSample.vaoAttributeState));
