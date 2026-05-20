@@ -39,7 +39,7 @@ public final class VehicleGpuCache {
 			final PlacementStats placementStats = placementStatsByCondition.get(partCondition);
 			conditionBuckets.add(new ConditionBucket(partCondition, parts, fallbackParts, placementStats == null ? 0 : placementStats.supportedPlacementCount, placementStats == null ? new long[GpuObjDebugStats.VehicleFallbackReason.values().length] : placementStats.copyUnsupportedReasonCounts()));
 		});
-		hasParts = conditionBuckets.stream().anyMatch(conditionBucket -> !conditionBucket.parts.isEmpty());
+		hasParts = conditionBuckets.stream().anyMatch(conditionBucket -> !conditionBucket.parts.isEmpty() || !conditionBucket.fallbackParts.isEmpty());
 	}
 
 	public static PlacementStats getOrCreatePlacementStats(Object2ObjectOpenHashMap<PartCondition, PlacementStats> placementStatsByCondition, PartCondition condition) {
@@ -104,20 +104,16 @@ public final class VehicleGpuCache {
 	public static final class FallbackPart {
 
 		public final PartCondition condition;
-		private final Supplier<OptimizedModelWrapper> modelSupplier;
 		@Nullable
-		private OptimizedModelWrapper model;
+		private final OptimizedModelWrapper model;
 
-		public FallbackPart(PartCondition condition, Supplier<OptimizedModelWrapper> modelSupplier) {
+		public FallbackPart(PartCondition condition, @Nullable OptimizedModelWrapper model) {
 			this.condition = condition;
-			this.modelSupplier = modelSupplier;
+			this.model = model;
 		}
 
 		@Nullable
 		public OptimizedModelWrapper getOrCreateModel() {
-			if (model == null) {
-				model = modelSupplier.get();
-			}
 			return model;
 		}
 	}
