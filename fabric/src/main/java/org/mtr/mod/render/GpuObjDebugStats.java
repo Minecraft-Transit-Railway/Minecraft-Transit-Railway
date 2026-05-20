@@ -856,7 +856,7 @@ public final class GpuObjDebugStats {
 		}
 
 		String getSourceSampleId() {
-			return sourceSampleId;
+			return normalReferenceSampleId;
 		}
 
 		Matrix4f getPreparedDrawMatrix() {
