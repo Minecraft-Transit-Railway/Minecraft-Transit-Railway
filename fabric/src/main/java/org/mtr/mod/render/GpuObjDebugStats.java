@@ -188,6 +188,31 @@ public final class GpuObjDebugStats {
 		CURRENT_FRAME.vehicleFallbackReasons[reason.ordinal()] += count;
 	}
 
+	public static void recordVehicleFallbackScheduled() {
+		CURRENT_FRAME.vehicleFallbackScheduled++;
+	}
+
+	public static void recordVehicleFallbackExecuted() {
+		CURRENT_FRAME.vehicleFallbackExecuted++;
+	}
+
+	public static void recordVehicleFallbackOptimizedQueue(boolean queued) {
+		CURRENT_FRAME.vehicleFallbackOptimizedQueueCalls++;
+		if (queued) {
+			CURRENT_FRAME.vehicleFallbackOptimizedQueueAccepted++;
+		}
+	}
+
+	public static void recordOptimizedRendererRender(boolean available, boolean renderTranslucent) {
+		CURRENT_FRAME.optimizedRendererRenderCalls++;
+		if (available) {
+			CURRENT_FRAME.optimizedRendererRenderAvailable++;
+		}
+		if (renderTranslucent) {
+			CURRENT_FRAME.optimizedRendererRenderTranslucent++;
+		}
+	}
+
 	public static void recordVehicleConditionFilteredParts(long count) {
 		CURRENT_FRAME.vehicleConditionFilteredParts += count;
 	}
@@ -491,6 +516,17 @@ public final class GpuObjDebugStats {
 		lines.add(String.format("%s vehicle eligible/gpu/fallback/filtered: %d/%d/%d/%d", label, snapshot.vehicleEligibleParts, snapshot.vehicleGpuParts, snapshot.vehicleFallbackParts, snapshot.vehicleConditionFilteredParts));
 		lines.add(String.format("%s vehicle gpu queue calls: %d", label, snapshot.vehicleGpuQueues));
 		lines.add(String.format("%s vehicle fallback reasons: %s", label, formatReasons(snapshot.vehicleFallbackReasons, VehicleFallbackReason.values())));
+		lines.add(String.format(
+				"%s vehicle fallback pipeline scheduled/executed/queueCalls/queueAccepted optimizedRenderCalls/available/translucent: %d/%d/%d/%d %d/%d/%d",
+				label,
+				snapshot.vehicleFallbackScheduled,
+				snapshot.vehicleFallbackExecuted,
+				snapshot.vehicleFallbackOptimizedQueueCalls,
+				snapshot.vehicleFallbackOptimizedQueueAccepted,
+				snapshot.optimizedRendererRenderCalls,
+				snapshot.optimizedRendererRenderAvailable,
+				snapshot.optimizedRendererRenderTranslucent
+		));
 	}
 
 	private static double nanosToMillis(long nanos) {
@@ -1256,6 +1292,13 @@ public final class GpuObjDebugStats {
 		private long vehicleFallbackParts;
 		private long vehicleConditionFilteredParts;
 		private long vehicleGpuQueues;
+		private long vehicleFallbackScheduled;
+		private long vehicleFallbackExecuted;
+		private long vehicleFallbackOptimizedQueueCalls;
+		private long vehicleFallbackOptimizedQueueAccepted;
+		private long optimizedRendererRenderCalls;
+		private long optimizedRendererRenderAvailable;
+		private long optimizedRendererRenderTranslucent;
 		private final long[] railFallbackReasons = new long[RailFallbackReason.values().length];
 		private final long[] vehicleFallbackReasons = new long[VehicleFallbackReason.values().length];
 
@@ -1279,6 +1322,13 @@ public final class GpuObjDebugStats {
 			vehicleFallbackParts += snapshot.vehicleFallbackParts;
 			vehicleConditionFilteredParts += snapshot.vehicleConditionFilteredParts;
 			vehicleGpuQueues += snapshot.vehicleGpuQueues;
+			vehicleFallbackScheduled += snapshot.vehicleFallbackScheduled;
+			vehicleFallbackExecuted += snapshot.vehicleFallbackExecuted;
+			vehicleFallbackOptimizedQueueCalls += snapshot.vehicleFallbackOptimizedQueueCalls;
+			vehicleFallbackOptimizedQueueAccepted += snapshot.vehicleFallbackOptimizedQueueAccepted;
+			optimizedRendererRenderCalls += snapshot.optimizedRendererRenderCalls;
+			optimizedRendererRenderAvailable += snapshot.optimizedRendererRenderAvailable;
+			optimizedRendererRenderTranslucent += snapshot.optimizedRendererRenderTranslucent;
 			addArrays(railFallbackReasons, snapshot.railFallbackReasons);
 			addArrays(vehicleFallbackReasons, snapshot.vehicleFallbackReasons);
 		}
@@ -1303,6 +1353,13 @@ public final class GpuObjDebugStats {
 			vehicleFallbackParts = 0;
 			vehicleConditionFilteredParts = 0;
 			vehicleGpuQueues = 0;
+			vehicleFallbackScheduled = 0;
+			vehicleFallbackExecuted = 0;
+			vehicleFallbackOptimizedQueueCalls = 0;
+			vehicleFallbackOptimizedQueueAccepted = 0;
+			optimizedRendererRenderCalls = 0;
+			optimizedRendererRenderAvailable = 0;
+			optimizedRendererRenderTranslucent = 0;
 			Arrays.fill(railFallbackReasons, 0);
 			Arrays.fill(vehicleFallbackReasons, 0);
 		}
@@ -1327,6 +1384,13 @@ public final class GpuObjDebugStats {
 			vehicleFallbackParts = snapshot.vehicleFallbackParts;
 			vehicleConditionFilteredParts = snapshot.vehicleConditionFilteredParts;
 			vehicleGpuQueues = snapshot.vehicleGpuQueues;
+			vehicleFallbackScheduled = snapshot.vehicleFallbackScheduled;
+			vehicleFallbackExecuted = snapshot.vehicleFallbackExecuted;
+			vehicleFallbackOptimizedQueueCalls = snapshot.vehicleFallbackOptimizedQueueCalls;
+			vehicleFallbackOptimizedQueueAccepted = snapshot.vehicleFallbackOptimizedQueueAccepted;
+			optimizedRendererRenderCalls = snapshot.optimizedRendererRenderCalls;
+			optimizedRendererRenderAvailable = snapshot.optimizedRendererRenderAvailable;
+			optimizedRendererRenderTranslucent = snapshot.optimizedRendererRenderTranslucent;
 			System.arraycopy(snapshot.railFallbackReasons, 0, railFallbackReasons, 0, railFallbackReasons.length);
 			System.arraycopy(snapshot.vehicleFallbackReasons, 0, vehicleFallbackReasons, 0, vehicleFallbackReasons.length);
 		}

@@ -648,10 +648,12 @@ public final class VehicleResource extends VehicleResourceSchema {
 							GpuObjDebugStats.recordVehicleFallbackQueueSample(fallbackPart.describeQueueState(renderable));
 						}
 						if (renderable) {
+							GpuObjDebugStats.recordVehicleFallbackScheduled();
 							final StoredMatrixTransformations fallbackTransformations = storedMatrixTransformations.copy();
 							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 								fallbackTransformations.transform(graphicsHolder, offset);
-								CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(fallbackModel, graphicsHolder, light);
+								GpuObjDebugStats.recordVehicleFallbackExecuted();
+								GpuObjDebugStats.recordVehicleFallbackOptimizedQueue(CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(fallbackModel, graphicsHolder, light));
 								graphicsHolder.pop();
 							});
 						}

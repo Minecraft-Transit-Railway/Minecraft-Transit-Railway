@@ -3,6 +3,7 @@ package org.mtr.mod.resource;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.render.GpuObjDebugStats;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -47,17 +48,20 @@ public final class OptimizedRendererWrapper implements IGui {
 		}
 	}
 
-	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int light) {
-		queue(optimizedModel, graphicsHolder, IGui.ARGB_WHITE, light);
+	public boolean queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int light) {
+		return queue(optimizedModel, graphicsHolder, IGui.ARGB_WHITE, light);
 	}
 
-	public void queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int color, int light) {
+	public boolean queue(OptimizedModelWrapper optimizedModel, GraphicsHolder graphicsHolder, int color, int light) {
 		if (optimizedRenderer != null && optimizedModel.optimizedModel != null) {
 			optimizedRenderer.queue(optimizedModel.optimizedModel, graphicsHolder, color, light);
+			return true;
 		}
+		return false;
 	}
 
 	public void render(boolean renderTranslucent) {
+		GpuObjDebugStats.recordOptimizedRendererRender(optimizedRenderer != null, renderTranslucent);
 		if (optimizedRenderer != null) {
 			optimizedRenderer.render(renderTranslucent);
 		}
