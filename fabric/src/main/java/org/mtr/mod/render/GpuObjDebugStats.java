@@ -448,6 +448,8 @@ public final class GpuObjDebugStats {
 				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.UV_LIGHTMAP),
 				GpuObjRenderer.VERTEX_ATTRIBUTE_MAPPING.pointers.get(org.mtr.mapping.render.vertex.VertexAttributeType.MATRIX_MODEL)
 		));
+		lines.add("Shader ModelMat patch: Position -> (MODELVIEWMAT * ModelMat * vec4(Position, 1.0)).xyz; Normal -> normalize(mat3(MODELVIEWMAT * ModelMat) * Normal); original ModelViewMat tokens are replaced with mat4(1.0) after sentinel substitution.");
+		lines.add("OBJ coordinate note: normal OptimizedModel.ObjModel.loadModel applies rawMesh.applyRotation(X, 180) before upload; GPU RawMesh path currently samples ObjModelLoader output before that normal-path rotation.");
 		appendDiagnosticSample(lines, "Rail", lastRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", lastVehicleDiagnosticSample);
 	}
@@ -483,6 +485,7 @@ public final class GpuObjDebugStats {
 				diagnosticSample.centerY,
 				diagnosticSample.centerZ
 		));
+		lines.add(String.format("%s GPU raw vertex sample: %s", label, diagnosticSample.staticObjMesh.rawVertexSample));
 		lines.add(String.format("%s queued world matrix: %s", label, diagnosticSample.formatQueuedMatrix()));
 		lines.add(String.format("%s prepared instanced draw matrix: %s", label, diagnosticSample.formatPreparedDrawMatrix()));
 		if (diagnosticSample.hasSingleDrawReferenceMatrix()) {

@@ -22,6 +22,7 @@ public final class StaticObjMesh implements Closeable {
 	public final float centerX;
 	public final float centerY;
 	public final float centerZ;
+	public final String rawVertexSample;
 	private final Mesh mesh;
 
 	public StaticObjMesh(RawMesh rawMesh) {
@@ -41,6 +42,7 @@ public final class StaticObjMesh implements Closeable {
 			maxY = Math.max(maxY, vertex.position.getY());
 			maxZ = Math.max(maxZ, vertex.position.getZ());
 		}
+		rawVertexSample = sampleRawVertices(rawMesh);
 		this.minX = vertexCount > 0 ? minX : 0;
 		this.minY = vertexCount > 0 ? minY : 0;
 		this.minZ = vertexCount > 0 ? minZ : 0;
@@ -58,6 +60,46 @@ public final class StaticObjMesh implements Closeable {
 
 	public VertexArray getDiagnosticVertexArray(org.mtr.mapping.render.batch.MaterialProperties materialProperties) {
 		return new VertexArray(diagnosticVertexArray, materialProperties);
+	}
+
+	private static String sampleRawVertices(RawMesh rawMesh) {
+		final StringBuilder stringBuilder = new StringBuilder();
+		final int count = Math.min(3, rawMesh.vertices.size());
+		for (int i = 0; i < count; i++) {
+			final org.mtr.mapping.render.vertex.Vertex vertex = rawMesh.vertices.get(i);
+			if (i > 0) {
+				stringBuilder.append(" | ");
+			}
+			stringBuilder.append(String.format(
+					"v%d pos=(%.5f, %.5f, %.5f) normal=(%.5f, %.5f, %.5f) x180Pos=(%.5f, %.5f, %.5f) x180Normal=(%.5f, %.5f, %.5f)",
+					i,
+					getX(vertex.position),
+					getY(vertex.position),
+					getZ(vertex.position),
+					getX(vertex.normal),
+					getY(vertex.normal),
+					getZ(vertex.normal),
+					getX(vertex.position),
+					-getY(vertex.position),
+					-getZ(vertex.position),
+					getX(vertex.normal),
+					-getY(vertex.normal),
+					-getZ(vertex.normal)
+			));
+		}
+		return stringBuilder.length() == 0 ? "none" : stringBuilder.toString();
+	}
+
+	private static float getX(@javax.annotation.Nullable org.mtr.mapping.holder.Vector3f vector3f) {
+		return vector3f == null ? Float.NaN : vector3f.getX();
+	}
+
+	private static float getY(@javax.annotation.Nullable org.mtr.mapping.holder.Vector3f vector3f) {
+		return vector3f == null ? Float.NaN : vector3f.getY();
+	}
+
+	private static float getZ(@javax.annotation.Nullable org.mtr.mapping.holder.Vector3f vector3f) {
+		return vector3f == null ? Float.NaN : vector3f.getZ();
 	}
 
 	@Override
