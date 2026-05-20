@@ -16,20 +16,28 @@ import java.util.function.Supplier;
 
 public final class VehicleGpuCache {
 
-	public static final VehicleGpuCache EMPTY = new VehicleGpuCache(new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
+	public static final VehicleGpuCache EMPTY = new VehicleGpuCache(new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
 	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition;
+	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<FallbackPart>> fallbackPartsByCondition;
 	public final ObjectArrayList<ConditionBucket> conditionBuckets = new ObjectArrayList<>();
 	public final boolean hasParts;
 
-	public VehicleGpuCache(Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition, Object2ObjectOpenHashMap<PartCondition, PlacementStats> placementStatsByCondition) {
+	public VehicleGpuCache(
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<FallbackPart>> fallbackPartsByCondition,
+			Object2ObjectOpenHashMap<PartCondition, PlacementStats> placementStatsByCondition
+	) {
 		this.partsByCondition = partsByCondition;
+		this.fallbackPartsByCondition = fallbackPartsByCondition;
 		final ObjectArraySet<PartCondition> partConditions = new ObjectArraySet<>();
 		partConditions.addAll(partsByCondition.keySet());
+		partConditions.addAll(fallbackPartsByCondition.keySet());
 		partConditions.addAll(placementStatsByCondition.keySet());
 		partConditions.forEach(partCondition -> {
 			final ObjectArrayList<Part> parts = partsByCondition.getOrDefault(partCondition, new ObjectArrayList<>());
+			final ObjectArrayList<FallbackPart> fallbackParts = fallbackPartsByCondition.getOrDefault(partCondition, new ObjectArrayList<>());
 			final PlacementStats placementStats = placementStatsByCondition.get(partCondition);
-			conditionBuckets.add(new ConditionBucket(partCondition, parts, placementStats == null ? 0 : placementStats.supportedPlacementCount, placementStats == null ? new long[GpuObjDebugStats.VehicleFallbackReason.values().length] : placementStats.copyUnsupportedReasonCounts()));
+			conditionBuckets.add(new ConditionBucket(partCondition, parts, fallbackParts, placementStats == null ? 0 : placementStats.supportedPlacementCount, placementStats == null ? new long[GpuObjDebugStats.VehicleFallbackReason.values().length] : placementStats.copyUnsupportedReasonCounts()));
 		});
 		hasParts = conditionBuckets.stream().anyMatch(conditionBucket -> !conditionBucket.parts.isEmpty());
 	}
@@ -68,12 +76,14 @@ public final class VehicleGpuCache {
 
 		public final PartCondition condition;
 		public final ObjectArrayList<Part> parts;
+		public final ObjectArrayList<FallbackPart> fallbackParts;
 		public final long supportedPlacementCount;
 		private final long[] unsupportedPlacementCounts;
 
-		private ConditionBucket(PartCondition condition, ObjectArrayList<Part> parts, long supportedPlacementCount, long[] unsupportedPlacementCounts) {
+		private ConditionBucket(PartCondition condition, ObjectArrayList<Part> parts, ObjectArrayList<FallbackPart> fallbackParts, long supportedPlacementCount, long[] unsupportedPlacementCounts) {
 			this.condition = condition;
 			this.parts = parts;
+			this.fallbackParts = fallbackParts;
 			this.supportedPlacementCount = supportedPlacementCount;
 			this.unsupportedPlacementCounts = unsupportedPlacementCounts;
 		}
@@ -88,6 +98,29 @@ public final class VehicleGpuCache {
 				count += unsupportedPlacementCount;
 			}
 			return count;
+		}
+	}
+
+	public static final class FallbackPart {
+
+		public final PartCondition condition;
+		public final StoredMatrixTransformations localTransformations;
+		private final Supplier<OptimizedModelWrapper> modelSupplier;
+		@Nullable
+		private OptimizedModelWrapper model;
+
+		public FallbackPart(PartCondition condition, StoredMatrixTransformations localTransformations, Supplier<OptimizedModelWrapper> modelSupplier) {
+			this.condition = condition;
+			this.localTransformations = localTransformations;
+			this.modelSupplier = modelSupplier;
+		}
+
+		@Nullable
+		public OptimizedModelWrapper getOrCreateModel() {
+			if (model == null) {
+				model = modelSupplier.get();
+			}
+			return model;
 		}
 	}
 

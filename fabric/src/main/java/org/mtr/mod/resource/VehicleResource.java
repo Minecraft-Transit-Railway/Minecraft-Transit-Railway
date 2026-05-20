@@ -626,6 +626,21 @@ public final class VehicleResource extends VehicleResourceSchema {
 						}
 					});
 				}
+				if (!conditionBucket.fallbackParts.isEmpty()) {
+					queuedAny = true;
+					conditionBucket.fallbackParts.forEach(fallbackPart -> {
+						final OptimizedModelWrapper fallbackModel = fallbackPart.getOrCreateModel();
+						if (fallbackModel != null && fallbackModel.optimizedModel != null) {
+							final StoredMatrixTransformations fallbackTransformations = storedMatrixTransformations.copy();
+							fallbackTransformations.add(fallbackPart.localTransformations);
+							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+								fallbackTransformations.transform(graphicsHolder, offset);
+								CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(fallbackModel, graphicsHolder, light);
+								graphicsHolder.pop();
+							});
+						}
+					});
+				}
 			}
 
 			GpuObjDebugStats.recordVehicleEligibleParts(eligiblePartCount);
@@ -706,6 +721,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 	private static CachedResource<VehicleGpuCache> writeToGpuCache(ObjectArrayList<VehicleModel> models, int modelLifespan) {
 		return new CachedResource<>(() -> {
 			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForCondition = new Object2ObjectOpenHashMap<>();
 			final Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition = new Object2ObjectOpenHashMap<>();
 			models.forEach(vehicleModel -> {
 				final VehicleGpuCache vehicleGpuCache = vehicleModel.cachedGpuCache.getData(true);
@@ -713,6 +729,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 					vehicleGpuCache.conditionBuckets.forEach(conditionBucket -> {
 						if (!conditionBucket.parts.isEmpty()) {
 							Data.put(gpuPartsForCondition, conditionBucket.condition, conditionBucket.parts, ObjectArrayList::new);
+						}
+						if (!conditionBucket.fallbackParts.isEmpty()) {
+							Data.put(fallbackPartsForCondition, conditionBucket.condition, conditionBucket.fallbackParts, ObjectArrayList::new);
 						}
 						final VehicleGpuCache.PlacementStats placementStats = VehicleGpuCache.getOrCreatePlacementStats(placementStatsByCondition, conditionBucket.condition);
 						placementStats.addSupportedPlacementCount(conditionBucket.supportedPlacementCount);
@@ -722,7 +741,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 					});
 				}
 			});
-			return new VehicleGpuCache(gpuPartsForCondition, placementStatsByCondition);
+			return new VehicleGpuCache(gpuPartsForCondition, fallbackPartsForCondition, placementStatsByCondition);
 		}, modelLifespan);
 	}
 

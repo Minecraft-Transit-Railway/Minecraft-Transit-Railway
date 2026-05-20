@@ -228,23 +228,56 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			GpuObjModelWrapper gpuObjModelWrapper,
 			PositionDefinitions positionDefinitionsObject,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition,
 			double modelYOffset,
 			GpuObjDebugStats.VehicleFallbackReason modelFallbackReason
 	) {
-		final GpuObjDebugStats.VehicleFallbackReason fallbackReason = getGpuFallbackReason(modelFallbackReason);
+		GpuObjDebugStats.VehicleFallbackReason fallbackReason = getGpuFallbackReason(modelFallbackReason);
 		final ObjectArrayList<StaticObjMesh> gpuMeshes = new ObjectArrayList<>();
+		boolean missingGpuGroup = false;
 		if (fallbackReason == null && gpuObjModelWrapper != null) {
-			names.forEach(name -> gpuObjModelWrapper.getMeshes(name).forEach(gpuMeshes::add));
+			for (final String name : names) {
+				if (gpuObjModelWrapper.isGroupTranslucent(name)) {
+					fallbackReason = GpuObjDebugStats.VehicleFallbackReason.HAS_TRANSLUCENT_MESH;
+					gpuMeshes.clear();
+					break;
+				}
+				final java.util.Collection<StaticObjMesh> meshes = gpuObjModelWrapper.getMeshes(name);
+				if (meshes.isEmpty()) {
+					missingGpuGroup = true;
+					gpuMeshes.clear();
+					break;
+				}
+				meshes.forEach(gpuMeshes::add);
+			}
 		}
-		final GpuObjDebugStats.VehicleFallbackReason resolvedFallbackReason = fallbackReason == null && gpuMeshes.isEmpty() ? GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND : fallbackReason;
+		final GpuObjDebugStats.VehicleFallbackReason resolvedFallbackReason = fallbackReason == null && (missingGpuGroup || gpuMeshes.isEmpty()) ? GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND : fallbackReason;
 		if (resolvedFallbackReason == GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND) {
 			logMissingGpuGroups(modelResource, gpuObjModelWrapper);
 		}
 
 		positionDefinitions.forEach(positionDefinitionName -> positionDefinitionsObject.getPositionDefinition(positionDefinitionName, (positions, positionsFlipped) -> {
-			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> addGpuDebugPart(modelResource, textureId, flipTextureV, resourceProvider, gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason));
+			iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> {
+				addGpuDebugPart(modelResource, textureId, flipTextureV, resourceProvider, gpuMeshes, gpuPartsForPartCondition, placementStatsByCondition, x, y, z, flipped, modelYOffset, resolvedFallbackReason);
+				if (shouldAddGpuNormalFallbackPart(resolvedFallbackReason)) {
+					addGpuFallbackPart(modelResource, textureId, flipTextureV, resourceProvider, fallbackPartsForPartCondition, x, y, z, flipped, modelYOffset);
+				}
+			});
 		}));
+	}
+
+	private void addGpuFallbackPart(
+			String modelResource,
+			Identifier textureId,
+			boolean flipTextureV,
+			ResourceProvider resourceProvider,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForPartCondition,
+			double x, double y, double z, boolean flipped, double modelYOffset
+	) {
+		final StoredMatrixTransformations fallbackLocalTransformations = createLocalStoredMatrixTransformations(x, y, z, flipped, modelYOffset);
+		final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset);
+		fallbackPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.FallbackPart(condition, fallbackLocalTransformations, normalReferenceModelSupplier));
 	}
 
 	private void logMissingGpuGroups(String modelResource, @Nullable GpuObjModelWrapper gpuObjModelWrapper) {
@@ -656,6 +689,11 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			return GpuObjDebugStats.VehicleFallbackReason.RENDER_STAGE_UNSUPPORTED;
 		}
 		return modelFallbackReason;
+	}
+
+	private static boolean shouldAddGpuNormalFallbackPart(@Nullable GpuObjDebugStats.VehicleFallbackReason fallbackReason) {
+		return fallbackReason == GpuObjDebugStats.VehicleFallbackReason.HAS_TRANSLUCENT_MESH ||
+				fallbackReason == GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND;
 	}
 
 	private boolean supportsGpuObjInstancing() {

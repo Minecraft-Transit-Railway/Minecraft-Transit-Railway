@@ -161,12 +161,13 @@ public final class VehicleModel extends VehicleModelSchema {
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
+		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForCondition = new Object2ObjectOpenHashMap<>();
 		final Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition = new Object2ObjectOpenHashMap<>();
 		final boolean modelIsObj = modelResource.endsWith(".obj");
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 		final GpuObjModelWrapper gpuObjModelWrapper = modelIsObj ? GpuObjModelRegistry.getOrCreate(modelResource, textureId, flipTextureV, resourceProvider) : null;
-		final GpuObjDebugStats.VehicleFallbackReason modelFallbackReason = !modelIsObj ? GpuObjDebugStats.VehicleFallbackReason.MODEL_NOT_OBJ : gpuObjModelWrapper == null ? GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE : gpuObjModelWrapper.hasTranslucentMeshes() ? GpuObjDebugStats.VehicleFallbackReason.HAS_TRANSLUCENT_MESH : null;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(modelResource, textureId, flipTextureV, resourceProvider, gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, placementStatsByCondition, modelProperties.getModelYOffset(), modelFallbackReason));
-		return new VehicleGpuCache(gpuPartsForCondition, placementStatsByCondition);
+		final GpuObjDebugStats.VehicleFallbackReason modelFallbackReason = !modelIsObj ? GpuObjDebugStats.VehicleFallbackReason.MODEL_NOT_OBJ : gpuObjModelWrapper == null ? GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE : null;
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeGpuCache(modelResource, textureId, flipTextureV, resourceProvider, gpuObjModelWrapper, positionDefinitions, gpuPartsForCondition, fallbackPartsForCondition, placementStatsByCondition, modelProperties.getModelYOffset(), modelFallbackReason));
+		return new VehicleGpuCache(gpuPartsForCondition, fallbackPartsForCondition, placementStatsByCondition);
 	}
 }
