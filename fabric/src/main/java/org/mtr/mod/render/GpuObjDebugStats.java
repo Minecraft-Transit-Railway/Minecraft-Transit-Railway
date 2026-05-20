@@ -434,6 +434,10 @@ public final class GpuObjDebugStats {
 		return watchActive;
 	}
 
+	public static boolean shouldCollectTimings() {
+		return diagnosticEnabled || watchActive || pendingRailReport;
+	}
+
 	public static String getStatusSummary() {
 		return String.format(
 				"diagnostics=%s watch=%s skipCameraOffset=%s forceNoCull=%s forceWhiteCutout=%s railView=%s",

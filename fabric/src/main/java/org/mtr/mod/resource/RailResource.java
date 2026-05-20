@@ -72,7 +72,8 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
-		final long startNanos = System.nanoTime();
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long startNanos = collectTimings ? System.nanoTime() : 0;
 		try {
 			if (!Config.getClient().getEnableGpuObjInstancing()) {
 				GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.CONFIG_DISABLED);
@@ -115,7 +116,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 			GpuObjDebugStats.recordRailOutcome(queuedAny, GpuObjDebugStats.RailFallbackReason.QUEUE_RETURNED_FALSE_AFTER_CACHE_LOOKUP);
 			return queuedAny;
 		} finally {
-			GpuObjDebugStats.recordRailQueueNanos(System.nanoTime() - startNanos);
+			if (collectTimings) {
+				GpuObjDebugStats.recordRailQueueNanos(System.nanoTime() - startNanos);
+			}
 		}
 	}
 

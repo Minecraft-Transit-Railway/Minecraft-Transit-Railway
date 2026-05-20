@@ -592,7 +592,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 	}
 
 	private static boolean queueGpu(@Nullable VehicleGpuCache vehicleGpuCache, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
-		final long startNanos = System.nanoTime();
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long startNanos = collectTimings ? System.nanoTime() : 0;
 		try {
 			if (vehicleGpuCache == null) {
 				return false;
@@ -671,7 +672,9 @@ public final class VehicleResource extends VehicleResourceSchema {
 			GpuObjDebugStats.recordVehicleQueuedParts(eligiblePartCount);
 			return queuedAny;
 		} finally {
-			GpuObjDebugStats.recordVehicleQueueNanos(System.nanoTime() - startNanos);
+			if (collectTimings) {
+				GpuObjDebugStats.recordVehicleQueueNanos(System.nanoTime() - startNanos);
+			}
 		}
 	}
 

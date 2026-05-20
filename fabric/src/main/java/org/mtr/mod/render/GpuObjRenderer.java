@@ -172,7 +172,8 @@ public final class GpuObjRenderer implements IGui {
 	}
 
 	public void renderOpaque(Vector3d offset) {
-		final long startNanos = System.nanoTime();
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long startNanos = collectTimings ? System.nanoTime() : 0;
 		try {
 			if (!shaderManager.isReady()) {
 				shaderManager.reloadShaders();
@@ -200,7 +201,9 @@ public final class GpuObjRenderer implements IGui {
 			renderRailDiagnosticReferences(GpuObjDebugStats.getCurrentRailDiagnosticSample());
 			renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
 		} finally {
-			GpuObjDebugStats.recordRenderOpaqueNanos(System.nanoTime() - startNanos);
+			if (collectTimings) {
+				GpuObjDebugStats.recordRenderOpaqueNanos(System.nanoTime() - startNanos);
+			}
 		}
 	}
 
@@ -242,9 +245,12 @@ public final class GpuObjRenderer implements IGui {
 			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
 		}
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
-		final long drawStartNanos = System.nanoTime();
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long drawStartNanos = collectTimings ? System.nanoTime() : 0;
 		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
-		GpuObjDebugStats.recordInstanceDrawNanos(System.nanoTime() - drawStartNanos);
+		if (collectTimings) {
+			GpuObjDebugStats.recordInstanceDrawNanos(System.nanoTime() - drawStartNanos);
+		}
 		GpuObjDebugStats.recordDrawInstanced();
 	}
 
@@ -266,9 +272,12 @@ public final class GpuObjRenderer implements IGui {
 		byteBuffer.put(batchEntry.payload.elements(), 0, payloadSize);
 		byteBuffer.flip();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		final long uploadStartNanos = System.nanoTime();
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long uploadStartNanos = collectTimings ? System.nanoTime() : 0;
 		instanceBuffer.upload(byteBuffer, payloadSize, VertexBuffer.USAGE_STREAM_DRAW);
-		GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
+		if (collectTimings) {
+			GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
+		}
 	}
 
 	private void renderDiagnosticReference(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample, int color) {
