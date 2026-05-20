@@ -94,9 +94,10 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
 		final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
-		final Matrix4f diagnosticMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
+		final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
+		final Matrix4f diagnosticMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
 		final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
-		final OptimizedModelWrapper normalReferenceModel = getOptimizedModel();
+		final OptimizedModelWrapper normalReferenceModel = diagnosticsEnabled ? getOptimizedModel() : null;
 		boolean queuedAny = false;
 		for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 			queuedAny = true;

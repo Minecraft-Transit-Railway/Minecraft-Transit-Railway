@@ -218,8 +218,7 @@ public final class GpuObjRenderer implements IGui {
 		byteBuffer.flip();
 		meshEntry.staticObjMesh.vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		instanceBuffer.upload(byteBuffer, VertexBuffer.USAGE_STREAM_DRAW);
-		applyInstanceAttributeDivisors();
+		instanceBuffer.upload(byteBuffer, meshEntry.payload.size(), VertexBuffer.USAGE_STREAM_DRAW);
 		DEFAULT_DRAW_STATE.apply();
 		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : meshEntry.staticObjMesh.vertexArray.materialProperties).vertexAttributeState.apply();
 		materialProperties.vertexAttributeState.apply();
@@ -321,17 +320,11 @@ public final class GpuObjRenderer implements IGui {
 	private static void setupInstanceAttribute(VertexAttributeType vertexAttributeType) {
 		vertexAttributeType.toggleAttributeArray(true);
 		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
-		vertexAttributeType.setAttributeDivisor(1);
+		applyInstanceAttributeDivisor(vertexAttributeType);
 	}
 
-	private static void applyInstanceAttributeDivisors() {
-		applyInstanceAttributeDivisor(VertexAttributeType.COLOR, 1);
-		applyInstanceAttributeDivisor(VertexAttributeType.UV_LIGHTMAP, 1);
-		applyInstanceAttributeDivisor(VertexAttributeType.MATRIX_MODEL, 4);
-	}
-
-	private static void applyInstanceAttributeDivisor(VertexAttributeType vertexAttributeType, int locationCount) {
-		for (int i = 0; i < locationCount; i++) {
+	private static void applyInstanceAttributeDivisor(VertexAttributeType vertexAttributeType) {
+		for (int i = 0; i < vertexAttributeType.span; i++) {
 			applyInstanceAttributeDivisor(vertexAttributeType.location + i);
 		}
 	}
