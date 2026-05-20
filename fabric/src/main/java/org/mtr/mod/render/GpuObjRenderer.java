@@ -257,27 +257,27 @@ public final class GpuObjRenderer implements IGui {
 	private void renderInstancedSampleReference(GpuObjDebugStats.DiagnosticSample diagnosticSample, int packedColor) {
 		final MaterialProperties referenceMaterial = diagnosticSample.createMatchedMaterialProperties();
 		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
-		final byte[] instanceData = new byte[INSTANCE_STRIDE];
-		final ByteBuffer instanceDataBuffer = ByteBuffer.wrap(instanceData).order(ByteOrder.nativeOrder());
-		instanceDataBuffer.putInt(packedColor);
-		instanceDataBuffer.putInt(GraphicsHolder.getDefaultLight());
-		instanceDataBuffer.putFloat(referenceMatrix.m00());
-		instanceDataBuffer.putFloat(referenceMatrix.m01());
-		instanceDataBuffer.putFloat(referenceMatrix.m02());
-		instanceDataBuffer.putFloat(referenceMatrix.m03());
-		instanceDataBuffer.putFloat(referenceMatrix.m10());
-		instanceDataBuffer.putFloat(referenceMatrix.m11());
-		instanceDataBuffer.putFloat(referenceMatrix.m12());
-		instanceDataBuffer.putFloat(referenceMatrix.m13());
-		instanceDataBuffer.putFloat(referenceMatrix.m20());
-		instanceDataBuffer.putFloat(referenceMatrix.m21());
-		instanceDataBuffer.putFloat(referenceMatrix.m22());
-		instanceDataBuffer.putFloat(referenceMatrix.m23());
-		instanceDataBuffer.putFloat(referenceMatrix.m30());
-		instanceDataBuffer.putFloat(referenceMatrix.m31());
-		instanceDataBuffer.putFloat(referenceMatrix.m32());
-		instanceDataBuffer.putFloat(referenceMatrix.m33());
-		instanceDataBuffer.flip();
+		ensureCapacity(INSTANCE_STRIDE);
+		byteBuffer.clear();
+		byteBuffer.putInt(packedColor);
+		byteBuffer.putInt(GraphicsHolder.getDefaultLight());
+		byteBuffer.putFloat(referenceMatrix.m00());
+		byteBuffer.putFloat(referenceMatrix.m01());
+		byteBuffer.putFloat(referenceMatrix.m02());
+		byteBuffer.putFloat(referenceMatrix.m03());
+		byteBuffer.putFloat(referenceMatrix.m10());
+		byteBuffer.putFloat(referenceMatrix.m11());
+		byteBuffer.putFloat(referenceMatrix.m12());
+		byteBuffer.putFloat(referenceMatrix.m13());
+		byteBuffer.putFloat(referenceMatrix.m20());
+		byteBuffer.putFloat(referenceMatrix.m21());
+		byteBuffer.putFloat(referenceMatrix.m22());
+		byteBuffer.putFloat(referenceMatrix.m23());
+		byteBuffer.putFloat(referenceMatrix.m30());
+		byteBuffer.putFloat(referenceMatrix.m31());
+		byteBuffer.putFloat(referenceMatrix.m32());
+		byteBuffer.putFloat(referenceMatrix.m33());
+		byteBuffer.flip();
 
 		shaderManager.setupShaderBatchState(referenceMaterial);
 		if (GpuObjDebugStats.shouldForceNoCull()) {
@@ -285,7 +285,7 @@ public final class GpuObjRenderer implements IGui {
 		}
 		diagnosticSample.getStaticObjMesh().vertexArray.bind();
 		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		instanceBuffer.upload(instanceDataBuffer, VertexBuffer.USAGE_STREAM_DRAW);
+		instanceBuffer.upload(byteBuffer, VertexBuffer.USAGE_STREAM_DRAW);
 		DEFAULT_DRAW_STATE.apply();
 		(GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : diagnosticSample.getStaticObjMesh().vertexArray.materialProperties).vertexAttributeState.apply();
 		referenceMaterial.vertexAttributeState.apply();
