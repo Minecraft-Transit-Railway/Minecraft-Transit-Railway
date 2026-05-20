@@ -687,14 +687,47 @@ public final class GpuObjDebugStats {
 				diagnosticSample.worldCenterZ
 		));
 		lines.add(String.format(
-				"%s draw matrix translation=(%.5f, %.5f, %.5f) camera offset=(%.5f, %.5f, %.5f)",
+				"%s draw matrix translation=(%.5f, %.5f, %.5f) render offset=(%.5f, %.5f, %.5f)",
 				label,
 				diagnosticSample.drawTranslationX,
 				diagnosticSample.drawTranslationY,
 				diagnosticSample.drawTranslationZ,
-				diagnosticSample.cameraOffsetX,
-				diagnosticSample.cameraOffsetY,
-				diagnosticSample.cameraOffsetZ
+				diagnosticSample.renderOffsetX,
+				diagnosticSample.renderOffsetY,
+				diagnosticSample.renderOffsetZ
+		));
+		lines.add(String.format(
+				"%s offsets: capture=(%.5f, %.5f, %.5f) render=(%.5f, %.5f, %.5f) normalCallback=(%.5f, %.5f, %.5f) captureMinusRender=(%.5f, %.5f, %.5f) normalMinusRender=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.captureOffsetX,
+				diagnosticSample.captureOffsetY,
+				diagnosticSample.captureOffsetZ,
+				diagnosticSample.renderOffsetX,
+				diagnosticSample.renderOffsetY,
+				diagnosticSample.renderOffsetZ,
+				diagnosticSample.normalReferenceRenderOffsetX,
+				diagnosticSample.normalReferenceRenderOffsetY,
+				diagnosticSample.normalReferenceRenderOffsetZ,
+				diagnosticSample.captureOffsetX - diagnosticSample.renderOffsetX,
+				diagnosticSample.captureOffsetY - diagnosticSample.renderOffsetY,
+				diagnosticSample.captureOffsetZ - diagnosticSample.renderOffsetZ,
+				diagnosticSample.normalReferenceRenderOffsetX - diagnosticSample.renderOffsetX,
+				diagnosticSample.normalReferenceRenderOffsetY - diagnosticSample.renderOffsetY,
+				diagnosticSample.normalReferenceRenderOffsetZ - diagnosticSample.renderOffsetZ
+		));
+		lines.add(String.format(
+				"%s instanced draw vs queuedWorld-minus-captureOffset delta translation=(%.5f, %.5f, %.5f)",
+				label,
+				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaX(),
+				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaY(),
+				diagnosticSample.getPreparedVsQueuedWorldMinusCaptureOffsetDeltaZ()
+		));
+		lines.add(String.format(
+				"%s light: raw=0x%08X exchanged=0x%08X instance=0x%08X",
+				label,
+				diagnosticSample.rawLight,
+				diagnosticSample.exchangedLight,
+				diagnosticSample.instanceLight
 		));
 		lines.add(String.format(
 				"%s camera relative center=(%.5f, %.5f, %.5f) camera space center=(%.5f, %.5f, %.5f) distance=%.5f forwardZ=%.5f finite=%s huge=%s",
@@ -802,9 +835,15 @@ public final class GpuObjDebugStats {
 		private float drawTranslationX;
 		private float drawTranslationY;
 		private float drawTranslationZ;
-		private double cameraOffsetX;
-		private double cameraOffsetY;
-		private double cameraOffsetZ;
+		private double captureOffsetX;
+		private double captureOffsetY;
+		private double captureOffsetZ;
+		private double renderOffsetX;
+		private double renderOffsetY;
+		private double renderOffsetZ;
+		private double normalReferenceRenderOffsetX;
+		private double normalReferenceRenderOffsetY;
+		private double normalReferenceRenderOffsetZ;
 		private double relativeCenterX;
 		private double relativeCenterY;
 		private double relativeCenterZ;
@@ -816,6 +855,9 @@ public final class GpuObjDebugStats {
 		private double postOffsetDistance;
 		private int instanceCount;
 		private int instanceColor;
+		private int instanceLight;
+		private int rawLight;
+		private int exchangedLight;
 		private boolean hasPreparedDrawMatrix;
 		private boolean hasSingleDrawReferenceMatrix;
 		private boolean hasStaticMatchedReferenceMatrix;
@@ -921,9 +963,9 @@ public final class GpuObjDebugStats {
 			this.skipCameraOffset = skipCameraOffset;
 			this.forceNoCull = forceNoCull;
 			this.forceWhiteCutout = forceWhiteCutout;
-			cameraOffsetX = offset.getXMapped();
-			cameraOffsetY = offset.getYMapped();
-			cameraOffsetZ = offset.getZMapped();
+			renderOffsetX = offset.getXMapped();
+			renderOffsetY = offset.getYMapped();
+			renderOffsetZ = offset.getZMapped();
 
 			final Matrix4f adjustedMatrix = createMatrix(hasPreparedDrawMatrix ? preparedDrawMatrix : queuedMatrix);
 
@@ -973,6 +1015,27 @@ public final class GpuObjDebugStats {
 
 		void setInstanceColor(int instanceColor) {
 			this.instanceColor = instanceColor;
+		}
+
+		void setInstanceLight(int instanceLight) {
+			this.instanceLight = instanceLight;
+		}
+
+		public void setLight(int rawLight, int exchangedLight) {
+			this.rawLight = rawLight;
+			this.exchangedLight = exchangedLight;
+		}
+
+		public void setCaptureOffset(Vector3d offset) {
+			captureOffsetX = offset.getXMapped();
+			captureOffsetY = offset.getYMapped();
+			captureOffsetZ = offset.getZMapped();
+		}
+
+		private void setNormalReferenceRenderOffset(Vector3d offset) {
+			normalReferenceRenderOffsetX = offset.getXMapped();
+			normalReferenceRenderOffsetY = offset.getYMapped();
+			normalReferenceRenderOffsetZ = offset.getZMapped();
 		}
 
 		void setSingleDrawReferenceMatrix(Matrix4f matrix) {
@@ -1047,9 +1110,9 @@ public final class GpuObjDebugStats {
 
 			final Matrix4f adjustedMatrix = createMatrix(normalReferenceMatrix);
 			if (useDefaultOffset && drawn && !skipCameraOffset) {
-				adjustedMatrix.m30(adjustedMatrix.m30() - (float) cameraOffsetX);
-				adjustedMatrix.m31(adjustedMatrix.m31() - (float) cameraOffsetY);
-				adjustedMatrix.m32(adjustedMatrix.m32() - (float) cameraOffsetZ);
+				adjustedMatrix.m30(adjustedMatrix.m30() - (float) renderOffsetX);
+				adjustedMatrix.m31(adjustedMatrix.m31() - (float) renderOffsetY);
+				adjustedMatrix.m32(adjustedMatrix.m32() - (float) renderOffsetZ);
 			}
 			storeMatrix(adjustedMatrix, normalReferenceDrawMatrix);
 			hasNormalReferenceDrawMatrix = true;
@@ -1161,6 +1224,18 @@ public final class GpuObjDebugStats {
 				max = Math.max(max, Math.abs(normalReferenceDrawMatrix[i] - reference[i]));
 			}
 			return max;
+		}
+
+		double getPreparedVsQueuedWorldMinusCaptureOffsetDeltaX() {
+			return (hasPreparedDrawMatrix ? preparedDrawMatrix[12] : queuedMatrix[12]) - (queuedMatrix[12] - captureOffsetX);
+		}
+
+		double getPreparedVsQueuedWorldMinusCaptureOffsetDeltaY() {
+			return (hasPreparedDrawMatrix ? preparedDrawMatrix[13] : queuedMatrix[13]) - (queuedMatrix[13] - captureOffsetY);
+		}
+
+		double getPreparedVsQueuedWorldMinusCaptureOffsetDeltaZ() {
+			return (hasPreparedDrawMatrix ? preparedDrawMatrix[14] : queuedMatrix[14]) - (queuedMatrix[14] - captureOffsetZ);
 		}
 
 		double getSingleDrawVsNormalReferenceDrawTranslationDeltaX() {
@@ -1486,6 +1561,7 @@ public final class GpuObjDebugStats {
 		}
 
 		MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+			diagnosticSample.setNormalReferenceRenderOffset(offset);
 			normalReferenceTransformations.transform(graphicsHolder, offset);
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(normalReferenceModel, graphicsHolder, color, GraphicsHolder.getDefaultLight());
 			graphicsHolder.pop();

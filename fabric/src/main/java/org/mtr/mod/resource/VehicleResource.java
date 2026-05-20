@@ -600,7 +600,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 
 			final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
 			final Matrix4f worldMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
-			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+			final org.mtr.mapping.holder.Vector3d drawOffset = GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset();
+			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, drawOffset);
 			final Matrix4f finalWorldMatrix = diagnosticsEnabled ? new Matrix4f() : null;
 			final Matrix4f finalDrawMatrix = new Matrix4f();
 			final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
@@ -633,6 +634,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 						final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
 						final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, partDrawMatrix, partWorldMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE);
 						if (diagnosticSample != null) {
+							diagnosticSample.setCaptureOffset(drawOffset);
+							diagnosticSample.setLight(light, packedLight);
 							final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
 							normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
 							diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);

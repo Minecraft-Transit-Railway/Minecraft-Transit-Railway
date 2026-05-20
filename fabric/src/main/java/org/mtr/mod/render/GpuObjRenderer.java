@@ -143,6 +143,7 @@ public final class GpuObjRenderer implements IGui {
 		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, diagnosticMatrix == null ? drawMatrix : diagnosticMatrix, useDefaultOffset);
 		if (diagnosticSample != null) {
 			diagnosticSample.setInstanceColor(effectivePackedColor);
+			diagnosticSample.setInstanceLight(packedLight);
 			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
 			meshEntry.diagnosticSample = diagnosticSample;
 		}

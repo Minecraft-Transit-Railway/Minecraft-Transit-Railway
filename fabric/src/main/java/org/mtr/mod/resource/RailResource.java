@@ -98,13 +98,16 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 			final StoredMatrixTransformations storedMatrixTransformations = createStoredMatrixTransformations(x, y, z, yaw, pitch, flip, rollDegrees, useDefaultOffset);
 			final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
 			final Matrix4f diagnosticMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
-			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+			final org.mtr.mapping.holder.Vector3d drawOffset = GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset();
+			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, drawOffset);
 			final OptimizedModelWrapper normalReferenceModel = diagnosticsEnabled ? getOptimizedModel() : null;
 			boolean queuedAny = false;
 			for (final RailGpuCache.Entry entry : railGpuCache.entries) {
 				queuedAny = true;
 				final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.mesh, drawMatrix, diagnosticMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.RAIL);
 				if (diagnosticSample != null) {
+					diagnosticSample.setCaptureOffset(drawOffset);
+					diagnosticSample.setLight(light, packedLight);
 					diagnosticSample.setNormalReference(normalReferenceModel, storedMatrixTransformations.copy(), diagnosticMatrix, true, "rail=" + id);
 				}
 			}
