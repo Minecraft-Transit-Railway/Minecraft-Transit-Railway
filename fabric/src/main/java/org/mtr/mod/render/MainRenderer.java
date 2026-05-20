@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.render.tool.GlStateTracker;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -167,7 +168,12 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		GpuObjRenderer.INSTANCE.renderOpaque(offset);
+		GlStateTracker.capture();
+		try {
+			GpuObjRenderer.INSTANCE.renderOpaque(offset);
+		} finally {
+			GlStateTracker.restore();
+		}
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
 		GpuObjRenderer.INSTANCE.clear();
 		GpuObjDebugStats.finishFrame();
