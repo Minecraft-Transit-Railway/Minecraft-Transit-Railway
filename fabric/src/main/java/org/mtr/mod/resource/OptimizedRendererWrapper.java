@@ -3,6 +3,7 @@ package org.mtr.mod.resource;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mod.data.IGui;
+import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,7 @@ public final class OptimizedRendererWrapper implements IGui {
 	private int reloadDepth;
 
 	public OptimizedRendererWrapper() {
-		this.optimizedRenderer = OptimizedRenderer.hasOptimizedRendering() ? new OptimizedRenderer() : null;
+		this.optimizedRenderer = GpuObjCompat.isSupported() ? new OptimizedRenderer() : null;
 	}
 
 	public void beginReload() {

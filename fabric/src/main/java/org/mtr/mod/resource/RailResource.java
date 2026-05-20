@@ -6,7 +6,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
-import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.render.batch.MaterialProperties;
@@ -14,6 +13,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.generated.resource.RailResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.render.InstancingMatrixHelper;
@@ -68,7 +68,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	@Override
 	public void preload() {
 		cachedRailResource.getData(true);
-		cachedGpuRailResource.getData(true);
+		if (GpuObjCompat.isSupported()) {
+			cachedGpuRailResource.getData(true);
+		}
 	}
 
 	public boolean queueGpu(double x, double y, double z, double yaw, double pitch, boolean flip, float rollDegrees, int light, boolean useDefaultOffset) {
@@ -80,7 +82,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 				return false;
 			}
 
-			if (!OptimizedRenderer.hasOptimizedRendering()) {
+			if (!GpuObjCompat.isSupported()) {
 				GpuObjDebugStats.recordRailOutcome(false, GpuObjDebugStats.RailFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE);
 				return false;
 			}
@@ -141,6 +143,10 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	private RailGpuCache createGpuCache() {
+		if (!GpuObjCompat.isSupported()) {
+			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE);
+		}
+
 		if (!modelResource.endsWith(".obj")) {
 			return new RailGpuCache(new ObjectArrayList<>(), GpuObjDebugStats.RailFallbackReason.STYLE_NOT_OBJ);
 		}

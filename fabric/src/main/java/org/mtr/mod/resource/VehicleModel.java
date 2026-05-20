@@ -12,6 +12,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 
 public final class VehicleModel extends VehicleModelSchema {
@@ -158,6 +159,10 @@ public final class VehicleModel extends VehicleModelSchema {
 	}
 
 	private VehicleGpuCache createGpuCache() {
+		if (!GpuObjCompat.isSupported()) {
+			return VehicleGpuCache.EMPTY;
+		}
+
 		final ModelProperties modelProperties = new ModelProperties(modelPropertiesJsonReader);
 		final PositionDefinitions positionDefinitions = new PositionDefinitions(positionDefinitionsJsonReader);
 		final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();

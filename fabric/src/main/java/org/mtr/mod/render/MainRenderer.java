@@ -109,8 +109,11 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			ArrivalsCacheClient.INSTANCE.tick();
 		}
 
-		GpuObjDebugStats.beginFrame(Config.getClient().getEnableGpuObjInstancing());
-		GpuObjRenderer.INSTANCE.beginFrame(offset, graphicsHolder);
+		final boolean gpuObjSupported = GpuObjCompat.isSupported();
+		GpuObjDebugStats.beginFrame(gpuObjSupported && Config.getClient().getEnableGpuObjInstancing());
+		if (gpuObjSupported) {
+			GpuObjRenderer.INSTANCE.beginFrame(offset, graphicsHolder);
+		}
 
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
@@ -168,14 +171,18 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
-		GlStateTracker.capture();
-		try {
-			GpuObjRenderer.INSTANCE.renderOpaque(offset);
-		} finally {
-			GlStateTracker.restore();
+		if (gpuObjSupported) {
+			GlStateTracker.capture();
+			try {
+				GpuObjRenderer.INSTANCE.renderOpaque(offset);
+			} finally {
+				GlStateTracker.restore();
+			}
 		}
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
-		GpuObjRenderer.INSTANCE.clear();
+		if (gpuObjSupported) {
+			GpuObjRenderer.INSTANCE.clear();
+		}
 		GpuObjDebugStats.finishFrame();
 	}
 

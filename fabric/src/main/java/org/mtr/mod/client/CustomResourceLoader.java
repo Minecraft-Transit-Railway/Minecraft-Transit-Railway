@@ -11,6 +11,7 @@ import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
+import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.resource.*;
@@ -88,7 +89,9 @@ public class CustomResourceLoader {
 		LIFTS_CACHE.clear();
 		GpuObjDebugStats.resetSession();
 		GpuObjModelRegistry.clear();
-		GpuObjRenderer.INSTANCE.reload();
+		if (GpuObjCompat.isSupported()) {
+			GpuObjRenderer.INSTANCE.reload();
+		}
 		DynamicTextureCache.instance.reload();
 		TEST_DURATION = 0;
 

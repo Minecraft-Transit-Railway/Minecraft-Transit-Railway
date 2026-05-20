@@ -9,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -17,6 +16,7 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.render.InstancingMatrixHelper;
@@ -212,7 +212,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 			if (data2 != null) {
 				final VehicleResourceCacheHolder data3 = data2.getData(force);
 				if (data3 != null) {
-					if (force) {
+					if (force && GpuObjCompat.isSupported()) {
 						data3.vehicleGpuCache.getData(true);
 						data3.bogie1GpuCache.getData(true);
 						data3.bogie2GpuCache.getData(true);
@@ -238,7 +238,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
 			final boolean instancingEnabled = Config.getClient().getEnableGpuObjInstancing();
-			final boolean optimizedRenderingAvailable = OptimizedRenderer.hasOptimizedRendering();
+			final boolean optimizedRenderingAvailable = GpuObjCompat.isSupported();
 			final VehicleGpuCache vehicleGpuCache = vehicleResourceCache.vehicleGpuCache.getData(false);
 			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && vehicleGpuCache != null && vehicleGpuCache.hasParts && queueGpu(vehicleGpuCache, storedMatrixTransformations, useDefaultOffset, vehicle, light, noOpenDoorways);
 			if (gpuQueued) {
@@ -265,7 +265,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
 			final boolean instancingEnabled = Config.getClient().getEnableGpuObjInstancing();
-			final boolean optimizedRenderingAvailable = OptimizedRenderer.hasOptimizedRendering();
+			final boolean optimizedRenderingAvailable = GpuObjCompat.isSupported();
 			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2;
 			final VehicleGpuCache bogieGpuCache = (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(false);
 			final StoredMatrixTransformations storedMatrixTransformations = storedMatrixTransformationsSupplier.get();
@@ -595,7 +595,7 @@ public final class VehicleResource extends VehicleResourceSchema {
 		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
 		final long startNanos = collectTimings ? System.nanoTime() : 0;
 		try {
-			if (vehicleGpuCache == null) {
+			if (vehicleGpuCache == null || !GpuObjCompat.isSupported()) {
 				return false;
 			}
 
