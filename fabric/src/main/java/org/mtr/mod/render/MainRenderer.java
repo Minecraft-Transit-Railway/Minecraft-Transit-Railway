@@ -109,7 +109,7 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		}
 
 		GpuObjDebugStats.beginFrame(Config.getClient().getEnableGpuObjInstancing());
-		GpuObjRenderer.INSTANCE.beginFrame(offset);
+		GpuObjRenderer.INSTANCE.beginFrame(offset, graphicsHolder);
 
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);

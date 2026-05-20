@@ -76,14 +76,17 @@ public final class GpuObjRenderer implements IGui {
 	private double frameOffsetX;
 	private double frameOffsetY;
 	private double frameOffsetZ;
+	@Nullable
+	private GraphicsHolder frameGraphicsHolder;
 
 	private GpuObjRenderer() {
 	}
 
-	public void beginFrame(Vector3d offset) {
+	public void beginFrame(Vector3d offset, GraphicsHolder graphicsHolder) {
 		frameOffsetX = offset.getXMapped();
 		frameOffsetY = offset.getYMapped();
 		frameOffsetZ = offset.getZMapped();
+		frameGraphicsHolder = graphicsHolder;
 	}
 
 	public void reloadShaders() {
@@ -92,6 +95,10 @@ public final class GpuObjRenderer implements IGui {
 
 	public Vector3d getFrameOffset() {
 		return new Vector3d(frameOffsetX, frameOffsetY, frameOffsetZ);
+	}
+
+	public Matrix4f captureFrameMatrix(StoredMatrixTransformations storedMatrixTransformations, Vector3d offset) {
+		return InstancingMatrixHelper.captureMatrix(frameGraphicsHolder, storedMatrixTransformations, offset);
 	}
 
 	@Nullable

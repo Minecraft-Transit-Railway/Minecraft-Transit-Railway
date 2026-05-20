@@ -596,8 +596,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 			return false;
 		}
 
-		final Matrix4f worldMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
-		final Matrix4f drawMatrix = InstancingMatrixHelper.captureMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
+		final Matrix4f worldMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET);
+		final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset());
 		final Matrix4f finalWorldMatrix = new Matrix4f();
 		final Matrix4f finalDrawMatrix = new Matrix4f();
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
