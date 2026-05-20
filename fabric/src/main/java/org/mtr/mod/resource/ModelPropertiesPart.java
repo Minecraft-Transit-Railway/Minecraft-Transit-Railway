@@ -275,9 +275,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForPartCondition,
 			double x, double y, double z, boolean flipped, double modelYOffset
 	) {
-		final StoredMatrixTransformations fallbackLocalTransformations = createLocalStoredMatrixTransformations(x, y, z, flipped, modelYOffset);
 		final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier = createNormalReferenceModelSupplier(modelResource, textureId, flipTextureV, resourceProvider, new ObjectArrayList<>(names), x, y, z, flipped, modelYOffset);
-		fallbackPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.FallbackPart(condition, fallbackLocalTransformations, normalReferenceModelSupplier));
+		fallbackPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.FallbackPart(condition, normalReferenceModelSupplier));
 	}
 
 	private void logMissingGpuGroups(String modelResource, @Nullable GpuObjModelWrapper gpuObjModelWrapper) {

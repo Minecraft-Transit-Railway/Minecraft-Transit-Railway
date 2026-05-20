@@ -632,7 +632,6 @@ public final class VehicleResource extends VehicleResourceSchema {
 						final OptimizedModelWrapper fallbackModel = fallbackPart.getOrCreateModel();
 						if (fallbackModel != null && fallbackModel.optimizedModel != null) {
 							final StoredMatrixTransformations fallbackTransformations = storedMatrixTransformations.copy();
-							fallbackTransformations.add(fallbackPart.localTransformations);
 							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
 								fallbackTransformations.transform(graphicsHolder, offset);
 								CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(fallbackModel, graphicsHolder, light);

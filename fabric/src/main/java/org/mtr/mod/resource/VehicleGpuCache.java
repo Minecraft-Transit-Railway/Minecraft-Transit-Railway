@@ -104,14 +104,12 @@ public final class VehicleGpuCache {
 	public static final class FallbackPart {
 
 		public final PartCondition condition;
-		public final StoredMatrixTransformations localTransformations;
 		private final Supplier<OptimizedModelWrapper> modelSupplier;
 		@Nullable
 		private OptimizedModelWrapper model;
 
-		public FallbackPart(PartCondition condition, StoredMatrixTransformations localTransformations, Supplier<OptimizedModelWrapper> modelSupplier) {
+		public FallbackPart(PartCondition condition, Supplier<OptimizedModelWrapper> modelSupplier) {
 			this.condition = condition;
-			this.localTransformations = localTransformations;
 			this.modelSupplier = modelSupplier;
 		}
 
