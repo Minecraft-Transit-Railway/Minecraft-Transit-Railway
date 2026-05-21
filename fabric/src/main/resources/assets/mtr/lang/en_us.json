@@ -533,7 +533,7 @@
 	"options.mtr.default_rail_3d": "Render default rails in 3D",
 	"options.mtr.disable_shadows_for_shaders": "Disable shadows when using shaders",
 	"options.mtr.dynamic_texture_resolution": "Dynamic texture resolution (higher values might crash!)",
-	"options.mtr.enable_gpu_obj_instancing": "Enable GPU OBJ instancing for supported vehicle parts",
+	"options.mtr.enable_gpu_obj_instancing": "Enable GPU OBJ instancing for supported rail and vehicle parts",
 	"options.mtr.hide_special_rail_colors": "Hide special rail colours",
 	"options.mtr.hide_translucent_parts": "Hide translucent parts on vehicles",
 	"options.mtr.language_options": "Language display on signs",
