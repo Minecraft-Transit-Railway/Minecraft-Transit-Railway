@@ -436,8 +436,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final String[] tagSplit = tag.split(":");
 			if (tagSplit.length == 2) {
 				tagMap.computeIfAbsent(tagSplit[0], key -> new Object2ObjectAVLTreeMap<>()).computeIfAbsent(tagSplit[1], key -> new ObjectArrayList<>()).add(id);
-			}
-		});
+							});
+						});
 	}
 
 	private CachedResource<CachedResource<CachedResource<VehicleResourceCacheHolder>>> cachedVehicleResourceInitializer(int carNumber, int totalCars, boolean force) {
@@ -628,19 +628,22 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 
 				eligiblePartCount += conditionBucket.supportedPlacementCount;
-				if (!conditionBucket.parts.isEmpty()) {
+				if (!conditionBucket.partGroups.isEmpty()) {
 					queuedAny = true;
-					conditionBucket.parts.forEach(part -> {
-						final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
-						final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
-						final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjRenderer.INSTANCE.queue(part.batchKey, part.materialProperties, part.mesh, partDrawMatrix, partWorldMatrix, packedLight, 0xFFFFFFFF, useDefaultOffset, GpuObjDebugStats.Source.VEHICLE);
-						if (diagnosticSample != null) {
-							diagnosticSample.setCaptureOffset(drawOffset);
-							diagnosticSample.setLight(light, packedLight);
-							final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
-							normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
-							diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
-						}
+					conditionBucket.partGroups.forEach(partGroup -> {
+						final GpuObjRenderer.QueuedMesh queuedMesh = GpuObjRenderer.INSTANCE.beginQueue(partGroup.batchKey, partGroup.materialProperties, partGroup.mesh, packedLight, 0xFFFFFFFF, GpuObjDebugStats.Source.VEHICLE);
+						partGroup.parts.forEach(part -> {
+							final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
+							final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
+							final GpuObjDebugStats.DiagnosticSample diagnosticSample = queuedMesh.queue(partDrawMatrix, partWorldMatrix, useDefaultOffset);
+							if (diagnosticSample != null) {
+								diagnosticSample.setCaptureOffset(drawOffset);
+								diagnosticSample.setLight(light, packedLight);
+								final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
+								normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
+								diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
+							}
+						});
 					});
 				}
 				if (!conditionBucket.fallbackParts.isEmpty()) {

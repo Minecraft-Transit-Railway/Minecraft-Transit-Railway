@@ -96,6 +96,10 @@ public final class GpuObjRenderer implements IGui {
 
 	@Nullable
 	public GpuObjDebugStats.DiagnosticSample queue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int packedLight, int packedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source) {
+		return beginQueue(batchKey, materialProperties, staticObjMesh, packedLight, packedColor, source).queue(drawMatrix, diagnosticMatrix, useDefaultOffset);
+	}
+
+	public QueuedMesh beginQueue(ObjBatchKey batchKey, MaterialProperties materialProperties, StaticObjMesh staticObjMesh, int packedLight, int packedColor, GpuObjDebugStats.Source source) {
 		final BatchEntry batchEntry = batches.computeIfAbsent(batchKey, key -> new BatchEntry(materialProperties));
 		final boolean newBatch = !batchEntry.activeThisFrame;
 		if (!batchEntry.activeThisFrame) {
@@ -114,6 +118,10 @@ public final class GpuObjRenderer implements IGui {
 
 		final int effectivePackedColor = packedColor == ARGB_WHITE ? staticObjMesh.materialColor : packedColor;
 		final int effectivePackedLight = materialProperties.vertexAttributeState.lightmapUV == null ? packedLight : materialProperties.vertexAttributeState.lightmapUV;
+		return new QueuedMesh(source, batchKey, staticObjMesh, meshEntry, newBatch, newMesh, effectivePackedColor, effectivePackedLight);
+	}
+
+	private GpuObjDebugStats.DiagnosticSample queue(MeshEntry meshEntry, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int effectivePackedLight, int effectivePackedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source, boolean newBatch, boolean newMesh) {
 		scratchInstanceBuffer.clear();
 		putPackedColor(effectivePackedColor);
 		putPackedLight(effectivePackedLight);
@@ -370,6 +378,38 @@ public final class GpuObjRenderer implements IGui {
 				vertexArray = staticObjMesh.createVertexArray(materialProperties);
 			}
 			return vertexArray;
+		}
+	}
+
+	public final class QueuedMesh {
+
+		private final GpuObjDebugStats.Source source;
+		private final ObjBatchKey batchKey;
+		private final StaticObjMesh staticObjMesh;
+		private final MeshEntry meshEntry;
+		private final boolean newBatch;
+		private final boolean newMesh;
+		private final int effectivePackedColor;
+		private final int effectivePackedLight;
+		private boolean recordedActiveState;
+
+		private QueuedMesh(GpuObjDebugStats.Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, MeshEntry meshEntry, boolean newBatch, boolean newMesh, int effectivePackedColor, int effectivePackedLight) {
+			this.source = source;
+			this.batchKey = batchKey;
+			this.staticObjMesh = staticObjMesh;
+			this.meshEntry = meshEntry;
+			this.newBatch = newBatch;
+			this.newMesh = newMesh;
+			this.effectivePackedColor = effectivePackedColor;
+			this.effectivePackedLight = effectivePackedLight;
+		}
+
+		@Nullable
+		public GpuObjDebugStats.DiagnosticSample queue(Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, boolean useDefaultOffset) {
+			final boolean recordNewBatch = !recordedActiveState && newBatch;
+			final boolean recordNewMesh = !recordedActiveState && newMesh;
+			recordedActiveState = true;
+			return GpuObjRenderer.this.queue(meshEntry, batchKey, staticObjMesh, drawMatrix, diagnosticMatrix, effectivePackedLight, effectivePackedColor, useDefaultOffset, source, recordNewBatch, recordNewMesh);
 		}
 	}
 }

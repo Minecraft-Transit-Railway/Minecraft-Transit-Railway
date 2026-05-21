@@ -12,6 +12,7 @@ import org.mtr.mod.render.StaticObjMesh;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class VehicleGpuCache {
@@ -76,6 +77,7 @@ public final class VehicleGpuCache {
 
 		public final PartCondition condition;
 		public final ObjectArrayList<Part> parts;
+		public final ObjectArrayList<PartGroup> partGroups;
 		public final ObjectArrayList<FallbackPart> fallbackParts;
 		public final long supportedPlacementCount;
 		private final long[] unsupportedPlacementCounts;
@@ -83,6 +85,7 @@ public final class VehicleGpuCache {
 		private ConditionBucket(PartCondition condition, ObjectArrayList<Part> parts, ObjectArrayList<FallbackPart> fallbackParts, long supportedPlacementCount, long[] unsupportedPlacementCounts) {
 			this.condition = condition;
 			this.parts = parts;
+			partGroups = createPartGroups(parts);
 			this.fallbackParts = fallbackParts;
 			this.supportedPlacementCount = supportedPlacementCount;
 			this.unsupportedPlacementCounts = unsupportedPlacementCounts;
@@ -98,6 +101,20 @@ public final class VehicleGpuCache {
 				count += unsupportedPlacementCount;
 			}
 			return count;
+		}
+	}
+
+	public static final class PartGroup {
+
+		public final StaticObjMesh mesh;
+		public final ObjBatchKey batchKey;
+		public final MaterialProperties materialProperties;
+		public final ObjectArrayList<Part> parts = new ObjectArrayList<>();
+
+		private PartGroup(Part part) {
+			mesh = part.mesh;
+			batchKey = part.batchKey;
+			materialProperties = part.materialProperties;
 		}
 	}
 
@@ -157,6 +174,50 @@ public final class VehicleGpuCache {
 				normalReferenceModel = normalReferenceModelSupplier.get();
 			}
 			return normalReferenceModel;
+		}
+	}
+
+	private static ObjectArrayList<PartGroup> createPartGroups(ObjectArrayList<Part> parts) {
+		final ObjectArrayList<PartGroup> partGroups = new ObjectArrayList<>();
+		final Object2ObjectOpenHashMap<PartGroupKey, PartGroup> partGroupsByKey = new Object2ObjectOpenHashMap<>();
+		parts.forEach(part -> {
+			final PartGroupKey key = new PartGroupKey(part.batchKey, part.mesh);
+			PartGroup partGroup = partGroupsByKey.get(key);
+			if (partGroup == null) {
+				partGroup = new PartGroup(part);
+				partGroupsByKey.put(key, partGroup);
+				partGroups.add(partGroup);
+			}
+			partGroup.parts.add(part);
+		});
+		return partGroups;
+	}
+
+	private static final class PartGroupKey {
+
+		private final ObjBatchKey batchKey;
+		private final StaticObjMesh mesh;
+
+		private PartGroupKey(ObjBatchKey batchKey, StaticObjMesh mesh) {
+			this.batchKey = batchKey;
+			this.mesh = mesh;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) {
+				return true;
+			}
+			if (!(object instanceof PartGroupKey)) {
+				return false;
+			}
+			final PartGroupKey that = (PartGroupKey) object;
+			return Objects.equals(batchKey, that.batchKey) && mesh == that.mesh;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(batchKey, System.identityHashCode(mesh));
 		}
 	}
 }
