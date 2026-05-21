@@ -1,15 +1,13 @@
 package org.mtr.mod.render;
 
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.ARBInstancedArrays;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL33;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.render.batch.MaterialProperties;
+import org.mtr.mapping.render.object.InstancedDrawHelper;
 import org.mtr.mapping.render.object.VertexArray;
 import org.mtr.mapping.render.object.VertexBuffer;
 import org.mtr.mapping.render.shader.ShaderManager;
@@ -215,12 +213,11 @@ public final class GpuObjRenderer implements IGui {
 	}
 
 	public static void setupInstanceAttributes(VertexArray vertexArray) {
-		vertexArray.bind();
-		INSTANCE.instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		setupInstanceAttribute(VertexAttributeType.COLOR);
-		setupInstanceAttribute(VertexAttributeType.UV_LIGHTMAP);
-		setupInstanceAttribute(VertexAttributeType.MATRIX_MODEL);
-		VertexArray.unbind();
+		final boolean supported = InstancedDrawHelper.setupInstanceAttributes(vertexArray, INSTANCE.instanceBuffer, VERTEX_ATTRIBUTE_MAPPING, VertexAttributeType.COLOR, VertexAttributeType.UV_LIGHTMAP, VertexAttributeType.MATRIX_MODEL);
+		if (!supported && !loggedMissingInstanceDivisorSupport) {
+			loggedMissingInstanceDivisorSupport = true;
+			Init.LOGGER.warn("[MTR Debug] GPU instancing is missing glVertexAttribDivisor support; instance attributes will not advance per instance.");
+		}
 	}
 
 	private void render(MaterialProperties materialProperties, MeshEntry meshEntry, Vector3d offset) {
@@ -231,8 +228,7 @@ public final class GpuObjRenderer implements IGui {
 
 		final VertexArray vertexArray = meshEntry.getOrCreateVertexArray(materialProperties);
 		vertexArray.bind();
-		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
-		setupInstanceAttributePointers(meshEntry.instanceOffsetBytes);
+		InstancedDrawHelper.setupInstanceAttributePointers(instanceBuffer, VERTEX_ATTRIBUTE_MAPPING, meshEntry.instanceOffsetBytes, VertexAttributeType.COLOR, VertexAttributeType.UV_LIGHTMAP, VertexAttributeType.MATRIX_MODEL);
 		DEFAULT_DRAW_STATE.apply();
 		materialProperties.vertexAttributeState.apply();
 		if (meshEntry.diagnosticSample != null) {
@@ -241,7 +237,7 @@ public final class GpuObjRenderer implements IGui {
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
 		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
 		final long drawStartNanos = collectTimings ? System.nanoTime() : 0;
-		GL33.glDrawElementsInstanced(GL33.GL_TRIANGLES, meshEntry.staticObjMesh.vertexArray.indexBuffer.getVertexCount(), meshEntry.staticObjMesh.vertexArray.indexBuffer.indexType, 0, instanceCount);
+		InstancedDrawHelper.drawElementsInstanced(meshEntry.staticObjMesh.vertexArray, instanceCount);
 		if (collectTimings) {
 			GpuObjDebugStats.recordInstanceDrawNanos(System.nanoTime() - drawStartNanos);
 		}
@@ -265,10 +261,9 @@ public final class GpuObjRenderer implements IGui {
 		byteBuffer.clear();
 		byteBuffer.put(batchEntry.payload.elements(), 0, payloadSize);
 		byteBuffer.flip();
-		instanceBuffer.bind(GL33.GL_ARRAY_BUFFER);
 		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
 		final long uploadStartNanos = collectTimings ? System.nanoTime() : 0;
-		instanceBuffer.upload(byteBuffer, payloadSize, VertexBuffer.USAGE_STREAM_DRAW);
+		InstancedDrawHelper.uploadInstances(instanceBuffer, byteBuffer, payloadSize);
 		if (collectTimings) {
 			GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
 		}
@@ -283,47 +278,6 @@ public final class GpuObjRenderer implements IGui {
 
 	private static ByteBuffer createByteBuffer(int capacity) {
 		return ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
-	}
-
-	private static void setupInstanceAttribute(VertexAttributeType vertexAttributeType) {
-		vertexAttributeType.toggleAttributeArray(true);
-		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
-		applyInstanceAttributeDivisor(vertexAttributeType);
-	}
-
-	private static void setupInstanceAttributePointers(int instanceOffsetBytes) {
-		setupInstanceAttributePointer(VertexAttributeType.COLOR, instanceOffsetBytes);
-		setupInstanceAttributePointer(VertexAttributeType.UV_LIGHTMAP, instanceOffsetBytes);
-		setupInstanceAttributePointer(VertexAttributeType.MATRIX_MODEL, instanceOffsetBytes);
-	}
-
-	private static void setupInstanceAttributePointer(VertexAttributeType vertexAttributeType, int instanceOffsetBytes) {
-		vertexAttributeType.setupAttributePointer(VERTEX_ATTRIBUTE_MAPPING.strideInstance, instanceOffsetBytes + VERTEX_ATTRIBUTE_MAPPING.pointers.get(vertexAttributeType));
-	}
-
-	private static void applyInstanceAttributeDivisor(VertexAttributeType vertexAttributeType) {
-		for (int i = 0; i < vertexAttributeType.span; i++) {
-			applyInstanceAttributeDivisor(vertexAttributeType.location + i);
-		}
-	}
-
-	private static void applyInstanceAttributeDivisor(int location) {
-		try {
-			final org.lwjgl.opengl.GLCapabilities capabilities = GL.getCapabilities();
-			if (capabilities.OpenGL33) {
-				GL33.glVertexAttribDivisor(location, 1);
-			} else if (capabilities.GL_ARB_instanced_arrays) {
-				ARBInstancedArrays.glVertexAttribDivisorARB(location, 1);
-			} else if (!loggedMissingInstanceDivisorSupport) {
-				loggedMissingInstanceDivisorSupport = true;
-				Init.LOGGER.warn("[MTR Debug] GPU instancing is missing glVertexAttribDivisor support; instance attributes will not advance per instance.");
-			}
-		} catch (IllegalStateException e) {
-			if (!loggedMissingInstanceDivisorSupport) {
-				loggedMissingInstanceDivisorSupport = true;
-				Init.LOGGER.warn("[MTR Debug] GPU instancing could not query GL capabilities for instance divisors.", e);
-			}
-		}
 	}
 
 	@SuppressWarnings("unchecked")
