@@ -110,28 +110,11 @@ final class InstancedModelHandleImpl implements InstancedModelHandle {
 	}
 
 	@Override
-	public boolean queue(StoredMatrixTransformations transformations, int color, int light) {
+	public boolean queue(Matrix4f matrix, int color, int light) {
 		if (!isValidForQueue()) {
 			return false;
 		}
-		if (transformations == null) {
-			fallbackReason = InstancingFallbackReason.INVALID_SOURCE;
-			return false;
-		}
-		if (!GpuObjRenderer.INSTANCE.isFrameActive()) {
-			fallbackReason = InstancingFallbackReason.NOT_IN_RENDER_FRAME;
-			return false;
-		}
-		final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(transformations, GpuObjRenderer.INSTANCE.getFrameOffset());
-		return queueDrawMatrix(drawMatrix, color, light);
-	}
-
-	@Override
-	public boolean queueDrawMatrix(Matrix4f drawMatrix, int color, int light) {
-		if (!isValidForQueue()) {
-			return false;
-		}
-		if (drawMatrix == null) {
+		if (matrix == null) {
 			fallbackReason = InstancingFallbackReason.INVALID_SOURCE;
 			return false;
 		}
@@ -142,7 +125,7 @@ final class InstancedModelHandleImpl implements InstancedModelHandle {
 
 		final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
 		for (final Entry entry : entries) {
-			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.staticObjMesh, drawMatrix, null, packedLight, color, true, GpuObjDebugStats.Source.VEHICLE);
+			GpuObjRenderer.INSTANCE.queue(entry.batchKey, entry.materialProperties, entry.staticObjMesh, matrix, null, packedLight, color, true, GpuObjDebugStats.Source.VEHICLE);
 		}
 		fallbackReason = InstancingFallbackReason.NONE;
 		return true;
