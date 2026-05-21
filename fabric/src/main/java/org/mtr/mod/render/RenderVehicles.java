@@ -117,10 +117,10 @@ public class RenderVehicles implements IGui {
 						// Render each bogie of the car
 						iterateWithIndex(vehicleCarDetails.right().left(), (bogieIndex, absoluteBogiePositionAndRotation) -> {
 							final PositionAndRotation bogieRenderingPositionAndRotation = getRenderPositionAndRotation(offsetVector, offsetRotation, ridingCarPositionAndRotation, absoluteBogiePositionAndRotation, cameraShakeOffset);
-							final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, bogieRenderingPositionAndRotation, 0);
 							if (OptimizedRenderer.hasOptimizedRendering()) {
-								vehicleResource.queueBogie(bogieIndex, storedMatrixTransformations, vehicle, absoluteVehicleCarPositionAndRotation.light);
+								vehicleResource.queueBogie(bogieIndex, () -> getStoredMatrixTransformations(offsetVector == null, bogieRenderingPositionAndRotation, 0), offsetVector == null, bogieRenderingPositionAndRotation, vehicle, absoluteVehicleCarPositionAndRotation.light);
 							} else {
+								final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, bogieRenderingPositionAndRotation, 0);
 								vehicleResource.iterateBogieModels(bogieIndex, (modelIndex, model) -> model.render(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, absoluteVehicleCarPositionAndRotation.light, new ObjectArrayList<>(), fromResourcePackCreator));
 							}
 						});
@@ -216,7 +216,7 @@ public class RenderVehicles implements IGui {
 						// Each car can have more than one model defined
 						final StoredMatrixTransformations storedMatrixTransformations = getStoredMatrixTransformations(offsetVector == null, vehicleCarRenderingPositionAndRotation, oscillationAmount);
 						if (OptimizedRenderer.hasOptimizedRendering()) {
-							vehicleResource.queue(storedMatrixTransformations, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotation.light, openDoorways.isEmpty());
+							vehicleResource.queue(storedMatrixTransformations, offsetVector == null, vehicleCarRenderingPositionAndRotation, oscillationAmount, vehicle, carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), absoluteVehicleCarPositionAndRotation.light, openDoorways.isEmpty());
 						}
 
 						vehicleResource.iterateModels(carNumber, vehicle.vehicleExtraData.immutableVehicleCars.size(), (modelIndex, model) -> {

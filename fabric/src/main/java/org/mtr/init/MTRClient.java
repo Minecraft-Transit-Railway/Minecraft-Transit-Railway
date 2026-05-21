@@ -8,5 +8,6 @@ public final class MTRClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		InitClient.init();
+		FabricDebugCommands.init();
 	}
 }

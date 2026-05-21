@@ -11,6 +11,10 @@ import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
+import org.mtr.mod.render.ExternalInstancedModelRegistry;
+import org.mtr.mod.render.GpuObjCompat;
+import org.mtr.mod.render.GpuObjDebugStats;
+import org.mtr.mod.render.GpuObjRenderer;
 import org.mtr.mod.resource.*;
 
 import java.io.InputStream;
@@ -84,7 +88,13 @@ public class CustomResourceLoader {
 		OBJECTS_CACHE.clear();
 		LIFTS.clear();
 		LIFTS_CACHE.clear();
-        DynamicTextureCache.instance.reload();
+		GpuObjDebugStats.resetSession();
+		ExternalInstancedModelRegistry.handleRendererReload();
+		GpuObjModelRegistry.clear();
+		if (GpuObjCompat.isSupported()) {
+			GpuObjRenderer.INSTANCE.reload();
+		}
+		DynamicTextureCache.instance.reload();
 		TEST_DURATION = 0;
 
 		final ObjectArrayList<SignResource> defaultSigns = new ObjectArrayList<>();

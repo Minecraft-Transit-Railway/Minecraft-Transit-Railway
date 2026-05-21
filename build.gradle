@@ -49,6 +49,11 @@ subprojects {
 	}
 
 	tasks.withType(Javadoc).tap {
-		configureEach { javadoc.options.addStringOption("Xdoclint:none", "-quiet") }
+		configureEach {
+			javadoc.options.encoding = "UTF-8"
+			javadoc.options.addStringOption("charSet", "UTF-8")
+			javadoc.options.addStringOption("docencoding", "UTF-8")
+			javadoc.options.addStringOption("Xdoclint:none", "-quiet")
+		}
 	}
 }

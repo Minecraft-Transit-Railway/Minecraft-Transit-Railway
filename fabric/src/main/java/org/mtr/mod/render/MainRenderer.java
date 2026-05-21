@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.render.tool.GlStateTracker;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.KeyBindings;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -108,10 +109,17 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			ArrivalsCacheClient.INSTANCE.tick();
 		}
 
+		final boolean gpuObjSupported = GpuObjCompat.isSupported();
+		GpuObjDebugStats.beginFrame(gpuObjSupported && Config.getClient().getEnableGpuObjInstancing());
+		if (gpuObjSupported) {
+			GpuObjRenderer.INSTANCE.beginFrame(offset, graphicsHolder);
+		}
+
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
 		RenderRails.render();
+		GpuObjDebugStats.scheduleDiagnosticRender();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {
@@ -163,7 +171,19 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			}
 		}
 
+		if (gpuObjSupported) {
+			GlStateTracker.capture();
+			try {
+				GpuObjRenderer.INSTANCE.renderOpaque(offset);
+			} finally {
+				GlStateTracker.restore();
+			}
+		}
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.render(!Config.getClient().getHideTranslucentParts());
+		if (gpuObjSupported) {
+			GpuObjRenderer.INSTANCE.clear();
+		}
+		GpuObjDebugStats.finishFrame();
 	}
 
 	public static void scheduleRender(@Nullable Identifier identifier, boolean priority, QueuedRenderLayer queuedRenderLayer, BiConsumer<GraphicsHolder, Vector3d> callback) {
