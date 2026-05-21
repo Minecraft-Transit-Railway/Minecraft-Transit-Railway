@@ -249,7 +249,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					gpuMeshes.clear();
 					break;
 				}
-				meshes.forEach(gpuMeshes::add);
+				for (final StaticObjMesh mesh : meshes) {
+					if (!supportsGpuMeshShader(mesh)) {
+						fallbackReason = GpuObjDebugStats.VehicleFallbackReason.SHADER_UNSUPPORTED;
+						gpuMeshes.clear();
+						break;
+					}
+					gpuMeshes.add(mesh);
+				}
+				if (fallbackReason != null) {
+					break;
+				}
 			}
 		}
 		final GpuObjDebugStats.VehicleFallbackReason resolvedFallbackReason = fallbackReason == null && (missingGpuGroup || gpuMeshes.isEmpty()) ? GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND : fallbackReason;
@@ -695,7 +705,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private static boolean shouldAddGpuNormalFallbackPart(@Nullable GpuObjDebugStats.VehicleFallbackReason fallbackReason) {
 		return fallbackReason == GpuObjDebugStats.VehicleFallbackReason.HAS_TRANSLUCENT_MESH ||
-				fallbackReason == GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND;
+				fallbackReason == GpuObjDebugStats.VehicleFallbackReason.OBJ_GROUP_NOT_FOUND ||
+				fallbackReason == GpuObjDebugStats.VehicleFallbackReason.SHADER_UNSUPPORTED;
 	}
 
 	private boolean supportsGpuObjInstancing() {
@@ -703,7 +714,11 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	private boolean supportsGpuRenderStage() {
-		return renderStage != RenderStage.INTERIOR_TRANSLUCENT && renderStage != RenderStage.ALWAYS_ON_LIGHT && renderStage != RenderStage.LIGHT;
+		return renderStage == RenderStage.EXTERIOR || renderStage == RenderStage.INTERIOR;
+	}
+
+	private static boolean supportsGpuMeshShader(StaticObjMesh staticObjMesh) {
+		return staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT;
 	}
 
 	private static Matrix4f createLocalTransform(double x, double y, double z, boolean flipped, double modelYOffset) {

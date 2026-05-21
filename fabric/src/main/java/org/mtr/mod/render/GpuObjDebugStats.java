@@ -38,7 +38,8 @@ public final class GpuObjDebugStats {
 		DOOR_PART("doorPart"),
 		RENDER_STAGE_UNSUPPORTED("renderStageUnsupported"),
 		OBJ_GROUP_NOT_FOUND("objGroupNotFound"),
-		GPU_CACHE_UNAVAILABLE("gpuCacheUnavailable");
+		GPU_CACHE_UNAVAILABLE("gpuCacheUnavailable"),
+		SHADER_UNSUPPORTED("shaderUnsupported");
 
 		public final String label;
 
