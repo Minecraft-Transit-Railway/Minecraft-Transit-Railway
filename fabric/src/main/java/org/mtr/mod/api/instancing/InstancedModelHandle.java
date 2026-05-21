@@ -1,6 +1,6 @@
 package org.mtr.mod.api.instancing;
 
-import org.joml.Matrix4f;
+import org.mtr.mapping.holder.Matrix4f;
 
 public interface InstancedModelHandle extends AutoCloseable {
 

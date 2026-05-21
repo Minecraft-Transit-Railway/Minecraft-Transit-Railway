@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Supplier;
-import org.joml.Matrix4f;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mod.render.ObjBatchKey;
 import org.mtr.mod.render.StaticObjMesh;
 
@@ -666,7 +666,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			final OptimizedModel.ShaderType shaderType = staticObjMesh.shaderType == OptimizedModel.ShaderType.CUTOUT ? renderStage.shaderType : staticObjMesh.shaderType;
 			final MaterialProperties materialProperties = new MaterialProperties(shaderType, staticObjMesh.texture, null);
 			final ObjBatchKey batchKey = new ObjBatchKey(renderStage, materialProperties);
-			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, new Matrix4f(localTransform), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
+			gpuPartsForPartCondition.computeIfAbsent(condition, key -> new ObjectArrayList<>()).add(new VehicleGpuCache.Part(condition, staticObjMesh, batchKey, materialProperties, localTransform.copy(), normalReferenceLocalTransformations.copy(), debugSampleId, normalReferenceModelSupplier));
 		});
 	}
 

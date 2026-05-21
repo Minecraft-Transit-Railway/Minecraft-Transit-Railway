@@ -1,9 +1,9 @@
 package org.mtr.mod.render;
 
-import org.joml.Matrix4f;
 import org.mtr.libraries.it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.render.batch.MaterialProperties;
@@ -129,22 +129,8 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.clear();
 		putPackedColor(effectivePackedColor);
 		putPackedLight(effectivePackedLight);
-		scratchInstanceBuffer.putFloat(drawMatrix.m00());
-		scratchInstanceBuffer.putFloat(drawMatrix.m01());
-		scratchInstanceBuffer.putFloat(drawMatrix.m02());
-		scratchInstanceBuffer.putFloat(drawMatrix.m03());
-		scratchInstanceBuffer.putFloat(drawMatrix.m10());
-		scratchInstanceBuffer.putFloat(drawMatrix.m11());
-		scratchInstanceBuffer.putFloat(drawMatrix.m12());
-		scratchInstanceBuffer.putFloat(drawMatrix.m13());
-		scratchInstanceBuffer.putFloat(drawMatrix.m20());
-		scratchInstanceBuffer.putFloat(drawMatrix.m21());
-		scratchInstanceBuffer.putFloat(drawMatrix.m22());
-		scratchInstanceBuffer.putFloat(drawMatrix.m23());
-		scratchInstanceBuffer.putFloat(drawMatrix.m30());
-		scratchInstanceBuffer.putFloat(drawMatrix.m31());
-		scratchInstanceBuffer.putFloat(drawMatrix.m32());
-		scratchInstanceBuffer.putFloat(drawMatrix.m33());
+		drawMatrix.writeTo(scratchInstanceBuffer.asFloatBuffer());
+		scratchInstanceBuffer.position(scratchInstanceBuffer.position() + MATRIX_BYTES);
 		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, diagnosticMatrix == null ? drawMatrix : diagnosticMatrix, useDefaultOffset);
 		if (diagnosticSample != null) {
 			diagnosticSample.setInstanceColor(effectivePackedColor);

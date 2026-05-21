@@ -1,11 +1,11 @@
 package org.mtr.mod.resource;
 
-import org.joml.Matrix4f;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mapping.render.batch.MaterialProperties;

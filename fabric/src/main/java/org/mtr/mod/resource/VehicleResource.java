@@ -4,9 +4,9 @@ import org.mtr.core.data.Data;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
-import org.joml.Matrix4f;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
@@ -633,8 +633,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 					conditionBucket.partGroups.forEach(partGroup -> {
 						final GpuObjRenderer.QueuedMesh queuedMesh = GpuObjRenderer.INSTANCE.beginQueue(partGroup.batchKey, partGroup.materialProperties, partGroup.mesh, packedLight, 0xFFFFFFFF, GpuObjDebugStats.Source.VEHICLE);
 						partGroup.parts.forEach(part -> {
-							final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).mul(part.localTransform);
-							final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).mul(part.localTransform) : null;
+							final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).multiply(part.localTransform);
+							final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).multiply(part.localTransform) : null;
 							final GpuObjDebugStats.DiagnosticSample diagnosticSample = queuedMesh.queue(partDrawMatrix, partWorldMatrix, useDefaultOffset);
 							if (diagnosticSample != null) {
 								diagnosticSample.setCaptureOffset(drawOffset);

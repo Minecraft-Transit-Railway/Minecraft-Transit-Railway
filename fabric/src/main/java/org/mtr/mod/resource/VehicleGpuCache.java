@@ -1,9 +1,9 @@
 package org.mtr.mod.resource;
 
-import org.joml.Matrix4f;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.ObjBatchKey;
