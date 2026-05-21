@@ -1,7 +1,6 @@
 package org.mtr.init;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -21,96 +20,14 @@ public final class FabricDebugCommands {
 	private static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, net.minecraft.command.CommandRegistryAccess registryAccess) {
 		dispatcher.register(
 				ClientCommandManager.literal("mtrdebug")
-						.then(ClientCommandManager.literal("report").executes(context -> writeRailReport(context.getSource())))
 						.then(ClientCommandManager.literal("instancing")
-								.then(createWatchCommand())
-								.then(createDiagnoseCommand()))
+								.then(ClientCommandManager.literal("status").executes(context -> requestStatus(context.getSource()))))
 		);
 	}
 
-	private static LiteralArgumentBuilder<FabricClientCommandSource> createWatchCommand() {
-		return ClientCommandManager.literal("watch")
-				.then(ClientCommandManager.literal("start").executes(context -> startWatch(context.getSource())))
-				.then(ClientCommandManager.literal("stop").executes(context -> {
-					if (GpuObjDebugStats.isWatchActive()) {
-						GpuObjDebugStats.emitReport("watch stop");
-						GpuObjDebugStats.stopWatch();
-						sendStatus(context.getSource(), "Stopped GPU instancing watch. " + GpuObjDebugStats.getStatusSummary());
-					} else {
-						sendStatus(context.getSource(), "GPU instancing watch is not active.");
-					}
-					return 1;
-				}));
-	}
-
-	private static LiteralArgumentBuilder<FabricClientCommandSource> createDiagnoseCommand() {
-		return ClientCommandManager.literal("diagnose")
-				.then(ClientCommandManager.literal("start").executes(context -> {
-					GpuObjDebugStats.enableDiagnostics();
-					sendStatus(context.getSource(), "Enabled GPU instancing diagnostics. " + GpuObjDebugStats.getStatusSummary());
-					return 1;
-				}))
-				.then(ClientCommandManager.literal("stop").executes(context -> {
-					GpuObjDebugStats.disableDiagnostics();
-					sendStatus(context.getSource(), "Disabled GPU instancing diagnostics and reset diagnostic toggles. " + GpuObjDebugStats.getStatusSummary());
-					return 1;
-				}))
-				.then(ClientCommandManager.literal("status").executes(context -> writeStatus(context.getSource(), "command diagnose status")))
-				.then(ClientCommandManager.literal("cameraOffset")
-						.then(ClientCommandManager.literal("on").executes(context -> setSkipOffset(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setSkipOffset(context.getSource(), false))))
-				.then(ClientCommandManager.literal("railView")
-						.then(ClientCommandManager.literal("all").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.ALL)))
-						.then(ClientCommandManager.literal("instanced").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.INSTANCED)))
-						.then(ClientCommandManager.literal("staticMatched").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.STATIC_MATCHED)))
-						.then(ClientCommandManager.literal("normal").executes(context -> setRailView(context.getSource(), GpuObjDebugStats.RailViewMode.NORMAL))))
-				.then(ClientCommandManager.literal("noCull")
-						.then(ClientCommandManager.literal("on").executes(context -> setForceNoCull(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setForceNoCull(context.getSource(), false))))
-				.then(ClientCommandManager.literal("whiteCutout")
-						.then(ClientCommandManager.literal("on").executes(context -> setForceWhiteCutout(context.getSource(), true)))
-						.then(ClientCommandManager.literal("off").executes(context -> setForceWhiteCutout(context.getSource(), false))));
-	}
-
-	private static int writeStatus(FabricClientCommandSource source, String reason) {
-		GpuObjDebugStats.emitReport(reason);
-		sendStatus(source, "Wrote GPU instancing status report to the backend log. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int writeRailReport(FabricClientCommandSource source) {
-		GpuObjDebugStats.requestRailReport();
-		sendStatus(source, "Queued GPU instancing report for the next rendered frame. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int startWatch(FabricClientCommandSource source) {
-		GpuObjDebugStats.startWatch();
-		sendStatus(source, "Started GPU instancing watch (1s interval). " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int setSkipOffset(FabricClientCommandSource source, boolean enabled) {
-		GpuObjDebugStats.setDiagnosticSkipCameraOffset(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: cameraOffset. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int setForceNoCull(FabricClientCommandSource source, boolean enabled) {
-		GpuObjDebugStats.setDiagnosticForceNoCull(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: noCull. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int setForceWhiteCutout(FabricClientCommandSource source, boolean enabled) {
-		GpuObjDebugStats.setDiagnosticForceWhiteCutout(enabled);
-		sendStatus(source, (enabled ? "Enabled" : "Disabled") + " GPU instancing diagnostic toggle: whiteCutout. " + GpuObjDebugStats.getStatusSummary());
-		return 1;
-	}
-
-	private static int setRailView(FabricClientCommandSource source, GpuObjDebugStats.RailViewMode railViewMode) {
-		GpuObjDebugStats.setRailViewMode(railViewMode);
-		sendStatus(source, "Set GPU instancing diagnostic railView to " + railViewMode.label + ". " + GpuObjDebugStats.getStatusSummary());
+	private static int requestStatus(FabricClientCommandSource source) {
+		GpuObjDebugStats.requestStatus();
+		sendStatus(source, "Queued GPU instancing status for the next rendered frame. " + GpuObjDebugStats.getStatusSummary());
 		return 1;
 	}
 

@@ -1,6 +1,5 @@
 package org.mtr.mod.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.ARBInstancedArrays;
 import org.lwjgl.opengl.GL;
@@ -10,7 +9,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mapping.render.object.VertexArray;
 import org.mtr.mapping.render.object.VertexBuffer;
@@ -21,7 +19,6 @@ import org.mtr.mapping.render.vertex.VertexAttributeSource;
 import org.mtr.mapping.render.vertex.VertexAttributeType;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.Init;
-import org.mtr.mod.resource.OptimizedModelWrapper;
 import org.mtr.mod.resource.RenderStage;
 
 import javax.annotation.Nullable;
@@ -38,12 +35,6 @@ public final class GpuObjRenderer implements IGui {
 			.set(VertexAttributeType.UV_LIGHTMAP, VertexAttributeSource.INSTANCE_BUFFER)
 			.set(VertexAttributeType.MATRIX_MODEL, VertexAttributeSource.INSTANCE_BUFFER)
 			.build();
-	public static final VertexAttributeMapping DIAGNOSTIC_VERTEX_ATTRIBUTE_MAPPING = new VertexAttributeMapping.Builder()
-			.set(VertexAttributeType.COLOR, VertexAttributeSource.GLOBAL)
-			.set(VertexAttributeType.UV_OVERLAY, VertexAttributeSource.GLOBAL)
-			.set(VertexAttributeType.UV_LIGHTMAP, VertexAttributeSource.GLOBAL)
-			.set(VertexAttributeType.MATRIX_MODEL, VertexAttributeSource.GLOBAL)
-			.build();
 
 	static {
 		Init.LOGGER.info(
@@ -59,10 +50,6 @@ public final class GpuObjRenderer implements IGui {
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
-	private static final MaterialProperties DEBUG_WHITE_CUTOUT_MATERIAL = new MaterialProperties(OptimizedModel.ShaderType.CUTOUT, OptimizedModelWrapper.WHITE_TEXTURE, null);
-	private static final int RAIL_REFERENCE_COLOR = 0xA000FFFF;
-	private static final int VEHICLE_REFERENCE_COLOR = 0xA0FFFF00;
-	private static final int RAIL_STATIC_MATCHED_SAMPLE_COLOR = 0x8000FF80;
 	private static boolean loggedMissingInstanceDivisorSupport;
 
 	private final ShaderManager shaderManager = new ShaderManager();
@@ -183,23 +170,15 @@ public final class GpuObjRenderer implements IGui {
 				final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
 				for (int i = 0; i < batchEntries.size(); i++) {
 					final BatchEntry batchEntry = batchEntries.get(i);
-					final MaterialProperties activeMaterialProperties = GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : batchEntry.materialProperties;
+					final MaterialProperties activeMaterialProperties = batchEntry.materialProperties;
 					shaderManager.setupShaderBatchState(activeMaterialProperties);
-					if (GpuObjDebugStats.shouldForceNoCull()) {
-						RenderSystem.disableCull();
-					}
 					uploadBatchInstances(batchEntry);
 					for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
 						render(activeMaterialProperties, batchEntry.activeMeshes.get(j), offset);
 					}
-					if (GpuObjDebugStats.shouldForceNoCull()) {
-						RenderSystem.enableCull();
-					}
 					shaderManager.cleanupShaderBatchState();
 				}
 			}
-			renderRailDiagnosticReferences(GpuObjDebugStats.getCurrentRailDiagnosticSample());
-			renderDiagnosticReference(GpuObjDebugStats.getCurrentVehicleDiagnosticSample(), VEHICLE_REFERENCE_COLOR);
 		} finally {
 			if (collectTimings) {
 				GpuObjDebugStats.recordRenderOpaqueNanos(System.nanoTime() - startNanos);
@@ -242,7 +221,6 @@ public final class GpuObjRenderer implements IGui {
 		materialProperties.vertexAttributeState.apply();
 		if (meshEntry.diagnosticSample != null) {
 			meshEntry.diagnosticSample.setDrawVertexArrayState(vertexArray.materialProperties);
-			GpuObjDebugStats.recordVaoAttributeState(meshEntry.diagnosticSample, describeVaoAttributeState());
 		}
 		GpuObjDebugStats.finalizeDiagnosticSample(meshEntry.diagnosticSample, offset, instanceCount);
 		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
@@ -278,82 +256,6 @@ public final class GpuObjRenderer implements IGui {
 		if (collectTimings) {
 			GpuObjDebugStats.recordInstanceUploadNanos(System.nanoTime() - uploadStartNanos);
 		}
-	}
-
-	private void renderDiagnosticReference(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample, int color) {
-		if (diagnosticSample == null || !diagnosticSample.isDrawn()) {
-			return;
-		}
-
-		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
-		diagnosticSample.setSingleDrawReferenceMatrix(referenceMatrix);
-		final MaterialProperties referenceMaterial = new MaterialProperties(diagnosticSample.getShaderTypeEnum(), OptimizedModelWrapper.WHITE_TEXTURE, null);
-		final VertexArray diagnosticVertexArray = diagnosticSample.getStaticObjMesh().getDiagnosticVertexArray(referenceMaterial);
-		final VertexAttributeState referenceState = new VertexAttributeState(color, GraphicsHolder.getDefaultLight(), new org.mtr.mapping.holder.Matrix4f(new org.joml.Matrix4f(referenceMatrix)));
-		shaderManager.setupShaderBatchState(referenceMaterial);
-		RenderSystem.disableCull();
-		RenderSystem.disableDepthTest();
-		diagnosticVertexArray.bind();
-		referenceState.apply();
-		diagnosticVertexArray.materialProperties.vertexAttributeState.apply();
-		diagnosticVertexArray.draw();
-		RenderSystem.enableDepthTest();
-		RenderSystem.enableCull();
-		shaderManager.cleanupShaderBatchState();
-	}
-
-	private void renderRailDiagnosticReferences(@Nullable GpuObjDebugStats.DiagnosticSample diagnosticSample) {
-		if (diagnosticSample == null || !diagnosticSample.isDrawn()) {
-			return;
-		}
-
-		final GpuObjDebugStats.RailViewMode railViewMode = GpuObjDebugStats.getRailViewMode();
-		try {
-			switch (railViewMode) {
-				case INSTANCED:
-					break;
-				case STATIC_MATCHED:
-					renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
-					break;
-				case NORMAL:
-					break;
-				case ALL:
-				default:
-					renderDiagnosticReference(diagnosticSample, RAIL_REFERENCE_COLOR);
-					renderStaticMatchedReference(diagnosticSample, RAIL_STATIC_MATCHED_SAMPLE_COLOR);
-					break;
-			}
-		} catch (RuntimeException e) {
-			Init.LOGGER.error(
-					"[MTR Debug] Rail diagnostic render failed for railView={} sample={} shader={} texture={}",
-					railViewMode.label,
-					diagnosticSample.getSourceSampleId(),
-					diagnosticSample.getShaderType(),
-					diagnosticSample.getTextureId(),
-					e
-			);
-			GpuObjDebugStats.setRailViewMode(GpuObjDebugStats.RailViewMode.NORMAL);
-		}
-	}
-
-	private void renderStaticMatchedReference(GpuObjDebugStats.DiagnosticSample diagnosticSample, int packedColor) {
-		final Matrix4f referenceMatrix = diagnosticSample.getPreparedDrawMatrix();
-		diagnosticSample.setStaticMatchedReferenceMatrix(referenceMatrix);
-		final MaterialProperties referenceMaterial = GpuObjDebugStats.shouldForceWhiteCutout() ? DEBUG_WHITE_CUTOUT_MATERIAL : diagnosticSample.createMatchedMaterialProperties();
-		final VertexArray diagnosticVertexArray = diagnosticSample.getStaticObjMesh().getDiagnosticVertexArray(referenceMaterial);
-		final VertexAttributeState referenceState = new VertexAttributeState(packedColor, GraphicsHolder.getDefaultLight(), new org.mtr.mapping.holder.Matrix4f(new org.joml.Matrix4f(referenceMatrix)));
-		shaderManager.setupShaderBatchState(referenceMaterial);
-		if (GpuObjDebugStats.shouldForceNoCull()) {
-			RenderSystem.disableCull();
-		}
-		diagnosticVertexArray.bind();
-		referenceState.apply();
-		diagnosticVertexArray.materialProperties.vertexAttributeState.apply();
-		diagnosticVertexArray.draw();
-		if (GpuObjDebugStats.shouldForceNoCull()) {
-			RenderSystem.enableCull();
-		}
-		shaderManager.cleanupShaderBatchState();
 	}
 
 	private void ensureCapacity(int requiredBytes) {
@@ -406,33 +308,6 @@ public final class GpuObjRenderer implements IGui {
 				Init.LOGGER.warn("[MTR Debug] GPU instancing could not query GL capabilities for instance divisors.", e);
 			}
 		}
-	}
-
-	private static String describeVaoAttributeState() {
-		return String.format(
-				"vao=%d arrayBuffer=%d | %s | %s | %s | %s | %s | %s",
-				GL33.glGetInteger(GL33.GL_VERTEX_ARRAY_BINDING),
-				GL33.glGetInteger(GL33.GL_ARRAY_BUFFER_BINDING),
-				describeAttribute("COLOR", VertexAttributeType.COLOR.location),
-				describeAttribute("LIGHT", VertexAttributeType.UV_LIGHTMAP.location),
-				describeAttribute("MATRIX0", VertexAttributeType.MATRIX_MODEL.location),
-				describeAttribute("MATRIX1", VertexAttributeType.MATRIX_MODEL.location + 1),
-				describeAttribute("MATRIX2", VertexAttributeType.MATRIX_MODEL.location + 2),
-				describeAttribute("MATRIX3", VertexAttributeType.MATRIX_MODEL.location + 3)
-		);
-	}
-
-	private static String describeAttribute(String label, int location) {
-		return String.format(
-				"%s loc=%d enabled=%s stride=%d pointer=%d divisor=%d buffer=%d",
-				label,
-				location,
-				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_ENABLED) != 0,
-				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_STRIDE),
-				GL33.glGetVertexAttribPointer(location, GL33.GL_VERTEX_ATTRIB_ARRAY_POINTER),
-				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_DIVISOR),
-				GL33.glGetVertexAttribi(location, GL33.GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING)
-		);
 	}
 
 	@SuppressWarnings("unchecked")
