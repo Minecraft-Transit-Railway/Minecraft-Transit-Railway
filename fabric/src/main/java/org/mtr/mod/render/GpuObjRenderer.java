@@ -63,6 +63,7 @@ public final class GpuObjRenderer implements IGui {
 	private double frameOffsetX;
 	private double frameOffsetY;
 	private double frameOffsetZ;
+	private boolean frameActive;
 	@Nullable
 	private GraphicsHolder frameGraphicsHolder;
 
@@ -73,6 +74,7 @@ public final class GpuObjRenderer implements IGui {
 		frameOffsetX = offset.getXMapped();
 		frameOffsetY = offset.getYMapped();
 		frameOffsetZ = offset.getZMapped();
+		frameActive = true;
 		frameGraphicsHolder = graphicsHolder;
 	}
 
@@ -92,6 +94,10 @@ public final class GpuObjRenderer implements IGui {
 
 	public Matrix4f captureFrameMatrix(StoredMatrixTransformations storedMatrixTransformations, Vector3d offset) {
 		return InstancingMatrixHelper.captureMatrix(frameGraphicsHolder, storedMatrixTransformations, offset);
+	}
+
+	public boolean isFrameActive() {
+		return frameActive && frameGraphicsHolder != null;
 	}
 
 	@Nullable
@@ -204,6 +210,8 @@ public final class GpuObjRenderer implements IGui {
 		for (final ObjectArrayList<BatchEntry> batchEntries : activeOpaqueBatchesByStage) {
 			batchEntries.clear();
 		}
+		frameActive = false;
+		frameGraphicsHolder = null;
 	}
 
 	public static void setupInstanceAttributes(VertexArray vertexArray) {

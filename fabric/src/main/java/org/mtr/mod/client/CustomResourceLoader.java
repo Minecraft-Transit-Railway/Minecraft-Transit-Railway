@@ -11,6 +11,7 @@ import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
+import org.mtr.mod.render.ExternalInstancedModelRegistry;
 import org.mtr.mod.render.GpuObjCompat;
 import org.mtr.mod.render.GpuObjDebugStats;
 import org.mtr.mod.render.GpuObjRenderer;
@@ -88,6 +89,7 @@ public class CustomResourceLoader {
 		LIFTS.clear();
 		LIFTS_CACHE.clear();
 		GpuObjDebugStats.resetSession();
+		ExternalInstancedModelRegistry.handleRendererReload();
 		GpuObjModelRegistry.clear();
 		if (GpuObjCompat.isSupported()) {
 			GpuObjRenderer.INSTANCE.reload();
