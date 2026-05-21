@@ -436,8 +436,8 @@ public final class VehicleResource extends VehicleResourceSchema {
 			final String[] tagSplit = tag.split(":");
 			if (tagSplit.length == 2) {
 				tagMap.computeIfAbsent(tagSplit[0], key -> new Object2ObjectAVLTreeMap<>()).computeIfAbsent(tagSplit[1], key -> new ObjectArrayList<>()).add(id);
-							});
-						});
+			}
+		});
 	}
 
 	private CachedResource<CachedResource<CachedResource<VehicleResourceCacheHolder>>> cachedVehicleResourceInitializer(int carNumber, int totalCars, boolean force) {

@@ -124,10 +124,10 @@ public final class GpuObjRenderer implements IGui {
 
 		final int effectivePackedColor = packedColor == ARGB_WHITE ? staticObjMesh.materialColor : packedColor;
 		final int effectivePackedLight = materialProperties.vertexAttributeState.lightmapUV == null ? packedLight : materialProperties.vertexAttributeState.lightmapUV;
-		return new QueuedMesh(source, batchKey, staticObjMesh, meshEntry, newBatch, newMesh, effectivePackedColor, effectivePackedLight);
+		return new QueuedMesh(source, batchKey, staticObjMesh, meshEntry, newBatch, newMesh, effectivePackedColor, effectivePackedLight, materialProperties);
 	}
 
-	private GpuObjDebugStats.DiagnosticSample queue(MeshEntry meshEntry, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int effectivePackedLight, int effectivePackedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source, boolean newBatch, boolean newMesh) {
+	private GpuObjDebugStats.DiagnosticSample queue(MeshEntry meshEntry, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int effectivePackedLight, int effectivePackedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source, boolean newBatch, boolean newMesh, MaterialProperties materialProperties) {
 		scratchInstanceBuffer.clear();
 		putPackedColor(effectivePackedColor);
 		putPackedLight(effectivePackedLight);
@@ -399,9 +399,10 @@ public final class GpuObjRenderer implements IGui {
 		private final boolean newMesh;
 		private final int effectivePackedColor;
 		private final int effectivePackedLight;
+		private final MaterialProperties materialProperties;
 		private boolean recordedActiveState;
 
-		private QueuedMesh(GpuObjDebugStats.Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, MeshEntry meshEntry, boolean newBatch, boolean newMesh, int effectivePackedColor, int effectivePackedLight) {
+		private QueuedMesh(GpuObjDebugStats.Source source, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, MeshEntry meshEntry, boolean newBatch, boolean newMesh, int effectivePackedColor, int effectivePackedLight, MaterialProperties materialProperties) {
 			this.source = source;
 			this.batchKey = batchKey;
 			this.staticObjMesh = staticObjMesh;
@@ -410,6 +411,7 @@ public final class GpuObjRenderer implements IGui {
 			this.newMesh = newMesh;
 			this.effectivePackedColor = effectivePackedColor;
 			this.effectivePackedLight = effectivePackedLight;
+			this.materialProperties = materialProperties;
 		}
 
 		@Nullable
@@ -417,7 +419,7 @@ public final class GpuObjRenderer implements IGui {
 			final boolean recordNewBatch = !recordedActiveState && newBatch;
 			final boolean recordNewMesh = !recordedActiveState && newMesh;
 			recordedActiveState = true;
-			return GpuObjRenderer.this.queue(meshEntry, batchKey, staticObjMesh, drawMatrix, diagnosticMatrix, effectivePackedLight, effectivePackedColor, useDefaultOffset, source, recordNewBatch, recordNewMesh);
+			return GpuObjRenderer.this.queue(meshEntry, batchKey, staticObjMesh, drawMatrix, diagnosticMatrix, effectivePackedLight, effectivePackedColor, useDefaultOffset, source, recordNewBatch, recordNewMesh, materialProperties);
 		}
 	}
 }
