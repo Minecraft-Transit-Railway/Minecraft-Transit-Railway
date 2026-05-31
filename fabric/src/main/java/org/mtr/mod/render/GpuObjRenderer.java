@@ -22,6 +22,7 @@ import org.mtr.mod.resource.RenderStage;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 public final class GpuObjRenderer implements IGui {
 
@@ -46,7 +47,8 @@ public final class GpuObjRenderer implements IGui {
 
 	private static final int MATRIX_FLOATS = 16;
 	private static final int MATRIX_BYTES = MATRIX_FLOATS * Float.BYTES;
-	private static final int INSTANCE_STRIDE = MATRIX_BYTES + Integer.BYTES + Integer.BYTES;
+	private static final int INSTANCE_HEADER_BYTES = Integer.BYTES + Integer.BYTES;
+	private static final int INSTANCE_STRIDE = MATRIX_BYTES + INSTANCE_HEADER_BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
 	private static boolean loggedMissingInstanceDivisorSupport;
 
@@ -57,6 +59,7 @@ public final class GpuObjRenderer implements IGui {
 	private final ObjectArrayList<BatchEntry>[] activeOpaqueBatchesByStage = createBatchLists();
 	private final byte[] scratchInstanceData = new byte[INSTANCE_STRIDE];
 	private final ByteBuffer scratchInstanceBuffer = ByteBuffer.wrap(scratchInstanceData).order(ByteOrder.nativeOrder());
+	private final FloatBuffer scratchMatrixBuffer = ByteBuffer.wrap(scratchInstanceData, INSTANCE_HEADER_BYTES, MATRIX_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	private ByteBuffer byteBuffer = createByteBuffer(INSTANCE_STRIDE);
 	private double frameOffsetX;
 	private double frameOffsetY;
@@ -129,14 +132,20 @@ public final class GpuObjRenderer implements IGui {
 		scratchInstanceBuffer.clear();
 		putPackedColor(effectivePackedColor);
 		putPackedLight(effectivePackedLight);
-		drawMatrix.writeTo(scratchInstanceBuffer.asFloatBuffer());
-		scratchInstanceBuffer.position(scratchInstanceBuffer.position() + MATRIX_BYTES);
+		scratchMatrixBuffer.clear();
+		drawMatrix.writeTo(scratchMatrixBuffer);
+		return queuePrepared(meshEntry, batchKey, staticObjMesh, drawMatrix, diagnosticMatrix, effectivePackedLight, effectivePackedColor, useDefaultOffset, source, newBatch, newMesh, materialProperties);
+	}
+
+	private GpuObjDebugStats.DiagnosticSample queuePrepared(MeshEntry meshEntry, ObjBatchKey batchKey, StaticObjMesh staticObjMesh, @Nullable Matrix4f drawMatrix, @Nullable Matrix4f diagnosticMatrix, int effectivePackedLight, int effectivePackedColor, boolean useDefaultOffset, GpuObjDebugStats.Source source, boolean newBatch, boolean newMesh, MaterialProperties materialProperties) {
 		final GpuObjDebugStats.DiagnosticSample diagnosticSample = GpuObjDebugStats.captureDiagnosticSample(source, batchKey, staticObjMesh, diagnosticMatrix == null ? drawMatrix : diagnosticMatrix, useDefaultOffset);
 		if (diagnosticSample != null) {
 			diagnosticSample.setInstanceColor(effectivePackedColor);
 			diagnosticSample.setInstanceLight(effectivePackedLight);
 			diagnosticSample.setMaterialState(materialProperties, staticObjMesh);
-			diagnosticSample.setPreparedDrawMatrix(drawMatrix);
+			if (drawMatrix != null) {
+				diagnosticSample.setPreparedDrawMatrix(drawMatrix);
+			}
 			meshEntry.diagnosticSample = diagnosticSample;
 		}
 		meshEntry.addInstance(scratchInstanceData);
@@ -231,21 +240,23 @@ public final class GpuObjRenderer implements IGui {
 	}
 
 	private void uploadBatchInstances(BatchEntry batchEntry) {
-		batchEntry.payload.clear();
+		int payloadSize = 0;
 		for (int i = 0; i < batchEntry.activeMeshes.size(); i++) {
 			final MeshEntry meshEntry = batchEntry.activeMeshes.get(i);
-			meshEntry.instanceOffsetBytes = batchEntry.payload.size();
-			batchEntry.payload.addElements(batchEntry.payload.size(), meshEntry.payload.elements(), 0, meshEntry.payload.size());
+			payloadSize += meshEntry.payload.size();
 		}
 
-		final int payloadSize = batchEntry.payload.size();
 		if (payloadSize == 0) {
 			return;
 		}
 
 		ensureCapacity(payloadSize);
 		byteBuffer.clear();
-		byteBuffer.put(batchEntry.payload.elements(), 0, payloadSize);
+		for (int i = 0; i < batchEntry.activeMeshes.size(); i++) {
+			final MeshEntry meshEntry = batchEntry.activeMeshes.get(i);
+			meshEntry.instanceOffsetBytes = byteBuffer.position();
+			byteBuffer.put(meshEntry.payload.elements(), 0, meshEntry.payload.size());
+		}
 		byteBuffer.flip();
 		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
 		final long uploadStartNanos = collectTimings ? System.nanoTime() : 0;
@@ -280,7 +291,6 @@ public final class GpuObjRenderer implements IGui {
 		private final MaterialProperties materialProperties;
 		private final Object2ObjectOpenHashMap<StaticObjMesh, MeshEntry> meshes = new Object2ObjectOpenHashMap<>();
 		private final ObjectArrayList<MeshEntry> activeMeshes = new ObjectArrayList<>();
-		private final ByteArrayList payload = new ByteArrayList();
 		private boolean activeThisFrame;
 
 		private BatchEntry(MaterialProperties materialProperties) {
@@ -292,7 +302,6 @@ public final class GpuObjRenderer implements IGui {
 				activeMeshes.get(i).clear();
 			}
 			activeMeshes.clear();
-			payload.clear();
 		}
 	}
 
@@ -361,5 +370,6 @@ public final class GpuObjRenderer implements IGui {
 			recordedActiveState = true;
 			return GpuObjRenderer.this.queue(meshEntry, batchKey, staticObjMesh, drawMatrix, diagnosticMatrix, effectivePackedLight, effectivePackedColor, useDefaultOffset, source, recordNewBatch, recordNewMesh, materialProperties);
 		}
+
 	}
 }

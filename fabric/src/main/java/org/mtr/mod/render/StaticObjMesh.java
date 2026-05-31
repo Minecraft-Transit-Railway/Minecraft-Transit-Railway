@@ -1,5 +1,6 @@
 package org.mtr.mod.render;
 
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mapping.render.batch.MaterialProperties;
@@ -27,6 +28,7 @@ public final class StaticObjMesh implements Closeable {
 	public final int materialColor;
 	public final String rawVertexSample;
 	private final Mesh mesh;
+	private final Object2ObjectOpenHashMap<MaterialProperties, VertexArray> materialVertexArrays = new Object2ObjectOpenHashMap<>();
 
 	public StaticObjMesh(RawMesh rawMesh) {
 		this.texture = rawMesh.materialProperties.getTexture();
@@ -64,8 +66,12 @@ public final class StaticObjMesh implements Closeable {
 	}
 
 	public VertexArray createVertexArray(MaterialProperties materialProperties) {
-		final VertexArray newVertexArray = new VertexArray(vertexArray, materialProperties);
-		GpuObjRenderer.setupInstanceAttributes(newVertexArray);
+		VertexArray newVertexArray = materialVertexArrays.get(materialProperties);
+		if (newVertexArray == null) {
+			newVertexArray = new VertexArray(vertexArray, materialProperties);
+			GpuObjRenderer.setupInstanceAttributes(newVertexArray);
+			materialVertexArrays.put(materialProperties, newVertexArray);
+		}
 		return newVertexArray;
 	}
 
@@ -107,6 +113,8 @@ public final class StaticObjMesh implements Closeable {
 
 	@Override
 	public void close() {
+		materialVertexArrays.values().forEach(VertexArray::close);
+		materialVertexArrays.clear();
 		vertexArray.close();
 		mesh.close();
 	}
