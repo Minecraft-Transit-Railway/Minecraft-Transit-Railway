@@ -288,6 +288,11 @@ public class VehicleRidingMovement {
 		return vehicleId == ridingVehicleId;
 	}
 
+	public static boolean hasWeatherCover() {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		return clientPlayerEntity != null && VehicleWeatherCover.hasWeatherCoverAt(clientPlayerEntity.getX(), clientPlayerEntity.getY(), clientPlayerEntity.getZ());
+	}
+
 	public static void overrideDoors() {
 		final double oldDoorOverrideTicks = doorOverrideTicks;
 		doorOverrideTicks = 2;

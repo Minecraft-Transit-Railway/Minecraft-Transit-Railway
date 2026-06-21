@@ -73,6 +73,88 @@ public class BuildTools {
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 		CreatePlayerTeleportationStateAccessor.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 		CreatePlayerRendererOffsetMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
+		createEntityRainMixin(mixinPath);
+		createWorldRendererWeatherMixin(mixinPath);
+	}
+
+	private void createEntityRainMixin(Path mixinPath) throws IOException {
+		FileUtils.writeStringToFile(mixinPath.resolve("EntityRainMixin.java").toFile(), String.join("\n",
+				"package org.mtr.mixin;",
+				"",
+				loader.equals("fabric") ? "import net.minecraft.client.network.ClientPlayerEntity;" : "import net.minecraft.client.player.LocalPlayer;",
+				loader.equals("fabric") ? "import net.minecraft.entity.Entity;" : "import net.minecraft.world.entity.Entity;",
+				"import org.mtr.mod.client.VehicleWeatherCover;",
+				"import org.spongepowered.asm.mixin.Mixin;",
+				"import org.spongepowered.asm.mixin.injection.At;",
+				"import org.spongepowered.asm.mixin.injection.Inject;",
+				"import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;",
+				"",
+				"@Mixin(Entity.class)",
+				"public abstract class EntityRainMixin {",
+				"",
+				loader.equals("fabric") ? "\t@Inject(method = \"isBeingRainedOn\", at = @At(\"RETURN\"), cancellable = true)" : "\t@Inject(method = \"isInRain\", at = @At(\"RETURN\"), cancellable = true)",
+				loader.equals("fabric") ? "\tprivate void isBeingRainedOn(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {" : "\tprivate void isInRain(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {",
+				"\t\tfinal Entity entity = (Entity) (Object) this;",
+				loader.equals("fabric") ? "\t\tif (callbackInfoReturnable.getReturnValueZ() && entity instanceof ClientPlayerEntity && VehicleWeatherCover.hasWeatherCoverAt(entity.getX(), entity.getY(), entity.getZ())) {" : "\t\tif (callbackInfoReturnable.getReturnValueZ() && entity instanceof LocalPlayer && VehicleWeatherCover.hasWeatherCoverAt(entity.getX(), entity.getY(), entity.getZ())) {",
+				"\t\t\tcallbackInfoReturnable.setReturnValue(false);",
+				"\t\t}",
+				"\t}",
+				"}",
+				""
+		), StandardCharsets.UTF_8);
+	}
+
+	private void createWorldRendererWeatherMixin(Path mixinPath) throws IOException {
+		FileUtils.writeStringToFile(mixinPath.resolve("WorldRendererWeatherMixin.java").toFile(), String.join("\n",
+				"package org.mtr.mixin;",
+				"",
+				loader.equals("fabric") ? "import net.minecraft.client.MinecraftClient;" : "import net.minecraft.client.Minecraft;",
+				loader.equals("fabric") ? "import net.minecraft.client.network.ClientPlayerEntity;" : "import net.minecraft.client.multiplayer.ClientLevel;",
+				loader.equals("fabric") ? "import net.minecraft.client.render.WorldRenderer;" : "import net.minecraft.client.player.LocalPlayer;",
+				loader.equals("fabric") ? "import net.minecraft.client.world.ClientWorld;" : "import net.minecraft.client.renderer.LevelRenderer;",
+				loader.equals("fabric") ? "import net.minecraft.particle.ParticleEffect;" : "import net.minecraft.core.BlockPos;",
+				loader.equals("fabric") ? "import net.minecraft.sound.SoundCategory;" : "import net.minecraft.core.particles.ParticleOptions;",
+				loader.equals("fabric") ? "import net.minecraft.sound.SoundEvent;" : "import net.minecraft.sounds.SoundEvent;",
+				loader.equals("fabric") ? "import net.minecraft.util.math.BlockPos;" : "import net.minecraft.sounds.SoundSource;",
+				"import net.minecraft.world.biome.Biome;".replace("world.biome", loader.equals("fabric") ? "world.biome" : "world.level.biome"),
+				"import org.mtr.mod.client.VehicleWeatherCover;",
+				"import org.spongepowered.asm.mixin.Mixin;",
+				"import org.spongepowered.asm.mixin.injection.At;",
+				"import org.spongepowered.asm.mixin.injection.Redirect;",
+				"",
+				loader.equals("fabric") ? "@Mixin(WorldRenderer.class)" : "@Mixin(LevelRenderer.class)",
+				"public abstract class WorldRendererWeatherMixin {",
+				"",
+				"\tprivate static final float RAIN_VOLUME_UNDER_WEATHER_COVER = 0.35F;",
+				"",
+				loader.equals("fabric") ? "\t@Redirect(method = \"renderWeather\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/world/biome/Biome;getPrecipitation(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome$Precipitation;\"))" : "\t@Redirect(method = \"renderSnowAndRain\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/world/level/biome/Biome;getPrecipitationAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/biome/Biome$Precipitation;\"))",
+				loader.equals("fabric") ? "\tprivate Biome.Precipitation renderWeatherGetPrecipitation(Biome biome, BlockPos blockPos) {" : "\tprivate Biome.Precipitation renderSnowAndRainGetPrecipitation(Biome biome, BlockPos blockPos) {",
+				loader.equals("fabric") ? "\t\treturn VehicleWeatherCover.hasWeatherCoverAt(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5) ? Biome.Precipitation.NONE : biome.getPrecipitation(blockPos);" : "\t\treturn VehicleWeatherCover.hasWeatherCoverAt(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5) ? Biome.Precipitation.NONE : biome.getPrecipitationAt(blockPos);",
+				"\t}",
+				"",
+				loader.equals("fabric") ? "\t@Redirect(method = \"tickRainSplashing\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V\"))" : "\t@Redirect(method = \"tickRain\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/client/multiplayer/ClientLevel;addParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)V\"))",
+				loader.equals("fabric") ? "\tprivate void tickRainSplashingAddParticle(ClientWorld clientWorld, ParticleEffect particleEffect, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {" : "\tprivate void tickRainAddParticle(ClientLevel clientLevel, ParticleOptions particleOptions, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {",
+				"\t\tif (!VehicleWeatherCover.hasWeatherCoverAt(x, y, z)) {",
+				loader.equals("fabric") ? "\t\t\tclientWorld.addParticle(particleEffect, x, y, z, velocityX, velocityY, velocityZ);" : "\t\t\tclientLevel.addParticle(particleOptions, x, y, z, velocityX, velocityY, velocityZ);",
+				"\t\t}",
+				"\t}",
+				"",
+				loader.equals("fabric") ? "\t@Redirect(method = \"tickRainSplashing\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/client/world/ClientWorld;playSoundAtBlockCenter(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V\"))" : "\t@Redirect(method = \"tickRain\", at = @At(value = \"INVOKE\", target = \"Lnet/minecraft/client/multiplayer/ClientLevel;playLocalSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FFZ)V\"))",
+				loader.equals("fabric") ? "\tprivate void tickRainSplashingPlaySoundAtBlockCenter(ClientWorld clientWorld, BlockPos blockPos, SoundEvent soundEvent, SoundCategory soundCategory, float volume, float pitch, boolean useDistance) {" : "\tprivate void tickRainPlayLocalSound(ClientLevel clientLevel, BlockPos blockPos, SoundEvent soundEvent, SoundSource soundSource, float volume, float pitch, boolean distanceDelay) {",
+				loader.equals("fabric") ? "\t\tclientWorld.playSoundAtBlockCenter(blockPos, soundEvent, soundCategory, getRainVolume(volume), pitch, useDistance);" : "\t\tclientLevel.playLocalSound(blockPos, soundEvent, soundSource, getRainVolume(volume), pitch, distanceDelay);",
+				"\t}",
+				"",
+				"\tprivate static float getRainVolume(float volume) {",
+				loader.equals("fabric") ? "\t\tfinal ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().player;" : "\t\tfinal LocalPlayer clientPlayerEntity = Minecraft.getInstance().player;",
+				"\t\tif (clientPlayerEntity == null) {",
+				"\t\t\treturn volume;",
+				"\t\t}",
+				"",
+				"\t\treturn VehicleWeatherCover.hasWeatherCoverAt(clientPlayerEntity.getX(), clientPlayerEntity.getY(), clientPlayerEntity.getZ()) ? volume * RAIN_VOLUME_UNDER_WEATHER_COVER : volume;",
+				"\t}",
+				"}",
+				""
+		), StandardCharsets.UTF_8);
 	}
 
 	public String getFabricVersion() {

@@ -14,6 +14,8 @@ public class RenderVehicleHelper {
 	private static final int CHECK_DOOR_RADIUS_XZ = 1;
 	private static final int CHECK_DOOR_RADIUS_Y = 2;
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
+	private static final double WEATHER_COVER_MIN_Y_OFFSET = 0.5;
+	private static final double WEATHER_COVER_HEAD_Y_OFFSET = 1.5;
 
 	/**
 	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
@@ -117,6 +119,18 @@ public class RenderVehicleHelper {
 				box.getMinZMapped(),
 				box.getMaxZMapped()
 		);
+	}
+
+	public static boolean isBelowWeatherCover(Box weatherCoverBox, double playerX, double playerY, double playerZ) {
+		return Utilities.isBetween(
+				playerX,
+				weatherCoverBox.getMinXMapped(),
+				weatherCoverBox.getMaxXMapped()
+		) && Utilities.isBetween(
+				playerZ,
+				weatherCoverBox.getMinZMapped(),
+				weatherCoverBox.getMaxZMapped()
+		) && weatherCoverBox.getMinYMapped() >= playerY + WEATHER_COVER_MIN_Y_OFFSET && weatherCoverBox.getMaxYMapped() >= playerY + WEATHER_COVER_HEAD_Y_OFFSET;
 	}
 
 	private static void drawLine(GraphicsHolder graphicsHolder, Vector3d corner1, Vector3d corner2, Vector3d offset, int color) {
