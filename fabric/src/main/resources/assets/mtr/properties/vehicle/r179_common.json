@@ -258,6 +258,44 @@
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"roof_window"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_exterior_window"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_exterior_door"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

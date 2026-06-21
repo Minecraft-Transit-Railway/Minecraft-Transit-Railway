@@ -493,6 +493,54 @@
 				"end2"
 			],
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped",
+				"door",
+				"doorFlipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"door",
+				"doorFlipped",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

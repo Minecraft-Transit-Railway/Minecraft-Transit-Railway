@@ -47,6 +47,24 @@
 				"end1"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_end_sp1900"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

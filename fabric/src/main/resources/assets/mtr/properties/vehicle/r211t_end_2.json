@@ -95,6 +95,15 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_KCR"
+		},
+		{
+			"names": [
+				"roof_end_gangway"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

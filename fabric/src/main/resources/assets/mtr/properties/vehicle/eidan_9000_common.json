@@ -298,6 +298,17 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"door",
+				"window"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,

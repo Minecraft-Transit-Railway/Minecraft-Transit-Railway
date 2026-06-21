@@ -182,6 +182,23 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_UK"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window7Flipped",
+				"window8",
+				"window8Flipped",
+				"window9",
+				"window9Flipped",
+				"roofEnd2",
+				"end2",
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

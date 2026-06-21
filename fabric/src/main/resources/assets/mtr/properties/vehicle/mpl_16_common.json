@@ -322,6 +322,33 @@
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"roof_door_exterior_1"
+			],
+			"positionDefinitions": [
+				"roofDoor1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_exterior_2"
+			],
+			"positionDefinitions": [
+				"roofDoor2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_exterior_3"
+			],
+			"positionDefinitions": [
+				"roofDoor3"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

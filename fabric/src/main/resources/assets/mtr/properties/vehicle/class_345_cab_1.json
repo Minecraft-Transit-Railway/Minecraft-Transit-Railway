@@ -71,8 +71,8 @@
 				"a8374e48"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -83,8 +83,8 @@
 				"3c1c2f2d"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -95,8 +95,8 @@
 				"8ec819a6"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -107,8 +107,8 @@
 				"a4089846"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -228,7 +228,7 @@
 				"99d88bec"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
+			"displayXPadding": 1,
 			"displayYPadding": 0.5,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
@@ -247,8 +247,8 @@
 				"cd81a58c"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
-			"displayYPadding": 1.0,
+			"displayXPadding": 1,
+			"displayYPadding": 1,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayOptions": [
@@ -337,9 +337,18 @@
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"a95afc2b"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
-	"modelYOffset": 1.0,
+	"modelYOffset": 1,
 	"gangwayInnerSideResource": "mtr:textures/gangway/k_train_side.png",
 	"gangwayInnerTopResource": "mtr:textures/gangway/k_train_roof.png",
 	"gangwayInnerBottomResource": "mtr:textures/gangway/k_train_floor.png",
@@ -347,7 +356,7 @@
 	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayWidth": 1.5,
-	"gangwayHeight": 2.0,
-	"gangwayYOffset": 1.0,
+	"gangwayHeight": 2,
+	"gangwayYOffset": 1,
 	"gangwayZOffset": 0.25
 }

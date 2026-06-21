@@ -290,6 +290,44 @@
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_exterior_1"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window8",
+				"window8Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_exterior_door_edge"
+			],
+			"positionDefinitions": [
+				"window2",
+				"window3Flipped",
+				"window6",
+				"window7Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_exterior_door"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

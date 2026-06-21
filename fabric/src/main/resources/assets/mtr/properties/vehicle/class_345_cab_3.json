@@ -62,8 +62,8 @@
 				"4a930052"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -74,8 +74,8 @@
 				"d2cc4072"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -86,8 +86,8 @@
 				"54692104"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -98,8 +98,8 @@
 				"62ccb409"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -201,7 +201,7 @@
 				"b801b276"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
+			"displayXPadding": 1,
 			"displayYPadding": 0.5,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
@@ -220,8 +220,8 @@
 				"a86f1e4"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
-			"displayYPadding": 1.0,
+			"displayXPadding": 1,
+			"displayYPadding": 1,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayOptions": [
@@ -320,11 +320,20 @@
 			],
 			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"3b86dce4"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
-	"modelYOffset": 1.0,
+	"modelYOffset": 1,
 	"gangwayWidth": 1.5,
-	"gangwayHeight": 2.0,
-	"gangwayYOffset": 1.0,
+	"gangwayHeight": 2,
+	"gangwayYOffset": 1,
 	"gangwayZOffset": 0.25
 }

@@ -105,6 +105,24 @@
 			"doorXMultiplier": -1,
 			"doorZMultiplier": -14,
 			"doorAnimationType": "PLUG_FAST"
+		},
+		{
+			"names": [
+				"roof_end_tcl"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

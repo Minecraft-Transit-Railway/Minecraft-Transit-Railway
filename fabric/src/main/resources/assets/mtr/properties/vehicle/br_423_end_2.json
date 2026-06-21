@@ -57,6 +57,16 @@
 				"end2Flipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"roof_window_interior"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window6Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1
