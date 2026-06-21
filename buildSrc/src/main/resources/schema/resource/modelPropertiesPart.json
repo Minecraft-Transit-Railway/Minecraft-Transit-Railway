@@ -27,7 +27,7 @@
 		},
 		"type": {
 			"$ref": "PartType",
-			"typeScriptEnum": "NORMAL|DISPLAY|FLOOR|DOORWAY|SEAT"
+			"typeScriptEnum": "NORMAL|DISPLAY|FLOOR|DOORWAY|WEATHER_COVER|WEATHER_COVER_FLOOR|SEAT"
 		},
 		"displayXPadding": {
 			"type": "number",

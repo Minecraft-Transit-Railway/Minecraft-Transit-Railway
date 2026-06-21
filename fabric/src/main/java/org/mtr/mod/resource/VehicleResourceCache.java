@@ -8,6 +8,7 @@ public final class VehicleResourceCache {
 
 	public final ObjectImmutableList<Box> floors;
 	public final ObjectImmutableList<Box> doorways;
+	public final ObjectImmutableList<Box> weatherCoverBoxes;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed;
 	public final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1;
@@ -16,6 +17,7 @@ public final class VehicleResourceCache {
 	public VehicleResourceCache(
 			ObjectImmutableList<Box> floors,
 			ObjectImmutableList<Box> doorways,
+			ObjectImmutableList<Box> weatherCoverBoxes,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1,
@@ -23,6 +25,7 @@ public final class VehicleResourceCache {
 	) {
 		this.floors = floors;
 		this.doorways = doorways;
+		this.weatherCoverBoxes = weatherCoverBoxes;
 		this.optimizedModels = optimizedModels;
 		this.optimizedModelsDoorsClosed = optimizedModelsDoorsClosed;
 		this.optimizedModelsBogie1 = optimizedModelsBogie1;

@@ -27,16 +27,16 @@
 <mat-dialog-actions>
 	<form class="row gap center wide" [formGroup]="formGroup">
 		<div class="spacing"></div>
-		@if (hasNormal && (hasFloorOrDoorway || hasSeat || hasDisplay)) {
+		@if (hasNormal && (hasFloorDoorwayOrWeatherCover || hasSeat || hasDisplay)) {
 			<mat-checkbox (change)="filterData()" formControlName="showNormalParts">Show Normal Parts</mat-checkbox>
 		}
-		@if (hasFloorOrDoorway && (hasNormal || hasSeat || hasDisplay)) {
-			<mat-checkbox (change)="filterData()" formControlName="showFloorsAndDoorways">Show Floors and Doorways</mat-checkbox>
+		@if (hasFloorDoorwayOrWeatherCover && (hasNormal || hasSeat || hasDisplay)) {
+			<mat-checkbox (change)="filterData()" formControlName="showFloorsAndDoorways">Show Floors, Doorways, and Weather Covers</mat-checkbox>
 		}
-		@if (hasSeat && (hasNormal || hasFloorOrDoorway || hasDisplay)) {
+		@if (hasSeat && (hasNormal || hasFloorDoorwayOrWeatherCover || hasDisplay)) {
 			<mat-checkbox (change)="filterData()" formControlName="showSeats">Show Seats</mat-checkbox>
 		}
-		@if (hasDisplay && (hasNormal || hasFloorOrDoorway || hasSeat)) {
+		@if (hasDisplay && (hasNormal || hasFloorDoorwayOrWeatherCover || hasSeat)) {
 			<mat-checkbox (change)="filterData()" formControlName="showDisplays">Show Displays</mat-checkbox>
 		}
 		<div>

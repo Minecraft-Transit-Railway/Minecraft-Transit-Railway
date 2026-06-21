@@ -118,6 +118,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			PositionDefinitions positionDefinitionsObject,
 			ObjectArraySet<Box> floors,
 			ObjectArraySet<Box> doorways,
+			ObjectArraySet<Box> weatherCoverBoxes,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage,
 			Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed
 	) {
@@ -166,6 +167,16 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					break;
 				case DOORWAY:
 					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> mutableBox.getAll().forEach(box -> doorways.add(addBox(box, x, y, z, flipped))));
+					break;
+				case WEATHER_COVER:
+					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> mutableBox.getAll().forEach(box -> weatherCoverBoxes.add(addBox(box, x, y, z, flipped))));
+					break;
+				case WEATHER_COVER_FLOOR:
+					iteratePositions(positions, positionsFlipped, (x, y, z, flipped) -> mutableBox.getAll().forEach(box -> {
+						final Box newBox = addBox(box, x, y, z, flipped);
+						floors.add(newBox);
+						weatherCoverBoxes.add(newBox);
+					}));
 					break;
 			}
 		}));
