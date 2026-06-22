@@ -204,7 +204,7 @@ public class RenderRails implements IGui {
 		}
 
 		if (!OptimizedRenderer.renderingShadows()) {
-			MainRenderer.WORKER_THREAD.scheduleRails(occlusionCullingInstance -> {
+			MainRenderer.WORKER_THREAD.scheduleMTRRails(occlusionCullingInstance -> {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
 				minecraftClient.execute(() -> tasks.forEach(Runnable::run));
@@ -314,15 +314,14 @@ public class RenderRails implements IGui {
 
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
 		final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
-		final Vector3i cameraBlockPos = new Vector3i(camera.getBlockPos().data);
 		final Vector3d cameraPosition = camera.getPos();
 		final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
 
 		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
 			final BlockPos blockPos = Init.newBlockPos(x1, y1 + LIGHT_REFERENCE_OFFSET, z1);
-			final int distance = blockPos.getManhattanDistance(cameraBlockPos);
-			if (distance <= renderDistance) {
-				if (distance < 32) {
+			final double distanceToCamera = new Vector3d(x1, 0, z1).distanceTo(new Vector3d(cameraPosition.getXMapped(), 0, cameraPosition.getZMapped())); // Minecraft does not have vertical render distance, no need to compare the Y-axis.
+			if (distanceToCamera <= renderDistance) {
+				if (distanceToCamera < 32) {
 					callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
 				} else {
 					final Vector3d rotatedVector = new Vector3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(camera.getYaw())).rotateX((float) Math.toRadians(camera.getPitch()));

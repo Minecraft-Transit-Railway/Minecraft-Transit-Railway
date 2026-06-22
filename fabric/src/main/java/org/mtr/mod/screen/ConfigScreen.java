@@ -103,7 +103,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		sliderDynamicTextureResolution.setHeight(BUTTON_HEIGHT);
 		sliderDynamicTextureResolution.setValue(client.getDynamicTextureResolution());
 		sliderTrainOscillationMultiplier.setHeight(BUTTON_HEIGHT);
-		sliderTrainOscillationMultiplier.setValue((int)(client.getVehicleOscillationMultiplier() * 10));
+		sliderTrainOscillationMultiplier.setValue((int) (client.getVehicleOscillationMultiplier() * 10));
 		buttonDefaultRail3D.active = OptimizedRenderer.hasOptimizedRendering();
 		buttonEnableGpuObjInstancing.active = OptimizedRenderer.hasOptimizedRendering();
 		buttonSupportPatreon.setMessage2(TranslationProvider.GUI_MTR_SUPPORT.getText());
@@ -190,7 +190,7 @@ public class ConfigScreen extends MTRScreenBase implements IGui {
 		graphicsHolder.translate((getWidthMapped() - (GraphicsHolder.getTextWidth(titleText) * 1.5f) - HEADER_LOGO_SIZE - TEXT_PADDING) / 2, 0, 0);
 		GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
 		guiDrawing.beginDrawingTexture(HEADER_LOGO);
-		guiDrawing.drawTexture(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE, 0, 0, 1 ,1);
+		guiDrawing.drawTexture(0, 0, HEADER_LOGO_SIZE, HEADER_LOGO_SIZE, 0, 0, 1, 1);
 		guiDrawing.finishDrawingTexture();
 
 		graphicsHolder.translate(HEADER_LOGO_SIZE, 0, 0);

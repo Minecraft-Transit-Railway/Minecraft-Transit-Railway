@@ -12,17 +12,21 @@ public final class SignResource extends SignResourceSchema {
 	// Default signs (the ones bundled with Minecraft Transit Railway) have IDs starting with "!"
 	public final boolean isDefault;
 	public final String signId;
+	private final Identifier parsedTextureId;
+	private final int parsedBackgroundColor;
 
 	public SignResource(ReaderBase readerBase) {
 		super(readerBase);
 		updateData(readerBase);
-		hasCustomText = !customText.isEmpty();
-		isDefault = id.startsWith("!");
-		signId = isDefault ? id.substring(1) : id;
+		this.hasCustomText = !customText.isEmpty();
+		this.isDefault = id.startsWith("!");
+		this.signId = isDefault ? id.substring(1) : id;
+		this.parsedTextureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+		this.parsedBackgroundColor = CustomResourceTools.colorStringToInt(backgroundColor);
 	}
 
 	public Identifier getTexture() {
-		return CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+		return this.parsedTextureId;
 	}
 
 	public boolean getFlipTexture() {
@@ -42,6 +46,6 @@ public final class SignResource extends SignResourceSchema {
 	}
 
 	public int getBackgroundColor() {
-		return CustomResourceTools.colorStringToInt(backgroundColor);
+		return parsedBackgroundColor;
 	}
 }

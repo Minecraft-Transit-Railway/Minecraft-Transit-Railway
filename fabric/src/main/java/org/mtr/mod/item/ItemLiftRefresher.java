@@ -11,6 +11,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.ItemExtension;
+import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockLiftTrackBase;
 import org.mtr.mod.block.BlockLiftTrackFloor;
@@ -57,6 +58,12 @@ public class ItemLiftRefresher extends ItemExtension implements DirectionHelper 
 			final ObjectArrayList<LiftFloor> liftFloors = new ObjectArrayList<>();
 			liftFloors.addAll(reverseList(liftFloors1));
 			liftFloors.addAll(liftFloors2);
+
+			if (liftFloors.size() == 1) {
+				playerEntity.sendMessage(TranslationProvider.GUI_MTR_LIFT_MIN_FLOORS_REQUIRED.getText(), true);
+				return ActionResult.getFailMapped();
+			}
+
 			final boolean needsReverse = Utilities.getElement(liftFloors, -1).getPosition().getY() < Utilities.getElement(liftFloors, 0).getPosition().getY();
 			sendUpdate(ServerWorld.cast(world), needsReverse ? reverseList(liftFloors) : liftFloors);
 			Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(playerEntity), new PacketOpenLiftCustomizationScreen(Init.positionToBlockPos(liftFloors.get(0).getPosition())));

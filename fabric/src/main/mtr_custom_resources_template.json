@@ -274,6 +274,36 @@
 			"flipTexture": true
 		},
 		{
+			"id": "!charging",
+			"textureResource": "mtr:textures/block/sign/charging.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "!cross_harbour_bus_stop",
+			"textureResource": "mtr:textures/block/sign/cross_harbour_bus_stop.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "!help_line",
+			"textureResource": "mtr:textures/block/sign/help_line.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "!police_post",
+			"textureResource": "mtr:textures/block/sign/police_post.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
+			"id": "!station_car_park",
+			"textureResource": "mtr:textures/block/sign/station_car_park.png",
+			"small": true,
+			"flipTexture": false
+		},
+		{
 			"id": "!cross",
 			"textureResource": "mtr:textures/block/sign/cross.png",
 			"small": true,
@@ -880,6 +910,48 @@
 			"flipTexture": true,
 			"flipCustomText": true,
 			"backgroundColor": "FA7B22"
+		},
+		{
+			"id": "!cross_harbour_bus_stop_text",
+			"textureResource": "mtr:textures/block/sign/cross_harbour_bus_stop.png",
+			"customText": "sign.mtr.cross_harbour_bus_stop",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "!cross_harbour_bus_stop_text_flipped",
+			"textureResource": "mtr:textures/block/sign/cross_harbour_bus_stop.png",
+			"customText": "sign.mtr.cross_harbour_bus_stop",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "!police_post_text",
+			"textureResource": "mtr:textures/block/sign/police_post.png",
+			"customText": "sign.mtr.police_post",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "!police_post_text_flipped",
+			"textureResource": "mtr:textures/block/sign/police_post.png",
+			"customText": "sign.mtr.police_post",
+			"small": true,
+			"flipCustomText": true
+		},
+		{
+			"id": "!station_car_park_text",
+			"textureResource": "mtr:textures/block/sign/station_car_park.png",
+			"customText": "sign.mtr.station_car_park",
+			"small": true,
+			"flipCustomText": false
+		},
+		{
+			"id": "!station_car_park_text_flipped",
+			"textureResource": "mtr:textures/block/sign/station_car_park.png",
+			"customText": "sign.mtr.station_car_park",
+			"small": true,
+			"flipCustomText": true
 		},
 		{
 			"id": "!logo_text",

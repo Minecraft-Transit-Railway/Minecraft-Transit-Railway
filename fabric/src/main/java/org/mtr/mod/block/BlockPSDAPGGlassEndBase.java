@@ -55,8 +55,7 @@ public abstract class BlockPSDAPGGlassEndBase extends BlockPSDAPGGlassBase {
 		}
 	}
 
-	public static VoxelShape getEndOutlineShape(VoxelShape baseShape, BlockState state, int height, int thickness,
-												boolean leftAir, boolean rightAir) {
+	public static VoxelShape getEndOutlineShape(VoxelShape baseShape, BlockState state, int height, int thickness, boolean leftAir, boolean rightAir) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
 
 		if (facing == Direction.NORTH && leftAir || facing == Direction.SOUTH && rightAir) {

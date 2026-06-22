@@ -27,9 +27,9 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	private StationExit editingExit;
 	private int editingDestinationIndex;
 	private int clickDelay;
-    private long fareZone;
+	private long fareZone;
 
-    private final MutableText stationZoneText = TranslationProvider.GUI_MTR_ZONE.getMutableText();
+	private final MutableText stationZoneText = TranslationProvider.GUI_MTR_ZONE.getMutableText();
 	private final MutableText exitParentsText = TranslationProvider.GUI_MTR_EXIT_PARENTS.getMutableText();
 	private final MutableText exitDestinationsText = TranslationProvider.GUI_MTR_EXIT_DESTINATIONS.getMutableText();
 
@@ -63,7 +63,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		exitParentList = new DashboardList(null, null, this::onEditExitParent, null, null, this::onDeleteExitParent, null, () -> MinecraftClientData.EXIT_PARENTS_SEARCH, text -> MinecraftClientData.EXIT_PARENTS_SEARCH = text);
 		exitDestinationList = new DashboardList(null, null, this::onEditExitDestination, this::onSortExitDestination, null, this::onDeleteExitDestination, this::getExitDestinationList, () -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH, text -> MinecraftClientData.EXIT_DESTINATIONS_SEARCH = text);
 
-        this.fareZone = data.getZone1();
+		this.fareZone = data.getZone1();
 	}
 
 	@Override
@@ -83,13 +83,13 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 		IDrawing.setPositionAndWidth(buttonDoneExitDestination, width / 2, height - SQUARE_SIZE, width / 2);
 
 		textFieldZone.setText2(String.valueOf(fareZone));
-        textFieldZone.setChangedListener2(fareZoneString -> {
-            try {
-                fareZone = Long.parseLong(fareZoneString);
-            } catch (NumberFormatException e) {
-                fareZone = 0;
-            }
-        });
+		textFieldZone.setChangedListener2(fareZoneString -> {
+			try {
+				fareZone = Long.parseLong(fareZoneString);
+			} catch (NumberFormatException e) {
+				fareZone = 0;
+			}
+		});
 
 		exitParentList.x = 0;
 		exitParentList.y = EXIT_PANELS_START;
@@ -179,7 +179,7 @@ public class EditStationScreen extends EditNameColorScreenBase<Station> {
 	@Override
 	protected void saveData() {
 		super.saveData();
-        data.setZone1(fareZone);
+		data.setZone1(fareZone);
 
 		final ObjectArrayList<StationExit> exitsToRemove = new ObjectArrayList<>();
 		final ObjectOpenHashSet<String> visitedExits = new ObjectOpenHashSet<>();

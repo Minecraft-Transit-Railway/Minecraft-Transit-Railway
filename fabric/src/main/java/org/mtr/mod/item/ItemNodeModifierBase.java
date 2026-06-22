@@ -20,12 +20,12 @@ import java.util.function.Consumer;
 
 public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 
-	public final boolean forNonContinuousMovementNode;
-	public final boolean forContinuousMovementNode;
-	public final boolean forAirplaneNode;
+	protected final boolean forNonContinuousMovementNode;
+	protected final boolean forContinuousMovementNode;
+	protected final boolean forAirplaneNode;
 	protected final boolean isConnector;
 
-	private static final String TAG_TRANSPORT_MODE = "transport_mode";
+	protected static final String TAG_TRANSPORT_MODE = "transport_mode";
 
 	public ItemNodeModifierBase(boolean forNonContinuousMovementNode, boolean forContinuousMovementNode, boolean forAirplaneNode, boolean isConnector, ItemSettings itemSettings) {
 		super(itemSettings.maxCount(1));

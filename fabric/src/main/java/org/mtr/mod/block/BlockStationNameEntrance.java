@@ -37,9 +37,9 @@ public class BlockStationNameEntrance extends BlockStationNameBase implements IB
 			final BlockState rightState = ctx.getWorld().getBlockState(pos.offset(facing.rotateYClockwise()));
 
 			final int nearbyStyle;
-			if(leftState.getBlock().data instanceof BlockStationNameEntrance) {
+			if (leftState.getBlock().data instanceof BlockStationNameEntrance) {
 				nearbyStyle = IBlock.getStatePropertySafe(leftState, new Property<>(STYLE.data));
-			} else if(rightState.getBlock().data instanceof BlockStationNameEntrance) {
+			} else if (rightState.getBlock().data instanceof BlockStationNameEntrance) {
 				nearbyStyle = IBlock.getStatePropertySafe(rightState, new Property<>(STYLE.data));
 			} else {
 				nearbyStyle = 0;

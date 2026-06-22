@@ -6,6 +6,7 @@ import org.mtr.core.operation.DepotOperationByIds;
 import org.mtr.core.operation.UpdateDataRequest;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2LongAVLTreeMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.ClickableWidget;
@@ -334,7 +335,7 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 
 			if (departureSplit.length > 1) {
 				final String[] intervalSplit = departureSplit[1].split("\\*");
-				multiple = Integer.parseInt(intervalSplit[0]) + 1;
+				multiple = Math.min(MILLIS_PER_DAY / MILLIS_PER_SECOND, Integer.parseInt(intervalSplit[0]) + 1);
 				final String[] timeSplit2 = intervalSplit[1].split(":");
 				interval = (Integer.parseInt(timeSplit2[0]) * 3600 + Integer.parseInt(timeSplit2[1]) * 60 + Integer.parseInt(timeSplit2[2])) * 1000;
 			} else {
@@ -343,15 +344,15 @@ public class EditDepotScreen extends EditNameColorScreenBase<Depot> {
 			}
 
 			if (addToList || removeFromList) {
-				for (int i = 0; i < multiple; i++) {
-					final int rawDeparture = (departure + i * interval) % MILLIS_PER_DAY;
-					if (addToList) {
-						if (!data.getRealTimeDepartures().contains(rawDeparture)) {
-							data.getRealTimeDepartures().add(rawDeparture);
-						}
-					} else {
-						data.getRealTimeDepartures().rem(rawDeparture);
-					}
+				final LongLinkedOpenHashSet newDepartures = new LongLinkedOpenHashSet();
+				for (long i = 0; i < multiple; i++) {
+					final long rawDeparture = (departure + i * interval) % MILLIS_PER_DAY;
+					newDepartures.add(rawDeparture);
+				}
+				if (addToList) {
+					data.getRealTimeDepartures().addAll(newDepartures);
+				} else {
+					data.getRealTimeDepartures().removeAll(newDepartures);
 				}
 				updateList();
 			}

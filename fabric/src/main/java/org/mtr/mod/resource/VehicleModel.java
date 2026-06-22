@@ -120,42 +120,40 @@ public final class VehicleModel extends VehicleModelSchema {
 
 	private DynamicVehicleModel createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-
-		if (modelResource.endsWith(".bbmodel")) {
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
-					new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
+		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+		try {
+			if (modelResource.endsWith(".bbmodel")) {
+				return new DynamicVehicleModel(
+						new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
+						textureId,
+						modelProperties,
+						positionDefinitions,
+						id
+				);
+			} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
+				return new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
+			} else {
+				Init.LOGGER.error("[{}] Invalid model!", modelResource);
+				return new DynamicVehicleModel(
+						new BlockbenchModel(new JsonReader(new JsonObject())),
+						textureId,
+						modelProperties,
+						positionDefinitions,
+						id
+				);
+			}
+		} catch (Exception e) {
+			Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
+			return new DynamicVehicleModel(
+					new BlockbenchModel(new JsonReader(new JsonObject())),
 					textureId,
 					modelProperties,
 					positionDefinitions,
 					id
 			);
+		} finally {
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return dynamicVehicleModel;
-		} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
-			try {
-				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
-				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-				return dynamicVehicleModel;
-			} catch (Exception e) {
-				Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
-				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			}
-		} else {
-			Init.LOGGER.error("[{}] Invalid model!", textureId.data.toString());
 		}
-
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-		final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
-				new BlockbenchModel(new JsonReader(new JsonObject())),
-				textureId,
-				modelProperties,
-				positionDefinitions,
-				id
-		);
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-		return dynamicVehicleModel;
 	}
 
 	private VehicleGpuCache createGpuCache() {

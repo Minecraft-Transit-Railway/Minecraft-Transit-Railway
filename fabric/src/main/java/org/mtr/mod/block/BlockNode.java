@@ -55,12 +55,7 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 	@Nonnull
 	@Override
 	public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
-		final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), true);
-		return super.getPlacementState2(itemPlacementContext)
-				.with(new Property<>(FACING.data), quadrant % 8 >= 4)
-				.with(new Property<>(IS_45.data), quadrant % 4 >= 2)
-				.with(new Property<>(IS_22_5.data), quadrant % 2 == 1)
-				.with(new Property<>(IS_CONNECTED.data), false);
+		return getStateWithAngle(super.getPlacementState2(itemPlacementContext), itemPlacementContext.getPlayerYaw());
 	}
 
 	@Override
@@ -111,6 +106,18 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 		return (IBlock.getStatePropertySafe(state, BlockNode.FACING) ? 0 : 90) + (IBlock.getStatePropertySafe(state, BlockNode.IS_22_5) ? 22.5F : 0) + (IBlock.getStatePropertySafe(state, BlockNode.IS_45) ? 45 : 0);
 	}
 
+	public static BlockState getStateWithAngle(BlockState state, float angle) {
+		final boolean continuousMovement = state.getBlock().data instanceof BlockContinuousMovementNode;
+		return getStateWithAngle(state, Angle.getQuadrant(angle, !continuousMovement), continuousMovement);
+	}
+
+	private static BlockState getStateWithAngle(BlockState state, int quadrant, boolean continuousMovement) {
+		return state.with(new Property<>(FACING.data), continuousMovement ? quadrant % 4 >= 2 : quadrant % 8 >= 4)
+				.with(new Property<>(IS_45.data), continuousMovement ? quadrant % 2 == 1 : quadrant % 4 >= 2)
+				.with(new Property<>(IS_22_5.data), !continuousMovement && quadrant % 2 == 1)
+				.with(new Property<>(IS_CONNECTED.data), false);
+	}
+
 	public static class BlockContinuousMovementNode extends BlockNode {
 
 		public final boolean upper;
@@ -125,12 +132,7 @@ public class BlockNode extends BlockWaterloggable implements DirectionHelper, Wa
 		@Nonnull
 		@Override
 		public BlockState getPlacementState2(ItemPlacementContext itemPlacementContext) {
-			final int quadrant = Angle.getQuadrant(itemPlacementContext.getPlayerYaw(), false);
-			return super.getPlacementState2(itemPlacementContext)
-					.with(new Property<>(FACING.data), quadrant % 4 >= 2)
-					.with(new Property<>(IS_45.data), quadrant % 2 == 1)
-					.with(new Property<>(IS_22_5.data), false)
-					.with(new Property<>(IS_CONNECTED.data), false);
+			return getStateWithAngle(super.getPlacementState2(itemPlacementContext), itemPlacementContext.getPlayerYaw());
 		}
 
 		@Override

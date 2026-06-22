@@ -24,6 +24,7 @@ public final class WorkerThread extends CustomThread {
 	private OcclusionCullingInstance occlusionCullingInstance;
 	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueueVehicle = new ObjectArrayList<>();
 	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueueLift = new ObjectArrayList<>();
+	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueueMisc = new ObjectArrayList<>();
 	private final ObjectArrayList<Consumer<OcclusionCullingInstance>> occlusionQueueRail = new ObjectArrayList<>();
 	private final ObjectArrayList<Runnable> dynamicTextureQueue = new ObjectArrayList<>();
 
@@ -31,14 +32,16 @@ public final class WorkerThread extends CustomThread {
 	protected void runTick() {
 		try {
 			Thread.sleep(10); // Give the CPU a little break
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+		}
 
-		if (!occlusionQueueVehicle.isEmpty() || !occlusionQueueLift.isEmpty() || !occlusionQueueRail.isEmpty()) {
+		if (!occlusionQueueVehicle.isEmpty() || !occlusionQueueLift.isEmpty() || !occlusionQueueMisc.isEmpty() || !occlusionQueueRail.isEmpty()) {
 			updateInstance();
 			occlusionCullingInstance.resetCache();
 			run(occlusionQueueVehicle, task -> task.accept(occlusionCullingInstance));
 			run(occlusionQueueLift, task -> task.accept(occlusionCullingInstance));
 			run(occlusionQueueRail, task -> task.accept(occlusionCullingInstance));
+			run(occlusionQueueMisc, task -> task.accept(occlusionCullingInstance));
 		}
 
 		run(dynamicTextureQueue, Runnable::run);
@@ -61,7 +64,14 @@ public final class WorkerThread extends CustomThread {
 		}
 	}
 
+	@Deprecated
 	public void scheduleRails(Consumer<OcclusionCullingInstance> consumer) {
+		if (occlusionQueueMisc.size() < MAX_QUEUE_SIZE) {
+			occlusionQueueMisc.add(consumer);
+		}
+	}
+
+	public void scheduleMTRRails(Consumer<OcclusionCullingInstance> consumer) {
 		if (occlusionQueueRail.size() < MAX_QUEUE_SIZE) {
 			occlusionQueueRail.add(consumer);
 		}
