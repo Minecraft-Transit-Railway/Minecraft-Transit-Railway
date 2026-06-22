@@ -116,6 +116,34 @@
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"head/head_1/roof_1",
+				"head/head_1/roof_2",
+				"head/head_1/roof_3",
+				"head/head_2/roof_2",
+				"head/head_2/roof_3",
+				"head/head_2/roof_4"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/head_exterior_1/roof_1",
+				"head_exterior/head_exterior_1/roof_2",
+				"head_exterior/head_exterior_1/roof_3",
+				"head_exterior/head_exterior_2/roof_2",
+				"head_exterior/head_exterior_2/roof_3",
+				"head_exterior/head_exterior_2/roof_4"
+			],
+			"positionDefinitions": [
+				"windowEnd2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

@@ -123,6 +123,15 @@
 				"end2"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_light_tcl"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

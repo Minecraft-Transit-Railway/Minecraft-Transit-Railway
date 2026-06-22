@@ -120,6 +120,53 @@
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"light_head/roof_left",
+				"light_head/roof_right",
+				"light_head/roof"
+			],
+			"positionDefinitions": [
+				"window1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_interior/head_interior_left/roof_2",
+				"head_interior/head_interior_right/roof_2",
+				"head_interior/roof"
+			],
+			"positionDefinitions": [
+				"window1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/head_exterior_left/roof_1",
+				"head_exterior/head_exterior_left/roof_2",
+				"head_exterior/head_exterior_right/roof_1",
+				"head_exterior/head_exterior_right/roof_2",
+				"head_exterior/roof_3"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/head_exterior_left/side_roof_1",
+				"head_exterior/head_exterior_left/side_roof_2",
+				"head_exterior/head_exterior_right/side_roof_1",
+				"head_exterior/head_exterior_right/side_roof_2"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

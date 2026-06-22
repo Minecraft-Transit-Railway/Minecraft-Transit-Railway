@@ -75,6 +75,24 @@
 				"end1"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"roofLight1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_vent"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

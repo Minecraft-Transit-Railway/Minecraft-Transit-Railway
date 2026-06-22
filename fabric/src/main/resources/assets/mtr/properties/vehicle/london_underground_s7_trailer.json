@@ -374,6 +374,36 @@
 			],
 			"type": "WEATHER_COVER",
 			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"window/roof/cube"
+			],
+			"positionDefinitions": [
+				"b7d00fb7"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"door/roof2/cube"
+			],
+			"positionDefinitions": [
+				"96e9a23a"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"end/roof3/cube"
+			],
+			"positionDefinitions": [
+				"768cb543"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,

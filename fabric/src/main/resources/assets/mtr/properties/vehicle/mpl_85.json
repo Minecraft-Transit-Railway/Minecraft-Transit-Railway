@@ -329,6 +329,94 @@
 				"roofDoor3"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_2",
+				"window/roof_3",
+				"window/roof_4",
+				"window/roof_5"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior/roof_1",
+				"window_exterior/roof_2",
+				"window_exterior/roof_3",
+				"window_exterior/roof_4"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/roof_1",
+				"door/roof_2",
+				"door/roof_3",
+				"door/roof_4",
+				"door/roof_5"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head/side_1/roof_1",
+				"head/side_1/roof_2",
+				"head/side_1/roof_3",
+				"head/side_1/roof_4",
+				"head/side_1/roof_5",
+				"head/side_1/roof_6",
+				"head/side_1/roof_7",
+				"head/side_1/roof_8",
+				"head/side_2/roof_2",
+				"head/side_2/roof_3",
+				"head/side_2/roof_4",
+				"head/side_2/roof_5",
+				"head/side_2/roof_6",
+				"head/side_2/roof_7",
+				"head/side_2/roof_8",
+				"head/side_2/roof_9"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/side_1_exterior/roof_1",
+				"head_exterior/side_1_exterior/roof_2",
+				"head_exterior/side_1_exterior/roof_3",
+				"head_exterior/side_1_exterior/roof_4",
+				"head_exterior/side_1_exterior/roof_5",
+				"head_exterior/side_1_exterior/roof_6",
+				"head_exterior/side_1_exterior/roof_7",
+				"head_exterior/side_1_exterior/roof_8",
+				"head_exterior/side_2_exterior/roof_2",
+				"head_exterior/side_2_exterior/roof_3",
+				"head_exterior/side_2_exterior/roof_4",
+				"head_exterior/side_2_exterior/roof_5",
+				"head_exterior/side_2_exterior/roof_6",
+				"head_exterior/side_2_exterior/roof_7",
+				"head_exterior/side_2_exterior/roof_8",
+				"head_exterior/side_2_exterior/roof_9"
+			],
+			"positionDefinitions": [
+				"end1",
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

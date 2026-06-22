@@ -131,6 +131,31 @@
 				"end1"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/front/side_1/outer_roof_3",
+				"head_exterior/front/side_1/outer_roof_2",
+				"head_exterior/front/side_1/outer_roof_1",
+				"head_exterior/front/side_1/outer_roof_4",
+				"head_exterior/front/side_2/outer_roof_5",
+				"head_exterior/front/side_2/outer_roof_6",
+				"head_exterior/front/side_2/outer_roof_7",
+				"head_exterior/front/side_2/outer_roof_8"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

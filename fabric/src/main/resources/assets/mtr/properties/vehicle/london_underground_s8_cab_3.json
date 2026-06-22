@@ -520,6 +520,46 @@
 			],
 			"type": "WEATHER_COVER",
 			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"window/roof/cube"
+			],
+			"positionDefinitions": [
+				"e7b304ec"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"door/roof2/cube"
+			],
+			"positionDefinitions": [
+				"c199beca"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro/roof4/cube"
+			],
+			"positionDefinitions": [
+				"7ba40b59"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro_exterior/roof_head_ushiro/cube"
+			],
+			"positionDefinitions": [
+				"1ba820d9"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,

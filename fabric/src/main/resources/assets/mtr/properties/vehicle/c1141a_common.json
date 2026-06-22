@@ -297,6 +297,18 @@
 				"doorFlipped"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light_c1141a"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowFlipped",
+				"door",
+				"doorFlipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

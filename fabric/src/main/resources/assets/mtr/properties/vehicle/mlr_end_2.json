@@ -84,6 +84,24 @@
 				"end2Flipped"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_vents"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

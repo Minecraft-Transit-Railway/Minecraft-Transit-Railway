@@ -36,6 +36,43 @@
 				"end2"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end_roof"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/end_side_1/roof",
+				"end/end_side_2/roof"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/end_exterior_side_1/roof",
+				"end_exterior/end_exterior_side_1/roof_1",
+				"end_exterior/end_exterior_side_1/roof_2",
+				"end_exterior/end_exterior_side_1/roof_3",
+				"end_exterior/end_exterior_side_1/roof_4",
+				"end_exterior/end_exterior_side_2/roof",
+				"end_exterior/end_exterior_side_2/roof_2",
+				"end_exterior/end_exterior_side_2/roof_3",
+				"end_exterior/end_exterior_side_2/roof_4",
+				"end_exterior/end_exterior_side_2/roof_5"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

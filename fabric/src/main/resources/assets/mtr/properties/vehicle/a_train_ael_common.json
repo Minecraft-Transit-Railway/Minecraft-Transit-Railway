@@ -314,6 +314,29 @@
 				"doorFlipped"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light_window_ael"
+			],
+			"positionDefinitions": [
+				"window",
+				"windowEnd1",
+				"windowEnd1Flipped",
+				"windowEnd2",
+				"windowEnd2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light_door_ael"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

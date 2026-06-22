@@ -65,6 +65,25 @@
 				"end2"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_light_c1141a"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/outer_roof_1",
+				"end_exterior/outer_roof_2"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

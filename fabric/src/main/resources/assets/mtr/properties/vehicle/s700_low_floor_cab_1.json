@@ -89,7 +89,7 @@
 				"ca8e1239"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -101,7 +101,7 @@
 				"3fb81a2b"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -113,7 +113,7 @@
 				"9b9d6ddd"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": 1.0,
+			"doorXMultiplier": 1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -125,7 +125,7 @@
 				"71c5b115"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": 1.0,
+			"doorXMultiplier": 1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -137,7 +137,7 @@
 				"97fd3db"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -149,7 +149,7 @@
 				"8c263012"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2"
 		},
@@ -236,8 +236,8 @@
 				"a2736284"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": 1.0,
-			"doorZMultiplier": 0.0,
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 0,
 			"doorAnimationType": "STANDARD",
 			"renderFromOpeningDoorTime": 0,
 			"renderUntilOpeningDoorTime": 1,
@@ -255,8 +255,8 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "LIGHT",
-			"doorXMultiplier": 1.0,
-			"doorZMultiplier": 0.0,
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 0,
 			"doorAnimationType": "STANDARD",
 			"renderFromOpeningDoorTime": 1,
 			"renderUntilOpeningDoorTime": 1000000,
@@ -350,12 +350,12 @@
 				"bc8089db"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
+			"displayXPadding": 0,
 			"displayYPadding": 0.2,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 2.5,
-			"displayCjkSizeRatio": 1.0,
+			"displayCjkSizeRatio": 1,
 			"displayOptions": [
 				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
@@ -383,12 +383,12 @@
 				"b0c017ab"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
-			"displayMaxLineHeight": 2.0,
-			"displayCjkSizeRatio": 1.0,
+			"displayMaxLineHeight": 2,
+			"displayCjkSizeRatio": 1,
 			"displayOptions": [],
 			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX",
@@ -403,11 +403,11 @@
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.5,
-			"displayYPadding": 0.0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FFFFFF",
 			"displayColor": "FFFFFF",
 			"displayMaxLineHeight": 0.5,
-			"displayCjkSizeRatio": 1.0,
+			"displayCjkSizeRatio": 1,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
@@ -424,12 +424,12 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "DOORWAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
@@ -442,7 +442,7 @@
 				"a30fefbc"
 			],
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 0,
@@ -460,7 +460,7 @@
 				"c2956cab"
 			],
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 0,
@@ -479,7 +479,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 3000,
@@ -498,7 +498,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 3000,
@@ -517,7 +517,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 1000000,
@@ -536,7 +536,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 1000000,
@@ -555,7 +555,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": 10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 1,
@@ -574,7 +574,7 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": -1.0,
+			"doorXMultiplier": -1,
 			"doorZMultiplier": -10.5,
 			"doorAnimationType": "PLUG_SLOW_2",
 			"renderFromOpeningDoorTime": 1,
@@ -593,8 +593,8 @@
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
-			"doorXMultiplier": 1.0,
-			"doorZMultiplier": 0.0,
+			"doorXMultiplier": 1,
+			"doorZMultiplier": 0,
 			"doorAnimationType": "STANDARD",
 			"renderFromOpeningDoorTime": 1000000,
 			"renderUntilOpeningDoorTime": 1000000,
@@ -602,6 +602,142 @@
 			"renderUntilClosingDoorTime": 1,
 			"flashOffTime": 50,
 			"flashOnTime": 50
+		},
+		{
+			"names": [
+				"window_exterior_1/window_exterior_1_left/roof_2",
+				"window_exterior_1/window_exterior_1_left/roof_3",
+				"window_exterior_1/window_exterior_1_left/roof_4",
+				"window_exterior_1/window_exterior_1_left/roof_5",
+				"window_exterior_1/window_exterior_1_right/roof_3",
+				"window_exterior_1/window_exterior_1_right/roof_4",
+				"window_exterior_1/window_exterior_1_right/roof_5",
+				"window_exterior_1/window_exterior_1_right/roof_6"
+			],
+			"positionDefinitions": [
+				"1c3ab8bd"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_exterior/roof_1",
+				"door_exterior/roof_2",
+				"door_exterior/roof_3",
+				"door_exterior/roof_4"
+			],
+			"positionDefinitions": [
+				"5edf39fd"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_2/window_exterior_2_left/roof_1",
+				"window_exterior_2/window_exterior_2_left/roof_2",
+				"window_exterior_2/window_exterior_2_left/roof_3",
+				"window_exterior_2/window_exterior_2_left/roof_4",
+				"window_exterior_2/window_exterior_2_right/roof_2",
+				"window_exterior_2/window_exterior_2_right/roof_3",
+				"window_exterior_2/window_exterior_2_right/roof_4",
+				"window_exterior_2/window_exterior_2_right/roof_5"
+			],
+			"positionDefinitions": [
+				"b2528e9b"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_3/window_exterior_3_left/roof_4",
+				"window_exterior_3/window_exterior_3_left/roof_5",
+				"window_exterior_3/window_exterior_3_left/roof_6",
+				"window_exterior_3/window_exterior_3_left/roof_7",
+				"window_exterior_3/window_exterior_3_right/roof_3",
+				"window_exterior_3/window_exterior_3_right/roof_4",
+				"window_exterior_3/window_exterior_3_right/roof_5",
+				"window_exterior_3/window_exterior_3_right/roof_6"
+			],
+			"positionDefinitions": [
+				"9b743d28"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_1/window_1_left/roof_4",
+				"window_1/window_1_left/roof_5",
+				"window_1/window_1_left/roof_7",
+				"window_1/window_1_left/roof_8",
+				"window_1/window_1_left/roof_9",
+				"window_1/window_1_right/roof_4",
+				"window_1/window_1_right/roof_5",
+				"window_1/window_1_right/roof_7",
+				"window_1/window_1_right/roof_8",
+				"window_1/window_1_right/roof_9"
+			],
+			"positionDefinitions": [
+				"e5a59b50"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/roof_6",
+				"door/roof_7",
+				"door/roof_8"
+			],
+			"positionDefinitions": [
+				"6d5f8f41"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_2/roof_3",
+				"window_2/roof_4",
+				"window_2/roof_6",
+				"window_2/roof_7",
+				"window_2/roof_8"
+			],
+			"positionDefinitions": [
+				"7399bb2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_3/window_3_left/roof_4",
+				"window_3/window_3_left/roof_5",
+				"window_3/window_3_left/roof_7",
+				"window_3/window_3_left/roof_8",
+				"window_3/window_3_left/roof_9",
+				"window_3/window_3_right/roof_4",
+				"window_3/window_3_right/roof_5",
+				"window_3/window_3_right/roof_7",
+				"window_3/window_3_right/roof_8",
+				"window_3/window_3_right/roof_9"
+			],
+			"positionDefinitions": [
+				"bdb196ee"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/end_exterior_left/roof_4",
+				"end_exterior/end_exterior_left/roof_5",
+				"end_exterior/end_exterior_left/roof_6",
+				"end_exterior/end_exterior_left/roof_7",
+				"end_exterior/end_exterior_right/roof_5",
+				"end_exterior/end_exterior_right/roof_6",
+				"end_exterior/end_exterior_right/roof_7",
+				"end_exterior/end_exterior_right/roof_8"
+			],
+			"positionDefinitions": [
+				"2b81b98b"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 0.5,
@@ -611,7 +747,7 @@
 	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
-	"gangwayWidth": 2.0,
+	"gangwayWidth": 2,
 	"gangwayHeight": 2.25,
 	"gangwayYOffset": 0.5,
 	"gangwayZOffset": 0.25

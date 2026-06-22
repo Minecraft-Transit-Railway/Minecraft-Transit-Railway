@@ -60,6 +60,15 @@
 				"mainFlipped"
 			],
 			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"body/roof"
+			],
+			"positionDefinitions": [
+				"mainFlipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": -5

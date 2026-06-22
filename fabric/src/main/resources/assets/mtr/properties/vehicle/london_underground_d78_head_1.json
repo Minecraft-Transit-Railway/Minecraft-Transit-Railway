@@ -123,6 +123,34 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_UK"
+		},
+		{
+			"names": [
+				"head/window_11/roof_side",
+				"head/window_11/roof",
+				"head/window_14/roof_side",
+				"head/window_14/roof"
+			],
+			"positionDefinitions": [
+				"head1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/window_9/roof_2",
+				"head_exterior/window_9/roof_3",
+				"head_exterior/window_9/roof_4",
+				"head_exterior/window_9/roof",
+				"head_exterior/window_16/roof_3",
+				"head_exterior/window_16/roof_4",
+				"head_exterior/window_16/roof_5",
+				"head_exterior/window_16/roof"
+			],
+			"positionDefinitions": [
+				"head1Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

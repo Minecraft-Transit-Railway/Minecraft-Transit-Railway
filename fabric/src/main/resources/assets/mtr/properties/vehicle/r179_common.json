@@ -296,6 +296,34 @@
 				"doorEnd"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_window_light"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_handle"
+			],
+			"positionDefinitions": [
+				"roofHandle"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_light"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

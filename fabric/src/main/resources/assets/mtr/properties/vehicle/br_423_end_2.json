@@ -67,6 +67,19 @@
 				"window6Flipped"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/end_exterior_left/roof_1",
+				"end_exterior/end_exterior_left/roof_2",
+				"end_exterior/end_exterior_right/roof_2",
+				"end_exterior/end_exterior_right/roof_3",
+				"end_exterior/roof_3"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

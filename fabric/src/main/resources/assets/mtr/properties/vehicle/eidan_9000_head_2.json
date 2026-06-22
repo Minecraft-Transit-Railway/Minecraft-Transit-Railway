@@ -275,6 +275,58 @@
 			"displayOptions": [],
 			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX"
+		},
+		{
+			"names": [
+				"roof_head_light"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head/roof4",
+				"head/roof3",
+				"head/roof2",
+				"head/roof1"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_exterior/roof4",
+				"head_exterior/roof2",
+				"head_exterior/roof3",
+				"head_exterior/roof1",
+				"head_exterior/roof9",
+				"head_exterior/roof10",
+				"head_exterior/roof11",
+				"head_exterior/roof12"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_driver/roof4",
+				"head_driver/roof3",
+				"head_driver/roof2",
+				"head_driver/roof1"
+			],
+			"positionDefinitions": [
+				"cab_backward"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "ON_ROUTE_FORWARDS"
 		}
 	],
 	"modelYOffset": 1

@@ -105,6 +105,30 @@
 				"end2"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"end2Light"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/roof_end_exterior/outer_roof_1",
+				"end_exterior/roof_end_exterior/outer_roof_2",
+				"end_exterior/roof_end_exterior/outer_roof_3",
+				"end_exterior/roof_end_exterior/outer_roof_4",
+				"end_exterior/roof_end_exterior/outer_roof_5",
+				"end_exterior/roof_end_exterior/outer_roof_6",
+				"end_exterior/roof_end_exterior/outer_roof_7"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

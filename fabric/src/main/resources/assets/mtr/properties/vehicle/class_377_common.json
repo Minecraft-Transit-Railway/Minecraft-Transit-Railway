@@ -328,6 +328,45 @@
 				"door2"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_2",
+				"window/roof_3"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"window2",
+				"window2Flipped",
+				"window3",
+				"window3Flipped",
+				"window4",
+				"window4Flipped",
+				"window5",
+				"window5Flipped",
+				"window6",
+				"window6Flipped",
+				"window7",
+				"window7Flipped",
+				"window8",
+				"window8Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/roof_3",
+				"door/roof_4"
+			],
+			"positionDefinitions": [
+				"door1",
+				"door1Flipped",
+				"door2",
+				"door2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

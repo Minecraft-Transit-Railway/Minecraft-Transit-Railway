@@ -77,7 +77,7 @@
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.2,
-			"displayCjkSizeRatio": 1.0,
+			"displayCjkSizeRatio": 1,
 			"displayOptions": [
 				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
@@ -110,7 +110,7 @@
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.2,
-			"displayCjkSizeRatio": 1.0,
+			"displayCjkSizeRatio": 1,
 			"displayOptions": [
 				"UPPER_CASE",
 				"CYCLE_LANGUAGES"
@@ -129,17 +129,58 @@
 			"displayXPadding": 0.3,
 			"displayYPadding": 0.3,
 			"displayType": "ROUTE_COLOR"
+		},
+		{
+			"names": [
+				"window_exterior_4/roof_2",
+				"window_exterior_4/roof_3",
+				"window_exterior_4/roof_4",
+				"window_exterior_4/roof_5"
+			],
+			"positionDefinitions": [
+				"b20d0645"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_4/roof_5",
+				"window_4/roof_6",
+				"window_4/roof_8",
+				"window_4/roof_9",
+				"window_4/roof_10"
+			],
+			"positionDefinitions": [
+				"9d6887a2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/end_exterior_left/roof_4",
+				"end_exterior/end_exterior_left/roof_5",
+				"end_exterior/end_exterior_left/roof_6",
+				"end_exterior/end_exterior_left/roof_7",
+				"end_exterior/end_exterior_right/roof_5",
+				"end_exterior/end_exterior_right/roof_6",
+				"end_exterior/end_exterior_right/roof_7",
+				"end_exterior/end_exterior_right/roof_8"
+			],
+			"positionDefinitions": [
+				"7d74e4cc"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
-	"modelYOffset": 1.0,
+	"modelYOffset": 1,
 	"gangwayInnerSideResource": "mtr:textures/gangway/sp1900_side.png",
 	"gangwayInnerTopResource": "mtr:textures/gangway/sp1900_roof.png",
 	"gangwayInnerBottomResource": "mtr:textures/gangway/sp1900_floor.png",
 	"gangwayOuterSideResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
-	"gangwayWidth": 2.0,
+	"gangwayWidth": 2,
 	"gangwayHeight": 2.25,
-	"gangwayYOffset": 1.0,
+	"gangwayYOffset": 1,
 	"gangwayZOffset": 0.375
 }

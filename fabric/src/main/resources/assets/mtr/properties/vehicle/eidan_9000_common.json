@@ -309,6 +309,50 @@
 			],
 			"type": "WEATHER_COVER",
 			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_window_light"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_light"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_window/roof1",
+				"window/roof_window/roof2",
+				"window/roof_window/roof3",
+				"window/roof_window/roof4"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"door/roof_door/roof1",
+				"door/roof_door/roof2",
+				"door/roof_door/roof3",
+				"door/roof_door/roof4"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,

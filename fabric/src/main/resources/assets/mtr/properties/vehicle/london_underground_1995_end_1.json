@@ -205,6 +205,58 @@
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -12,
 			"doorAnimationType": "STANDARD"
+		},
+		{
+			"names": [
+				"window/window_1/roof_1",
+				"window/window_1/roof_2",
+				"window/window_1/roof_3",
+				"window/window_2/roof_2",
+				"window/window_2/roof_3",
+				"window/window_2/roof_4"
+			],
+			"positionDefinitions": [
+				"windowEnd1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior/window_exterior_1/roof_1",
+				"window_exterior/window_exterior_1/roof_2",
+				"window_exterior/window_exterior_1/roof_3",
+				"window_exterior/window_exterior_2/roof_2",
+				"window_exterior/window_exterior_2/roof_3",
+				"window_exterior/window_exterior_2/roof_4"
+			],
+			"positionDefinitions": [
+				"windowEnd1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/end_1/roof_1",
+				"end/end_1/roof_2",
+				"end/end_1/roof_3",
+				"end/end_2/roof_2",
+				"end/end_2/roof_3",
+				"end/end_2/roof_4"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/window_1/door_roof",
+				"window/window_2/door_roof"
+			],
+			"positionDefinitions": [
+				"windowEnd1Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

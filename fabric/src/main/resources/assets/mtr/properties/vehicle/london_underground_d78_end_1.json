@@ -90,6 +90,62 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_UK"
+		},
+		{
+			"names": [
+				"window/window_1/roof_side",
+				"window/window_1/roof",
+				"window/window_3/roof_side",
+				"window/window_3/roof"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/window_5/roof_side",
+				"end/window_5/roof",
+				"end/window_10/roof_side",
+				"end/window_10/roof"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior/window_2/roof_1",
+				"window_exterior/window_2/roof_2",
+				"window_exterior/window_2/roof_3",
+				"window_exterior/window_2/roof",
+				"window_exterior/window_6/roof_2",
+				"window_exterior/window_6/roof_3",
+				"window_exterior/window_6/roof_4",
+				"window_exterior/window_6/roof"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/window_7/roof_1",
+				"end_exterior/window_7/roof_2",
+				"end_exterior/window_7/roof_3",
+				"end_exterior/window_7/roof",
+				"end_exterior/window_12/roof_2",
+				"end_exterior/window_12/roof_3",
+				"end_exterior/window_12/roof_4",
+				"end_exterior/window_12/roof"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

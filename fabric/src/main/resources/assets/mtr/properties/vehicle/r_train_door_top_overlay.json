@@ -13,6 +13,20 @@
 				"doorEnd2Flipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"outer_roof"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

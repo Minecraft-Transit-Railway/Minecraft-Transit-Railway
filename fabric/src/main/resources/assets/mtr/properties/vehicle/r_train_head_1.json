@@ -130,6 +130,36 @@
 				"end1"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"roofLight1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_vent"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/driver_door/driver_door_edge_roof_1",
+				"head_exterior/driver_door/driver_door_edge_roof_3",
+				"head_exterior/driver_door/driver_door_edge_roof_4",
+				"head_exterior/driver_door/driver_door_edge_roof_2"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

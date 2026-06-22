@@ -153,6 +153,41 @@
 				"roofHead2"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_light_sp1900"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/front/roof_corner_2_r1",
+				"head_exterior/front/roof_corner_1_r1",
+				"head_exterior/front/roof_middle_corner_2_r1",
+				"head_exterior/front/roof_middle_corner_1_r1",
+				"head_exterior/front/roof_side_2_r1",
+				"head_exterior/front/roof_side_1_r1"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/driver_roof",
+				"head_exterior/outer_roof_2",
+				"head_exterior/outer_roof_1",
+				"head_exterior/front/front_roof_r1"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

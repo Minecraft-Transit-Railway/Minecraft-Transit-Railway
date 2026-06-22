@@ -289,6 +289,122 @@
 				"2d146e26"
 			],
 			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_3",
+				"window/roof_4"
+			],
+			"positionDefinitions": [
+				"5b521719"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/side_1/roof",
+				"door/side_2/roof",
+				"door/roof",
+				"door/roof_1",
+				"door/roof_2",
+				"door/roof_3",
+				"door/roof_4"
+			],
+			"positionDefinitions": [
+				"f73303f9"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_1_exterior/window_exterior_1_left/roof_1",
+				"window_1_exterior/window_exterior_1_left/roof_2",
+				"window_1_exterior/window_exterior_1_left/roof_3",
+				"window_1_exterior/window_exterior_1_left/roof_4",
+				"window_1_exterior/window_exterior_1_left_end/roof_1",
+				"window_1_exterior/window_exterior_1_left_end/roof_2",
+				"window_1_exterior/window_exterior_1_left_end/roof_3",
+				"window_1_exterior/window_exterior_1_right/roof_1",
+				"window_1_exterior/window_exterior_1_right/roof_2",
+				"window_1_exterior/window_exterior_1_right/roof_3",
+				"window_1_exterior/window_exterior_1_right/roof_4",
+				"window_1_exterior/window_exterior_1_right_end/roof_1",
+				"window_1_exterior/window_exterior_1_right_end/roof_2",
+				"window_1_exterior/window_exterior_1_right_end/roof_3"
+			],
+			"positionDefinitions": [
+				"4e762bee"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_2_exterior/window_exterior_2_left/roof_2",
+				"window_2_exterior/window_exterior_2_left/roof_3",
+				"window_2_exterior/window_exterior_2_left/roof_4",
+				"window_2_exterior/window_exterior_2_left/roof_5",
+				"window_2_exterior/window_exterior_2_right/roof_2",
+				"window_2_exterior/window_exterior_2_right/roof_3",
+				"window_2_exterior/window_exterior_2_right/roof_4",
+				"window_2_exterior/window_exterior_2_right/roof_5"
+			],
+			"positionDefinitions": [
+				"1b2b647a"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_left/roof"
+			],
+			"positionDefinitions": [
+				"c28ef401"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_right/roof"
+			],
+			"positionDefinitions": [
+				"3d70bc63"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_left_exterior/roof"
+			],
+			"positionDefinitions": [
+				"fb0d1bc6"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_right_exterior/roof"
+			],
+			"positionDefinitions": [
+				"6b9dec2a"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/end_left/roof_2",
+				"end/end_left/roof_4",
+				"end/end_left/roof_5",
+				"end/end_left/roof_6",
+				"end/end_right/roof_2",
+				"end/end_right/roof_4",
+				"end/end_right/roof_5",
+				"end/end_right/roof_6"
+			],
+			"positionDefinitions": [
+				"d530f4cd"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,
