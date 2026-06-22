@@ -73,10 +73,6 @@ public class RenderVehicleHelper {
 	public static void renderFloorOrDoorway(Box floorOrDoorway, int color, Vector3d playerPosition, PositionAndRotation positionAndRotation, boolean useOffset) {
 		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
 		if (clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.BRUSH.get())) {
-			final Vector3d corner1 = positionAndRotation.transformForwards(new Vector3d(floorOrDoorway.getMinXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
-			final Vector3d corner2 = positionAndRotation.transformForwards(new Vector3d(floorOrDoorway.getMaxXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
-			final Vector3d corner3 = positionAndRotation.transformForwards(new Vector3d(floorOrDoorway.getMaxXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
-			final Vector3d corner4 = positionAndRotation.transformForwards(new Vector3d(floorOrDoorway.getMinXMapped(), floorOrDoorway.getMaxYMapped(), floorOrDoorway.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
 			final int newColor = boxContains(floorOrDoorway,
 					playerPosition.getXMapped() - HALF_PLAYER_WIDTH,
 					playerPosition.getYMapped(),
@@ -94,13 +90,15 @@ public class RenderVehicleHelper {
 					playerPosition.getYMapped(),
 					playerPosition.getZMapped() + HALF_PLAYER_WIDTH
 			) ? 0xFF00FF00 : color;
-			final Vector3d zeroVector = Vector3d.getZeroMapped();
-			MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
-				drawLine(graphicsHolder, corner1, corner2, useOffset ? offset : zeroVector, newColor);
-				drawLine(graphicsHolder, corner2, corner3, useOffset ? offset : zeroVector, newColor);
-				drawLine(graphicsHolder, corner3, corner4, useOffset ? offset : zeroVector, newColor);
-				drawLine(graphicsHolder, corner4, corner1, useOffset ? offset : zeroVector, newColor);
-			});
+			renderBoxPlane(floorOrDoorway, floorOrDoorway.getMaxYMapped(), newColor, positionAndRotation, useOffset);
+		}
+	}
+
+	public static void renderWeatherCover(Box weatherCoverBox, Vector3d playerPosition, PositionAndRotation positionAndRotation, boolean useOffset) {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		if (clientPlayerEntity != null && clientPlayerEntity.isHolding(Items.BRUSH.get())) {
+			final int color = isBelowWeatherCover(weatherCoverBox, playerPosition.getXMapped(), playerPosition.getYMapped(), playerPosition.getZMapped()) ? 0xFF00FF00 : 0xFF00FFFF;
+			renderBoxPlane(weatherCoverBox, weatherCoverBox.getMinYMapped(), color, positionAndRotation, useOffset);
 		}
 	}
 
@@ -122,15 +120,26 @@ public class RenderVehicleHelper {
 	}
 
 	public static boolean isBelowWeatherCover(Box weatherCoverBox, double playerX, double playerY, double playerZ) {
-		return Utilities.isBetween(
-				playerX,
-				weatherCoverBox.getMinXMapped(),
-				weatherCoverBox.getMaxXMapped()
-		) && Utilities.isBetween(
-				playerZ,
-				weatherCoverBox.getMinZMapped(),
-				weatherCoverBox.getMaxZMapped()
-		) && weatherCoverBox.getMinYMapped() >= playerY + WEATHER_COVER_MIN_Y_OFFSET && weatherCoverBox.getMaxYMapped() >= playerY + WEATHER_COVER_HEAD_Y_OFFSET;
+		return playerX + HALF_PLAYER_WIDTH >= weatherCoverBox.getMinXMapped()
+				&& playerX - HALF_PLAYER_WIDTH <= weatherCoverBox.getMaxXMapped()
+				&& playerZ + HALF_PLAYER_WIDTH >= weatherCoverBox.getMinZMapped()
+				&& playerZ - HALF_PLAYER_WIDTH <= weatherCoverBox.getMaxZMapped()
+				&& weatherCoverBox.getMinYMapped() >= playerY + WEATHER_COVER_MIN_Y_OFFSET
+				&& weatherCoverBox.getMaxYMapped() >= playerY + WEATHER_COVER_HEAD_Y_OFFSET;
+	}
+
+	private static void renderBoxPlane(Box box, double y, int color, PositionAndRotation positionAndRotation, boolean useOffset) {
+		final Vector3d corner1 = positionAndRotation.transformForwards(new Vector3d(box.getMinXMapped(), y, box.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		final Vector3d corner2 = positionAndRotation.transformForwards(new Vector3d(box.getMaxXMapped(), y, box.getMinZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		final Vector3d corner3 = positionAndRotation.transformForwards(new Vector3d(box.getMaxXMapped(), y, box.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		final Vector3d corner4 = positionAndRotation.transformForwards(new Vector3d(box.getMinXMapped(), y, box.getMaxZMapped()), Vector3d::rotateX, Vector3d::rotateY, Vector3d::add);
+		final Vector3d zeroVector = Vector3d.getZeroMapped();
+		MainRenderer.scheduleRender(QueuedRenderLayer.LINES, (graphicsHolder, offset) -> {
+			drawLine(graphicsHolder, corner1, corner2, useOffset ? offset : zeroVector, color);
+			drawLine(graphicsHolder, corner2, corner3, useOffset ? offset : zeroVector, color);
+			drawLine(graphicsHolder, corner3, corner4, useOffset ? offset : zeroVector, color);
+			drawLine(graphicsHolder, corner4, corner1, useOffset ? offset : zeroVector, color);
+		});
 	}
 
 	private static void drawLine(GraphicsHolder graphicsHolder, Vector3d corner1, Vector3d corner2, Vector3d offset, int color) {
