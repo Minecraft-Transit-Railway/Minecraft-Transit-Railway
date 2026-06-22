@@ -6,6 +6,8 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.mtr.mapping.holder.Box;
+import org.mtr.mapping.holder.ClientPlayerEntity;
+import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Vector3d;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.data.VehicleExtension;
@@ -29,6 +31,11 @@ public final class VehicleWeatherCover {
 		}
 
 		return false;
+	}
+
+	public static boolean hasWeatherCoverAtPlayer() {
+		final ClientPlayerEntity clientPlayerEntity = MinecraftClient.getInstance().getPlayerMapped();
+		return clientPlayerEntity != null && hasWeatherCoverAt(clientPlayerEntity.getX(), clientPlayerEntity.getY(), clientPlayerEntity.getZ());
 	}
 
 	private static void refreshCache() {
