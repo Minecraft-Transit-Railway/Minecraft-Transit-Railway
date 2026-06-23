@@ -76,6 +76,45 @@
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"end_roof"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head/head_side_1/roof",
+				"head/head_side_2/roof"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/head_exterior_side_1/roof_5",
+				"head_exterior/head_exterior_side_1/roof_4",
+				"head_exterior/head_exterior_side_1/roof_3",
+				"head_exterior/head_exterior_side_1/roof_2",
+				"head_exterior/head_exterior_side_1/roof_1",
+				"head_exterior/head_exterior_side_1/roof_8",
+				"head_exterior/head_exterior_side_2/roof_2",
+				"head_exterior/head_exterior_side_2/roof_3",
+				"head_exterior/head_exterior_side_2/roof_4",
+				"head_exterior/head_exterior_side_2/roof_5",
+				"head_exterior/head_exterior_side_2/roof_6",
+				"head_exterior/head_exterior_side_2/roof_9"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

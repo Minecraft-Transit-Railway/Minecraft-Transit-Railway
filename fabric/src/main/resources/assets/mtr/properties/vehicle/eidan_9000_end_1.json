@@ -43,6 +43,41 @@
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
 			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_end_light"
+			],
+			"positionDefinitions": [
+				"end_forward"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/roof1",
+				"end/roof2",
+				"end/roof3",
+				"end/roof4"
+			],
+			"positionDefinitions": [
+				"end_forward"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"end_exterior/roof2",
+				"end_exterior/roof3",
+				"end_exterior/roof1",
+				"end_exterior/roof4"
+			],
+			"positionDefinitions": [
+				"end_forward"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1

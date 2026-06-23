@@ -43,6 +43,24 @@
 			"renderStage": "EXTERIOR",
 			"doorZMultiplier": -14,
 			"doorAnimationType": "MLR"
+		},
+		{
+			"names": [
+				"door_left/outer_roof_1"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_right/outer_roof_2"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

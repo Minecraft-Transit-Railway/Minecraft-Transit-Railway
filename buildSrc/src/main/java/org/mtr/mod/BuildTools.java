@@ -73,6 +73,166 @@ public class BuildTools {
 		CreateClientWorldRenderingMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 		CreatePlayerTeleportationStateAccessor.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
 		CreatePlayerRendererOffsetMixin.create(minecraftVersion, loader, mixinPath, "org.mtr.mixin");
+		createEntityRainMixin(mixinPath);
+		createWorldRendererWeatherMixin(mixinPath);
+	}
+
+	private void createEntityRainMixin(Path mixinPath) throws IOException {
+		final boolean fabric = isFabric();
+		final boolean legacyForge = isLegacyForge();
+		final String playerClass = legacyForge ? "ClientPlayerEntity" : fabric ? "ClientPlayerEntity" : "LocalPlayer";
+		final String rainMethod = fabric ? "isBeingRainedOn" : "isInRain";
+		FileUtils.writeStringToFile(mixinPath.resolve("EntityRainMixin.java").toFile(), String.join("\n",
+				"package org.mtr.mixin;",
+				"",
+				legacyForge ? "import net.minecraft.client.entity.player.ClientPlayerEntity;" : fabric ? "import net.minecraft.client.network.ClientPlayerEntity;" : "import net.minecraft.client.player.LocalPlayer;",
+				legacyForge ? "import net.minecraft.entity.Entity;" : fabric ? "import net.minecraft.entity.Entity;" : "import net.minecraft.world.entity.Entity;",
+				"import org.mtr.mod.client.VehicleWeatherCover;",
+				"import org.spongepowered.asm.mixin.Mixin;",
+				"import org.spongepowered.asm.mixin.injection.At;",
+				"import org.spongepowered.asm.mixin.injection.Inject;",
+				"import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;",
+				"",
+				"@Mixin(Entity.class)",
+				"public abstract class EntityRainMixin {",
+				"",
+				String.format("\t@Inject(method = \"%s\", at = @At(\"RETURN\"), cancellable = true)", rainMethod),
+				String.format("\tprivate void %s(CallbackInfoReturnable<Boolean> callbackInfoReturnable) {", rainMethod),
+				"\t\tfinal Entity entity = (Entity) (Object) this;",
+				String.format("\t\tif (callbackInfoReturnable.getReturnValueZ() && entity instanceof %s && VehicleWeatherCover.hasWeatherCoverAt(entity.getX(), entity.getY(), entity.getZ())) {", playerClass),
+				"\t\t\tcallbackInfoReturnable.setReturnValue(false);",
+				"\t\t}",
+				"\t}",
+				"}",
+				""
+		), StandardCharsets.UTF_8);
+	}
+
+	private void createWorldRendererWeatherMixin(Path mixinPath) throws IOException {
+		final boolean fabric = isFabric();
+		final boolean legacyForge = isLegacyForge();
+		final boolean oldPrecipitation = isOldPrecipitationApi();
+		final String worldRendererClass = fabric || legacyForge ? "WorldRenderer" : "LevelRenderer";
+		final String clientWorldClass = fabric || legacyForge ? "ClientWorld" : "ClientLevel";
+		final String particleClass = fabric ? "ParticleEffect" : legacyForge ? "IParticleData" : "ParticleOptions";
+		final String soundCategoryClass = fabric || legacyForge ? "SoundCategory" : "SoundSource";
+		final String weatherMethod = fabric ? "renderWeather" : "renderSnowAndRain";
+		final String rainTickMethod = fabric ? "tickRainSplashing" : "tickRain";
+		final String precipitationTarget;
+		final String precipitationMethodSignature;
+		final String precipitationReturn;
+		if (oldPrecipitation) {
+			final String precipitationType = legacyForge ? "RainType" : "Precipitation";
+			precipitationTarget = legacyForge
+					? "Lnet/minecraft/world/biome/Biome;getPrecipitation()Lnet/minecraft/world/biome/Biome$RainType;"
+					: fabric ? "Lnet/minecraft/world/biome/Biome;getPrecipitation()Lnet/minecraft/world/biome/Biome$Precipitation;" : "Lnet/minecraft/world/level/biome/Biome;getPrecipitation()Lnet/minecraft/world/level/biome/Biome$Precipitation;";
+			precipitationMethodSignature = String.format("\tprivate Biome.%s %sGetPrecipitation(Biome biome) {", precipitationType, weatherMethod);
+			precipitationReturn = String.format("\t\treturn VehicleWeatherCover.hasWeatherCoverAtPlayer() ? Biome.%s.NONE : biome.getPrecipitation();", precipitationType);
+		} else if (fabric) {
+			precipitationTarget = "Lnet/minecraft/world/biome/Biome;getPrecipitation(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/world/biome/Biome$Precipitation;";
+			precipitationMethodSignature = String.format("\tprivate Biome.Precipitation %sGetPrecipitation(Biome biome, BlockPos blockPos) {", weatherMethod);
+			precipitationReturn = "\t\treturn VehicleWeatherCover.hasWeatherCoverAt(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5) ? Biome.Precipitation.NONE : biome.getPrecipitation(blockPos);";
+		} else {
+			precipitationTarget = "Lnet/minecraft/world/level/biome/Biome;getPrecipitationAt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/biome/Biome$Precipitation;";
+			precipitationMethodSignature = String.format("\tprivate Biome.Precipitation %sGetPrecipitation(Biome biome, BlockPos blockPos) {", weatherMethod);
+			precipitationReturn = "\t\treturn VehicleWeatherCover.hasWeatherCoverAt(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5) ? Biome.Precipitation.NONE : biome.getPrecipitationAt(blockPos);";
+		}
+		final String addParticleTarget;
+		if (fabric) {
+			addParticleTarget = "Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V";
+		} else if (legacyForge) {
+			addParticleTarget = "Lnet/minecraft/client/world/ClientWorld;addParticle(Lnet/minecraft/particles/IParticleData;DDDDDD)V";
+		} else {
+			addParticleTarget = "Lnet/minecraft/client/multiplayer/ClientLevel;addParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)V";
+		}
+		final String playSoundTarget;
+		final String playSoundSignature;
+		final String playSoundCall;
+		if (fabric && !oldPrecipitation) {
+			playSoundTarget = "Lnet/minecraft/client/world/ClientWorld;playSoundAtBlockCenter(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V";
+			playSoundSignature = String.format("\tprivate void %sPlaySound(%s clientWorld, BlockPos blockPos, SoundEvent soundEvent, %s soundCategory, float volume, float pitch, boolean useDistance) {", rainTickMethod, clientWorldClass, soundCategoryClass);
+			playSoundCall = "\t\tclientWorld.playSoundAtBlockCenter(blockPos, soundEvent, soundCategory, getRainVolume(volume), pitch, useDistance);";
+		} else if (legacyForge) {
+			playSoundTarget = "Lnet/minecraft/client/world/ClientWorld;playSound(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/SoundEvent;Lnet/minecraft/util/SoundCategory;FF)V";
+			playSoundSignature = String.format("\tprivate void %sPlaySound(%s clientWorld, PlayerEntity playerEntity, BlockPos blockPos, SoundEvent soundEvent, %s soundCategory, float volume, float pitch) {", rainTickMethod, clientWorldClass, soundCategoryClass);
+			playSoundCall = "\t\tclientWorld.playSound(playerEntity, blockPos, soundEvent, soundCategory, getRainVolume(volume), pitch);";
+		} else if (fabric) {
+			playSoundTarget = "Lnet/minecraft/client/world/ClientWorld;playSound(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FFZ)V";
+			playSoundSignature = String.format("\tprivate void %sPlaySound(%s clientWorld, BlockPos blockPos, SoundEvent soundEvent, %s soundCategory, float volume, float pitch, boolean useDistance) {", rainTickMethod, clientWorldClass, soundCategoryClass);
+			playSoundCall = "\t\tclientWorld.playSound(blockPos, soundEvent, soundCategory, getRainVolume(volume), pitch, useDistance);";
+		} else {
+			playSoundTarget = "Lnet/minecraft/client/multiplayer/ClientLevel;playLocalSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FFZ)V";
+			playSoundSignature = String.format("\tprivate void %sPlaySound(%s clientWorld, BlockPos blockPos, SoundEvent soundEvent, %s soundCategory, float volume, float pitch, boolean useDistance) {", rainTickMethod, clientWorldClass, soundCategoryClass);
+			playSoundCall = "\t\tclientWorld.playLocalSound(blockPos, soundEvent, soundCategory, getRainVolume(volume), pitch, useDistance);";
+		}
+		FileUtils.writeStringToFile(mixinPath.resolve("WorldRendererWeatherMixin.java").toFile(), String.join("\n",
+				"package org.mtr.mixin;",
+				"",
+				fabric ? "import net.minecraft.client.render.WorldRenderer;" : legacyForge ? "import net.minecraft.client.renderer.WorldRenderer;" : "import net.minecraft.client.renderer.LevelRenderer;",
+				fabric ? "import net.minecraft.client.world.ClientWorld;" : legacyForge ? "import net.minecraft.client.world.ClientWorld;" : "import net.minecraft.client.multiplayer.ClientLevel;",
+				fabric ? "import net.minecraft.particle.ParticleEffect;" : legacyForge ? "import net.minecraft.particles.IParticleData;" : "import net.minecraft.core.particles.ParticleOptions;",
+				fabric || legacyForge ? "import net.minecraft.util.math.BlockPos;" : "import net.minecraft.core.BlockPos;",
+				fabric ? "import net.minecraft.sound.SoundCategory;" : legacyForge ? "import net.minecraft.util.SoundCategory;" : "import net.minecraft.sounds.SoundSource;",
+				fabric ? "import net.minecraft.sound.SoundEvent;" : legacyForge ? "import net.minecraft.util.SoundEvent;" : "import net.minecraft.sounds.SoundEvent;",
+				legacyForge ? "import net.minecraft.entity.player.PlayerEntity;" : "",
+				fabric || legacyForge ? "import net.minecraft.world.biome.Biome;" : "import net.minecraft.world.level.biome.Biome;",
+				"import org.mtr.mod.client.VehicleWeatherCover;",
+				"import org.spongepowered.asm.mixin.Mixin;",
+				"import org.spongepowered.asm.mixin.injection.At;",
+				"import org.spongepowered.asm.mixin.injection.Redirect;",
+				"",
+				String.format("@Mixin(%s.class)", worldRendererClass),
+				"public abstract class WorldRendererWeatherMixin {",
+				"",
+				"\tprivate static final float RAIN_VOLUME_UNDER_WEATHER_COVER = 0.35F;",
+				"",
+				String.format("\t@Redirect(method = \"%s\", at = @At(value = \"INVOKE\", target = \"%s\"))", weatherMethod, precipitationTarget),
+				precipitationMethodSignature,
+				precipitationReturn,
+				"\t}",
+				"",
+				String.format("\t@Redirect(method = \"%s\", at = @At(value = \"INVOKE\", target = \"%s\"))", rainTickMethod, addParticleTarget),
+				String.format("\tprivate void %sAddParticle(%s clientWorld, %s particleEffect, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {", rainTickMethod, clientWorldClass, particleClass),
+				"\t\tif (!VehicleWeatherCover.hasWeatherCoverAt(x, y, z)) {",
+				"\t\t\tclientWorld.addParticle(particleEffect, x, y, z, velocityX, velocityY, velocityZ);",
+				"\t\t}",
+				"\t}",
+				"",
+				String.format("\t@Redirect(method = \"%s\", at = @At(value = \"INVOKE\", target = \"%s\"))", rainTickMethod, playSoundTarget),
+				playSoundSignature,
+				playSoundCall,
+				"\t}",
+				"",
+				"\tprivate static float getRainVolume(float volume) {",
+				"\t\treturn VehicleWeatherCover.hasWeatherCoverAtPlayer() ? volume * RAIN_VOLUME_UNDER_WEATHER_COVER : volume;",
+				"\t}",
+				"}",
+				""
+		), StandardCharsets.UTF_8);
+	}
+
+	private boolean isFabric() {
+		return loader.equals("fabric");
+	}
+
+	private boolean isLegacyMinecraftVersion() {
+		return majorVersion <= 16;
+	}
+
+	private boolean isMinecraftVersion17() {
+		return majorVersion == 17;
+	}
+
+	private boolean isModernMinecraftVersion() {
+		return majorVersion >= 18;
+	}
+
+	private boolean isLegacyForge() {
+		return !isFabric() && isLegacyMinecraftVersion();
+	}
+
+	private boolean isOldPrecipitationApi() {
+		return isLegacyMinecraftVersion() || isMinecraftVersion17() || (isModernMinecraftVersion() && (majorVersion < 19 || minecraftVersion.equals("1.19.2")));
 	}
 
 	public String getFabricVersion() {

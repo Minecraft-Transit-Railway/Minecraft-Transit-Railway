@@ -107,6 +107,105 @@
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"window_exterior_1/roof_1",
+				"window_exterior_1/roof_2"
+			],
+			"positionDefinitions": [
+				"window9",
+				"window1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_2/roof_1",
+				"window_exterior_2/roof_2"
+			],
+			"positionDefinitions": [
+				"window8",
+				"window2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_3/roof_1",
+				"window_exterior_3/roof_2"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window3Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_4/roof_1",
+				"window_exterior_4/roof_2"
+			],
+			"positionDefinitions": [
+				"window6",
+				"window4Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_5/roof_1",
+				"window_exterior_5/roof_2"
+			],
+			"positionDefinitions": [
+				"window5",
+				"window5Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_6/roof_1",
+				"window_exterior_6/roof_2"
+			],
+			"positionDefinitions": [
+				"window4",
+				"window6Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_7/roof_1",
+				"window_exterior_7/roof_2"
+			],
+			"positionDefinitions": [
+				"window3",
+				"window7Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_8/roof_1",
+				"window_exterior_8/roof_2"
+			],
+			"positionDefinitions": [
+				"window2",
+				"window8Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior_9/roof_1",
+				"window_exterior_9/roof_2"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window9Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

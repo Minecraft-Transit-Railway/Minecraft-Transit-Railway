@@ -501,6 +501,92 @@
 				"end2"
 			],
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped",
+				"door",
+				"doorFlipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"door",
+				"doorFlipped",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"windowPart",
+				"door",
+				"doorFlipped",
+				"end1",
+				"end1Flipped",
+				"end2",
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/inner_roof_3",
+				"head_exterior_4/destination_roof"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/inner_roof_1",
+				"end/inner_roof_2",
+				"end/inner_roof_3",
+				"end/inner_roof_4",
+				"end/inner_roof_5"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

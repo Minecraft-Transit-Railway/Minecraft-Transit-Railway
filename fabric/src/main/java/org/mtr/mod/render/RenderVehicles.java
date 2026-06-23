@@ -190,6 +190,7 @@ public class RenderVehicles implements IGui {
 									gangwayMovementPositions1.check(floor);
 									gangwayMovementPositions2.check(floor);
 								});
+								vehicleResourceCache.weatherCoverBoxes.forEach(weatherCoverBox -> RenderVehicleHelper.renderWeatherCover(weatherCoverBox, playerPosition, vehicleCarRenderingPositionAndRotation, offsetVector == null));
 							}
 
 							openDoorways.forEach(openDoorway -> {

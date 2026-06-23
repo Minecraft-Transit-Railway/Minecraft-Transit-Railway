@@ -65,16 +65,16 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [
 				"SCROLL_NORMAL"
 			],
-			"displayPadZeros": 0.0,
+			"displayPadZeros": 0,
 			"displayType": "NEXT_STATION_UK",
 			"displayDefaultText": "This train is terminating here. All change please."
 		},
@@ -154,16 +154,16 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [
 				"CYCLE_LANGUAGES"
 			],
-			"displayPadZeros": 0.0,
+			"displayPadZeros": 0,
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
 		},
@@ -210,7 +210,7 @@
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
-			"doorXMultiplier": 0.0,
+			"doorXMultiplier": 0,
 			"doorZMultiplier": -11.5,
 			"doorAnimationType": "CONSTANT"
 		},
@@ -224,7 +224,7 @@
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
 			"type": "NORMAL",
-			"doorXMultiplier": 0.0,
+			"doorXMultiplier": 0,
 			"doorZMultiplier": 11.5,
 			"doorAnimationType": "CONSTANT"
 		},
@@ -238,7 +238,7 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
-			"doorXMultiplier": 0.0,
+			"doorXMultiplier": 0,
 			"doorZMultiplier": -11.5,
 			"doorAnimationType": "CONSTANT"
 		},
@@ -252,7 +252,7 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "NORMAL",
-			"doorXMultiplier": 0.0,
+			"doorXMultiplier": 0,
 			"doorZMultiplier": 11.5,
 			"doorAnimationType": "CONSTANT"
 		},
@@ -420,17 +420,17 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [
 				"SINGLE_LINE",
 				"UPPER_CASE"
 			],
-			"displayPadZeros": 3.0,
+			"displayPadZeros": 3,
 			"displayType": "DEPARTURE_INDEX",
 			"displayDefaultText": "000"
 		},
@@ -444,16 +444,16 @@
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
 			"type": "DISPLAY",
-			"displayXPadding": 0.0,
-			"displayYPadding": 0.0,
+			"displayXPadding": 0,
+			"displayYPadding": 0,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayMaxLineHeight": 1.5,
-			"displayCjkSizeRatio": 2.0,
+			"displayCjkSizeRatio": 2,
 			"displayOptions": [
 				"CYCLE_LANGUAGES"
 			],
-			"displayPadZeros": 0.0,
+			"displayPadZeros": 0,
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
 		},
@@ -500,9 +500,69 @@
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
 			"type": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_exterior_aircon"
+			],
+			"positionDefinitions": [
+				"c112618e"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"19a70c8"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"window/roof/cube"
+			],
+			"positionDefinitions": [
+				"e7b304ec"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"door/roof2/cube"
+			],
+			"positionDefinitions": [
+				"c199beca"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro/roof4/cube"
+			],
+			"positionDefinitions": [
+				"7ba40b59"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro_exterior/roof_head_ushiro/cube"
+			],
+			"positionDefinitions": [
+				"1ba820d9"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
-	"modelYOffset": 1.0,
+	"modelYOffset": 1,
 	"gangwayInnerSideResource": "mtr:textures/gangway/london_underground_s7_side.png",
 	"gangwayInnerTopResource": "mtr:textures/gangway/london_underground_s7_roof.png",
 	"gangwayInnerBottomResource": "mtr:textures/gangway/london_underground_s7_floor.png",
@@ -511,6 +571,6 @@
 	"gangwayOuterBottomResource": "mtr:textures/gangway/london_underground_s7_exterior.png",
 	"gangwayWidth": 1.5,
 	"gangwayHeight": 2.25,
-	"gangwayYOffset": 1.0,
+	"gangwayYOffset": 1,
 	"gangwayZOffset": 0.5
 }

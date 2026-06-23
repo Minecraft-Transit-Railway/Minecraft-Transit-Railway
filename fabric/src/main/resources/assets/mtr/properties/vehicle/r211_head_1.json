@@ -180,6 +180,39 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_KCR"
+		},
+		{
+			"names": [
+				"roof_head"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_light"
+			],
+			"positionDefinitions": [
+				"head1Light"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/roof_head_exterior/outer_roof_2",
+				"head_exterior/roof_head_exterior/outer_roof_3",
+				"head_exterior/roof_head_exterior/outer_roof_4",
+				"head_exterior/roof_head_exterior/outer_roof_5",
+				"head_exterior/roof_head_exterior/outer_roof_6",
+				"head_exterior/roof_head_exterior/outer_roof_7",
+				"head_exterior/roof_head_exterior/outer_roof_8"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

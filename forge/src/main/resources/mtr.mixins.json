@@ -9,7 +9,9 @@
 	],
 	"client": [
 		"ClientWorldRenderingMixin",
-		"PlayerRendererOffsetMixin"
+		"EntityRainMixin",
+		"PlayerRendererOffsetMixin",
+		"WorldRendererWeatherMixin"
 	],
 	"server": [],
 	"injectors": {

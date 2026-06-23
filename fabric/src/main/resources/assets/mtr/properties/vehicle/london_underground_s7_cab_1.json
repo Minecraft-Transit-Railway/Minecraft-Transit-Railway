@@ -514,6 +514,76 @@
 			"displayPadZeros": 0,
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"roof_exterior_aircon"
+			],
+			"positionDefinitions": [
+				"16cbb1b2"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"fabfd6c2"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"window/roof/cube"
+			],
+			"positionDefinitions": [
+				"53d2eed6"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"door/roof2/cube"
+			],
+			"positionDefinitions": [
+				"621d235a"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"end/roof3/cube"
+			],
+			"positionDefinitions": [
+				"cb729c1b"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro/roof4/cube"
+			],
+			"positionDefinitions": [
+				"ac595829"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
+		},
+		{
+			"names": [
+				"head_ushiro_exterior/roof_head_ushiro/cube"
+			],
+			"positionDefinitions": [
+				"7310a300"
+			],
+			"type": "WEATHER_COVER",
+			"condition": "NORMAL"
 		}
 	],
 	"modelYOffset": 1,

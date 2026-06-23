@@ -71,8 +71,8 @@
 				"4e58d077"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -83,8 +83,8 @@
 				"781c5151"
 			],
 			"renderStage": "INTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -95,8 +95,8 @@
 				"d258ae92"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": 12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": 12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -107,8 +107,8 @@
 				"921e1496"
 			],
 			"renderStage": "EXTERIOR",
-			"doorXMultiplier": -1.0,
-			"doorZMultiplier": -12.0,
+			"doorXMultiplier": -1,
+			"doorZMultiplier": -12,
 			"doorAnimationType": "PLUG_FAST"
 		},
 		{
@@ -201,7 +201,7 @@
 				"d6801571"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
+			"displayXPadding": 1,
 			"displayYPadding": 0.5,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
@@ -261,9 +261,134 @@
 			],
 			"renderStage": "EXTERIOR",
 			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"roof"
+			],
+			"positionDefinitions": [
+				"fd66ba1a"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_3",
+				"window/roof_4"
+			],
+			"positionDefinitions": [
+				"16e69fcc"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/side_1/roof",
+				"door/side_2/roof",
+				"door/roof",
+				"door/roof_1",
+				"door/roof_2",
+				"door/roof_3",
+				"door/roof_4"
+			],
+			"positionDefinitions": [
+				"b6d2b21a"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_1_exterior/window_exterior_1_left/roof_1",
+				"window_1_exterior/window_exterior_1_left/roof_2",
+				"window_1_exterior/window_exterior_1_left/roof_3",
+				"window_1_exterior/window_exterior_1_left/roof_4",
+				"window_1_exterior/window_exterior_1_left_end/roof_1",
+				"window_1_exterior/window_exterior_1_left_end/roof_2",
+				"window_1_exterior/window_exterior_1_left_end/roof_3",
+				"window_1_exterior/window_exterior_1_right/roof_1",
+				"window_1_exterior/window_exterior_1_right/roof_2",
+				"window_1_exterior/window_exterior_1_right/roof_3",
+				"window_1_exterior/window_exterior_1_right/roof_4",
+				"window_1_exterior/window_exterior_1_right_end/roof_1",
+				"window_1_exterior/window_exterior_1_right_end/roof_2",
+				"window_1_exterior/window_exterior_1_right_end/roof_3"
+			],
+			"positionDefinitions": [
+				"131a41c1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_2_exterior/window_exterior_2_left/roof_2",
+				"window_2_exterior/window_exterior_2_left/roof_3",
+				"window_2_exterior/window_exterior_2_left/roof_4",
+				"window_2_exterior/window_exterior_2_left/roof_5",
+				"window_2_exterior/window_exterior_2_right/roof_2",
+				"window_2_exterior/window_exterior_2_right/roof_3",
+				"window_2_exterior/window_exterior_2_right/roof_4",
+				"window_2_exterior/window_exterior_2_right/roof_5"
+			],
+			"positionDefinitions": [
+				"7d725a6c"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_left/roof"
+			],
+			"positionDefinitions": [
+				"4e58d077"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_right/roof"
+			],
+			"positionDefinitions": [
+				"781c5151"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_left_exterior/roof"
+			],
+			"positionDefinitions": [
+				"d258ae92"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door_right_exterior/roof"
+			],
+			"positionDefinitions": [
+				"921e1496"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/end_left/roof_2",
+				"end/end_left/roof_4",
+				"end/end_left/roof_5",
+				"end/end_left/roof_6",
+				"end/end_right/roof_2",
+				"end/end_right/roof_4",
+				"end/end_right/roof_5",
+				"end/end_right/roof_6"
+			],
+			"positionDefinitions": [
+				"36647e8c"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
-	"modelYOffset": 1.0,
+	"modelYOffset": 1,
 	"gangwayInnerSideResource": "mtr:textures/gangway/k_train_side.png",
 	"gangwayInnerTopResource": "mtr:textures/gangway/k_train_roof.png",
 	"gangwayInnerBottomResource": "mtr:textures/gangway/k_train_floor.png",
@@ -271,7 +396,7 @@
 	"gangwayOuterTopResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayOuterBottomResource": "mtr:textures/gangway/sp1900_exterior.png",
 	"gangwayWidth": 1.5,
-	"gangwayHeight": 2.0,
-	"gangwayYOffset": 1.0,
+	"gangwayHeight": 2,
+	"gangwayYOffset": 1,
 	"gangwayZOffset": 0.25
 }

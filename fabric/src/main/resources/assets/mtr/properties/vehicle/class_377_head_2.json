@@ -197,6 +197,22 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_UK"
+		},
+		{
+			"names": [
+				"head_exterior/head_exterior_1/roof_2",
+				"head_exterior/head_exterior_1/roof_3",
+				"head_exterior/head_exterior_1/roof_4",
+				"head_exterior/head_exterior_1/roof_5",
+				"head_exterior/head_exterior_2/roof_3",
+				"head_exterior/head_exterior_2/roof_4",
+				"head_exterior/head_exterior_2/roof_5",
+				"head_exterior/head_exterior_2/roof_6"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

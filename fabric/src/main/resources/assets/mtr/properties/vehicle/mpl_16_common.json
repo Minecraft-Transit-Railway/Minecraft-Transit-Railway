@@ -322,6 +322,67 @@
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"roof_door_exterior_1"
+			],
+			"positionDefinitions": [
+				"roofDoor1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_exterior_2"
+			],
+			"positionDefinitions": [
+				"roofDoor2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_door_exterior_3"
+			],
+			"positionDefinitions": [
+				"roofDoor3"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_3",
+				"window/roof_5"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_exterior/roof_1",
+				"window_exterior/roof_2",
+				"window_exterior/roof_3",
+				"window_exterior/roof_4"
+			],
+			"positionDefinitions": [
+				"window"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"door/roof_1",
+				"door/roof_3",
+				"door/roof_5"
+			],
+			"positionDefinitions": [
+				"door"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1,

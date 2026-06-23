@@ -22,6 +22,9 @@ minecraft {
 }
 
 sourceSets.main.resources { srcDir "src/generated/resources" }
+if (!buildTools.hasJadeSupport()) {
+	sourceSets.main.java.exclude "org/mtr/init/JadeConfig.java"
+}
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"

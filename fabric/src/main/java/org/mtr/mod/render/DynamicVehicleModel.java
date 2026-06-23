@@ -25,6 +25,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Identifier texture;
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
+	private final ObjectArraySet<Box> weatherCoverBoxes = new ObjectArraySet<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
@@ -65,7 +66,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.addPartsIfEmpty(nameToPart.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayParts, positionDefinitions, floors, doorways, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(texture, nameToPart, nameToDisplayParts, positionDefinitions, floors, doorways, weatherCoverBoxes, materialGroupsForPartConditionAndRenderStage, materialGroupsForPartConditionAndRenderStageDoorsClosed));
 		testDoors(id);
 	}
 
@@ -94,6 +95,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public void writeFloorsAndDoorways(
 			ObjectArrayList<Box> floors,
 			ObjectArrayList<Box> doorways,
+			ObjectArrayList<Box> weatherCoverBoxes,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartCondition,
@@ -101,6 +103,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
+		weatherCoverBoxes.addAll(this.weatherCoverBoxes);
 
 		materialGroupsForPartConditionAndRenderStage.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartCondition, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));

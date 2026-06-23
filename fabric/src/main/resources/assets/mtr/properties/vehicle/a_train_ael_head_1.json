@@ -92,6 +92,38 @@
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"roof_end_exterior"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"end1Roof"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_exterior/front/side_1/outer_roof_6",
+				"head_exterior/front/side_1/outer_roof_7",
+				"head_exterior/front/side_1/outer_roof_8",
+				"head_exterior/front/side_2/outer_roof_6",
+				"head_exterior/front/side_2/outer_roof_7",
+				"head_exterior/front/side_2/outer_roof_8"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

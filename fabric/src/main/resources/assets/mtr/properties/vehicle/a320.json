@@ -213,6 +213,95 @@
 				"main"
 			],
 			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"exterior/main/roof",
+				"exterior/left_engine/roof",
+				"exterior/right_engine/roof"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_interior/roof",
+				"head_interior/roof_front",
+				"end_interior/roof"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_interior_blank/roof_side",
+				"window_interior_blank/roof"
+			],
+			"positionDefinitions": [
+				"front"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_interior/roof_side",
+				"window_interior/roof"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window2"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"exterior/main/left_roof",
+				"exterior/main/right_roof",
+				"exterior/tail/left_roof_top",
+				"exterior/tail/right_roof_top",
+				"exterior/left_engine/left_roof",
+				"exterior/left_engine/right_roof",
+				"exterior/left_engine/front_roof",
+				"exterior/left_engine/front_left_roof",
+				"exterior/left_engine/front_right_roof",
+				"exterior/left_engine/back_roof",
+				"exterior/left_engine/back_left_roof",
+				"exterior/left_engine/back_right_roof",
+				"exterior/left_engine/tail_roof",
+				"exterior/left_engine/tail_left_roof",
+				"exterior/left_engine/tail_right_roof",
+				"exterior/right_engine/left_roof",
+				"exterior/right_engine/right_roof",
+				"exterior/right_engine/front_roof",
+				"exterior/right_engine/front_left_roof",
+				"exterior/right_engine/front_right_roof",
+				"exterior/right_engine/back_roof",
+				"exterior/right_engine/back_left_roof",
+				"exterior/right_engine/back_right_roof",
+				"exterior/right_engine/tail_roof",
+				"exterior/right_engine/tail_left_roof",
+				"exterior/right_engine/tail_right_roof"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"head_interior/left_roof_side",
+				"head_interior/right_roof_side",
+				"end_interior/left_roof_side",
+				"end_interior/right_roof_side"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 3.5

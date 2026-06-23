@@ -9,6 +9,16 @@
 				"doorFlipped"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"outer_roof"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

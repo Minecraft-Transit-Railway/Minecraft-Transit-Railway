@@ -95,6 +95,30 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_KCR"
+		},
+		{
+			"names": [
+				"roof_end_gangway"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_2",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_3",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_4",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_5",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_6",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_7",
+				"end_gangway_exterior/roof_end_gangway_exterior/outer_roof_8"
+			],
+			"positionDefinitions": [
+				"end1"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

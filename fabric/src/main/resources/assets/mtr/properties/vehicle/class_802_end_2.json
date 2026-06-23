@@ -182,6 +182,92 @@
 				"SCROLL_NORMAL"
 			],
 			"displayType": "NEXT_STATION_UK"
+		},
+		{
+			"names": [
+				"roof_exterior"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window7Flipped",
+				"window8",
+				"window8Flipped",
+				"window9",
+				"window9Flipped",
+				"roofEnd2",
+				"end2",
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"roof_vent"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window/roof_1",
+				"window/roof_2",
+				"window/roof_3",
+				"window/roof_4"
+			],
+			"positionDefinitions": [
+				"window7",
+				"window7Flipped",
+				"window8",
+				"window8Flipped",
+				"window9",
+				"window9Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_light/roof_5"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end/end_side_1/roof",
+				"end/end_side_1/roof_1",
+				"end/end_side_1/roof_2",
+				"end/end_side_1/roof_3",
+				"end/end_side_1/roof_4",
+				"end/end_side_2/roof",
+				"end/end_side_2/roof_2",
+				"end/end_side_2/roof_3",
+				"end/end_side_2/roof_4",
+				"end/end_side_2/roof_5"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"end_exterior/end_exterior_side_1/roof_1",
+				"end_exterior/end_exterior_side_1/roof_2",
+				"end_exterior/end_exterior_side_1/roof_3",
+				"end_exterior/end_exterior_side_1/roof_4",
+				"end_exterior/end_exterior_side_2/roof_2",
+				"end_exterior/end_exterior_side_2/roof_3",
+				"end_exterior/end_exterior_side_2/roof_4",
+				"end_exterior/end_exterior_side_2/roof_5"
+			],
+			"positionDefinitions": [
+				"end2Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1

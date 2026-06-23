@@ -84,7 +84,7 @@ export class EditVehicleModelPartsDialog {
 	protected readonly dataSource: ModelPropertiesPartWrapperDTO[] = [];
 	protected readonly formGroup;
 	protected hasNormal = false;
-	protected hasFloorOrDoorway = false;
+	protected hasFloorDoorwayOrWeatherCover = false;
 	protected hasSeat = false;
 	protected hasDisplay = false;
 
@@ -102,7 +102,7 @@ export class EditVehicleModelPartsDialog {
 	filterData() {
 		this.dataSource.length = 0;
 		this.hasNormal = false;
-		this.hasFloorOrDoorway = false;
+		this.hasFloorDoorwayOrWeatherCover = false;
 		this.hasSeat = false;
 		this.hasDisplay = false;
 		let showDoorColumns = false;
@@ -111,9 +111,9 @@ export class EditVehicleModelPartsDialog {
 		this.data.model.parts.forEach(modelPropertiesPart => {
 			if (this.modelPartNames.includes(modelPropertiesPart.positionDefinition.name)) {
 				const isNormal = modelPropertiesPart.type === "NORMAL";
-				const isFloorOrDoorway = modelPropertiesPart.type === "FLOOR" || modelPropertiesPart.type === "DOORWAY";
+				const isFloorDoorwayOrWeatherCover = modelPropertiesPart.type === "FLOOR" || modelPropertiesPart.type === "DOORWAY" || modelPropertiesPart.type === "WEATHER_COVER" || modelPropertiesPart.type === "WEATHER_COVER_FLOOR";
 				const isSeat = modelPropertiesPart.type === "SEAT";
-				if (isNormal && newData.showNormalParts || isFloorOrDoorway && newData.showFloorsAndDoorways || isSeat && newData.showSeats || isDisplay(modelPropertiesPart) && newData.showDisplays) {
+				if (isNormal && newData.showNormalParts || isFloorDoorwayOrWeatherCover && newData.showFloorsAndDoorways || isSeat && newData.showSeats || isDisplay(modelPropertiesPart) && newData.showDisplays) {
 					this.dataSource.push(modelPropertiesPart);
 					if (hasDoorMultiplier(modelPropertiesPart)) {
 						showDoorColumns = true;
@@ -125,8 +125,8 @@ export class EditVehicleModelPartsDialog {
 				if (isNormal) {
 					this.hasNormal = true;
 				}
-				if (isFloorOrDoorway) {
-					this.hasFloorOrDoorway = true;
+				if (isFloorDoorwayOrWeatherCover) {
+					this.hasFloorDoorwayOrWeatherCover = true;
 				}
 				if (isSeat) {
 					this.hasSeat = true;

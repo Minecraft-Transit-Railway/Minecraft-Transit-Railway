@@ -43,6 +43,42 @@
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"window_end_exterior_4/window_end_exterior_4_1/roof_3",
+				"window_end_exterior_4/window_end_exterior_4_1/roof_4",
+				"window_end_exterior_4/window_end_exterior_4_2/roof_4",
+				"window_end_exterior_4/window_end_exterior_4_2/roof_5"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_end_exterior_5/window_end_exterior_5_1/roof_4",
+				"window_end_exterior_5/window_end_exterior_5_1/roof_5",
+				"window_end_exterior_5/window_end_exterior_5_2/roof_5",
+				"window_end_exterior_5/window_end_exterior_5_2/roof_6"
+			],
+			"positionDefinitions": [
+				"window2Flipped"
+			],
+			"type": "WEATHER_COVER"
+		},
+		{
+			"names": [
+				"window_end_exterior_6/window_end_exterior_6_1/roof_5",
+				"window_end_exterior_6/window_end_exterior_6_1/roof_6",
+				"window_end_exterior_6/window_end_exterior_6_2/roof_6",
+				"window_end_exterior_6/window_end_exterior_6_2/roof_7"
+			],
+			"positionDefinitions": [
+				"window1Flipped"
+			],
+			"type": "WEATHER_COVER"
 		}
 	],
 	"modelYOffset": 1
