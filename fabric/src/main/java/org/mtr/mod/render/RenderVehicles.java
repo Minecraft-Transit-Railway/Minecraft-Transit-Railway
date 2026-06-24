@@ -26,6 +26,7 @@ import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -494,6 +495,14 @@ public class RenderVehicles implements IGui {
 		});
 	}
 
+	private static int getLightConnection(ClientWorld clientWorld, Vector position, Vector3d offset, AtomicInteger cache) {
+		if (cache.get() == -1) {
+			BlockPos blockPosConnection = Init.newBlockPos(position.x + offset.getXMapped(), position.y + 1 + offset.getYMapped(), position.z + offset.getZMapped());
+			cache.set(LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection)));
+		}
+		return cache.get();
+	}
+
 	private static void renderConnection(
 			boolean shouldRender1, boolean shouldRender2, boolean canHaveLight, PreviousConnectionPositions previousConnectionPositions,
 			@Nullable Identifier innerSideTexture,
@@ -524,39 +533,44 @@ public class RenderVehicles implements IGui {
 			final Vector position7 = previousConnectionPositions.position3;
 			final Vector position8 = previousConnectionPositions.position4;
 
-			final BlockPos blockPosConnection = Init.newBlockPos(position1.x, position1.y + 1, position1.z);
-			final int lightConnection = LightmapTextureManager.pack(clientWorld.getLightLevel(LightType.getBlockMapped(), blockPosConnection), clientWorld.getLightLevel(LightType.getSkyMapped(), blockPosConnection));
+			final AtomicInteger lightConnectionCache = new AtomicInteger(-1);
 			final Vector3d zeroVector = Vector3d.getZeroMapped();
 
 			MainRenderer.scheduleRender(outerSideTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Sides
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position2, position7, position8, position1, useOffset ? offset : zeroVector, lightConnection);
 				drawTexture(graphicsHolder, position6, position3, position4, position5, useOffset ? offset : zeroVector, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(outerTopTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Top
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position3, position6, position7, position2, useOffset ? offset : zeroVector, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(outerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Bottom
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position1, position8, position5, position4, useOffset ? offset : zeroVector, lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerSideTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Sides
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position7, position2, position1, position8, useOffset ? offset : zeroVector, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 				drawTexture(graphicsHolder, position3, position6, position5, position4, useOffset ? offset : zeroVector, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerTopTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Top
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position6, position3, position2, position7, useOffset ? offset : zeroVector, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			});
 
 			MainRenderer.scheduleRender(innerBottomTexture, false, QueuedRenderLayer.EXTERIOR, (graphicsHolder, offset) -> {
 				// Bottom
+				int lightConnection = getLightConnection(clientWorld, position1, useOffset ? zeroVector : offset, lightConnectionCache);
 				drawTexture(graphicsHolder, position8, position1, position4, position5, useOffset ? offset : zeroVector, canHaveLight && isOnRoute ? GraphicsHolder.getDefaultLight() : lightConnection);
 			});
 		}
