@@ -130,13 +130,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 	public abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height);
 
-	/**
-	 * BFS through the client-side rail graph to find the shortest path of rail segments
-	 * connecting startBlockPos to endBlockPos. Returns null if no path exists or if the
-	 * client's rail graph ({@code positionsToRail}) is not yet populated for these nodes.
-	 * Returns a list ordered from start to end, each entry being the two node endpoints
-	 * of one rail segment.
-	 */
 	@Nullable
 	private static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(BlockPos startBlockPos, BlockPos endBlockPos) {
 		final Position startPosition = MTR.blockPosToPosition(startBlockPos);
@@ -171,7 +164,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			return null;
 		}
 
-		// Reconstruct path as ordered (start, end) pairs, one per rail segment
 		final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = new ObjectArrayList<>();
 		Position current = endPosition;
 		while (!parentMap.get(current).equals(current)) {

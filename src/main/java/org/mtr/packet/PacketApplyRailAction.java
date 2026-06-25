@@ -9,7 +9,6 @@ import org.mtr.item.ItemNodeModifierSelectableBlockBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
-
 public final class PacketApplyRailAction extends PacketHandler {
 
 	private final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs;
