@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.mtr.MTR;
 import org.mtr.core.data.Rail;
 
-public class ItemBridgeWallCreator extends ItemNodeModifierSelectableBlockBase{
+public class ItemBridgeWallCreator extends ItemNodeModifierSelectableBlockBase {
 
 	public ItemBridgeWallCreator(int height, int width, Item.Properties settings) {
 		super(true, height, width, settings);
