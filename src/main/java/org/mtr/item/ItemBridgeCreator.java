@@ -14,7 +14,7 @@ public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
+	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
 		final BlockState blockState = getSavedState(itemStack);
 		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForBridge(rail, serverPlayerEntity, radius, blockState));
 	}
