@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,6 +67,7 @@ public class RailAction {
 	public boolean build() {
 		return switch (railActionType) {
 			case BRIDGE -> createBridge();
+			case BRIDGE_WALL -> createBridgeWall();
 			case TUNNEL -> createTunnel();
 			case TUNNEL_WALL -> createTunnelWall();
 		};
@@ -133,7 +135,21 @@ public class RailAction {
 		});
 	}
 
+	private boolean createBridgeWall() {
+		return create(false, true, vector -> {
+			final BlockPos blockPos = fromVector(vector.add(0, -1, 0));
+			if (!blacklistedPositions.contains(blockPos) && canPlace(serverWorld, blockPos)) {
+				serverWorld.setBlockAndUpdate(blockPos, state);
+				blacklistedPositions.add(blockPos);
+			}
+		});
+	}
+
 	private boolean create(boolean includeMiddle, Consumer<Vector> consumer) {
+		return create(includeMiddle, false, consumer);
+	}
+
+	private boolean create(boolean includeMiddle, boolean sidesOnly, Consumer<Vector> consumer) {
 		final long startTime = System.currentTimeMillis();
 		while (System.currentTimeMillis() - startTime < 2) {
 			final Vector pos1 = rail.railMath.getPosition(distance, false);
@@ -150,7 +166,7 @@ public class RailAction {
 							consumer.accept(editPos.add(0, y, 0));
 						}
 					}
-				} else {
+				} else if (!sidesOnly) {
 					consumer.accept(editPos.add(0, Math.max(0, wholeNumber ? height - 1 : height), 0));
 				}
 			}

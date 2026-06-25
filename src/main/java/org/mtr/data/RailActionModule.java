@@ -43,6 +43,11 @@ public class RailActionModule {
 		broadcastUpdate();
 	}
 
+	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState));
+		broadcastUpdate();
+	}
+
 	public void removeRailAction(long id) {
 		railActions.removeIf(railAction -> railAction.id == id);
 		broadcastUpdate();

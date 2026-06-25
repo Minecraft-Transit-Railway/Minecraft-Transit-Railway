@@ -177,6 +177,18 @@ public final class Items {
 		TUNNEL_WALL_CREATOR_6_5 = RegistryServer.registerItem("tunnel_wall_creator_6_5", itemSettings -> new ItemTunnelWallCreator(6, 5, itemSettings), ItemGroups.CORE);
 		TUNNEL_WALL_CREATOR_6_7 = RegistryServer.registerItem("tunnel_wall_creator_6_7", itemSettings -> new ItemTunnelWallCreator(6, 7, itemSettings), ItemGroups.CORE);
 		TUNNEL_WALL_CREATOR_6_9 = RegistryServer.registerItem("tunnel_wall_creator_6_9", itemSettings -> new ItemTunnelWallCreator(6, 9, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_1_3 = RegistryServer.registerItem("bridge_wall_creator_1_3", itemSettings -> new ItemBridgeWallCreator(1, 3, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_1_5 = RegistryServer.registerItem("bridge_wall_creator_1_5", itemSettings -> new ItemBridgeWallCreator(1, 5, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_1_7 = RegistryServer.registerItem("bridge_wall_creator_1_7", itemSettings -> new ItemBridgeWallCreator(1, 7, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_1_9 = RegistryServer.registerItem("bridge_wall_creator_1_9", itemSettings -> new ItemBridgeWallCreator(1, 9, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_2_3 = RegistryServer.registerItem("bridge_wall_creator_2_3", itemSettings -> new ItemBridgeWallCreator(2, 3, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_2_5 = RegistryServer.registerItem("bridge_wall_creator_2_5", itemSettings -> new ItemBridgeWallCreator(2, 5, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_2_7 = RegistryServer.registerItem("bridge_wall_creator_2_7", itemSettings -> new ItemBridgeWallCreator(2, 7, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_2_9 = RegistryServer.registerItem("bridge_wall_creator_2_9", itemSettings -> new ItemBridgeWallCreator(2, 9, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_3_3 = RegistryServer.registerItem("bridge_wall_creator_3_3", itemSettings -> new ItemBridgeWallCreator(3, 3, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_3_5 = RegistryServer.registerItem("bridge_wall_creator_3_5", itemSettings -> new ItemBridgeWallCreator(3, 5, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_3_7 = RegistryServer.registerItem("bridge_wall_creator_3_7", itemSettings -> new ItemBridgeWallCreator(3, 7, itemSettings), ItemGroups.CORE);
+		BRIDGE_WALL_CREATOR_3_9 = RegistryServer.registerItem("bridge_wall_creator_3_9", itemSettings -> new ItemBridgeWallCreator(3, 9, itemSettings), ItemGroups.CORE);
 	}
 
 	public static final ObjectHolder<Item> BRUSH;
@@ -223,6 +235,18 @@ public final class Items {
 	public static final ObjectHolder<Item> BRIDGE_CREATOR_5;
 	public static final ObjectHolder<Item> BRIDGE_CREATOR_7;
 	public static final ObjectHolder<Item> BRIDGE_CREATOR_9;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_1_3;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_1_5;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_1_7;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_1_9;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_2_3;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_2_5;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_2_7;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_2_9;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_3_3;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_3_5;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_3_7;
+	public static final ObjectHolder<Item> BRIDGE_WALL_CREATOR_3_9;
 	public static final ObjectHolder<Item> CABLE_CAR_DASHBOARD;
 	public static final ObjectHolder<Item> GUARD_KEY;
 	public static final ObjectHolder<Item> BASIC_DRIVER_KEY;
