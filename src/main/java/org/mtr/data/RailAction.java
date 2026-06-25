@@ -20,9 +20,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-/**
- * Represent an action that runs along a rail, for example one made by the Tunnel Creator or Bridge Creator
- */
 public class RailAction {
 
 	private double distance;
@@ -35,6 +32,7 @@ public class RailAction {
 	private final Rail rail;
 	private final int radius;
 	private final int height;
+	private final int wallSide;
 	private final double length;
 	@Nullable
 	private final BlockState state;
@@ -43,7 +41,7 @@ public class RailAction {
 
 	private static final double INCREMENT = 0.1;
 
-	public RailAction(ServerLevel serverWorld, ServerPlayer serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state) {
+	public RailAction(ServerLevel serverWorld, ServerPlayer serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state, int wallSide) {
 		id = new Random().nextLong();
 		this.serverWorld = serverWorld;
 		uuid = serverPlayerEntity.getUUID();
@@ -52,6 +50,7 @@ public class RailAction {
 		this.rail = rail;
 		this.radius = radius;
 		this.height = height;
+		this.wallSide = wallSide;
 		this.state = state;
 		isSlab = state != null && state.getBlock() instanceof SlabBlock;
 		length = rail.railMath.getLength();
@@ -91,7 +90,7 @@ public class RailAction {
 	}
 
 	private boolean createTunnelWall() {
-		return create(false, vector -> {
+		return create(false, false, wallSide, vector -> {
 			final BlockPos blockPos = fromVector(vector);
 			if (!blacklistedPositions.contains(blockPos) && canPlace(serverWorld, blockPos)) {
 				serverWorld.setBlockAndUpdate(blockPos, state);
@@ -135,7 +134,7 @@ public class RailAction {
 	}
 
 	private boolean createBridgeWall() {
-		return create(false, true, vector -> {
+		return create(false, true, wallSide, vector -> {
 			final BlockPos blockPos = fromVector(vector.add(0, -1, 0));
 			if (!blacklistedPositions.contains(blockPos) && canPlace(serverWorld, blockPos)) {
 				serverWorld.setBlockAndUpdate(blockPos, state);
@@ -145,10 +144,14 @@ public class RailAction {
 	}
 
 	private boolean create(boolean includeMiddle, Consumer<Vector> consumer) {
-		return create(includeMiddle, false, consumer);
+		return create(includeMiddle, false, 0, consumer);
 	}
 
 	private boolean create(boolean includeMiddle, boolean sidesOnly, Consumer<Vector> consumer) {
+		return create(includeMiddle, sidesOnly, 0, consumer);
+	}
+
+	private boolean create(boolean includeMiddle, boolean sidesOnly, int side, Consumer<Vector> consumer) {
 		final long startTime = System.currentTimeMillis();
 		while (System.currentTimeMillis() - startTime < 2) {
 			final Vector pos1 = rail.railMath.getPosition(distance, false);
@@ -159,13 +162,15 @@ public class RailAction {
 			for (double x = -radius; x <= radius; x += INCREMENT) {
 				final Vector editPos = pos1.add(Vec3.multiply(x, 0, x));
 				final boolean wholeNumber = Math.floor(editPos.y()) == Math.ceil(editPos.y());
-				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {
+				final boolean isEdge = Math.abs(x) > radius - INCREMENT || radius == 0;
+				final boolean isSelectedEdge = side == 0 || radius == 0 || (side == 1 ? x < 0 : x > 0);
+				if (includeMiddle || (isEdge && isSelectedEdge)) {
 					for (int y = 0; y <= height; y++) {
 						if (y < height || !wholeNumber || (height == 0 && radius == 0)) {
 							consumer.accept(editPos.add(0, y, 0));
 						}
 					}
-				} else if (!sidesOnly) {
+				} else if (!sidesOnly && !isEdge) {
 					consumer.accept(editPos.add(0, Math.max(0, wholeNumber ? height - 1 : height), 0));
 				}
 			}

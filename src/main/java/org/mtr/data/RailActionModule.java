@@ -29,22 +29,22 @@ public class RailActionModule {
 	}
 
 	public void markRailForBridge(Rail rail, ServerPlayer serverPlayerEntity, int radius, BlockState blockState) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, blockState));
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, blockState, 0));
 		broadcastUpdate();
 	}
 
 	public void markRailForTunnel(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null));
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null, 0));
 		broadcastUpdate();
 	}
 
-	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState));
+	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState, wallSide));
 		broadcastUpdate();
 	}
 
-	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState));
+	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState, wallSide));
 		broadcastUpdate();
 	}
 

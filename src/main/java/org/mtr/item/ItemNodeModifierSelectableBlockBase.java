@@ -1,11 +1,14 @@
 package org.mtr.item;
 
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,11 +39,11 @@ import java.util.List;
 public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifierBase {
 
 	private final boolean canSaveBlock;
+	@Getter
 	private final int height;
 	private final int width;
+	@Getter
 	private final int radius;
-
-	private static final String TAG_BLOCK_ID = "block_id";
 
 	public ItemNodeModifierSelectableBlockBase(boolean canSaveBlock, int height, int width, Item.Properties settings) {
 		super(true, false, false, true, settings);
@@ -48,14 +51,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		this.height = height;
 		this.width = width;
 		radius = width / 2;
-	}
-
-	public int getRadius() {
-		return radius;
-	}
-
-	public int getHeight() {
-		return height;
 	}
 
 	@Override
@@ -67,7 +62,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 				if (playerEntity != null && playerEntity.isShiftKeyDown()) {
 					final BlockState state = world.getBlockState(context.getClickedPos());
 					final BlockState neighborState;
-					if (state.getBlock() instanceof BlockNode) {
+					if (state.getBlock() instanceof BlockNode || state.getBlock() == getSavedState(context.getItemInHand()).getBlock()) {
 						neighborState = Blocks.AIR.defaultBlockState();
 					} else {
 						neighborState = state;
@@ -94,6 +89,20 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
+	public InteractionResult use(Level world, Player player, InteractionHand hand) {
+		if (hasWallSideMode() && player.isShiftKeyDown() && player.pick(player.blockInteractionRange(), 0, false).getType() == HitResult.Type.MISS) {
+			if (!world.isClientSide()) {
+				final ItemStack stack = player.getItemInHand(hand);
+				final int next = (stack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0) + 1) % 3;
+				stack.set(DataComponentTypes.WALL_SIDE.get(), next);
+				player.displayClientMessage(getWallSideComponent(next), true);
+			}
+			return InteractionResult.SUCCESS;
+		}
+		return super.use(world, player, hand);
+	}
+
+	@Override
 	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
 		if (height > 0) {
 			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_ACTION_HEIGHT.getMutableText(height).withStyle(ChatFormatting.GRAY));
@@ -109,7 +118,23 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getMutableText(Component.translatable(state.getBlock().getDescriptionId()).getString()).withStyle(ChatFormatting.GREEN));
 		}
 
+		if (hasWallSideMode()) {
+			tooltip.add(Component.translatable("tooltip.mtr.wall_side", getWallSideComponent(stack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0))).withStyle(ChatFormatting.GRAY));
+		}
+
 		super.appendHoverText(stack, context, tooltip, type);
+	}
+
+	protected boolean hasWallSideMode() {
+		return false;
+	}
+
+	private static Component getWallSideComponent(int side) {
+		return switch (side) {
+			case 1 -> Component.translatable("tooltip.mtr.wall_side_left");
+			case 2 -> Component.translatable("tooltip.mtr.wall_side_right");
+			default -> Component.translatable("tooltip.mtr.wall_side_both");
+		};
 	}
 
 	@Override

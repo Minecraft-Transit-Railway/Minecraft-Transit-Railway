@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.mtr.MTR;
 import org.mtr.core.data.Rail;
+import org.mtr.registry.DataComponentTypes;
 
 public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 
@@ -14,8 +15,14 @@ public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
+	protected boolean hasWallSideMode() {
+		return true;
+	}
+
+	@Override
 	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
 		final BlockState blockState = getSavedState(itemStack);
-		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState));
+		final int wallSide = itemStack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0);
+		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState, wallSide));
 	}
 }
