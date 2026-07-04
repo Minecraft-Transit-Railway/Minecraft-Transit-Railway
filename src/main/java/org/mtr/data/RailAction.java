@@ -61,7 +61,7 @@ public class RailAction {
 	/**
 	 * Perform a build action, should be called every tick.
 	 *
-	 * @return Whether the rail action is completed
+	 * @return whether the rail action is completed
 	 */
 	public boolean build() {
 		return switch (railActionType) {

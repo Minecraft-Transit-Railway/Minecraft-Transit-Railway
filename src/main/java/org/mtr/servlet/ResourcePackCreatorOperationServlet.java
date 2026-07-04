@@ -101,7 +101,7 @@ public final class ResourcePackCreatorOperationServlet extends AbstractResourceP
 				} else if (targetSpeed < speed) {
 					speed = Math.max(targetSpeed, speed - speedChange);
 				}
-				vehicleSoundBase.playMotorSound(clientPlayerEntity.blockPosition(), speed, speed - oldSpeed, acceleration, true);
+				vehicleSoundBase.playVehicleSound(new VehicleSoundBase.VehicleSoundParameters(new VehicleSoundBase.RunSoundInfo(0, 0, 1), clientPlayerEntity.blockPosition(), speed, speed - oldSpeed, acceleration, true));
 			}
 		}
 	}

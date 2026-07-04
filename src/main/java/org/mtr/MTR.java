@@ -109,6 +109,7 @@ public final class MTR {
 		// Register packets
 		RegistryServer.setupPackets();
 		RegistryServer.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
+		RegistryServer.registerPacket(PacketApplyRailAction.class, PacketApplyRailAction::new);
 		RegistryServer.registerPacket(PacketBlockRails.class, PacketBlockRails::new);
 		RegistryServer.registerPacket(PacketBroadcastRailActions.class, PacketBroadcastRailActions::new);
 		RegistryServer.registerPacket(PacketCheckRouteIdHasDisabledAnnouncements.class, PacketCheckRouteIdHasDisabledAnnouncements::new);
