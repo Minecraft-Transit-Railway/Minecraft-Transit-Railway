@@ -94,7 +94,7 @@ public final class PersistentVehicleData {
 
 		runSoundStates.clear();
 		double headRailProgress = railProgress;
-		for(int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
+		for (int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
 			final double carLength = vehicleExtraData.immutableVehicleCars.get(i).getLength();
 			final double tailRailProgress = headRailProgress - carLength;
 
@@ -102,7 +102,7 @@ public final class PersistentVehicleData {
 			final int lastPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, tailRailProgress);
 			final PathData thisPathData = Utilities.getElement(vehicleExtraData.immutablePath, thisPathIndex);
 			final PathData lastPathData = thisPathIndex == lastPathIndex ? thisPathData : Utilities.getElement(vehicleExtraData.immutablePath, lastPathIndex);
-			float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float)Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
+			float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float) Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
 			runSoundStates.add(VehicleSoundBase.RunSoundInfo.create(lastPathData.getRail(), thisPathData.getRail(), pathDelta));
 			headRailProgress -= vehicleExtraData.immutableVehicleCars.get(i).getLength();
 		}

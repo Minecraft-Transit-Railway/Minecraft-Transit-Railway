@@ -28,7 +28,7 @@ public class RenderVehicleHelper {
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
 	/**
-	 * @return Whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
+	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
 	 */
 	public static boolean canOpenDoors(AABB doorway, PositionAndRotation positionAndRotation, @Nullable Consumer<BlockPSDAPGDoorBase.BlockEntityBase> doorBlockEntityCallback) {
 		final ClientLevel clientWorld = Minecraft.getInstance().level;
@@ -58,7 +58,9 @@ public class RenderVehicleHelper {
 						canOpenDoors = true;
 					} else if (block instanceof BlockPSDAPGDoorBase && blockState.getValue(BlockPSDAPGDoorBase.UNLOCKED)) {
 						canOpenDoors = true;
-						if(doorBlockEntityCallback == null) break;
+						if (doorBlockEntityCallback == null) {
+							break;
+						}
 
 						final BlockEntity blockEntity = clientWorld.getBlockEntity(checkPos);
 						if (blockEntity instanceof BlockPSDAPGDoorBase.BlockEntityBase doorBlockEntity) {
@@ -74,7 +76,8 @@ public class RenderVehicleHelper {
 
 	/**
 	 * Attempts to open platform doors nearby the doorway by the given doorValue.
-	 * @return Whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
+	 *
+	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
 	 */
 	public static boolean checkAndOpenNearbyDoors(AABB doorway, PositionAndRotation positionAndRotation, double doorValue) {
 		return canOpenDoors(doorway, positionAndRotation, (blockEntity) -> {

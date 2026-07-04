@@ -55,7 +55,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	}
 
 	public int getSoundIndex() {
-		return (int)soundIndex;
+		return (int) soundIndex;
 	}
 
 	public double getRepeatInterval() {

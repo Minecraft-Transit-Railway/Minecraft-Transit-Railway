@@ -24,19 +24,26 @@ public abstract class VehicleSoundBase {
 
 	protected abstract double getDoorCloseSoundTime();
 
-	public record VehicleSoundParameters(RunSoundInfo runSound, BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {};
+	public record VehicleSoundParameters(RunSoundInfo runSound, BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	}
+
+	;
 
 	public record RunSoundInfo(int index, int nextIndex, float blendLevel) {
 		public static RunSoundInfo create(Rail railTail, Rail railHead, float pathDelta) {
 			int lastRunSound = 0;
-			if(!railTail.getStyles().isEmpty()) {
+			if (!railTail.getStyles().isEmpty()) {
 				RailResource railResource = CustomResourceLoader.getRailById(railTail.getStyles().getFirst());
-				if(railResource != null) lastRunSound = railResource.getSoundIndex();
+				if (railResource != null) {
+					lastRunSound = railResource.getSoundIndex();
+				}
 			}
 			int nextRunSound = lastRunSound;
-			if(!railHead.equals(railTail) && !railHead.getStyles().isEmpty()) {
+			if (!railHead.equals(railTail) && !railHead.getStyles().isEmpty()) {
 				RailResource railResource = CustomResourceLoader.getRailById(railHead.getStyles().getFirst());
-				if(railResource != null) nextRunSound = railResource.getSoundIndex();
+				if (railResource != null) {
+					nextRunSound = railResource.getSoundIndex();
+				}
 			}
 			return new RunSoundInfo(lastRunSound, nextRunSound, pathDelta);
 		}

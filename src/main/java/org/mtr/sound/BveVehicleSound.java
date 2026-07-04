@@ -37,11 +37,13 @@ public class BveVehicleSound extends VehicleSoundBase {
 		final Int2ObjectOpenHashMap<VehicleLoopingSoundInstance> soundLoopRun = new Int2ObjectOpenHashMap<>();
 
 		config.config.motor.forEach((index, soundEvent) -> {
-			soundLoopMotor.put((int)index, new VehicleLoopingSoundInstance(soundEvent));
+			soundLoopMotor.put((int) index, new VehicleLoopingSoundInstance(soundEvent));
 		});
 		config.config.run.forEach((index, soundEvent) -> {
-			if(defaultRunSoundIndex == -1) defaultRunSoundIndex = index;
-			soundLoopRun.put((int)index, new VehicleLoopingSoundInstance(soundEvent));
+			if (defaultRunSoundIndex == -1) {
+				defaultRunSoundIndex = index;
+			}
+			soundLoopRun.put((int) index, new VehicleLoopingSoundInstance(soundEvent));
 		});
 
 		vehicleLoopingSoundHolder = new VehicleLoopingSoundHolder(
@@ -67,20 +69,20 @@ public class BveVehicleSound extends VehicleSoundBase {
 		final int runIndexOld;
 		final int runIndexNew;
 
-		if(vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().index())) {
+		if (vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().index())) {
 			runIndexOld = input.runSound().index();
 		} else {
 			// Falls back to default sound index
 			runIndexOld = defaultRunSoundIndex;
 		}
-		if(vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().nextIndex())) {
+		if (vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().nextIndex())) {
 			runIndexNew = input.runSound().nextIndex();
 		} else {
 			runIndexNew = defaultRunSoundIndex;
 		}
 
 		vehicleLoopingSoundHolder.soundLoopRun.forEach((runIndex, runSound) -> {
-			if(runIndex == runIndexOld || runIndex == runIndexNew) {
+			if (runIndex == runIndexOld || runIndex == runIndexNew) {
 				float indexVolumeFactor = runIndexOld == runIndexNew ? 1 : (runIndex == runIndexOld ? 1 - runSoundBlendRatio : runSoundBlendRatio);
 				runSound.setData(volume * indexVolumeFactor, pitch, input.blockPos());
 			} else {

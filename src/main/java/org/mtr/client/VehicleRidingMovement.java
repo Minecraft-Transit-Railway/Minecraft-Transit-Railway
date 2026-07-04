@@ -80,7 +80,7 @@ public class VehicleRidingMovement {
 		}
 
 		/* Player explicitly mounted to something else while riding the vehicle, we will give way */
-		if(ridingVehicleId != 0 && minecraftClient.player.isPassenger()) {
+		if (ridingVehicleId != 0 && minecraftClient.player.isPassenger()) {
 			stopRiding();
 		}
 
