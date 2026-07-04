@@ -314,8 +314,13 @@ public class CustomResourceLoader {
 		return new ObjectImmutableList<>(RAILS);
 	}
 
+	@Nullable
+	public static RailResource getRailById(String railId) {
+		return RAILS_CACHE.get(railId);
+	}
+
 	public static void getRailById(String railId, Consumer<RailResource> ifPresent) {
-		final RailResource railResource = RAILS_CACHE.get(railId);
+		final RailResource railResource = getRailById(railId);
 		if (railResource != null) {
 			ifPresent.accept(railResource);
 		}

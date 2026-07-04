@@ -32,6 +32,11 @@
 		},
 		"modelYOffset": {
 			"type": "number"
+		},
+		"soundIndex": {
+			"type": "number",
+			"minimum": 0,
+			"maximum": 1000
 		}
 	},
 	"required": [
@@ -42,6 +47,7 @@
 		"textureResource",
 		"flipTextureV",
 		"repeatInterval",
-		"modelYOffset"
+		"modelYOffset",
+		"soundIndex"
 	]
 }

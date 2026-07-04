@@ -38,21 +38,21 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
-	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playVehicleSound(VehicleSoundParameters vehicle) {
 		if (!MTRClient.canPlaySound()) {
 			return;
 		}
 
 		if (legacySpeedSoundCount > 0 && legacySpeedSoundBaseResource != null) {
-			final double referenceAcceleration = legacyConstantPlaybackSpeed ? acceleration : Siding.ACCELERATION_DEFAULT;
-			final int floorSpeed = (int) Math.floor(speed / referenceAcceleration / MTRClient.MILLIS_PER_SPEED_SOUND);
+			final double referenceAcceleration = legacyConstantPlaybackSpeed ? vehicle.acceleration() : Siding.ACCELERATION_DEFAULT;
+			final int floorSpeed = (int) Math.floor(vehicle.speed() / referenceAcceleration / MTRClient.MILLIS_PER_SPEED_SOUND);
 			if (floorSpeed > 0) {
 				final Random random = new Random();
 
 				final int index = Math.min(floorSpeed, legacySpeedSoundCount) - 1;
-				final boolean isAccelerating = speedChange == 0 ? legacyUseAccelerationSoundsWhenCoasting || random.nextBoolean() : speedChange > 0;
+				final boolean isAccelerating = vehicle.speedChange() == 0 ? legacyUseAccelerationSoundsWhenCoasting || random.nextBoolean() : vehicle.speedChange() > 0;
 				final String speedSoundId = legacySpeedSoundBaseResource + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
-				ScheduledSound.schedule(blockPos, SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, speedSoundId)), 1, 1);
+				ScheduledSound.schedule(vehicle.blockPos(), SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, speedSoundId)), 1, 1);
 			}
 		}
 	}

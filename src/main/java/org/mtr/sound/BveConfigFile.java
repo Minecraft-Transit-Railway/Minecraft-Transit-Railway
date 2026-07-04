@@ -1,5 +1,6 @@
 package org.mtr.sound;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.StringUtils;
@@ -9,10 +10,10 @@ import java.util.Locale;
 
 public class BveConfigFile {
 
-	public final @Nullable SoundEvent[] run = new SoundEvent[1];
-	public final @Nullable SoundEvent[] flange = new SoundEvent[1];
-	public final @Nullable SoundEvent[] motor = new SoundEvent[40];
-	public final @Nullable SoundEvent[] joint = new SoundEvent[1];
+	public final Int2ObjectOpenHashMap<SoundEvent> run = new Int2ObjectOpenHashMap<>();
+	public final Int2ObjectOpenHashMap<SoundEvent> flange = new Int2ObjectOpenHashMap<>();
+	public final Int2ObjectOpenHashMap<SoundEvent> motor = new Int2ObjectOpenHashMap<>();
+	public final Int2ObjectOpenHashMap<SoundEvent> joint = new Int2ObjectOpenHashMap<>();
 
 	@Nullable
 	public final SoundEvent air;
@@ -128,29 +129,17 @@ public class BveConfigFile {
 						break;
 					case "run":
 					case "rolling":
-						if (Integer.parseInt(key) >= run.length) {
-							break;
-						}
-						run[Integer.parseInt(key)] = valueAsSoundEvent;
+						run.put(Integer.parseInt(key), valueAsSoundEvent);
 						break;
 					case "flange":
-						if (Integer.parseInt(key) >= flange.length) {
-							break;
-						}
-						flange[Integer.parseInt(key)] = valueAsSoundEvent;
+						flange.put(Integer.parseInt(key), valueAsSoundEvent);
 						break;
 					case "motor":
-						if (Integer.parseInt(key) >= motor.length) {
-							break;
-						}
-						motor[Integer.parseInt(key)] = valueAsSoundEvent;
+						motor.put(Integer.parseInt(key), valueAsSoundEvent);
 						break;
 					case "joint":
 					case "switch":
-						if (Integer.parseInt(key) >= joint.length) {
-							break;
-						}
-						joint[Integer.parseInt(key)] = valueAsSoundEvent;
+						joint.put(Integer.parseInt(key), valueAsSoundEvent);
 						break;
 					case "brake":
 						switch (key) {

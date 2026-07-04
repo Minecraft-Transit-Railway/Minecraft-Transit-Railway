@@ -30,7 +30,7 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 	 * Used to create the default rail
 	 */
 	public RailResource(String id, String name, ResourceProvider resourceProvider) {
-		super(id, name, "777777", "", "", false, 0, 0, resourceProvider);
+		super(id, name, "777777", "", "", false, 0, 0, 0, resourceProvider);
 		shouldPreload = false;
 		modelLoaderBase = VehicleModel.getModelLoaderBase(modelResource, textureResource, resourceProvider, flipTextureV);
 		modelSupplier = modelLoaderBase::get;
@@ -52,6 +52,10 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 
 	public int getColor() {
 		return CustomResourceTools.colorStringToInt(color);
+	}
+
+	public int getSoundIndex() {
+		return (int)soundIndex;
 	}
 
 	public double getRepeatInterval() {

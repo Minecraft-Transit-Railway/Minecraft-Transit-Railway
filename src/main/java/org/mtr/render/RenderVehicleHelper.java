@@ -11,11 +11,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockPSDAPGDoorBase;
 import org.mtr.block.PlatformHelper;
 import org.mtr.client.IDrawing;
 import org.mtr.core.tool.Utilities;
 import org.mtr.registry.Items;
+
+import java.util.function.Consumer;
 
 public class RenderVehicleHelper {
 
@@ -25,9 +28,9 @@ public class RenderVehicleHelper {
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
 	/**
-	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
+	 * @return Whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
 	 */
-	public static boolean canOpenDoors(AABB doorway, PositionAndRotation positionAndRotation, double doorValue) {
+	public static boolean canOpenDoors(AABB doorway, PositionAndRotation positionAndRotation, @Nullable Consumer<BlockPSDAPGDoorBase.BlockEntityBase> doorBlockEntityCallback) {
 		final ClientLevel clientWorld = Minecraft.getInstance().level;
 		if (clientWorld == null) {
 			return false;
@@ -55,9 +58,11 @@ public class RenderVehicleHelper {
 						canOpenDoors = true;
 					} else if (block instanceof BlockPSDAPGDoorBase && blockState.getValue(BlockPSDAPGDoorBase.UNLOCKED)) {
 						canOpenDoors = true;
+						if(doorBlockEntityCallback == null) break;
+
 						final BlockEntity blockEntity = clientWorld.getBlockEntity(checkPos);
-						if (blockEntity instanceof BlockPSDAPGDoorBase.BlockEntityBase) {
-							((BlockPSDAPGDoorBase.BlockEntityBase) blockEntity).setDoorValue(doorValue);
+						if (blockEntity instanceof BlockPSDAPGDoorBase.BlockEntityBase doorBlockEntity) {
+							doorBlockEntityCallback.accept(doorBlockEntity);
 						}
 					}
 				}
@@ -65,6 +70,16 @@ public class RenderVehicleHelper {
 		}
 
 		return canOpenDoors;
+	}
+
+	/**
+	 * Attempts to open platform doors nearby the doorway by the given doorValue.
+	 * @return Whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
+	 */
+	public static boolean checkAndOpenNearbyDoors(AABB doorway, PositionAndRotation positionAndRotation, double doorValue) {
+		return canOpenDoors(doorway, positionAndRotation, (blockEntity) -> {
+			blockEntity.setDoorValue(doorValue);
+		});
 	}
 
 	public static double getDoorBlockedAmount(AABB doorway, double playerX, double playerY, double playerZ) {

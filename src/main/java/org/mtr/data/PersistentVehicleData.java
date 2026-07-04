@@ -5,10 +5,8 @@ import net.minecraft.core.BlockPos;
 import org.jspecify.annotations.Nullable;
 import org.mtr.client.Oscillation;
 import org.mtr.client.ScrollingText;
-import org.mtr.core.data.TransportMode;
-import org.mtr.core.data.Vehicle;
-import org.mtr.core.data.VehicleCar;
-import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.data.*;
+import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.resource.VehicleResource;
@@ -32,6 +30,7 @@ public final class PersistentVehicleData {
 	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
 	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
 	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
+	private final ObjectArrayList<VehicleSoundBase.RunSoundInfo> runSoundStates = new ObjectArrayList<>();
 
 	public PersistentVehicleData(ObjectImmutableList<VehicleCar> immutableVehicleCars, TransportMode transportMode) {
 		longestDimensions = new double[immutableVehicleCars.size()];
@@ -92,6 +91,21 @@ public final class PersistentVehicleData {
 			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
 		}
 		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
+
+		runSoundStates.clear();
+		double headRailProgress = railProgress;
+		for(int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
+			final double carLength = vehicleExtraData.immutableVehicleCars.get(i).getLength();
+			final double tailRailProgress = headRailProgress - carLength;
+
+			final int thisPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, headRailProgress);
+			final int lastPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, tailRailProgress);
+			final PathData thisPathData = Utilities.getElement(vehicleExtraData.immutablePath, thisPathIndex);
+			final PathData lastPathData = thisPathIndex == lastPathIndex ? thisPathData : Utilities.getElement(vehicleExtraData.immutablePath, lastPathIndex);
+			float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float)Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
+			runSoundStates.add(VehicleSoundBase.RunSoundInfo.create(lastPathData.getRail(), thisPathData.getRail(), pathDelta));
+			headRailProgress -= vehicleExtraData.immutableVehicleCars.get(i).getLength();
+		}
 	}
 
 	public boolean checkCanOpenDoors() {
@@ -118,8 +132,9 @@ public final class PersistentVehicleData {
 		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	public void playVehicleSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		VehicleSoundBase.RunSoundInfo pathProgress = runSoundStates.size() >= carNumber ? runSoundStates.get(carNumber) : null;
+		getVehicleSoundBase(vehicleResource, carNumber).playVehicleSound(new VehicleSoundBase.VehicleSoundParameters(pathProgress, bogiePosition, speed, speedChange, acceleration, isOnRoute));
 	}
 
 	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
