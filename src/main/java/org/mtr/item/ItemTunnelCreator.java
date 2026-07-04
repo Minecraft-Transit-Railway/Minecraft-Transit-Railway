@@ -13,7 +13,7 @@ public class ItemTunnelCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
+	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
 		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForTunnel(rail, serverPlayerEntity, radius, height));
 	}
 }

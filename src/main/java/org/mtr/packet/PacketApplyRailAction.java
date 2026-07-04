@@ -3,8 +3,6 @@ package org.mtr.packet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import org.mtr.item.ItemNodeModifierBase;
 import org.mtr.item.ItemNodeModifierSelectableBlockBase;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -19,15 +17,13 @@ public final class PacketApplyRailAction extends PacketHandler {
 
 	public PacketApplyRailAction(PacketBufferReceiver packetBufferReceiver) {
 		final int count = packetBufferReceiver.readInt();
-		final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs = new ObjectArrayList<>();
+		railPairs = new ObjectArrayList<>();
 
 		for (int i = 0; i < count; i++) {
 			final BlockPos start = BlockPos.of(packetBufferReceiver.readLong());
 			final BlockPos end = BlockPos.of(packetBufferReceiver.readLong());
 			railPairs.add(new ObjectObjectImmutablePair<>(start, end));
 		}
-
-		this.railPairs = railPairs;
 	}
 
 	public PacketApplyRailAction(ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs) {
@@ -45,23 +41,6 @@ public final class PacketApplyRailAction extends PacketHandler {
 
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayer serverPlayerEntity) {
-		final ItemStack itemStack = serverPlayerEntity.getMainHandItem();
-
-		if (!(itemStack.getItem() instanceof ItemNodeModifierSelectableBlockBase item)) {
-			return;
-		}
-
-		final int capturedRadius = item.getRadius();
-		final int capturedHeight = item.getHeight();
-
-		for (final ObjectObjectImmutablePair<BlockPos, BlockPos> pair : railPairs) {
-			ItemNodeModifierBase.getRail(
-				serverPlayerEntity.serverLevel(),
-				pair.left(),
-				pair.right(),
-				serverPlayerEntity,
-				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight)
-			);
-		}
+		ItemNodeModifierSelectableBlockBase.processRailActions(serverPlayerEntity, railPairs);
 	}
 }

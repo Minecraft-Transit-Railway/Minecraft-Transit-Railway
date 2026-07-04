@@ -153,7 +153,7 @@ public class VehicleRidingMovement {
 	/**
 	 * Dismount the player from the current vehicle and reset riding state.
 	 */
-	public static void stopRiding() {
+	private static void stopRiding() {
 		sendUpdate(true);
 		ridingDepotId = 0;
 		ridingSidingId = 0;

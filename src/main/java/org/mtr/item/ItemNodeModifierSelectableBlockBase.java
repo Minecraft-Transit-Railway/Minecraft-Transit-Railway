@@ -50,14 +50,6 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		radius = width / 2;
 	}
 
-	public int getRadius() {
-		return radius;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		if (canSaveBlock) {
@@ -130,7 +122,30 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		return blockId == null ? Blocks.AIR.defaultBlockState() : Block.stateById(blockId);
 	}
 
-	public abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height);
+	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height);
+
+	/**
+	 * Processes a multi-node rail action from a packet. Retrieves the item from the player's hand and
+	 * calls {@link #onConnect(Rail, ServerPlayer, ItemStack, int, int)} for each rail pair.
+	 */
+	public static void processRailActions(ServerPlayer serverPlayerEntity, ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs) {
+		final ItemStack itemStack = serverPlayerEntity.getMainHandItem();
+		if (!(itemStack.getItem() instanceof ItemNodeModifierSelectableBlockBase item)) {
+			return;
+		}
+
+		final int capturedRadius = item.radius;
+		final int capturedHeight = item.height;
+		for (final ObjectObjectImmutablePair<BlockPos, BlockPos> pair : railPairs) {
+			getRail(
+				serverPlayerEntity.serverLevel(),
+				pair.left(),
+				pair.right(),
+				serverPlayerEntity,
+				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight)
+			);
+		}
+	}
 
 	@Nullable
 	private static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(BlockPos startBlockPos, BlockPos endBlockPos) {
