@@ -76,10 +76,12 @@ public class VehicleRidingMovement {
 			ridingVehicleCooldown++;
 		} else {
 			// If no vehicles are updating the player's position, dismount the player
-			sendUpdate(true);
-			ridingDepotId = 0;
-			ridingSidingId = 0;
-			ridingVehicleId = 0;
+			stopRiding();
+		}
+
+		/* Player explicitly mounted to something else while riding the vehicle, we will give way */
+		if(ridingVehicleId != 0 && minecraftClient.player.isPassenger()) {
+			stopRiding();
 		}
 
 		if (ridingPositionCache != null) {
@@ -125,7 +127,7 @@ public class VehicleRidingMovement {
 	 * Iterate through all open floors and doorways and see if the player is intersecting any of them. If so, start riding the vehicle.
 	 */
 	public static void startRiding(ObjectArrayList<AABB> openFloorsAndDoorways, long depotId, long sidingId, long vehicleId, int carNumber, double x, double y, double z, double yaw) {
-		if (ridingVehicleId == 0 || isRiding(vehicleId)) {
+		if (canMountOn(vehicleId)) {
 			for (final AABB floorOrDoorway : openFloorsAndDoorways) {
 				if (RenderVehicleHelper.boxContains(floorOrDoorway, x, y, z)) {
 					ridingDepotId = depotId;
@@ -146,6 +148,13 @@ public class VehicleRidingMovement {
 				}
 			}
 		}
+	}
+
+	public static void stopRiding() {
+		sendUpdate(true);
+		ridingDepotId = 0;
+		ridingSidingId = 0;
+		ridingVehicleId = 0;
 	}
 
 	public static void movePlayer(
@@ -413,6 +422,10 @@ public class VehicleRidingMovement {
 			RegistryClient.sendPacketToServer(PacketUpdateVehicleRidingEntities.create(ridingSidingId, ridingVehicleId, dismount ? -1 : ridingVehicleCarNumber, ridingVehicleX, ridingVehicleY, ridingVehicleZ, isOnGangway, isHoldingDriverKey, pressingAccelerateTicks == 1, pressingBrakeTicks == 1, pressingDoorsTicks == 1, pressingAtoTicks == 1, doorOverrideTicks > 1));
 			sendPositionUpdateTime = 0;
 		}
+	}
+
+	private static boolean canMountOn(long vehicleId) {
+		return (ridingVehicleId == 0 || isRiding(vehicleId)) && !Minecraft.getInstance().player.isPassenger();
 	}
 
 	private static double getFromScale(double min, double max, double percentage) {
