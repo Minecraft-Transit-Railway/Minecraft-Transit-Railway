@@ -302,6 +302,9 @@ public class VehicleExtension extends Vehicle implements Utilities {
 		return vehicleCarsAndPositions;
 	}
 
+	/**
+	 * Plays vehicle motor/run sounds for the given car, using the current speed, acceleration, and rail run sound state.
+	 */
 	public void playVehicleSound(VehicleResource vehicleResource, int carNumber, Vector bogiePosition) {
 		persistentVehicleData.playVehicleSound(vehicleResource, carNumber, BlockPos.containing(bogiePosition.x(), bogiePosition.y(), bogiePosition.z()), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
 	}

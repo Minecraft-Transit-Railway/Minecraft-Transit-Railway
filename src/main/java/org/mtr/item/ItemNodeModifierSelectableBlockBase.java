@@ -79,13 +79,15 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			}
 		}
 
-		final Player player = context.getPlayer();
-		if (context.getLevel().isClientSide() && player != null && !player.isShiftKeyDown()) {
-			final BlockPos startPos = context.getItemInHand().get(DataComponentTypes.START_POS.get());
-			if (startPos != null && clickCondition(context)) {
-				final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = findRailPath(startPos, context.getClickedPos());
-				if (path != null && path.size() > 1) {
-					RegistryClient.sendPacketToServer(new PacketApplyRailAction(path));
+		if (context.getLevel().isClientSide()) {
+			final Player player = context.getPlayer();
+			if (player != null && !player.isShiftKeyDown()) {
+				final BlockPos startPos = context.getItemInHand().get(DataComponentTypes.START_POS.get());
+				if (startPos != null && clickCondition(context)) {
+					final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = findRailPath(startPos, context.getClickedPos());
+					if (path != null && path.size() > 1) {
+						RegistryClient.sendPacketToServer(new PacketApplyRailAction(path));
+					}
 				}
 			}
 		}
@@ -134,30 +136,33 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	private static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(BlockPos startBlockPos, BlockPos endBlockPos) {
 		final Position startPosition = MTR.blockPosToPosition(startBlockPos);
 		final Position endPosition = MTR.blockPosToPosition(endBlockPos);
+		final Object2ObjectOpenHashMap<Position, Object2ObjectOpenHashMap<Position, Rail>> positionsToRail = MinecraftClientData.getInstance().positionsToRail;
 
-		if (!MinecraftClientData.getInstance().positionsToRail.containsKey(startPosition)) {
+		if (!positionsToRail.containsKey(startPosition)) {
 			return null;
 		}
 
+		// BFS to find any path from start to end through connected rail positions
 		final Object2ObjectOpenHashMap<Position, Position> parentMap = new Object2ObjectOpenHashMap<>();
 		final ObjectArrayList<Position> queue = new ObjectArrayList<>();
 		queue.add(startPosition);
 		parentMap.put(startPosition, startPosition);
 
 		boolean found = false;
-		int queueIndex = 0;
-		while (queueIndex < queue.size()) {
-			final Position current = queue.get(queueIndex++);
+		for (int queueIndex = 0; queueIndex < queue.size(); queueIndex++) {
+			final Position current = queue.get(queueIndex);
 			if (current.equals(endPosition)) {
 				found = true;
 				break;
 			}
-			MinecraftClientData.getInstance().positionsToRail.getOrDefault(current, new Object2ObjectOpenHashMap<>()).keySet().forEach(neighbor -> {
+
+			final Object2ObjectOpenHashMap<Position, Rail> neighbors = positionsToRail.getOrDefault(current, new Object2ObjectOpenHashMap<>());
+			for (final Position neighbor : neighbors.keySet()) {
 				if (!parentMap.containsKey(neighbor)) {
 					parentMap.put(neighbor, current);
 					queue.add(neighbor);
 				}
-			});
+			}
 		}
 
 		if (!found) {

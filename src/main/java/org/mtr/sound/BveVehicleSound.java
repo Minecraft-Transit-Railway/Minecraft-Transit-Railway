@@ -1,10 +1,10 @@
 package org.mtr.sound;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import java.util.Random;
 
@@ -13,38 +13,37 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private final BveVehicleSoundConfig config;
 
 	private float oldSpeedChange;
-	private boolean oldOnRoute = false;
-
-	private float motorCurrentOutput = 0;
+	private boolean oldOnRoute;
+	private float motorCurrentOutput;
 	private float motorBreakerTimer = -1;
 
 	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
 
-	private int defaultRunSoundIndex = -1;
-
+	private final int defaultRunSoundIndex;
 	private final VehicleLoopingSoundHolder vehicleLoopingSoundHolder;
 
 	public BveVehicleSound(BveVehicleSoundConfig config) {
 		this.config = config;
-
 		mrPress = randomInt(config.config.mrPressMin, config.config.mrPressMax + 1);
 		isCompressorActive = randomInt(0, 20) == 0; // Currently set to 1/20 at client-side load
 		isCompressorActiveLastElapsed = isCompressorActive;
 
 		final Int2ObjectOpenHashMap<VehicleLoopingSoundInstance> soundLoopMotor = new Int2ObjectOpenHashMap<>();
+		config.config.motor.int2ObjectEntrySet().forEach(entry -> soundLoopMotor.put(entry.getIntKey(), new VehicleLoopingSoundInstance(entry.getValue())));
+
+		int firstRunIndex = -1;
 		final Int2ObjectOpenHashMap<VehicleLoopingSoundInstance> soundLoopRun = new Int2ObjectOpenHashMap<>();
 
-		config.config.motor.forEach((index, soundEvent) -> {
-			soundLoopMotor.put((int) index, new VehicleLoopingSoundInstance(soundEvent));
-		});
-		config.config.run.forEach((index, soundEvent) -> {
-			if (defaultRunSoundIndex == -1) {
-				defaultRunSoundIndex = index;
+		for (final int key : config.config.run.keySet()) {
+			if (firstRunIndex == -1) {
+				firstRunIndex = key;
 			}
-			soundLoopRun.put((int) index, new VehicleLoopingSoundInstance(soundEvent));
-		});
+			soundLoopRun.put(key, new VehicleLoopingSoundInstance(config.config.run.get(key)));
+		}
+
+		defaultRunSoundIndex = Math.max(0, firstRunIndex);
 
 		vehicleLoopingSoundHolder = new VehicleLoopingSoundHolder(
 			soundLoopMotor,
@@ -61,63 +60,57 @@ public class BveVehicleSound extends VehicleSoundBase {
 		final float secondsElapsed = MTRClient.getGameTimeDeltaTicks() / 20;
 		final float speedKilometersPerHour = input.speed() * 3600;
 		final float speedMetersPerSecond = input.speed() * 1000;
+		final BlockPos blockPos = input.blockPos();
 
 		// Run noise
-		final float runSoundBlendRatio = input.runSound().blendLevel();
-		final float volume = Math.min(1, speedMetersPerSecond * 0.04F);
-		final float pitch = speedMetersPerSecond * 0.04F;
-		final int runIndexOld;
-		final int runIndexNew;
+		final VehicleSoundBase.RunSoundInfo runSound = input.runSound();
+		if (runSound != null) {
+			final float runSoundBlendRatio = runSound.blendLevel();
+			final float volume = Math.min(1, speedMetersPerSecond * 0.04F);
+			final float pitch = speedMetersPerSecond * 0.04F;
+			final int runIndexOld = vehicleLoopingSoundHolder.soundLoopRun().containsKey(runSound.index()) ? runSound.index() : defaultRunSoundIndex;
+			final int runIndexNew = vehicleLoopingSoundHolder.soundLoopRun().containsKey(runSound.nextIndex()) ? runSound.nextIndex() : defaultRunSoundIndex;
 
-		if (vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().index())) {
-			runIndexOld = input.runSound().index();
-		} else {
-			// Falls back to default sound index
-			runIndexOld = defaultRunSoundIndex;
+			vehicleLoopingSoundHolder.soundLoopRun.forEach((runIndex, vehicleLoopingSoundInstance) -> {
+				final float indexVolumeFactor;
+				if (runIndex == runIndexOld || runIndex == runIndexNew) {
+					indexVolumeFactor = runIndexOld == runIndexNew ? 1 : (runIndex == runIndexOld ? 1 - runSoundBlendRatio : runSoundBlendRatio);
+				} else {
+					indexVolumeFactor = 0;
+				}
+				vehicleLoopingSoundInstance.setData(volume * indexVolumeFactor, pitch, blockPos);
+			});
 		}
-		if (vehicleLoopingSoundHolder.soundLoopRun().containsKey(input.runSound().nextIndex())) {
-			runIndexNew = input.runSound().nextIndex();
-		} else {
-			runIndexNew = defaultRunSoundIndex;
-		}
-
-		vehicleLoopingSoundHolder.soundLoopRun.forEach((runIndex, runSound) -> {
-			if (runIndex == runIndexOld || runIndex == runIndexNew) {
-				float indexVolumeFactor = runIndexOld == runIndexNew ? 1 : (runIndex == runIndexOld ? 1 - runSoundBlendRatio : runSoundBlendRatio);
-				runSound.setData(volume * indexVolumeFactor, pitch, input.blockPos());
-			} else {
-				runSound.setData(0, pitch, input.blockPos());
-			}
-		});
 
 		// Simulation of circuit breaker in traction controller
-		float motorTarget = Math.signum(input.speedChange());
-		if (motorTarget == 0 && speedMetersPerSecond != 0) {
-			motorTarget = config.config.motorOutputAtCoast;
-		}
-		if (motorTarget < 0 && speedMetersPerSecond < config.config.regenerationLimit) {
-			motorCurrentOutput = 0; // Regeneration brake cut off below limit speed
-			motorBreakerTimer = -1;
-		} else if (motorTarget > 0 && speedMetersPerSecond < 1) {
-			motorCurrentOutput = 1; // Disable delay at startup
-			motorBreakerTimer = -1;
-		} else if (motorTarget != motorCurrentOutput && motorBreakerTimer < 0) {
-			motorBreakerTimer = 0;
-			if (motorTarget != 0 && motorCurrentOutput != 0) {
-				motorCurrentOutput = 0; // Loose behavior but sounds OK
-			}
-		}
-		if (motorBreakerTimer >= 0) {
-			motorBreakerTimer += secondsElapsed;
-			if (motorBreakerTimer > config.config.breakerDelay) {
-				motorBreakerTimer = -1;
-				motorCurrentOutput = motorTarget;
-			}
-		}
+		{
+			final float motorTargetRaw = Math.signum(input.speedChange());
+			final float motorTarget = motorTargetRaw == 0 && speedMetersPerSecond != 0 ? config.config.motorOutputAtCoast : motorTargetRaw;
 
-		// Clamp to a minimum volume whenever the inverter/motor is active
-		if (motorCurrentOutput != 0) {
-			motorCurrentOutput = Math.signum(motorCurrentOutput) * (0.3f + Math.abs(motorCurrentOutput) * (1 - 0.3f));
+			if (motorTarget < 0 && speedMetersPerSecond < config.config.regenerationLimit) {
+				motorCurrentOutput = 0;
+				motorBreakerTimer = -1;
+			} else if (motorTarget > 0 && speedMetersPerSecond < 1) {
+				motorCurrentOutput = 1;
+				motorBreakerTimer = -1;
+			} else if (motorTarget != motorCurrentOutput && motorBreakerTimer < 0) {
+				motorBreakerTimer = 0;
+				if (motorTarget != 0 && motorCurrentOutput != 0) {
+					motorCurrentOutput = 0;
+				}
+			}
+
+			if (motorBreakerTimer >= 0) {
+				motorBreakerTimer += secondsElapsed;
+				if (motorBreakerTimer > config.config.breakerDelay) {
+					motorBreakerTimer = -1;
+					motorCurrentOutput = motorTarget;
+				}
+			}
+
+			if (motorCurrentOutput != 0) {
+				motorCurrentOutput = Math.signum(motorCurrentOutput) * (0.3F + Math.abs(motorCurrentOutput) * 0.7F);
+			}
 		}
 
 		// Simulation of main reservoir air compressor
@@ -128,34 +121,38 @@ public class BveVehicleSound extends VehicleSoundBase {
 			isCompressorActive = false;
 			mrPress = config.config.mrPressMax;
 		}
+
 		if (isCompressorActive) {
 			mrPress += (int) (secondsElapsed * config.config.mrCompressorSpeed);
 		}
+
 		if (vehicleLoopingSoundHolder.soundLoopCompressor != null) {
-			// NOTE: Attack sound playback is not to BVE specification.
-			vehicleLoopingSoundHolder.soundLoopCompressor.setData(isCompressorActive ? 1 : 0, 1, input.blockPos());
+			vehicleLoopingSoundHolder.soundLoopCompressor.setData(isCompressorActive ? 1 : 0, 1, blockPos);
 		}
+
 		if (isCompressorActive && !isCompressorActiveLastElapsed) {
-			playSoundInWorld(config.config.compressorAttack, input.blockPos());
+			playSoundInWorld(config.config.compressorAttack, blockPos);
 		} else if (!isCompressorActive && isCompressorActiveLastElapsed) {
-			playSoundInWorld(config.config.compressorRelease, input.blockPos());
+			playSoundInWorld(config.config.compressorRelease, blockPos);
 		}
 
 		// Motor noise
 		vehicleLoopingSoundHolder.soundLoopMotor.forEach((motorIndex, vehicleLoopingSoundInstance) -> {
-			vehicleLoopingSoundInstance.setData(config.motorData.getVolume(motorIndex, speedKilometersPerHour, motorCurrentOutput) * config.config.motorVolumeMultiply, config.motorData.getPitch(motorIndex, speedKilometersPerHour, motorCurrentOutput), input.blockPos());
+			final float volume = config.motorData.getVolume(motorIndex, speedKilometersPerHour, motorCurrentOutput) * config.config.motorVolumeMultiply;
+			final float pitch = config.motorData.getPitch(motorIndex, speedKilometersPerHour, motorCurrentOutput);
+			vehicleLoopingSoundInstance.setData(volume, pitch, blockPos);
 		});
 
-		// TODO play flange sounds
 		// Flange noise
 		if (vehicleLoopingSoundHolder.soundLoopFlange != null) {
-			vehicleLoopingSoundHolder.soundLoopFlange.setData(0, 1, input.blockPos());
+			vehicleLoopingSoundHolder.soundLoopFlange.setData(0, 1, blockPos);
 		}
 
 		// Brake shoe rubbing noise (below regeneration brake cutoff limit)
 		if (vehicleLoopingSoundHolder.soundLoopShoe != null) {
 			final float shoePitch = 1 / (speedMetersPerSecond + 1) + 1;
 			float shoeGain = speedMetersPerSecond < config.config.regenerationLimit && input.speedChange() < 0 ? 1 : 0;
+
 			if (speedMetersPerSecond < 1.39) {
 				final float t = speedMetersPerSecond * speedMetersPerSecond;
 				shoeGain *= 1.5552F * t - 0.746496F * speedMetersPerSecond * t;
@@ -163,34 +160,36 @@ public class BveVehicleSound extends VehicleSoundBase {
 				final float t = speedMetersPerSecond - 12.5F;
 				shoeGain *= 1 / (0.1F * t * t + 1);
 			}
-			vehicleLoopingSoundHolder.soundLoopShoe.setData(shoeGain, shoePitch, input.blockPos());
+
+			vehicleLoopingSoundHolder.soundLoopShoe.setData(shoeGain, shoePitch, blockPos);
 		}
 
 		// Constant loop noise
 		if (vehicleLoopingSoundHolder.soundLoopNoise != null) {
-			vehicleLoopingSoundHolder.soundLoopNoise.setData(input.isOnRoute() ? 1 : 0, 1, input.blockPos());
+			vehicleLoopingSoundHolder.soundLoopNoise.setData(input.isOnRoute() ? 1 : 0, 1, blockPos);
 		}
 
+		final float speedChange = input.speedChange();
+		final boolean isOnRoute = input.isOnRoute();
+
 		// Air brake application and release noise
-		if (oldSpeedChange < 0 && input.speedChange() >= 0) {
-			playSoundInWorld(config.config.brakeHandleRelease, input.blockPos());
+		if (oldSpeedChange < 0 && speedChange >= 0) {
+			playSoundInWorld(config.config.brakeHandleRelease, blockPos);
 			if (speedMetersPerSecond < config.config.regenerationLimit) {
-				playSoundInWorld(config.config.airZero, input.blockPos());
+				playSoundInWorld(config.config.airZero, blockPos);
 			}
-		} else if (oldSpeedChange <= 0 && input.speedChange() > 0 && speedMetersPerSecond < 0.3) {
-			playSoundInWorld(config.config.airHigh, input.blockPos());
-		} else if (oldSpeedChange >= 0 && input.speedChange() < 0) {
+		} else if (oldSpeedChange <= 0 && speedChange > 0 && speedMetersPerSecond < 0.3) {
+			playSoundInWorld(config.config.airHigh, blockPos);
+		} else if (oldSpeedChange >= 0 && speedChange < 0) {
 			mrPress -= (int) config.config.mrServiceBrakeReduce;
-			playSoundInWorld(config.config.brakeHandleApply, input.blockPos());
+			playSoundInWorld(config.config.brakeHandleApply, blockPos);
 		}
 
 		// Emergency brake application after returning to depot
-		if (oldOnRoute && !input.isOnRoute()) {
-			playSoundInWorld(config.config.brakeEmergency, input.blockPos());
+		if (oldOnRoute && !isOnRoute) {
+			playSoundInWorld(config.config.brakeEmergency, blockPos);
 		}
 
-		oldSpeedChange = input.speedChange();
-		oldOnRoute = input.isOnRoute();
 		isCompressorActiveLastElapsed = isCompressorActive;
 	}
 
@@ -220,25 +219,30 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private record VehicleLoopingSoundHolder(Int2ObjectOpenHashMap<VehicleLoopingSoundInstance> soundLoopMotor, Int2ObjectOpenHashMap<VehicleLoopingSoundInstance> soundLoopRun, @Nullable VehicleLoopingSoundInstance soundLoopFlange, @Nullable VehicleLoopingSoundInstance soundLoopNoise, @Nullable VehicleLoopingSoundInstance soundLoopShoe, @Nullable VehicleLoopingSoundInstance soundLoopCompressor) {
 
 		public void dispose() {
-			for (VehicleLoopingSoundInstance instance : soundLoopMotor.values()) {
+			for (final VehicleLoopingSoundInstance instance : soundLoopMotor.values()) {
 				if (instance != null) {
 					instance.dispose();
 				}
 			}
-			for (VehicleLoopingSoundInstance instance : soundLoopRun.values()) {
+
+			for (final VehicleLoopingSoundInstance instance : soundLoopRun.values()) {
 				if (instance != null) {
 					instance.dispose();
 				}
 			}
+
 			if (soundLoopFlange != null) {
 				soundLoopFlange.dispose();
 			}
+
 			if (soundLoopNoise != null) {
 				soundLoopNoise.dispose();
 			}
+
 			if (soundLoopShoe != null) {
 				soundLoopShoe.dispose();
 			}
+
 			if (soundLoopCompressor != null) {
 				soundLoopCompressor.dispose();
 			}

@@ -150,6 +150,9 @@ public class VehicleRidingMovement {
 		}
 	}
 
+	/**
+	 * Dismount the player from the current vehicle and reset riding state.
+	 */
 	public static void stopRiding() {
 		sendUpdate(true);
 		ridingDepotId = 0;
@@ -424,6 +427,9 @@ public class VehicleRidingMovement {
 		}
 	}
 
+	/**
+	 * @return whether the player can mount the given vehicle (not already riding a different vehicle and not already a passenger of an entity)
+	 */
 	private static boolean canMountOn(long vehicleId) {
 		return (ridingVehicleId == 0 || isRiding(vehicleId)) && !Minecraft.getInstance().player.isPassenger();
 	}

@@ -102,7 +102,7 @@ public final class PersistentVehicleData {
 			final int lastPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, tailRailProgress);
 			final PathData thisPathData = Utilities.getElement(vehicleExtraData.immutablePath, thisPathIndex);
 			final PathData lastPathData = thisPathIndex == lastPathIndex ? thisPathData : Utilities.getElement(vehicleExtraData.immutablePath, lastPathIndex);
-			float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float) Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
+			final float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float) Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
 			runSoundStates.add(VehicleSoundBase.RunSoundInfo.create(lastPathData.getRail(), thisPathData.getRail(), pathDelta));
 			headRailProgress -= vehicleExtraData.immutableVehicleCars.get(i).getLength();
 		}
@@ -133,7 +133,7 @@ public final class PersistentVehicleData {
 	}
 
 	public void playVehicleSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		VehicleSoundBase.RunSoundInfo pathProgress = runSoundStates.size() >= carNumber ? runSoundStates.get(carNumber) : null;
+		final VehicleSoundBase.RunSoundInfo pathProgress = carNumber >= 0 && carNumber < runSoundStates.size() ? runSoundStates.get(carNumber) : null;
 		getVehicleSoundBase(vehicleResource, carNumber).playVehicleSound(new VehicleSoundBase.VehicleSoundParameters(pathProgress, bogiePosition, speed, speedChange, acceleration, isOnRoute));
 	}
 

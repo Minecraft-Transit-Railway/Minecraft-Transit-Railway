@@ -314,11 +314,23 @@ public class CustomResourceLoader {
 		return new ObjectImmutableList<>(RAILS);
 	}
 
+	/**
+	 * Looks up a rail resource by its ID.
+	 *
+	 * @param railId the rail resource ID
+	 * @return the matching rail resource, or null if not found
+	 */
 	@Nullable
 	public static RailResource getRailById(String railId) {
 		return RAILS_CACHE.get(railId);
 	}
 
+	/**
+	 * Looks up a rail resource by its ID and performs an action if it exists.
+	 *
+	 * @param railId    the rail resource ID
+	 * @param ifPresent consumer to run with the matching rail resource
+	 */
 	public static void getRailById(String railId, Consumer<RailResource> ifPresent) {
 		final RailResource railResource = getRailById(railId);
 		if (railResource != null) {

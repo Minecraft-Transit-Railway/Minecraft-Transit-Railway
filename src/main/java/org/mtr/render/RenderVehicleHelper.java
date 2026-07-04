@@ -28,6 +28,12 @@ public class RenderVehicleHelper {
 	private static final double RIDE_STEP_THRESHOLD = 0.75;
 
 	/**
+	 * Checks whether the doorway is near platform blocks, unlocked PSDs, or unlocked APGs.
+	 * If a callback is provided, it is invoked for each matching door block entity (e.g. to set the door value).
+	 *
+	 * @param doorway                  the doorway bounding box in local vehicle coordinates
+	 * @param positionAndRotation      the vehicle's absolute position and rotation
+	 * @param doorBlockEntityCallback  optional callback invoked for each matching door block entity
 	 * @return whether the doorway is close to platform blocks, unlocked platform screen doors, or unlocked automatic platform gates
 	 */
 	public static boolean canOpenDoors(AABB doorway, PositionAndRotation positionAndRotation, @Nullable Consumer<BlockPSDAPGDoorBase.BlockEntityBase> doorBlockEntityCallback) {

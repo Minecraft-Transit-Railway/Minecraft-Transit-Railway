@@ -54,6 +54,9 @@ public final class RailResource extends RailResourceSchema implements StoredMode
 		return CustomResourceTools.colorStringToInt(color);
 	}
 
+	/**
+	 * @return the sound index associated with this rail type, used for transitioning run sounds when vehicles cross different rail types
+	 */
 	public int getSoundIndex() {
 		return (int) soundIndex;
 	}
