@@ -1,0 +1,22 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"BRB",
+		"BIB",
+		"BRB"
+	],
+	"key": {
+		"R": {
+			"tag": "minecraft:rails"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		},
+		"B": {
+			"item": "minecraft:lava_bucket"
+		}
+	},
+	"result": {
+		"id": "mtr:rail_remover"
+	}
+}

@@ -1,0 +1,223 @@
+package org.mtr.widget;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.ResourceLocation;
+import org.jspecify.annotations.Nullable;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.tool.Drawing;
+
+import java.util.Locale;
+
+/**
+ * A representation of an entry for the {@link ScrollableListWidget}.
+ *
+ * @param <T> the data type of the child objects
+ */
+public final class ListItem<T> {
+
+	private boolean expanded;
+
+	@Nullable
+	public final DrawIcon drawIcon;
+	@Nullable
+	public final DeferredDrawIcon deferredDrawIcon;
+	public final int iconWidth;
+	@Nullable
+	public final T data;
+	public final String text;
+	private final String textLowerCase;
+	@Nullable
+	private final String parentKey;
+	@Nullable
+	private final ObjectArrayList<ListItem<T>> children;
+	@Nullable
+	private final ObjectArrayList<ObjectObjectImmutablePair<ResourceLocation, ActionConsumer<T>>> actions;
+
+	public static <T> ListItem<T> createParent(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, String text, String key, ObjectArrayList<ListItem<T>> children) {
+		return new ListItem<>(drawIcon, deferredDrawIcon, iconWidth, null, text, key, children, null);
+	}
+
+	public static <T> ListItem<T> createChild(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, T data, String text, ObjectArrayList<ObjectObjectImmutablePair<ResourceLocation, ActionConsumer<T>>> actions) {
+		return new ListItem<>(drawIcon, deferredDrawIcon, iconWidth, data, text, null, null, actions);
+	}
+
+	private ListItem(@Nullable DrawIcon drawIcon, @Nullable DeferredDrawIcon deferredDrawIcon, int iconWidth, @Nullable T data, String text, @Nullable String parentKey, @Nullable ObjectArrayList<ListItem<T>> children, @Nullable ObjectArrayList<ObjectObjectImmutablePair<ResourceLocation, ActionConsumer<T>>> actions) {
+		this.drawIcon = drawIcon;
+		this.deferredDrawIcon = deferredDrawIcon;
+		this.iconWidth = iconWidth;
+		this.data = data;
+		this.text = text;
+		this.textLowerCase = text.toLowerCase(Locale.ENGLISH);
+		this.parentKey = parentKey;
+		this.children = children;
+		this.actions = actions;
+	}
+
+	public void addChild(ListItem<T> child) {
+		if (children != null) {
+			children.add(child);
+		}
+	}
+
+	public boolean isParent() {
+		return data == null;
+	}
+
+	public boolean isExpanded() {
+		return isParent() && expanded;
+	}
+
+	public void toggle() {
+		expanded = isParent() && !expanded;
+	}
+
+	public int actionCount() {
+		return actions == null ? 0 : actions.size();
+	}
+
+	public void iterateActions(IntArrayList indexList, ActionsConsumer consumer) {
+		if (actions != null && !isParent()) {
+			for (int i = 0; i < actions.size(); i++) {
+				final ObjectObjectImmutablePair<ResourceLocation, ActionConsumer<T>> action = actions.get(i);
+				consumer.accept(i, action.left(), () -> action.right().accept(indexList, data));
+			}
+		}
+	}
+
+	private boolean matchesFilter(@Nullable String filter, boolean updateExpanded) {
+		if (filter == null || filter.isEmpty()) {
+			if (updateExpanded) {
+				expanded = false;
+			}
+			return true;
+		} else {
+			final boolean thisMatch = textLowerCase.contains(filter.toLowerCase(Locale.ENGLISH));
+			if (isParent()) {
+				final boolean childrenMatch = children != null && children.stream().anyMatch(listItem -> listItem.matchesFilter(filter, false));
+				if (updateExpanded && childrenMatch) {
+					expanded = true;
+				}
+				return childrenMatch || thisMatch;
+			} else {
+				return thisMatch;
+			}
+		}
+	}
+
+	/**
+	 * Helper method to overwrite a new data list to an existing list, keeping expanded states.
+	 *
+	 * @param currentDataList the list to be modified
+	 * @param newDataList     the list of new data
+	 * @param <T>             the data type of the list
+	 */
+	public static <T> void overwriteList(ObjectArrayList<ListItem<T>> currentDataList, ObjectArrayList<ListItem<T>> newDataList) {
+		final ObjectAVLTreeSet<String> expandedKeys = new ObjectAVLTreeSet<>();
+		currentDataList.forEach(listItem -> {
+			if (listItem.parentKey != null && listItem.expanded) {
+				expandedKeys.add(listItem.parentKey);
+			}
+		});
+		currentDataList.clear();
+		newDataList.forEach(listItem -> {
+			listItem.expanded |= listItem.parentKey != null && expandedKeys.contains(listItem.parentKey);
+			currentDataList.add(listItem);
+		});
+	}
+
+	/**
+	 * Helper method to expand or collapse all entries.
+	 */
+	public static <T> void expandAll(ObjectArrayList<ListItem<T>> dataList, boolean expanded) {
+		dataList.forEach(listItem -> {
+			if (listItem.children != null) {
+				expandAll(listItem.children, expanded);
+			}
+			listItem.expanded = expanded;
+		});
+	}
+
+	/**
+	 * Helper method to expand or collapse all entries based on the filter term.
+	 */
+	public static <T> void expandByFilter(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter) {
+		dataList.forEach(listItem -> {
+			if (listItem.children != null) {
+				expandByFilter(listItem.children, filter);
+			}
+			listItem.matchesFilter(filter, true);
+		});
+	}
+
+	/**
+	 * Helper method to iterate through all the entries in a data list. If an item is not expanded or is filtered out, it will not be traversed.
+	 * When a filter is set, expansion states will be locked accordingly.
+	 *
+	 * @param dataList the input list
+	 * @param filter   optional text to filter out entries and lock expansion states or {@code null} to not filter and keep expansion states as-is
+	 * @param consumer the callback method
+	 * @param <T>      the data type of the list
+	 */
+	public static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer) {
+		iterateData(dataList, filter, consumer, new int[]{0}, new IntArrayList());
+	}
+
+	private static <T> void iterateData(ObjectArrayList<ListItem<T>> dataList, @Nullable String filter, ListItemConsumer<T> consumer, int[] index, IntArrayList indexList) {
+		indexList.add(0);
+
+		for (final ListItem<T> listItem : dataList) {
+			if (listItem.isParent()) {
+				final boolean matchesFilter = listItem.matchesFilter(filter, false);
+
+				if (matchesFilter) {
+					if (consumer.accept(index[0], new IntArrayList(indexList), listItem)) {
+						return;
+					}
+					index[0]++;
+					indexList.set(indexList.size() - 1, indexList.getLast() + 1);
+				}
+
+				if (listItem.expanded && listItem.children != null) {
+					iterateData(listItem.children, matchesFilter ? null : filter, consumer, index, new IntArrayList(indexList));
+				}
+			} else if (listItem.matchesFilter(filter, false)) {
+				if (consumer.accept(index[0], new IntArrayList(indexList), listItem)) {
+					return;
+				}
+				index[0]++;
+				indexList.set(indexList.size() - 1, indexList.getLast() + 1);
+			}
+		}
+	}
+
+	@FunctionalInterface
+	public interface DrawIcon {
+		void draw(Drawing drawing, float x, float y);
+	}
+
+	@FunctionalInterface
+	public interface DeferredDrawIcon {
+		void draw(PoseStack matrixStack, float x, float y);
+	}
+
+	@FunctionalInterface
+	public interface ActionsConsumer {
+		void accept(int index, ResourceLocation identifier, Runnable callback);
+	}
+
+	@FunctionalInterface
+	public interface ActionConsumer<T> {
+		void accept(IntArrayList indexList, T data);
+	}
+
+	@FunctionalInterface
+	public interface ListItemConsumer<T> {
+		/**
+		 * @return {@code true} to stop iteration
+		 */
+		boolean accept(int index, IntArrayList indexList, ListItem<T> listItem);
+	}
+}

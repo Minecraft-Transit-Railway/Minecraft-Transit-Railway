@@ -4,10 +4,14 @@
 
 ## Build artifacts
 
+This project uses **Stonecutter** to configure multi-platform (Fabric/NeoForge) and multi-version (1.21.4) builds.
+
 A full build creates loader-specific jars under `build/release/`:
 
 - `MTR-fabric-<modVersion>+<minecraftVersion>.jar`
 - `MTR-neoforge-<modVersion>+<minecraftVersion>.jar`
+
+Both variants use official **Mojang mappings** (not Fabric Yarn).
 
 See [BUILD.md](BUILD.md) for build commands and prerequisites.
 

@@ -1,0 +1,160 @@
+package org.mtr.data;
+
+import lombok.Getter;
+import net.minecraft.core.BlockPos;
+import org.jspecify.annotations.Nullable;
+import org.mtr.client.Oscillation;
+import org.mtr.client.ScrollingText;
+import org.mtr.core.data.*;
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import org.mtr.resource.VehicleResource;
+import org.mtr.sound.VehicleSoundBase;
+
+import java.util.function.Supplier;
+
+public final class PersistentVehicleData {
+
+	private double smoothedRailProgress;
+	private double railProgressSmoothingAdjustment;
+	@Getter
+	private double doorValue;
+	private double oldDoorValue;
+	private double nextAnnouncementRailProgress;
+	private int doorCooldown;
+	private int overrideDoorMultiplier;
+
+	public final double[] longestDimensions;
+	private final TransportMode transportMode;
+	private final ObjectArrayList<VehicleSoundBase> vehicleSoundBaseList = new ObjectArrayList<>();
+	private final ObjectArrayList<ObjectArrayList<ScrollingText>> scrollingTexts = new ObjectArrayList<>();
+	private final ObjectArrayList<Oscillation> oscillations = new ObjectArrayList<>();
+	private final ObjectArrayList<VehicleSoundBase.RunSoundInfo> runSoundStates = new ObjectArrayList<>();
+
+	public PersistentVehicleData(ObjectImmutableList<VehicleCar> immutableVehicleCars, TransportMode transportMode) {
+		longestDimensions = new double[immutableVehicleCars.size()];
+		for (int i = 0; i < immutableVehicleCars.size(); i++) {
+			longestDimensions[i] = Math.max(immutableVehicleCars.get(i).getLength(), immutableVehicleCars.get(i).getWidth());
+		}
+		this.transportMode = transportMode;
+	}
+
+	/**
+	 * Captures the rail progress difference of an incoming vehicle update. This will be used for smoothing out animations.
+	 *
+	 * @param newRailProgress    the rail progress coming from the server
+	 * @param totalVehicleLength the total length of this vehicle
+	 */
+	public void update(double newRailProgress, double totalVehicleLength) {
+		railProgressSmoothingAdjustment = newRailProgress - smoothedRailProgress;
+		if (Math.abs(railProgressSmoothingAdjustment) > Math.max(totalVehicleLength - 1, 10)) {
+			railProgressSmoothingAdjustment = 0;
+		}
+	}
+
+	public double getSmoothedRailProgress(double railProgress, double adjustmentAmount, @Nullable Double maxClamp) {
+		if (railProgressSmoothingAdjustment > 0) {
+			railProgressSmoothingAdjustment = Math.max(railProgressSmoothingAdjustment - adjustmentAmount, 0);
+		} else if (railProgressSmoothingAdjustment < 0) {
+			railProgressSmoothingAdjustment = Math.min(railProgressSmoothingAdjustment + adjustmentAmount, 0);
+		}
+
+		smoothedRailProgress = railProgress - railProgressSmoothingAdjustment;
+
+		if (maxClamp != null && smoothedRailProgress > maxClamp) {
+			smoothedRailProgress = maxClamp;
+			railProgressSmoothingAdjustment = 0;
+		}
+
+		return smoothedRailProgress;
+	}
+
+	public ObjectArrayList<ScrollingText> getScrollingText(int carNumber) {
+		return getElement(scrollingTexts, carNumber, ObjectArrayList::new);
+	}
+
+	public Oscillation getOscillation(int carNumber) {
+		return getElement(oscillations, carNumber, () -> new Oscillation(transportMode));
+	}
+
+	public void tick(double railProgress, long millisElapsed, VehicleExtraData vehicleExtraData) {
+		oldDoorValue = doorValue;
+		doorValue = Math.clamp(doorValue + (double) (millisElapsed * getAdjustedDoorMultiplier(vehicleExtraData)) / Vehicle.DOOR_MOVE_TIME, 0, 1);
+		if (checkCanOpenDoors()) {
+			doorCooldown--;
+		} else {
+			overrideDoorMultiplier = 0;
+		}
+		if (doorValue > 0) {
+			doorCooldown = 2;
+			nextAnnouncementRailProgress = railProgress + vehicleExtraData.getTotalVehicleLength() * 1.5;
+		}
+		oscillations.forEach(oscillation -> oscillation.tick(millisElapsed));
+
+		runSoundStates.clear();
+		double headRailProgress = railProgress;
+		for (int i = 0; i < vehicleExtraData.immutableVehicleCars.size(); i++) {
+			final double carLength = vehicleExtraData.immutableVehicleCars.get(i).getLength();
+			final double tailRailProgress = headRailProgress - carLength;
+
+			final int thisPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, headRailProgress);
+			final int lastPathIndex = Utilities.getIndexFromConditionalList(vehicleExtraData.immutablePath, tailRailProgress);
+			final PathData thisPathData = Utilities.getElement(vehicleExtraData.immutablePath, thisPathIndex);
+			final PathData lastPathData = thisPathIndex == lastPathIndex ? thisPathData : Utilities.getElement(vehicleExtraData.immutablePath, lastPathIndex);
+			final float pathDelta = thisPathIndex == lastPathIndex ? 1 : (float) Math.min(1, (headRailProgress - lastPathData.getEndDistance()) / carLength);
+			runSoundStates.add(VehicleSoundBase.RunSoundInfo.create(lastPathData.getRail(), thisPathData.getRail(), pathDelta));
+			headRailProgress -= vehicleExtraData.immutableVehicleCars.get(i).getLength();
+		}
+	}
+
+	public boolean checkCanOpenDoors() {
+		return doorCooldown > 0;
+	}
+
+	/**
+	 * Get the actual door value, including any overridden value, for example when debugging a train from the Resource Pack Creator.
+	 */
+	public int getAdjustedDoorMultiplier(VehicleExtraData vehicleExtraData) {
+		return overrideDoorMultiplier != 0 ? overrideDoorMultiplier : vehicleExtraData.getDoorMultiplier();
+	}
+
+	/**
+	 * Override the door value, for example when debugging a train from the Resource Pack Creator. This must be called every tick.
+	 *
+	 * @param overrideDoorMultiplier {@code 1} for open and {@code -1} for close
+	 */
+	public void overrideDoorMultiplier(int overrideDoorMultiplier) {
+		this.overrideDoorMultiplier = overrideDoorMultiplier;
+	}
+
+	public boolean canAnnounce(double oldRailProgress, double railProgress) {
+		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
+	}
+
+	public void playVehicleSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+		final VehicleSoundBase.RunSoundInfo pathProgress = carNumber >= 0 && carNumber < runSoundStates.size() ? runSoundStates.get(carNumber) : null;
+		getVehicleSoundBase(vehicleResource, carNumber).playVehicleSound(new VehicleSoundBase.VehicleSoundParameters(pathProgress, bogiePosition, speed, speedChange, acceleration, isOnRoute));
+	}
+
+	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {
+		getVehicleSoundBase(vehicleResource, carNumber).playDoorSound(vehiclePosition, doorValue, oldDoorValue);
+	}
+
+	private VehicleSoundBase getVehicleSoundBase(VehicleResource vehicleResource, int carNumber) {
+		return getElement(vehicleSoundBaseList, carNumber, vehicleResource.createVehicleSoundBase);
+	}
+
+	public void dispose() {
+		for (VehicleSoundBase sounds : vehicleSoundBaseList) {
+			sounds.dispose();
+		}
+	}
+
+	private static <T> T getElement(ObjectArrayList<T> list, int index, Supplier<T> supplier) {
+		while (list.size() <= index) {
+			list.add(supplier.get());
+		}
+		return list.get(index);
+	}
+}

@@ -1,0 +1,46 @@
+package org.mtr.packet;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jspecify.annotations.Nullable;
+import org.mtr.MTR;
+import org.mtr.block.BlockTrainScheduleSensor;
+import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+
+public class PacketUpdateTrainScheduleSensorConfig extends PacketUpdateTrainSensorConfig {
+
+	private final int seconds;
+	private final boolean realtimeOnly;
+
+	public PacketUpdateTrainScheduleSensorConfig(PacketBufferReceiver packetBufferReceiver) {
+		super(packetBufferReceiver);
+		seconds = packetBufferReceiver.readInt();
+		realtimeOnly = packetBufferReceiver.readBoolean();
+	}
+
+	public PacketUpdateTrainScheduleSensorConfig(BlockPos blockPos, LongAVLTreeSet filterRouteIds, boolean stoppedOnly, boolean movingOnly, int seconds, boolean realtimeOnly) {
+		super(blockPos, filterRouteIds, stoppedOnly, movingOnly);
+		this.seconds = seconds;
+		this.realtimeOnly = realtimeOnly;
+	}
+
+	@Override
+	public void write(PacketBufferSender packetBufferSender) {
+		super.write(packetBufferSender);
+		packetBufferSender.writeInt(seconds);
+		packetBufferSender.writeBoolean(realtimeOnly);
+	}
+
+	@Override
+	protected void setData(@Nullable Level world) {
+		if (world == null || !MTR.isChunkLoaded(world, blockPos)) {
+			return;
+		}
+
+		final BlockEntity entity = world.getBlockEntity(blockPos);
+		if (entity instanceof BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) {
+			((BlockTrainScheduleSensor.TrainScheduleSensorBlockEntity) entity).setData(filterRouteIds, stoppedOnly, movingOnly, seconds, realtimeOnly);
+		}
+	}
+}

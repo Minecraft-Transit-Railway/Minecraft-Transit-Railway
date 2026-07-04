@@ -1,0 +1,73 @@
+package org.mtr.sound;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import org.jspecify.annotations.Nullable;
+import org.mtr.MTR;
+import org.mtr.MTRClient;
+import org.mtr.core.data.Siding;
+
+import java.util.Random;
+
+public class LegacyVehicleSound extends VehicleSoundBase {
+
+	@Nullable
+	private final String legacySpeedSoundBaseResource;
+	private final int legacySpeedSoundCount;
+	private final boolean legacyUseAccelerationSoundsWhenCoasting;
+	private final boolean legacyConstantPlaybackSpeed;
+	private final String legacyDoorSoundBaseResource;
+	private final double legacyDoorCloseSoundTime;
+
+	private final char[] SOUND_GROUP_LETTERS = {'a', 'b', 'c'};
+	private final int SOUND_GROUP_SIZE = SOUND_GROUP_LETTERS.length;
+
+	private static final String SOUND_ACCELERATION = "_acceleration_";
+	private static final String SOUND_DECELERATION = "_deceleration_";
+	private static final String SOUND_DOOR_OPEN = "_door_open";
+	private static final String SOUND_DOOR_CLOSE = "_door_close";
+
+	public LegacyVehicleSound(@Nullable String legacySpeedSoundBaseResource, int legacySpeedSoundCount, boolean legacyUseAccelerationSoundsWhenCoasting, boolean legacyConstantPlaybackSpeed, String legacyDoorSoundBaseResource, double legacyDoorCloseSoundTime) {
+		this.legacySpeedSoundBaseResource = legacySpeedSoundBaseResource;
+		this.legacySpeedSoundCount = legacySpeedSoundCount;
+		this.legacyUseAccelerationSoundsWhenCoasting = legacyUseAccelerationSoundsWhenCoasting;
+		this.legacyConstantPlaybackSpeed = legacyConstantPlaybackSpeed;
+		this.legacyDoorSoundBaseResource = legacyDoorSoundBaseResource;
+		this.legacyDoorCloseSoundTime = legacyDoorCloseSoundTime;
+	}
+
+	@Override
+	public void playVehicleSound(VehicleSoundParameters vehicle) {
+		if (!MTRClient.canPlaySound()) {
+			return;
+		}
+
+		if (legacySpeedSoundCount > 0 && legacySpeedSoundBaseResource != null) {
+			final double referenceAcceleration = legacyConstantPlaybackSpeed ? vehicle.acceleration() : Siding.ACCELERATION_DEFAULT;
+			final int floorSpeed = (int) Math.floor(vehicle.speed() / referenceAcceleration / MTRClient.MILLIS_PER_SPEED_SOUND);
+			if (floorSpeed > 0) {
+				final Random random = new Random();
+
+				final int index = Math.min(floorSpeed, legacySpeedSoundCount) - 1;
+				final boolean isAccelerating = vehicle.speedChange() == 0 ? legacyUseAccelerationSoundsWhenCoasting || random.nextBoolean() : vehicle.speedChange() > 0;
+				final String speedSoundId = legacySpeedSoundBaseResource + (isAccelerating ? SOUND_ACCELERATION : SOUND_DECELERATION) + index / SOUND_GROUP_SIZE + SOUND_GROUP_LETTERS[index % SOUND_GROUP_SIZE];
+				ScheduledSound.schedule(vehicle.blockPos(), SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, speedSoundId)), 1, 1);
+			}
+		}
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	@Override
+	protected void playDoorSound(BlockPos blockPos, boolean isOpen) {
+		ScheduledSound.schedule(blockPos, SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, String.format("%s%s", legacyDoorSoundBaseResource, isOpen ? SOUND_DOOR_OPEN : SOUND_DOOR_CLOSE))), 2, 1);
+	}
+
+	@Override
+	protected double getDoorCloseSoundTime() {
+		return legacyDoorCloseSoundTime;
+	}
+}

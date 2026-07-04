@@ -10,9 +10,29 @@
 | `common/`   | Shared mod logic used by all loaders: gameplay objects, packets, rendering helpers, servlets, registry abstractions, generated resource/config models. |
 | `fabric/`   | Fabric-specific bootstrap and adapter code. Produces the Fabric mod jar.                                                                               |
 | `neoforge/` | NeoForge-specific bootstrap and adapter code. Produces the NeoForge mod jar.                                                                           |
+| `versions/` | **Stonecutter-managed** per-version/per-platform configurations: `1.21.1-fabric`, `1.21.1-neoforge`, `1.21.4-fabric`, `1.21.4-neoforge`.               |
 | `buildSrc/` | Build utilities, schema generator integration, translation/resource preparation tasks, and import-fix utilities used during build.                     |
 | `website/`  | Angular web application and generated TypeScript entities used for map and data views.                                                                 |
 | `docs/`     | Project documentation for architecture, build flow, runtime, API surface, and schema generation.                                                       |
+
+## Source code management: Stonecutter
+
+This project uses **Stonecutter** to manage platform-specific and version-specific code from a unified codebase. The active version is set in `stonecutter.gradle.kts` (`stonecutter active "1.21.4-fabric"`). Platform conditionals appear as comments in the source:
+
+- `//? if fabric {` ... `//? }` — Fabric-only code blocks
+- `//? if neoforge {` ... `//? }` — NeoForge-only code blocks
+
+Supported combinations (defined in `settings.gradle.kts`):
+
+| Version | Loader    |
+|---------|-----------|
+| 1.21.1  | Fabric    |
+| 1.21.1  | NeoForge  |
+| 1.21.4  | Fabric    |
+| 1.21.4  | NeoForge  |
+
+All variants use **official Mojang mappings** (not Fabric Yarn). During Gradle build, Stonecutter processes these directives to generate platform/version-specific JAR artifacts.
+For build commands and workflow, see [BUILD.md](BUILD.md).
 
 ## Runtime model
 

@@ -29,6 +29,10 @@
 			"type": "number",
 			"minimum": 0
 		},
+		"capacity": {
+			"type": "integer",
+			"minimum": 1
+		},
 		"bogie1Position": {
 			"type": "number"
 		},
@@ -127,6 +131,7 @@
 		"transportMode",
 		"length",
 		"width",
+		"capacity",
 		"bogie1Position",
 		"bogie2Position",
 		"couplingPadding1",

@@ -1,9 +1,0 @@
-{
-	"type": "minecraft:crafting_shapeless",
-	"ingredients": [
-		"mtr:route_sign_wall_light"
-	],
-	"result": {
-		"id": "mtr:route_sign_wall_metal"
-	}
-}

@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"T",
+		" ",
+		"T"
+	],
+	"key": {
+		"T": {
+			"item": "mtr:tunnel_creator_5_9"
+		}
+	},
+	"result": {
+		"id": "mtr:tunnel_creator_4_9"
+	}
+}

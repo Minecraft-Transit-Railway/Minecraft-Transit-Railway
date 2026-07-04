@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:cable_car_node_upper"
+		}
+	],
+	"result": {
+		"id": "mtr:cable_car_node_station"
+	}
+}

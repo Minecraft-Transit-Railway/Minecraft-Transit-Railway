@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:signal_connector_yellow"
+		},
+		{
+			"item": "minecraft:lava_bucket"
+		}
+	],
+	"result": {
+		"id": "mtr:advanced_signal_remover_yellow"
+	}
+}

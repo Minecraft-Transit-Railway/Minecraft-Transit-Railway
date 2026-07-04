@@ -17,6 +17,12 @@ in new build logic. When editing build scripts, prefer:
 - Explicit types for task configurations (`tasks.withType<JavaCompile>()`)
 - Named arguments for filter/map operations (see existing `generateVersion` task)
 
+Multi-platform and multi-version builds are managed by **Stonecutter** (`stonecutter.gradle.kts`,
+`settings.gradle.kts`). Platform-specific code blocks use Stonecutter directives
+(`//? if fabric {` / `//? if neoforge {`). All variants compile against **official Mojang
+mappings** — do not use Fabric Yarn names in shared code. See [ARCHITECTURE.md](ARCHITECTURE.md)
+for the full version/loader matrix and [BUILD.md](BUILD.md) for build commands.
+
 ## 1. Naming
 
 ### 1.1 Package / folder names are singular

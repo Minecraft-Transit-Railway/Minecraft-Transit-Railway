@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"I I",
+		"ISI",
+		"III"
+	],
+	"key": {
+		"S": {
+			"item": "minecraft:stone"
+		},
+		"I": {
+			"tag": "c:iron_ingots"
+		}
+	},
+	"result": {
+		"id": "mtr:rubbish_bin_1"
+	}
+}

@@ -1,9 +1,0 @@
-{
-	"type": "minecraft:crafting_shapeless",
-	"ingredients": [
-		"mtr:apg_glass"
-	],
-	"result": {
-		"id": "mtr:apg_glass_end"
-	}
-}

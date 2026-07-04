@@ -27,6 +27,10 @@
 			"type": "number",
 			"minimum": 0
 		},
+		"capacity": {
+			"type": "integer",
+			"minimum": 1
+		},
 		"bogie1Position": {
 			"type": "number"
 		},

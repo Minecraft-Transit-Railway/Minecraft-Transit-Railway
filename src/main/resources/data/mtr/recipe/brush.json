@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"WWW",
+		"WSW",
+		" S "
+	],
+	"key": {
+		"W": {
+			"item": "minecraft:white_wool"
+		},
+		"S": {
+			"tag": "c:wood_sticks"
+		}
+	},
+	"result": {
+		"id": "mtr:brush"
+	}
+}

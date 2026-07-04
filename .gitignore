@@ -32,7 +32,6 @@ bin/
 
 run/
 generated/
-.architectury-transformer/
 **/de/javagl/obj/
 website/src/app/entity/generated
 website/.gitignore

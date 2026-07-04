@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${mod_version}",
+	"name": "${mod_name}",
+	"description": "${mod_description}",
+	"authors": [
+		"${mod_author}"
+	],
+	"contact": {
+		"homepage": "${mod_homepage}",
+		"sources": "${mod_sources}",
+		"issues": "${mod_issues}"
+	},
+	"license": "${mod_license}",
+	"icon": "assets/mtr/textures/block/sign/logo.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"org.mtr.fabric.MTRFabric"
+		],
+		"client": [
+			"org.mtr.fabric.MTRFabricClient"
+		],
+		"modmenu": [
+			"org.mtr.fabric.ModMenuConfig"
+		]
+	},
+	"mixins": [
+		"mtr.mixins.json"
+	],
+	"depends": {
+		"minecraft": "${minecraft_version}",
+		"fabricloader": "*",
+		"fabric-api": "*"
+	}
+}

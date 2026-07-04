@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:metal"
+		},
+		{
+			"tag": "c:red_dyes"
+		}
+	],
+	"result": {
+		"id": "mtr:logo"
+	}
+}

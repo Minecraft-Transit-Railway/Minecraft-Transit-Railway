@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:ticket_processor"
+		}
+	],
+	"result": {
+		"id": "mtr:ticket_processor_entrance"
+	}
+}

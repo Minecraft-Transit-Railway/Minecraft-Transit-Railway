@@ -38,7 +38,7 @@ There is a [new wiki](https://wiki.minecrafttransitrailway.com/start) for the mo
 - [Build](docs/BUILD.md)
 - [Migrations](docs/MIGRATIONS.md)
 - [Performance](docs/PERFORMANCE.md)
-- [Pending Java 21 features](docs/PENDING.md)
+- [Pending work and progress log](docs/PENDING.md)
 - [Runtime Model Loading and Rendering Pipeline](docs/RENDERING_PIPELINE.md)
 - [Running and Testing](docs/RUNNING.md)
 - [Schema](docs/SCHEMA.md)
@@ -57,7 +57,7 @@ For a full list, check out [this site](https://addons.minecrafttransitrailway.co
 
 ### Help Translate the Mod!
 
-The [Crowdin site for Minecraft Transit Railway](https://crwd.in/minecraft-transit-railway) is available.
+The [Crowdin site for Minecraft Transit Railway](https://crowdin.com/project/minecraft-transit-railway) is available.
 
 Crowdin is a cloud-based platform where translators can contribute to the project.
 With your help, we can translate the mod into many different languages.
@@ -76,18 +76,41 @@ You can create a free account to start translating.
 
 ### Building
 
-To build the mod, run the following commands in the root directory of the project:
+To build the mod, this project uses **Stonecutter** for managing multi-platform (Fabric + NeoForge) and multi-version builds.
 
-```gradle
-gradlew setupFiles -PminecraftVersion="<minecraft version>"
-gradlew build -PminecraftVersion="<minecraft version>"
+The build resolves `org.mtr:transport-simulation-core:+` from GitHub Packages. For local development, create a GitHub [personal access token (classic)](https://github.com/settings/tokens) with at least the `read:packages` scope, then add your credentials to your Gradle user-home properties file:
+
+`C:\Users\<you>\.gradle\gradle.properties`
+
+```properties
+gpr.user=<your-github-username>
+gpr.key=<your-personal-access-token>
 ```
 
-The mod JAR file should be generated in the following directory:
+As an alternative, Gradle will also use the `GITHUB_TOKEN` environment variable when it is set.
+
+From the repository root:
+
+```powershell
+# Setup files (one-time)
+.\gradlew.bat setupFiles -PcrowdinApiKey="<key>" -PpatreonApiKey="<key>"
+
+# Set active version and build Fabric
+.\gradlew.bat "Set active project to 1.21.4-fabric"
+.\gradlew.bat 1.21.4-fabric:build
+
+# Set active version and build NeoForge
+.\gradlew.bat "Set active project to 1.21.4-neoforge"
+.\gradlew.bat 1.21.4-neoforge:build
+```
+
+The mod JAR files should be generated in the following directory:
 
 ```
-<root>/build/release/MTR-<fabric|forge>-<mod version>+<minecraft version>.jar
+<root>/build/release/MTR-<fabric|neoforge>-<mod_version>+<minecraft_version>.jar
 ```
+
+For full build instructions, see [docs/BUILD.md](docs/BUILD.md).
 
 ## Licence
 

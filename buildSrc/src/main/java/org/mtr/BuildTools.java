@@ -15,6 +15,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.gradle.api.Project;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -28,6 +29,26 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Gradle build-time utility class invoked by custom Gradle tasks in {@code buildSrc/}.
+ *
+ * <p>Handles all code-generation and asset-preparation steps that must run before the main
+ * compilation phase:
+ * <ul>
+ *   <li>Downloading and unpacking Crowdin translations into {@code assets/mtr/lang/}.</li>
+ *   <li>Generating the {@code TranslationProvider} interface from {@code en_us.json} using
+ *       official Mojang mappings ({@code net.minecraft.network.chat.Component}).</li>
+ *   <li>Expanding vehicle JSON templates into {@code mtr_custom_resources.json}.</li>
+ *   <li>Copying the assembled JAR into the {@code build/release/} directory with the
+ *       canonical {@code MTR-<loader>-<version>+<mcVersion>.jar} name.</li>
+ *   <li>Fetching the active Patreon supporter list and generating {@code Patreon.java}.</li>
+ *   <li>Downloading and patching the upstream {@code javagl/Obj} library source.</li>
+ *   <li>Fixing shaded-library import paths for schema-generated classes.</li>
+ * </ul>
+ *
+ * <p>This class is loader-agnostic: the same instance is used for Fabric and NeoForge builds;
+ * the {@code loader} field distinguishes the two at copy time.
+ */
 public final class BuildTools {
 
 	public final String minecraftVersion;
@@ -39,13 +60,29 @@ public final class BuildTools {
 	private static final Logger LOGGER = LogManager.getLogger("Build");
 	private static final long CROWDIN_PROJECT_ID = 455212;
 
-	public BuildTools(String minecraftVersion, String loader, Project project) {
+	/**
+	 * @param minecraftVersion the Minecraft version string (e.g. {@code "1.21.4"})
+	 * @param loader           the mod loader identifier ({@code "fabric"} or {@code "neoforge"})
+	 * @param version          the mod version string (e.g. {@code "4.1.0-beta.1"})
+	 * @param projectPath      root directory of the project whose assets are being processed
+	 */
+	public BuildTools(String minecraftVersion, String loader, String version, File projectPath) {
 		this.minecraftVersion = minecraftVersion;
 		this.loader = loader;
-		path = project.getProjectDir().toPath();
-		version = project.getVersion().toString();
+		this.version = version;
+		path = projectPath.toPath();
 	}
 
+	/**
+	 * Downloads all translations from the Crowdin project and writes them into
+	 * {@code src/main/resources/assets/mtr/lang/}.
+	 * Polls until the Crowdin build finishes before downloading the zip.
+	 * A no-op when {@code crowdinKey} is empty (local/offline builds).
+	 *
+	 * @param crowdinKey Crowdin OAuth2 API key; pass an empty string to skip
+	 * @throws IOException          if the download or file-write fails
+	 * @throws InterruptedException if the polling sleep is interrupted
+	 */
 	public void downloadTranslations(String crowdinKey) throws IOException, InterruptedException {
 		if (!crowdinKey.isEmpty()) {
 			final CrowdinTranslationCreateProjectBuildForm crowdinTranslationCreateProjectBuildForm = new CrowdinTranslationCreateProjectBuildForm();
@@ -74,8 +111,20 @@ public final class BuildTools {
 		}
 	}
 
+	/**
+	 * Generates {@code src/main/java/org/mtr/generated/lang/TranslationProvider.java} from
+	 * {@code assets/mtr/lang/en_us.json}.
+	 *
+	 * <p>The generated interface exposes one {@code TranslationHolder} constant per translation
+	 * key. {@code TranslationHolder} wraps the key and delegates to
+	 * {@code net.minecraft.network.chat.Component} (official Mojang mappings) for
+	 * {@link net.minecraft.network.chat.MutableComponent} / {@link net.minecraft.network.chat.Component}
+	 * conversions. The generated source is overwritten on every build; do not edit it by hand.
+	 *
+	 * @throws IOException if reading the language file or writing the generated source fails
+	 */
 	public void generateTranslations() throws IOException {
-		final StringBuilder stringBuilder = new StringBuilder("package org.mtr.generated.lang;import net.minecraft.client.MinecraftClient;import net.minecraft.text.MutableText;import net.minecraft.text.Text;public interface TranslationProvider{\n");
+		final StringBuilder stringBuilder = new StringBuilder("package org.mtr.generated.lang;import net.minecraft.client.Minecraft;import net.minecraft.network.chat.Component;import net.minecraft.network.chat.MutableComponent;public interface TranslationProvider{\n");
 		JsonParser.parseString(FileUtils.readFileToString(path.resolve("src/main/resources/assets/mtr/lang/en_us.json").toFile(), StandardCharsets.UTF_8)).getAsJsonObject().entrySet().forEach(entry -> {
 			final String key = entry.getKey();
 			if (key.startsWith("block.") || key.startsWith("item.") || key.startsWith("entity.") || key.startsWith("itemGroup.")) {
@@ -84,14 +133,24 @@ public final class BuildTools {
 			stringBuilder.append(String.format("TranslationHolder %s=new TranslationHolder(\"%s\");\n", key.replace(".", "_").toUpperCase(Locale.ENGLISH), key));
 		});
 		stringBuilder.append("class TranslationHolder{public final String key;private TranslationHolder(String key){this.key=key;}\n");
-		stringBuilder.append("public MutableText getMutableText(Object...arguments){return Text.translatable(key,arguments);}\n");
-		stringBuilder.append("public Text getText(Object...arguments){return Text.translatable(key,arguments);}\n");
+		stringBuilder.append("public MutableComponent getMutableText(Object...arguments){return Component.translatable(key,arguments);}\n");
+		stringBuilder.append("public Component getText(Object...arguments){return Component.translatable(key,arguments);}\n");
 		stringBuilder.append("public String getString(Object...arguments){return getMutableText(arguments).getString();}\n");
-		stringBuilder.append("public int width(Object...arguments){return MinecraftClient.getInstance().textRenderer.getWidth(getMutableText(arguments));}\n");
+		stringBuilder.append("public int width(Object...arguments){return Minecraft.getInstance().font.width(getMutableText(arguments));}\n");
 		stringBuilder.append("}}");
 		FileUtils.write(path.resolve("src/main/java/org/mtr/generated/lang/TranslationProvider.java").toFile(), stringBuilder.toString(), StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * Expands vehicle JSON templates in {@code src/main/vehicle_templates/} and writes the
+	 * combined vehicle list into {@code src/main/resources/assets/mtr/mtr_custom_resources.json}
+	 * by replacing the {@code "@token@"} placeholder in the template file.
+	 *
+	 * <p>Each template file defines a {@code replacements} object whose arrays drive N
+	 * variations; bogie positions are computed automatically from the vehicle length.
+	 *
+	 * @throws IOException if reading templates or writing the output file fails
+	 */
 	public void copyVehicleTemplates() throws IOException {
 		final ObjectArrayList<String> vehicles = new ObjectArrayList<>();
 
@@ -148,12 +207,29 @@ public final class BuildTools {
 		);
 	}
 
+	/**
+	 * Copies the assembled JAR from {@code build/libs/mtr-<loader>-<version>.jar} into
+	 * {@code <root>/build/release/MTR-<loader>-<version>+<minecraftVersion>.jar}, creating
+	 * the release directory if it does not exist.
+	 *
+	 * @throws IOException if the copy fails
+	 */
 	public void copyBuildFile() throws IOException {
 		final Path directory = path.getParent().resolve("build/release");
 		Files.createDirectories(directory);
 		Files.copy(path.resolve(String.format("build/libs/mtr-%s-%s.jar", loader, version)), directory.resolve(String.format("MTR-%s-%s+%s.jar", loader, version, minecraftVersion)), StandardCopyOption.REPLACE_EXISTING);
 	}
 
+	/**
+	 * Fetches the active Patreon supporter list via the Patreon OAuth2 v2 API and generates
+	 * {@code src/main/java/org/mtr/Patreon.java} with a {@code PATREON_LIST} constant array.
+	 *
+	 * <p>Supporters are sorted by tier amount descending, then by lifetime support descending.
+	 * A no-op (empty list) when {@code key} is empty (local/offline builds).
+	 *
+	 * @param key Patreon Bearer API token; pass an empty string to skip
+	 * @throws IOException if writing the generated source file fails
+	 */
 	public void getPatreonList(String key) throws IOException {
 		final ObjectArrayList<Patreon> patreonList = new ObjectArrayList<>();
 		final StringBuilder stringBuilder = new StringBuilder("package org.mtr;public class Patreon{public final String name;public final String tierTitle;public final int tierAmount;public final int tierColor;");
@@ -186,6 +262,16 @@ public final class BuildTools {
 		FileUtils.write(path.resolve("src/main/java/org/mtr/Patreon.java").toFile(), stringBuilder, StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * Downloads the upstream {@code javagl/Obj} library source zip and extracts it into
+	 * {@code src/main/java/de/javagl/obj/}, applying two source patches:
+	 * <ul>
+	 *   <li>{@code DefaultObj.java} — records the active material group name per face.</li>
+	 *   <li>{@code ObjReader.java} — groups objects by name so that {@code g}/{@code o}
+	 *       directives with the same identifier are merged into one group.</li>
+	 * </ul>
+	 * Errors are logged and suppressed so the build continues even when offline.
+	 */
 	public void setupObjLibrary() {
 		final Path libraryPath = path.resolve("src/main/java/de/javagl/obj");
 		try {
@@ -223,16 +309,21 @@ public final class BuildTools {
 
 	/**
 	 * Temporary method to fix imports to use shadowed relocated library paths generated by Transport Simulation Core's schema generator.
+	 * Also moves these files to the correct directory.
 	 */
 	public void fixImports(Project project, String inputPath) {
-		try (final Stream<Path> schemasStream = Files.list(project.getRootDir().toPath().resolve("common/src/main/java/org/mtr/").resolve(inputPath))) {
-			schemasStream.forEach(path -> {
+		final Path additionalPath = Paths.get("src/main/java/org/mtr/").resolve(inputPath);
+		final Path originalDirectory = project.getProjectDir().toPath().resolve(additionalPath);
+		try (final Stream<Path> schemasStream = Files.list(originalDirectory)) {
+			schemasStream.forEach(filePath -> {
 				try {
-					Files.writeString(path, Files.readString(path).replace("it.unimi", "org.mtr.libraries.it.unimi"));
+					Files.createDirectories(path.resolve(additionalPath));
+					Files.writeString(path.resolve(additionalPath).resolve(filePath.getFileName()), Files.readString(filePath).replace("it.unimi", "org.mtr.libraries.it.unimi"));
 				} catch (Exception e) {
 					LOGGER.error("", e);
 				}
 			});
+			FileUtils.deleteDirectory(originalDirectory.toFile());
 		} catch (Exception e) {
 			LOGGER.error("", e);
 		}

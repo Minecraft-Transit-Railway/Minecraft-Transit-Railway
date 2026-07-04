@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "mtr:signal_connector_brown"
+		},
+		{
+			"tag": "c:redstone_dusts"
+		}
+	],
+	"result": {
+		"id": "mtr:advanced_signal_connector_brown"
+	}
+}

@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = "${mod_issues}"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "${mod_author}"
+description = "${mod_description}"
+logoFile = "assets/mtr/textures/block/sign/logo.png"
+
+[["dependencies.${mod_id}"]]
+modId = "neoforge"
+type = "required"
+ordering = "NONE"
+side = "BOTH"
+
+[["dependencies.${mod_id}"]]
+modId = "minecraft"
+type = "required"
+ordering = "NONE"
+side = "BOTH"
+versionRange = "${minecraft_version}"
+
+[[mixins]]
+config = "mtr.mixins.json"

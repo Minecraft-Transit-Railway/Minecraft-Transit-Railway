@@ -38,6 +38,8 @@ From repository root:
 ```
 
 `setupFiles` performs Java generation and import fix-ups used by this repository's shaded package layout.
+These tasks are module-scoped (`common`) and do not require setting a Stonecutter active version first — they are loader-independent.
+If you also need to rebuild the full platform-specific JAR after regenerating, see [BUILD.md](BUILD.md) for the Stonecutter build commands.
 
 ## Rules
 

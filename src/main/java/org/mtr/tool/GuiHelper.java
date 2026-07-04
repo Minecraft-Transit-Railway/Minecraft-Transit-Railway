@@ -1,0 +1,343 @@
+package org.mtr.tool;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import gg.essential.elementa.components.UIContainer;
+import gg.essential.elementa.components.UIWrappedText;
+import gg.essential.elementa.constraints.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import org.jspecify.annotations.Nullable;
+import org.mtr.core.tool.Utilities;
+import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.widget.ListComponent;
+import org.mtr.widget.ScrollPanelComponent;
+import org.mtr.widget.SlotBackgroundComponent;
+
+import java.awt.*;
+
+//? if < 1.21.4 {
+/*import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.Util;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderStateShard;
+
+import java.util.function.Function;
+*///? }
+
+/**
+ * GUI colour palette and widget rendering utilities.
+ * Provides consistent dark theme colours and helpers for text rendering, tooltips, and list components.
+ */
+public final class GuiHelper {
+
+	public static final int BLACK_COLOR = 0xFF000000;
+	/**
+	 * Alternative dark background colour. Most dark themes don't use pitch black for the background.
+	 */
+	public static final int BACKGROUND_COLOR = 0xFF111111;
+	public static final int BACKGROUND_ACCENT_COLOR = 0xFF333333;
+	public static final int MINECRAFT_GUI_TITLE_TEXT_COLOR = 0xFF404040;
+	/**
+	 * Mouse hover colour, regardless of if the control is selected or not.
+	 */
+	public static final int HOVER_COLOR = 0xFF444444;
+	public static final int SCROLL_BAR_COLOR = HOVER_COLOR;
+	public static final int TEXT_SELECTION_COLOR = 0xFF666666;
+	public static final int DISABLED_TEXT_COLOR = 0xFF777777;
+	public static final int SCROLL_BAR_HOVER_COLOR = 0xFF888888;
+	public static final int DARK_GRAY_COLOR = 0xFF555555;
+	public static final int LIGHT_GRAY_COLOR = 0xFFAAAAAA;
+	public static final int WHITE_COLOR = 0xFFFFFFFF;
+	public static final int RED_COLOR = 0xFFFF0000;
+	public static final int YELLOW_COLOR = 0xFFFFFF00;
+	public static final int TRANSLUCENT_BACKGROUND_COLOR = 0xCC111111;
+
+	public static final int MINECRAFT_FONT_SIZE = 8;
+	public static final int MINECRAFT_TEXT_LINE_HEIGHT = 10;
+	public static final int DEFAULT_PADDING = MINECRAFT_FONT_SIZE / 2;
+	/**
+	 * The standard line size for consistent GUI design. This can be used for both the line height and square button sizes.
+	 */
+	public static final int DEFAULT_LINE_SIZE = MINECRAFT_FONT_SIZE + DEFAULT_PADDING * 2;
+	public static final int DEFAULT_ICON_SIZE = DEFAULT_LINE_SIZE - DEFAULT_PADDING;
+	public static final int STANDARD_SCREEN_WIDTH = 320;
+
+	public static final ResourceLocation ADD_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_add.png");
+	public static final ResourceLocation EDIT_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_edit.png");
+	public static final ResourceLocation UP_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_up.png");
+	public static final ResourceLocation DOWN_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_down.png");
+	public static final ResourceLocation CHEVRON_UP_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_chevron_up.png");
+	public static final ResourceLocation CHEVRON_DOWN_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_chevron_down.png");
+	public static final ResourceLocation EXPAND_ALL_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_expand_all.png");
+	public static final ResourceLocation COLLAPSE_ALL_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_collapse_all.png");
+	public static final ResourceLocation ZOOM_IN_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_zoom_in.png");
+	public static final ResourceLocation ZOOM_OUT_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_zoom_out.png");
+	public static final ResourceLocation FIND_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_find.png");
+	public static final ResourceLocation CHECK_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_check.png");
+	public static final ResourceLocation RESET_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_reset.png");
+	public static final ResourceLocation COLOR_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_color.png");
+	public static final ResourceLocation SELECT_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_select.png");
+	public static final ResourceLocation MAP_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_map.png");
+	public static final ResourceLocation EDITOR_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_editor.png");
+	public static final ResourceLocation SETTINGS_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_settings.png");
+	public static final ResourceLocation DELETE_TEXTURE_ID = ResourceLocation.parse("textures/gui/sprites/mtr/icon_delete.png");
+
+	private static final int SHADOW_COLOR_DARK = 0x11000000;
+	private static final int SHADOW_COLOR_LIGHT = 0x11FFFFFF;
+
+//? if < 1.21.4 {
+	/*private static final RenderStateShard.ShaderStateShard POSITION_TEXTURE_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
+	private static final Function<ResourceLocation, RenderType> GUI_TEXTURED = Util.memoize((resourceLocation) -> RenderType.create("gui_textured", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 786432, RenderType.CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false)).setShaderState(POSITION_TEXTURE_COLOR_SHADER).setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST).createCompositeState(false)));
+*///? }
+
+	/**
+	 * Creates a constraint for a fixed aspect ratio of an inside rectangle with a border.
+	 *
+	 * @param aspect  the aspect ratio
+	 * @param padding the padding of one edge
+	 * @return the {@link SizeConstraint}
+	 */
+	public static SizeConstraint createAspectConstraintWithPadding(float aspect, float padding) {
+		return new AdditiveConstraint(new ScaleConstraint(new SubtractiveConstraint(new AspectConstraint(), new PixelConstraint(padding * 2)), aspect), new PixelConstraint(padding * 2));
+	}
+
+	/**
+	 * Creates a label for a GUI with 0.8x text scale.
+	 *
+	 * @param container the parent container
+	 * @param text      the text to render
+	 */
+	public static UIWrappedText createLabel(UIContainer container, String text) {
+		final UIContainer innerContainer = (UIContainer) new UIContainer()
+			.setChildOf(container)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new ChildBasedSizeConstraint());
+
+		final UIWrappedText uiWrappedText = (UIWrappedText) new UIWrappedText(text, false)
+			.setChildOf(innerContainer)
+			.setWidth(new RelativeConstraint())
+			.setColor(new Color(GuiHelper.MINECRAFT_GUI_TITLE_TEXT_COLOR))
+			.setTextScale(new PixelConstraint(0.8F));
+
+		new UIContainer()
+			.setChildOf(innerContainer)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(1));
+
+		return uiWrappedText;
+	}
+
+	/**
+	 * Creates a fixed height spacing for a GUI.
+	 *
+	 * @param container the parent container
+	 */
+	public static void createSpacing(UIContainer container) {
+		new UIContainer()
+			.setChildOf(container)
+			.setY(new SiblingConstraint())
+			.setWidth(new RelativeConstraint())
+			.setHeight(new PixelConstraint(GuiHelper.DEFAULT_PADDING));
+	}
+
+	/**
+	 * Creates a scrollable list component with the default dark background.
+	 *
+	 * @param slotBackgroundComponent the parent container
+	 * @return the {@link ListComponent}
+	 */
+	public static <T> ListComponent<T> createListComponent(SlotBackgroundComponent slotBackgroundComponent) {
+		slotBackgroundComponent.setBackgroundColor(new Color(GuiHelper.BACKGROUND_COLOR));
+
+		final ScrollPanelComponent scrollPanelComponent = (ScrollPanelComponent) new ScrollPanelComponent(false)
+			.setChildOf(slotBackgroundComponent)
+			.setX(new CenterConstraint())
+			.setY(new CenterConstraint())
+			.setWidth(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)))
+			.setHeight(new SubtractiveConstraint(new RelativeConstraint(), new PixelConstraint(2)));
+
+		scrollPanelComponent.setScrollbarColor(Color.WHITE);
+
+		final ListComponent<T> listComponent = new ListComponent<>();
+		listComponent.setChildOf(scrollPanelComponent.contentContainer).setWidth(new RelativeConstraint()).setHeight(new RelativeConstraint());
+		return listComponent;
+	}
+
+	public static Color rainbowColor() {
+		final long timeR = System.currentTimeMillis() % 3000;
+		final long timeG = (timeR + 1000) % 3000;
+		final long timeB = (timeR + 2000) % 3000;
+		return new Color(
+			timeR < 2000 ? (float) Math.sin(timeR * Math.PI / 2000) : 0,
+			timeG < 2000 ? (float) Math.sin(timeG * Math.PI / 2000) : 0,
+			timeB < 2000 ? (float) Math.sin(timeB * Math.PI / 2000) : 0
+		);
+	}
+
+	public static RenderType getGuiTexturedRenderType(ResourceLocation texture) {
+//? if >= 1.21.4 {
+		return RenderType.guiTextured(texture);
+//? } else {
+		/*return GUI_TEXTURED.apply(texture);
+//
+*///? }
+	}
+
+	/**
+	 * Draws a circle (without antialiasing). This can be used to indicate a platform number.
+	 * The circle is drawn by a series of vertical bars. Colours are applied as horizontal stripes across the circle.
+	 *
+	 * @param drawing    the {@link Drawing} object
+	 * @param x          the left coordinate of the circle
+	 * @param y          the top coordinate of the circle
+	 * @param diameter   the circle's diameter
+	 * @param resolution how many vertical bars to use for drawing
+	 * @param colors     colours to fill the circle
+	 */
+	public static void drawCircle(Drawing drawing, double x, double y, double diameter, int resolution, IntArrayList colors) {
+		if (diameter <= 0 || resolution < 2 || colors.isEmpty()) {
+			return;
+		}
+
+		// Create circle parts
+		final int halfResolution = resolution / 2;
+		final double radius = diameter / 2;
+		final double pixelSize = radius / halfResolution;
+		final ObjectArrayList<CirclePart> circleParts = new ObjectArrayList<>();
+
+		for (int i = 0; i < halfResolution; i++) {
+			final double sliceY = radius - pixelSize * (i + 0.5);
+			final double sliceLength = Math.round(Math.sqrt(radius * radius - sliceY * sliceY) / pixelSize) * pixelSize * 2;
+			final CirclePart lastCirclePart = Utilities.getElement(circleParts, -1);
+			if (lastCirclePart == null || lastCirclePart.sliceLength != sliceLength) {
+				circleParts.add(new CirclePart(sliceLength, i * pixelSize, (i + 1) * pixelSize));
+			} else {
+				lastCirclePart.sliceEnd += pixelSize;
+			}
+		}
+
+		if (circleParts.isEmpty()) {
+			return;
+		}
+
+		// Mirror circle parts
+		final CirclePart lastCirclePart = circleParts.getLast();
+		lastCirclePart.sliceEnd += lastCirclePart.sliceEnd - lastCirclePart.sliceStart;
+		for (int i = circleParts.size() - 2; i >= 0; i--) {
+			final CirclePart copyCirclePart = circleParts.get(i);
+			final CirclePart previousCirclePart = circleParts.getLast();
+			circleParts.add(new CirclePart(copyCirclePart.sliceLength, previousCirclePart.sliceEnd, previousCirclePart.sliceEnd + copyCirclePart.sliceEnd - copyCirclePart.sliceStart));
+		}
+
+		// Create colour parts
+		final double colorSize = diameter / colors.size();
+		final ObjectArrayList<CircleColorPart> circleColorParts = new ObjectArrayList<>();
+
+		for (int i = 0; i < colors.size(); i++) {
+			circleColorParts.add(new CircleColorPart(i * colorSize, (i + 1) * colorSize, colors.getInt(i)));
+		}
+
+		// Draw circle
+		circleParts.forEach(circlePart -> {
+			int circleColorPartsToRemove = 0;
+			final double emptySpace = (diameter - circlePart.sliceLength) / 2;
+			for (final CircleColorPart circleColorPart : circleColorParts) {
+				if (circleColorPart.sliceStart >= circlePart.sliceEnd) {
+					break;
+				}
+				if (circleColorPart.sliceEnd <= circlePart.sliceEnd) {
+					circleColorPartsToRemove++;
+				}
+				drawing.setVertices(
+					x + emptySpace,
+					y + Math.max(circlePart.sliceStart, circleColorPart.sliceStart),
+					x + diameter - emptySpace,
+					y + Math.min(circlePart.sliceEnd, circleColorPart.sliceEnd)
+				).setColor((circleColorPart.color | 0xFF000000)).draw();
+			}
+			for (int i = 0; i < circleColorPartsToRemove; i++) {
+				circleColorParts.removeFirst();
+			}
+		});
+	}
+
+	/**
+	 * Draws a shadow around an area that fades from a translucent colour to completely transparent.
+	 *
+	 * @param drawing      the {@link Drawing} object
+	 * @param x1           the left coordinate of the area
+	 * @param y1           the top coordinate of the area
+	 * @param x2           the right coordinate of the area
+	 * @param y2           the bottom coordinate of the area
+	 * @param shadowRadius how far the shadow should extend; if positive, the shadow is drawn on the outside of the area, if negative, the shadow is drawn on the inside of the area
+	 * @param intensity    how strong the shadow is; if positive, a black shadow, if negative, a white shadow
+	 */
+	public static void drawShadow(Drawing drawing, double x1, double y1, double x2, double y2, int z, double shadowRadius, int intensity) {
+		if (intensity != 0) {
+			final double r1 = shadowRadius > 0 ? shadowRadius : 0;
+			final double r2 = shadowRadius < 0 ? -shadowRadius : 0;
+			final int color = ((0x11 * Math.abs(intensity)) & 0xFF) << 24 | (intensity > 0 ? BLACK_COLOR : WHITE_COLOR) & 0x00FFFFFF;
+			final int color1 = shadowRadius > 0 ? color : 0;
+			final int color2 = shadowRadius < 0 ? color : 0;
+			drawing.setVertices(x1 - r1, y1 - r1, z, x1 - r1, y2 + r1, z, x1 + r2, y2 - r2, z, x1 + r2, y1 + r2, z).setColor(color2, color2, color1, color1).draw();
+			drawing.setVertices(x2 - r2, y1 + r2, z, x2 - r2, y2 - r2, z, x2 + r1, y2 + r1, z, x2 + r1, y1 - r1, z).setColor(color1, color1, color2, color2).draw();
+			drawing.setVertices(x1 - r1, y1 - r1, z, x1 + r2, y1 + r2, z, x2 - r2, y1 + r2, z, x2 + r1, y1 - r1, z).setColor(color2, color1, color1, color2).draw();
+			drawing.setVertices(x1 + r2, y2 - r2, z, x1 - r1, y2 + r1, z, x2 + r1, y2 + r1, z, x2 - r2, y2 - r2, z).setColor(color1, color2, color2, color1).draw();
+		}
+	}
+
+	public static void drawShadowWH(Drawing drawing, float x, float y, float width, float height, int z, double shadowRadius, int intensity) {
+		drawShadow(drawing, x, y, x + width, y + height, z, shadowRadius, intensity);
+	}
+
+	/**
+	 * Draws text (in a GUI) with the Minecraft font from double coordinates. No shadow is drawn.
+	 */
+	public static void drawText(GuiGraphics context, @Nullable String text, double x, double y, double z, int color) {
+		drawText(context, text, null, x, y, z, color);
+	}
+
+	/**
+	 * Draws text (in a GUI) with the Minecraft font from double coordinates. No shadow is drawn.
+	 */
+	public static void drawText(GuiGraphics context, @Nullable Component text, double x, double y, double z, int color) {
+		drawText(context, null, text, x, y, z, color);
+	}
+
+	private static void drawText(GuiGraphics context, @Nullable String text1, @Nullable Component text2, double x, double y, double z, int color) {
+		if ((text1 != null || text2 != null) && (color & 0xFF000000) != 0) {
+			final PoseStack matrixStack = context.pose();
+			matrixStack.pushPose();
+			matrixStack.translate(x, y, z);
+			if (text1 != null) {
+				context.drawString(Minecraft.getInstance().font, text1, 0, 0, color, false);
+			} else {
+				context.drawString(Minecraft.getInstance().font, text2, 0, 0, color, false);
+			}
+			matrixStack.popPose();
+		}
+	}
+
+	private static class CirclePart {
+
+		private final double sliceLength;
+		private final double sliceStart;
+		private double sliceEnd;
+
+		private CirclePart(double sliceLength, double sliceStart, double sliceEnd) {
+			this.sliceLength = sliceLength;
+			this.sliceStart = sliceStart;
+			this.sliceEnd = sliceEnd;
+		}
+	}
+
+	private record CircleColorPart(double sliceStart, double sliceEnd, int color) {
+	}
+}
