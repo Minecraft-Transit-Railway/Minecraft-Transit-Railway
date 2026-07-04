@@ -82,7 +82,7 @@ public final class DashboardScreen extends WindowBase {
 	private final UIContainer landmarksTabContainer;
 	private final UIContainer landmarkTabContainer;
 
-	private static final int PANEL_WIDTH = 144;
+	private static final int PANEL_WIDTH = 160;
 
 	public DashboardScreen(TransportMode transportMode) {
 		this.transportMode = transportMode;
@@ -99,7 +99,7 @@ public final class DashboardScreen extends WindowBase {
 
 		stationsTabButton = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(tabButtonsContainer)
-			.setWidth(new PixelConstraint((float) PANEL_WIDTH / Tab.values().length));
+			.setWidth(new PixelConstraint((float) PANEL_WIDTH / 3)); // TODO hide homes and landmarks tabs
 
 		stationsTabButton.setText(TranslationProvider.GUI_MTR_STATIONS.getString());
 		stationsTabButton.onClick(() -> stopEditingAndSelectTab(Tab.STATIONS));
@@ -107,7 +107,7 @@ public final class DashboardScreen extends WindowBase {
 		routesTabButton = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(tabButtonsContainer)
 			.setX(new SiblingConstraint())
-			.setWidth(new PixelConstraint((float) PANEL_WIDTH / Tab.values().length));
+			.setWidth(new PixelConstraint((float) PANEL_WIDTH / 3)); // TODO hide homes and landmarks tabs
 
 		routesTabButton.setText(TranslationProvider.GUI_MTR_ROUTES.getString());
 		routesTabButton.onClick(() -> stopEditingAndSelectTab(Tab.ROUTES));
@@ -115,7 +115,7 @@ public final class DashboardScreen extends WindowBase {
 		depotsTabButton = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(tabButtonsContainer)
 			.setX(new SiblingConstraint())
-			.setWidth(new PixelConstraint((float) PANEL_WIDTH / Tab.values().length));
+			.setWidth(new PixelConstraint((float) PANEL_WIDTH / 3)); // TODO hide homes and landmarks tabs
 
 		depotsTabButton.setText(TranslationProvider.GUI_MTR_DEPOTS.getString());
 		depotsTabButton.onClick(() -> stopEditingAndSelectTab(Tab.DEPOTS));
@@ -123,7 +123,7 @@ public final class DashboardScreen extends WindowBase {
 		homesTabButton = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(tabButtonsContainer)
 			.setX(new SiblingConstraint())
-			.setWidth(new PixelConstraint((float) PANEL_WIDTH / Tab.values().length));
+			.setWidth(new PixelConstraint((float) 0 * PANEL_WIDTH / Tab.values().length)); // TODO hide homes and landmarks tabs
 
 		homesTabButton.setText(TranslationProvider.GUI_MTR_HOMES.getString());
 		homesTabButton.onClick(() -> stopEditingAndSelectTab(Tab.HOMES));
@@ -131,7 +131,7 @@ public final class DashboardScreen extends WindowBase {
 		landmarksTabButton = (ButtonComponent) new ButtonComponent(false)
 			.setChildOf(tabButtonsContainer)
 			.setX(new SiblingConstraint())
-			.setWidth(new PixelConstraint((float) PANEL_WIDTH / Tab.values().length));
+			.setWidth(new PixelConstraint((float) 0 * PANEL_WIDTH / Tab.values().length)); // TODO hide homes and landmarks tabs
 
 		landmarksTabButton.setText(TranslationProvider.GUI_MTR_LANDMARKS.getString());
 		landmarksTabButton.onClick(() -> stopEditingAndSelectTab(Tab.LANDMARKS));
