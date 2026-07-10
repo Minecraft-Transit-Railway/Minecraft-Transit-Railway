@@ -13,6 +13,7 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.SerializedDataBase;
 import org.mtr.core.servlet.OperationProcessor;
 import org.mtr.core.tool.Utilities;
+import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.item.ItemNodeModifierSelectableBlockBase;
 import org.mtr.libraries.com.google.gson.JsonObject;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -64,8 +65,10 @@ public final class PacketApplyRailAction extends PacketHandler {
 			clientData.sync();
 
 			final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = ItemNodeModifierSelectableBlockBase.findRailPath(clientData.positionsToRail, startPosition, endPosition);
-			if (path != null && path.size() > 1) {
+			if (path != null && !path.isEmpty()) {
 				ItemNodeModifierSelectableBlockBase.processRailActions(serverPlayerEntity, path);
+			} else {
+				serverPlayerEntity.displayClientMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
 			}
 		}, SerializedDataBase.class);
 	}

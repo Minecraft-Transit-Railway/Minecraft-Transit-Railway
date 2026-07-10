@@ -113,6 +113,11 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayer serverPlayerEntity) {
 	}
 
+	@Override
+	protected void onEndClick(UseOnContext context, BlockPos posEnd) {
+		context.getItemInHand().remove(DataComponentTypes.TRANSPORT_MODE.get());
+	}
+
 	protected BlockState getSavedState(ItemStack stack) {
 		final Integer blockId = stack.get(DataComponentTypes.BLOCK_ID.get());
 		return blockId == null ? Blocks.AIR.defaultBlockState() : Block.stateById(blockId);
