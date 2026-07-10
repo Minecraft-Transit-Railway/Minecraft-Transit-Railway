@@ -35,6 +35,8 @@ public class RailAction {
 	private final Rail rail;
 	private final int radius;
 	private final int height;
+	private final int batchIndex;
+	private final int batchTotal;
 	private final double length;
 	@Nullable
 	private final BlockState state;
@@ -43,7 +45,7 @@ public class RailAction {
 
 	private static final double INCREMENT = 0.1;
 
-	public RailAction(ServerLevel serverWorld, ServerPlayer serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state) {
+	public RailAction(ServerLevel serverWorld, ServerPlayer serverPlayerEntity, RailActionType railActionType, Rail rail, int radius, int height, @Nullable BlockState state, int batchIndex, int batchTotal) {
 		id = new Random().nextLong();
 		this.serverWorld = serverWorld;
 		uuid = serverPlayerEntity.getUUID();
@@ -52,6 +54,8 @@ public class RailAction {
 		this.rail = rail;
 		this.radius = radius;
 		this.height = height;
+		this.batchIndex = batchIndex;
+		this.batchTotal = batchTotal;
 		this.state = state;
 		isSlab = state != null && state.getBlock() instanceof SlabBlock;
 		length = rail.railMath.getLength();
@@ -168,7 +172,10 @@ public class RailAction {
 	private void sendProgressMessage(float percentage) {
 		final Player playerEntity = serverWorld.getPlayerByUUID(uuid);
 		if (playerEntity != null) {
-			playerEntity.displayClientMessage(railActionType.progressTranslation.getText(percentage), true);
+			final Component message = batchTotal > 1
+				? railActionType.batchProgressTranslation.getText(percentage, batchIndex, batchTotal)
+				: railActionType.progressTranslation.getText(percentage);
+			playerEntity.displayClientMessage(message, true);
 		}
 	}
 

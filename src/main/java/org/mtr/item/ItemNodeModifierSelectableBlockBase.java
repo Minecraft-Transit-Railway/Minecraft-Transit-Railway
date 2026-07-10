@@ -18,7 +18,6 @@ import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockNode;
-import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
@@ -76,10 +75,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			if (player != null && !player.isShiftKeyDown()) {
 				final BlockPos startPos = context.getItemInHand().get(DataComponentTypes.START_POS.get());
 				if (startPos != null && clickCondition(context)) {
-					final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = findRailPath(startPos, context.getClickedPos());
-					if (path != null && path.size() > 1) {
-						RegistryClient.sendPacketToServer(new PacketApplyRailAction(path));
-					}
+					RegistryClient.sendPacketToServer(new PacketApplyRailAction(startPos, context.getClickedPos()));
 				}
 			}
 		}
@@ -109,7 +105,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	protected final void onConnect(Level world, ItemStack itemStack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayer serverPlayerEntity) {
 		if (serverPlayerEntity != null) {
-			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height));
+			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height, 1, 1));
 		}
 	}
 
@@ -122,11 +118,13 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		return blockId == null ? Blocks.AIR.defaultBlockState() : Block.stateById(blockId);
 	}
 
-	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height);
+	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal);
 
 	/**
 	 * Processes a multi-node rail action from a packet. Retrieves the item from the player's hand and
-	 * calls {@link #onConnect(Rail, ServerPlayer, ItemStack, int, int)} for each rail pair.
+	 * calls {@link #onConnect(Rail, ServerPlayer, ItemStack, int, int, int, int)} for each rail pair.
+	 * batchIndex reflects each pair's position in the original start-to-end path, not lookup completion
+	 * order, since {@link #getRail} resolves asynchronously.
 	 */
 	public static void processRailActions(ServerPlayer serverPlayerEntity, ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs) {
 		final ItemStack itemStack = serverPlayerEntity.getMainHandItem();
@@ -136,23 +134,26 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 
 		final int capturedRadius = item.radius;
 		final int capturedHeight = item.height;
-		for (final ObjectObjectImmutablePair<BlockPos, BlockPos> pair : railPairs) {
+		final int batchTotal = railPairs.size();
+		for (int i = 0; i < railPairs.size(); i++) {
+			final ObjectObjectImmutablePair<BlockPos, BlockPos> pair = railPairs.get(i);
+			final int batchIndex = i + 1;
 			getRail(
 				serverPlayerEntity.serverLevel(),
 				pair.left(),
 				pair.right(),
 				serverPlayerEntity,
-				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight)
+				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight, batchIndex, batchTotal)
 			);
 		}
 	}
 
+	/**
+	 * BFS over a rail graph (client cache or a server-fetched snapshot) to find a path of rail
+	 * segments connecting startPosition to endPosition.
+	 */
 	@Nullable
-	private static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(BlockPos startBlockPos, BlockPos endBlockPos) {
-		final Position startPosition = MTR.blockPosToPosition(startBlockPos);
-		final Position endPosition = MTR.blockPosToPosition(endBlockPos);
-		final Object2ObjectOpenHashMap<Position, Object2ObjectOpenHashMap<Position, Rail>> positionsToRail = MinecraftClientData.getInstance().positionsToRail;
-
+	public static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(Object2ObjectOpenHashMap<Position, Object2ObjectOpenHashMap<Position, Rail>> positionsToRail, Position startPosition, Position endPosition) {
 		if (!positionsToRail.containsKey(startPosition)) {
 			return null;
 		}
