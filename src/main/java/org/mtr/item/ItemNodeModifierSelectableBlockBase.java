@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.MTRClient;
 import org.mtr.block.BlockNode;
-import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
@@ -74,13 +73,12 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			}
 		}
 
-		final Player player = context.getPlayer();
-		if (context.getLevel().isClientSide() && player != null && !player.isShiftKeyDown()) {
-			final BlockPos startPos = context.getItemInHand().get(DataComponentTypes.START_POS.get());
-			if (startPos != null && clickCondition(context)) {
-				final ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> path = findRailPath(startPos, context.getClickedPos());
-				if (path != null && path.size() > 1) {
-					RegistryClient.sendPacketToServer(new PacketApplyRailAction(path));
+		if (context.getLevel().isClientSide()) {
+			final Player player = context.getPlayer();
+			if (player != null && !player.isShiftKeyDown()) {
+				final BlockPos startPos = context.getItemInHand().get(DataComponentTypes.START_POS.get());
+				if (startPos != null && clickCondition(context)) {
+					RegistryClient.sendPacketToServer(new PacketApplyRailAction(startPos, context.getClickedPos()));
 				}
 			}
 		}
@@ -140,7 +138,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	protected final void onConnect(Level world, ItemStack itemStack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayer serverPlayerEntity) {
 		if (serverPlayerEntity != null) {
-			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height));
+			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height, 1, 1));
 		}
 	}
 
@@ -148,41 +146,77 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	protected final void onRemove(Level world, BlockPos posStart, BlockPos posEnd, @Nullable ServerPlayer serverPlayerEntity) {
 	}
 
+	@Override
+	protected void onEndClick(UseOnContext context, BlockPos posEnd) {
+		context.getItemInHand().remove(DataComponentTypes.TRANSPORT_MODE.get());
+	}
+
 	protected BlockState getSavedState(ItemStack stack) {
 		final Integer blockId = stack.get(DataComponentTypes.BLOCK_ID.get());
 		return blockId == null ? Blocks.AIR.defaultBlockState() : Block.stateById(blockId);
 	}
 
-	public abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height);
+	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal);
 
+	/**
+	 * Processes a multi-node rail action from a packet. Retrieves the item from the player's hand and
+	 * calls {@link #onConnect(Rail, ServerPlayer, ItemStack, int, int, int, int)} for each rail pair.
+	 * batchIndex reflects each pair's position in the original start-to-end path, not lookup completion
+	 * order, since {@link #getRail} resolves asynchronously.
+	 */
+	public static void processRailActions(ServerPlayer serverPlayerEntity, ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs) {
+		final ItemStack itemStack = serverPlayerEntity.getMainHandItem();
+		if (!(itemStack.getItem() instanceof ItemNodeModifierSelectableBlockBase item)) {
+			return;
+		}
+
+		final int capturedRadius = item.radius;
+		final int capturedHeight = item.height;
+		final int batchTotal = railPairs.size();
+		for (int i = 0; i < railPairs.size(); i++) {
+			final ObjectObjectImmutablePair<BlockPos, BlockPos> pair = railPairs.get(i);
+			final int batchIndex = i + 1;
+			getRail(
+				serverPlayerEntity.serverLevel(),
+				pair.left(),
+				pair.right(),
+				serverPlayerEntity,
+				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight, batchIndex, batchTotal)
+			);
+		}
+	}
+
+	/**
+	 * BFS over a rail graph (client cache or a server-fetched snapshot) to find a path of rail
+	 * segments connecting startPosition to endPosition.
+	 */
 	@Nullable
-	private static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(BlockPos startBlockPos, BlockPos endBlockPos) {
-		final Position startPosition = MTR.blockPosToPosition(startBlockPos);
-		final Position endPosition = MTR.blockPosToPosition(endBlockPos);
-
-		if (!MinecraftClientData.getInstance().positionsToRail.containsKey(startPosition)) {
+	public static ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> findRailPath(Object2ObjectOpenHashMap<Position, Object2ObjectOpenHashMap<Position, Rail>> positionsToRail, Position startPosition, Position endPosition) {
+		if (!positionsToRail.containsKey(startPosition)) {
 			return null;
 		}
 
+		// BFS to find any path from start to end through connected rail positions
 		final Object2ObjectOpenHashMap<Position, Position> parentMap = new Object2ObjectOpenHashMap<>();
 		final ObjectArrayList<Position> queue = new ObjectArrayList<>();
 		queue.add(startPosition);
 		parentMap.put(startPosition, startPosition);
 
 		boolean found = false;
-		int queueIndex = 0;
-		while (queueIndex < queue.size()) {
-			final Position current = queue.get(queueIndex++);
+		for (int queueIndex = 0; queueIndex < queue.size(); queueIndex++) {
+			final Position current = queue.get(queueIndex);
 			if (current.equals(endPosition)) {
 				found = true;
 				break;
 			}
-			MinecraftClientData.getInstance().positionsToRail.getOrDefault(current, new Object2ObjectOpenHashMap<>()).keySet().forEach(neighbor -> {
+
+			final Object2ObjectOpenHashMap<Position, Rail> neighbors = positionsToRail.getOrDefault(current, new Object2ObjectOpenHashMap<>());
+			for (final Position neighbor : neighbors.keySet()) {
 				if (!parentMap.containsKey(neighbor)) {
 					parentMap.put(neighbor, current);
 					queue.add(neighbor);
 				}
-			});
+			}
 		}
 
 		if (!found) {
