@@ -449,6 +449,10 @@ public final class MTRClient {
 		return Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage().getString();
 	}
 
+	public static String getUseText() {
+		return Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage().getString();
+	}
+
 	public static float getGameTick() {
 		return gameMillis / 50F;
 	}

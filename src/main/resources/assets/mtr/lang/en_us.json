@@ -719,6 +719,7 @@
 	"tooltip.mtr.selected_material": "Selected Material: %s",
 	"tooltip.mtr.shift_right_click_to_clear": "Hold %s and use on|a %s to reset",
 	"tooltip.mtr.shift_right_click_to_select_material": "Hold %s and use on|a block to select material",
+	"tooltip.mtr.use_in_air_to_change_side": "%s in the air to change side",
 	"tooltip.mtr.wall_side": "Side: %s",
 	"tooltip.mtr.wall_side_both": "Both Sides",
 	"tooltip.mtr.wall_side_left": "Left Side",

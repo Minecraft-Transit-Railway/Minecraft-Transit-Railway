@@ -117,6 +117,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		}
 
 		if (hasWallSideMode()) {
+			tooltip.add(TranslationProvider.TOOLTIP_MTR_USE_IN_AIR_TO_CHANGE_SIDE.getMutableText(MTRClient.getUseText()).withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
 			tooltip.add(Component.translatable("tooltip.mtr.wall_side", getWallSideComponent(stack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0))).withStyle(ChatFormatting.GRAY));
 		}
 
