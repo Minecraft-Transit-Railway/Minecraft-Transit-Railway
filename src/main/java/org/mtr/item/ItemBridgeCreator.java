@@ -1,5 +1,6 @@
 package org.mtr.item;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +15,7 @@ public class ItemBridgeCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal) {
+	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal, BlockPos posStart, BlockPos posEnd) {
 		final BlockState blockState = getSavedState(itemStack);
 		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForBridge(rail, serverPlayerEntity, radius, blockState, batchIndex, batchTotal));
 	}

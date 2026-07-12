@@ -1,5 +1,6 @@
 package org.mtr.item;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,7 @@ public class ItemTunnelCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal) {
+	protected void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal, BlockPos posStart, BlockPos posEnd) {
 		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForTunnel(rail, serverPlayerEntity, radius, height, batchIndex, batchTotal));
 	}
 }

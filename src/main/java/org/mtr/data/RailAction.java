@@ -167,7 +167,7 @@ public class RailAction {
 				final Vector editPos = pos1.add(Vec3.multiply(x, 0, x));
 				final boolean wholeNumber = Math.floor(editPos.y()) == Math.ceil(editPos.y());
 				final boolean isEdge = Math.abs(x) > radius - INCREMENT || radius == 0;
-				final boolean isSelectedEdge = side == 0 || radius == 0 || (side == 1 ? x < 0 : x > 0);
+				final boolean isSelectedEdge = side == 0 || radius == 0 || (side == 1 ? x > 0 : x < 0);
 				if (includeMiddle || (isEdge && isSelectedEdge)) {
 					for (int y = 0; y <= height; y++) {
 						if (y < height || !wholeNumber || (height == 0 && radius == 0)) {

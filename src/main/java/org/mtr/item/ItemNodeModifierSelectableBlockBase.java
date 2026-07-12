@@ -25,6 +25,7 @@ import org.mtr.core.data.Position;
 import org.mtr.core.data.Rail;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.tool.Angle;
+import org.mtr.core.tool.Vector;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -139,7 +140,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	@Override
 	protected final void onConnect(Level world, ItemStack itemStack, TransportMode transportMode, BlockState stateStart, BlockState stateEnd, BlockPos posStart, BlockPos posEnd, Angle facingStart, Angle facingEnd, @Nullable ServerPlayer serverPlayerEntity) {
 		if (serverPlayerEntity != null) {
-			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height, 1, 1));
+			getRail(world, posStart, posEnd, serverPlayerEntity, rail -> onConnect(rail, serverPlayerEntity, itemStack, radius, height, 1, 1, posStart, posEnd));
 		}
 	}
 
@@ -157,14 +158,19 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 		return blockId == null ? Blocks.AIR.defaultBlockState() : Block.stateById(blockId);
 	}
 
-	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal);
+	protected abstract void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal, BlockPos posStart, BlockPos posEnd);
 
-	/**
-	 * Processes a multi-node rail action from a packet. Retrieves the item from the player's hand and
-	 * calls {@link #onConnect(Rail, ServerPlayer, ItemStack, int, int, int, int)} for each rail pair.
-	 * batchIndex reflects each pair's position in the original start-to-end path, not lookup completion
-	 * order, since {@link #getRail} resolves asynchronously.
-	 */
+	protected static int resolveWallSide(Rail rail, BlockPos posStart, BlockPos posEnd, int wallSide) {
+		if (wallSide == 0) {
+			return wallSide;
+		}
+		final Vector positionAtStartOfRail = rail.railMath.getPosition(0, false);
+		final Vector start = new Vector(posStart.getX(), posStart.getY(), posStart.getZ());
+		final Vector end = new Vector(posEnd.getX(), posEnd.getY(), posEnd.getZ());
+		final boolean matchesClickOrder = positionAtStartOfRail.distanceTo(start) <= positionAtStartOfRail.distanceTo(end);
+		return matchesClickOrder ? wallSide : (wallSide == 1 ? 2 : 1);
+	}
+
 	public static void processRailActions(ServerPlayer serverPlayerEntity, ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs) {
 		final ItemStack itemStack = serverPlayerEntity.getMainHandItem();
 		if (!(itemStack.getItem() instanceof ItemNodeModifierSelectableBlockBase item)) {
@@ -182,7 +188,7 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 				pair.left(),
 				pair.right(),
 				serverPlayerEntity,
-				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight, batchIndex, batchTotal)
+				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight, batchIndex, batchTotal, pair.left(), pair.right())
 			);
 		}
 	}
