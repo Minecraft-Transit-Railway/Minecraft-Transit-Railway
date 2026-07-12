@@ -20,9 +20,9 @@ public class ItemBridgeWallCreator extends ItemNodeModifierSelectableBlockBase {
 	}
 
 	@Override
-	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height) {
+	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal) {
 		final BlockState blockState = getSavedState(itemStack);
 		final int wallSide = itemStack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0);
-		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForBridgeWall(rail, serverPlayerEntity, radius, height, blockState, wallSide));
+		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForBridgeWall(rail, serverPlayerEntity, radius, height, blockState, wallSide, batchIndex, batchTotal));
 	}
 }
