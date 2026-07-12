@@ -38,13 +38,13 @@ public class RailActionModule {
 		broadcastUpdate();
 	}
 
-	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int wallSide, int batchIndex, int batchTotal) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState, wallSide, batchIndex , batchTotal));
+	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int batchIndex, int batchTotal, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState, batchIndex , batchTotal, wallSide));
 		broadcastUpdate();
 	}
 
-	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int wallSide, int batchIndex, int batchTotal) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState, wallSide, batchIndex , batchTotal));
+	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int batchIndex, int batchTotal, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState, batchIndex, batchTotal, wallSide));
 		broadcastUpdate();
 	}
 
