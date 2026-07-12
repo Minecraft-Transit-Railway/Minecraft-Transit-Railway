@@ -151,10 +151,6 @@ public class RailAction {
 		return create(includeMiddle, false, 0, consumer);
 	}
 
-	private boolean create(boolean includeMiddle, boolean sidesOnly, Consumer<Vector> consumer) {
-		return create(includeMiddle, sidesOnly, 0, consumer);
-	}
-
 	private boolean create(boolean includeMiddle, boolean sidesOnly, int side, Consumer<Vector> consumer) {
 		final long startTime = System.currentTimeMillis();
 		while (System.currentTimeMillis() - startTime < 2) {
