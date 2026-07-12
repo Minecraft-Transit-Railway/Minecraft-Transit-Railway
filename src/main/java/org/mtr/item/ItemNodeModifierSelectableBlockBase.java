@@ -36,6 +36,10 @@ import org.mtr.registry.RegistryClient;
 
 import java.util.List;
 
+//? if < 1.21.4 {
+/*import net.minecraft.world.InteractionResultHolder;
+*///? }
+
 public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifierBase {
 
 	private final boolean canSaveBlock;
@@ -88,15 +92,23 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 	}
 
 	@Override
+	//? if >= 1.21.4 {
 	public InteractionResult use(Level world, Player player, InteractionHand hand) {
+	//? } else {
+	/*public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+	*///? }
+		final ItemStack stack = player.getItemInHand(hand);
 		if (hasWallSideMode() && player.isShiftKeyDown() && player.pick(player.blockInteractionRange(), 0, false).getType() == HitResult.Type.MISS) {
 			if (!world.isClientSide()) {
-				final ItemStack stack = player.getItemInHand(hand);
 				final int next = (stack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0) + 1) % 3;
 				stack.set(DataComponentTypes.WALL_SIDE.get(), next);
 				player.displayClientMessage(getWallSideComponent(next), true);
 			}
+			//? if >= 1.21.4 {
 			return InteractionResult.SUCCESS;
+			//? } else {
+			/*return InteractionResultHolder.sidedSuccess(stack, world.isClientSide());*/
+			//? }
 		}
 		return super.use(world, player, hand);
 	}
