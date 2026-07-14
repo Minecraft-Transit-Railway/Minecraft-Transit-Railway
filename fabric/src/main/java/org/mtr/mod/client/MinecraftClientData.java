@@ -71,7 +71,7 @@ public final class MinecraftClientData extends ClientData {
 			if (railWrapper == null) {
 				railWrapperList.put(hexId, new RailWrapper(rail, hexId));
 			} else {
-				railWrapper.rail = rail;
+				railWrapper.setRail(rail);
 			}
 		}));
 
@@ -231,8 +231,8 @@ public final class MinecraftClientData extends ClientData {
 
 		public boolean shouldRender;
 		public final String hexId;
-		public final Vec3d startVector;
-		public final Vec3d endVector;
+		public Vec3d startVector;
+		public Vec3d endVector;
 		private Rail rail;
 
 		private RailWrapper(Rail rail, String hexId) {
@@ -240,6 +240,16 @@ public final class MinecraftClientData extends ClientData {
 			this.hexId = hexId;
 			startVector = new Vec3d(rail.railMath.minX, rail.railMath.minY, rail.railMath.minZ);
 			endVector = new Vec3d(rail.railMath.maxX, rail.railMath.maxY, rail.railMath.maxZ);
+		}
+
+		private void setRail(Rail rail) {
+			this.rail = rail;
+			final RailMath railMath = rail.railMath;
+			if (startVector.getX() != railMath.minX || startVector.getY() != railMath.minY || startVector.getZ() != railMath.minZ ||
+					endVector.getX() != railMath.maxX || endVector.getY() != railMath.maxY || endVector.getZ() != railMath.maxZ) {
+				startVector = new Vec3d(railMath.minX, railMath.minY, railMath.minZ);
+				endVector = new Vec3d(railMath.maxX, railMath.maxY, railMath.maxZ);
+			}
 		}
 
 		public Rail getRail() {

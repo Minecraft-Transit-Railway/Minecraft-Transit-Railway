@@ -71,7 +71,7 @@ public class RenderRails implements IGui {
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
 			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
+				final boolean shouldRender = RailCullingHelper.isVisible(railWrapper, camera, occlusionCullingInstance);
 				return () -> railWrapper.shouldRender = shouldRender;
 			});
 			if (railWrapper.shouldRender) {
