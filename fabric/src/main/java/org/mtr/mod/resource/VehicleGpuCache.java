@@ -1,0 +1,223 @@
+package org.mtr.mod.resource;
+
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import org.mtr.mapping.holder.Matrix4f;
+import org.mtr.mapping.render.batch.MaterialProperties;
+import org.mtr.mod.render.GpuObjDebugStats;
+import org.mtr.mod.render.ObjBatchKey;
+import org.mtr.mod.render.StoredMatrixTransformations;
+import org.mtr.mod.render.StaticObjMesh;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Supplier;
+
+public final class VehicleGpuCache {
+
+	public static final VehicleGpuCache EMPTY = new VehicleGpuCache(new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
+	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition;
+	public final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<FallbackPart>> fallbackPartsByCondition;
+	public final ObjectArrayList<ConditionBucket> conditionBuckets = new ObjectArrayList<>();
+	public final boolean hasParts;
+
+	public VehicleGpuCache(
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<Part>> partsByCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<FallbackPart>> fallbackPartsByCondition,
+			Object2ObjectOpenHashMap<PartCondition, PlacementStats> placementStatsByCondition
+	) {
+		this.partsByCondition = partsByCondition;
+		this.fallbackPartsByCondition = fallbackPartsByCondition;
+		final ObjectArraySet<PartCondition> partConditions = new ObjectArraySet<>();
+		partConditions.addAll(partsByCondition.keySet());
+		partConditions.addAll(fallbackPartsByCondition.keySet());
+		partConditions.addAll(placementStatsByCondition.keySet());
+		partConditions.forEach(partCondition -> {
+			final ObjectArrayList<Part> parts = partsByCondition.getOrDefault(partCondition, new ObjectArrayList<>());
+			final ObjectArrayList<FallbackPart> fallbackParts = fallbackPartsByCondition.getOrDefault(partCondition, new ObjectArrayList<>());
+			final PlacementStats placementStats = placementStatsByCondition.get(partCondition);
+			conditionBuckets.add(new ConditionBucket(partCondition, parts, fallbackParts, placementStats == null ? 0 : placementStats.supportedPlacementCount, placementStats == null ? new long[GpuObjDebugStats.VehicleFallbackReason.values().length] : placementStats.copyUnsupportedReasonCounts()));
+		});
+		hasParts = conditionBuckets.stream().anyMatch(conditionBucket -> !conditionBucket.parts.isEmpty() || !conditionBucket.fallbackParts.isEmpty());
+	}
+
+	public static PlacementStats getOrCreatePlacementStats(Object2ObjectOpenHashMap<PartCondition, PlacementStats> placementStatsByCondition, PartCondition condition) {
+		return placementStatsByCondition.computeIfAbsent(condition, key -> new PlacementStats());
+	}
+
+	public static final class PlacementStats {
+
+		private long supportedPlacementCount;
+		private final long[] unsupportedReasonCounts = new long[GpuObjDebugStats.VehicleFallbackReason.values().length];
+
+		public void incrementSupportedPlacementCount() {
+			supportedPlacementCount++;
+		}
+
+		public void addSupportedPlacementCount(long count) {
+			supportedPlacementCount += count;
+		}
+
+		public void incrementUnsupportedReasonCount(GpuObjDebugStats.VehicleFallbackReason reason) {
+			unsupportedReasonCounts[reason.ordinal()]++;
+		}
+
+		public void addUnsupportedReasonCount(GpuObjDebugStats.VehicleFallbackReason reason, long count) {
+			unsupportedReasonCounts[reason.ordinal()] += count;
+		}
+
+		private long[] copyUnsupportedReasonCounts() {
+			return Arrays.copyOf(unsupportedReasonCounts, unsupportedReasonCounts.length);
+		}
+	}
+
+	public static final class ConditionBucket {
+
+		public final PartCondition condition;
+		public final ObjectArrayList<Part> parts;
+		public final ObjectArrayList<PartGroup> partGroups;
+		public final ObjectArrayList<FallbackPart> fallbackParts;
+		public final long supportedPlacementCount;
+		private final long[] unsupportedPlacementCounts;
+
+		private ConditionBucket(PartCondition condition, ObjectArrayList<Part> parts, ObjectArrayList<FallbackPart> fallbackParts, long supportedPlacementCount, long[] unsupportedPlacementCounts) {
+			this.condition = condition;
+			this.parts = parts;
+			partGroups = createPartGroups(parts);
+			this.fallbackParts = fallbackParts;
+			this.supportedPlacementCount = supportedPlacementCount;
+			this.unsupportedPlacementCounts = unsupportedPlacementCounts;
+		}
+
+		public long getUnsupportedPlacementCount(GpuObjDebugStats.VehicleFallbackReason reason) {
+			return unsupportedPlacementCounts[reason.ordinal()];
+		}
+
+		public long getTotalUnsupportedPlacementCount() {
+			long count = 0;
+			for (final long unsupportedPlacementCount : unsupportedPlacementCounts) {
+				count += unsupportedPlacementCount;
+			}
+			return count;
+		}
+	}
+
+	public static final class PartGroup {
+
+		public final StaticObjMesh mesh;
+		public final ObjBatchKey batchKey;
+		public final MaterialProperties materialProperties;
+		public final ObjectArrayList<Part> parts = new ObjectArrayList<>();
+
+		private PartGroup(Part part) {
+			mesh = part.mesh;
+			batchKey = part.batchKey;
+			materialProperties = part.materialProperties;
+		}
+	}
+
+	public static final class FallbackPart {
+
+		public final PartCondition condition;
+		public final GpuObjDebugStats.VehicleFallbackReason reason;
+		public final String debugSampleId;
+		@Nullable
+		private final OptimizedModelWrapper model;
+
+		public FallbackPart(PartCondition condition, @Nullable OptimizedModelWrapper model, GpuObjDebugStats.VehicleFallbackReason reason, String debugSampleId) {
+			this.condition = condition;
+			this.model = model;
+			this.reason = reason;
+			this.debugSampleId = debugSampleId;
+		}
+
+		@Nullable
+		public OptimizedModelWrapper getOrCreateModel() {
+			return model;
+		}
+
+		public String describeQueueState(boolean renderable) {
+			return String.format("condition=%s reason=%s renderable=%s sample=%s", condition, reason.label, renderable, debugSampleId);
+		}
+	}
+
+	public static final class Part {
+
+		public final PartCondition condition;
+		public final StaticObjMesh mesh;
+		public final ObjBatchKey batchKey;
+		public final MaterialProperties materialProperties;
+		public final Matrix4f localTransform;
+		public final StoredMatrixTransformations normalReferenceLocalTransformations;
+		public final String debugSampleId;
+		@Nullable
+		private final Supplier<OptimizedModelWrapper> normalReferenceModelSupplier;
+		@Nullable
+		private OptimizedModelWrapper normalReferenceModel;
+
+		public Part(PartCondition condition, StaticObjMesh mesh, ObjBatchKey batchKey, MaterialProperties materialProperties, Matrix4f localTransform, StoredMatrixTransformations normalReferenceLocalTransformations, String debugSampleId, @Nullable Supplier<OptimizedModelWrapper> normalReferenceModelSupplier) {
+			this.condition = condition;
+			this.mesh = mesh;
+			this.batchKey = batchKey;
+			this.materialProperties = materialProperties;
+			this.localTransform = localTransform;
+			this.normalReferenceLocalTransformations = normalReferenceLocalTransformations;
+			this.debugSampleId = debugSampleId;
+			this.normalReferenceModelSupplier = normalReferenceModelSupplier;
+		}
+
+		@Nullable
+		public OptimizedModelWrapper getOrCreateNormalReferenceModel() {
+			if (normalReferenceModel == null && normalReferenceModelSupplier != null) {
+				normalReferenceModel = normalReferenceModelSupplier.get();
+			}
+			return normalReferenceModel;
+		}
+	}
+
+	private static ObjectArrayList<PartGroup> createPartGroups(ObjectArrayList<Part> parts) {
+		final ObjectArrayList<PartGroup> partGroups = new ObjectArrayList<>();
+		final Object2ObjectOpenHashMap<PartGroupKey, PartGroup> partGroupsByKey = new Object2ObjectOpenHashMap<>();
+		parts.forEach(part -> {
+			final PartGroupKey key = new PartGroupKey(part.batchKey, part.mesh);
+			PartGroup partGroup = partGroupsByKey.get(key);
+			if (partGroup == null) {
+				partGroup = new PartGroup(part);
+				partGroupsByKey.put(key, partGroup);
+				partGroups.add(partGroup);
+			}
+			partGroup.parts.add(part);
+		});
+		return partGroups;
+	}
+
+	private static final class PartGroupKey {
+
+		private final ObjBatchKey batchKey;
+		private final StaticObjMesh mesh;
+
+		private PartGroupKey(ObjBatchKey batchKey, StaticObjMesh mesh) {
+			this.batchKey = batchKey;
+			this.mesh = mesh;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) {
+				return true;
+			}
+			if (!(object instanceof PartGroupKey)) {
+				return false;
+			}
+			final PartGroupKey that = (PartGroupKey) object;
+			return Objects.equals(batchKey, that.batchKey) && mesh == that.mesh;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(batchKey, System.identityHashCode(mesh));
+		}
+	}
+}

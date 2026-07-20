@@ -1,4 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.api.GradleException
+import org.gradle.internal.os.OperatingSystem
 import org.mtr.core.Generator
 import org.mtr.core.WebserverSetup
 import org.mtr.mod.BuildTools
@@ -8,6 +10,10 @@ plugins {
 }
 
 final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", project)
+final File websiteDir = project.file("../website")
+final File websiteDistDir = project.file("../website/dist/website/browser")
+final File websiteCliScript = project.file("../website/node_modules/@angular/cli/bin/ng.js")
+final String npmCommand = OperatingSystem.current().isWindows() ? "npm.cmd" : "npm"
 
 loom {
 	accessWidenerPath = file("src/main/resources/mtr.accesswidener")
@@ -56,6 +62,37 @@ tasks.register("setupWebsiteFiles") {
 //	}
 
 	Generator.generateTypeScript(project, "schema/resource", "../website/src/app/entity/generated")
+}
+
+tasks.register("buildWebsite") {
+	dependsOn("setupWebsiteFiles")
+	inputs.files(
+			fileTree("${websiteDir}/src"),
+			"${websiteDir}/angular.json",
+			"${websiteDir}/package.json",
+			"${websiteDir}/package-lock.json",
+			"${websiteDir}/tsconfig.json",
+			"${websiteDir}/tsconfig.app.json"
+	)
+	outputs.dir(websiteDistDir)
+
+	doLast {
+		if (!file("${websiteDir}/node_modules").exists()) {
+			throw new GradleException("Website dependencies are missing. Run `npm install` in website/ before running setupFiles.")
+		}
+		if (!websiteCliScript.exists()) {
+			throw new GradleException("Website dependencies are incomplete. Run `npm install` in website/ before running setupFiles.")
+		}
+
+		exec {
+			workingDir(websiteDir)
+			commandLine(npmCommand, "run", "build", "--", "--base-href=/creator/")
+		}
+
+		if (!websiteDistDir.exists()) {
+			throw new GradleException("Website build did not produce ${websiteDistDir}.")
+		}
+	}
 }
 
 tasks.register("setupFiles") {
@@ -116,6 +153,10 @@ tasks.register("setupFiles") {
 	Generator.generateJava(project, "schema/resource", "mod/generated/resource", false, "core.data", "mod.resource")
 	Generator.generateJava(project, "schema/legacy", "legacy/generated/resource", false)
 	WebserverSetup.setup(project.rootDir, "fabric/", "mod")
+}
+
+tasks.named("setupFiles").configure {
+	dependsOn("buildWebsite")
 }
 
 build {

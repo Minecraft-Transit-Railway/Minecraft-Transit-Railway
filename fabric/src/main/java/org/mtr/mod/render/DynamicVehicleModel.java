@@ -29,6 +29,8 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> fallbackObjModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
 	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
@@ -75,7 +77,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
 		this.texture = texture;
 		this.modelProperties = modelProperties;
-		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
+		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, fallbackObjModelsForPartConditionAndRenderStage, fallbackObjModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
 		testDoors(id);
 	}
 
@@ -97,7 +99,9 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartCondition,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionDoorsClosed,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartCondition,
-			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartConditionDoorsClosed
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsForPartConditionDoorsClosed,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsForPartCondition,
+			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsForPartConditionDoorsClosed
 	) {
 		floors.addAll(this.floors);
 		doorways.addAll(this.doorways);
@@ -106,11 +110,15 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		materialGroupsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, materialGroupsForRenderStage) -> Data.put(materialGroupsForPartConditionDoorsClosed, partCondition, materialGroupsForRenderStage.values(), ObjectArrayList::new));
 		objModelsForPartConditionAndRenderStage.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartCondition, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 		objModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(objModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
+		fallbackObjModelsForPartConditionAndRenderStage.forEach((partCondition, objModelsForRenderStage) -> Data.put(fallbackObjModelsForPartCondition, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
+		fallbackObjModelsForPartConditionAndRenderStageDoorsClosed.forEach((partCondition, objModelsForRenderStage) -> Data.put(fallbackObjModelsForPartConditionDoorsClosed, partCondition, flattenCollection(objModelsForRenderStage.values()), ObjectArrayList::new));
 
 		materialGroupsForPartConditionAndRenderStage.clear();
 		materialGroupsForPartConditionAndRenderStageDoorsClosed.clear();
 		objModelsForPartConditionAndRenderStage.clear();
 		objModelsForPartConditionAndRenderStageDoorsClosed.clear();
+		fallbackObjModelsForPartConditionAndRenderStage.clear();
+		fallbackObjModelsForPartConditionAndRenderStageDoorsClosed.clear();
 	}
 
 	/**

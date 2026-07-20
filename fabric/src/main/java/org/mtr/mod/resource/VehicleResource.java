@@ -1,10 +1,12 @@
 package org.mtr.mod.resource;
 
+import org.mtr.core.data.Data;
 import org.mtr.core.data.TransportMode;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.*;
+import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.holder.Box;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.TextHelper;
@@ -14,7 +16,12 @@ import org.mtr.mod.config.Config;
 import org.mtr.mod.data.VehicleExtension;
 import org.mtr.mod.generated.resource.VehicleResourceSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import org.mtr.mod.render.GpuObjCompat;
+import org.mtr.mod.render.GpuObjDebugStats;
+import org.mtr.mod.render.GpuObjRenderer;
+import org.mtr.mod.render.InstancingMatrixHelper;
 import org.mtr.mod.render.MainRenderer;
+import org.mtr.mod.render.PositionAndRotation;
 import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.StoredMatrixTransformations;
 import org.mtr.mod.sound.BveVehicleSound;
@@ -205,12 +212,21 @@ public final class VehicleResource extends VehicleResourceSchema {
 			if (data2 != null) {
 				final VehicleResourceCacheHolder data3 = data2.getData(force);
 				if (data3 != null) {
+					if (force && GpuObjCompat.isSupported()) {
+						data3.vehicleGpuCache.getData(true);
+						data3.bogie1GpuCache.getData(true);
+						data3.bogie2GpuCache.getData(true);
+					}
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = data3.optimizedModels.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsDoorsClosed = data3.optimizedModelsDoorsClosed.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie1 = data3.optimizedModelsBogie1.getData(force);
 					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModelsBogie2 = data3.optimizedModelsBogie2.getData(force);
-					if (optimizedModels != null && optimizedModelsDoorsClosed != null && optimizedModelsBogie1 != null && optimizedModelsBogie2 != null) {
-						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModels = data3.fallbackOptimizedModels.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsDoorsClosed = data3.fallbackOptimizedModelsDoorsClosed.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie1 = data3.fallbackOptimizedModelsBogie1.getData(force);
+					final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> fallbackOptimizedModelsBogie2 = data3.fallbackOptimizedModelsBogie2.getData(force);
+					if (optimizedModels != null && optimizedModelsDoorsClosed != null && optimizedModelsBogie1 != null && optimizedModelsBogie2 != null && fallbackOptimizedModels != null && fallbackOptimizedModelsDoorsClosed != null && fallbackOptimizedModelsBogie1 != null && fallbackOptimizedModelsBogie2 != null) {
+						return new VehicleResourceCache(data3.floors, data3.doorways, optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, fallbackOptimizedModels, fallbackOptimizedModelsDoorsClosed, fallbackOptimizedModelsBogie1, fallbackOptimizedModelsBogie2, data3.vehicleGpuCache, data3.bogie1GpuCache, data3.bogie2GpuCache);
 					}
 				}
 			}
@@ -218,21 +234,50 @@ public final class VehicleResource extends VehicleResourceSchema {
 		return null;
 	}
 
-	public void queue(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int totalCars, int light, boolean noOpenDoorways) {
+	public void queue(StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, PositionAndRotation positionAndRotation, double oscillationAmount, VehicleExtension vehicle, int carNumber, int totalCars, int light, boolean noOpenDoorways) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(carNumber, totalCars, false);
 		if (vehicleResourceCache != null) {
-			if (noOpenDoorways) {
-				queue(vehicleResourceCache.optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
+			final boolean instancingEnabled = Config.getClient().getEnableGpuObjInstancing();
+			final boolean optimizedRenderingAvailable = GpuObjCompat.isSupported();
+			final VehicleGpuCache vehicleGpuCache = vehicleResourceCache.vehicleGpuCache.getData(false);
+			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && vehicleGpuCache != null && vehicleGpuCache.hasParts && queueGpu(vehicleGpuCache, storedMatrixTransformations, useDefaultOffset, vehicle, light, noOpenDoorways);
+			if (gpuQueued) {
+				recordVehicleCoverage(vehicleGpuCache, vehicle, noOpenDoorways, null, 0);
+				if (noOpenDoorways) {
+					queueIfPresent(vehicleResourceCache.fallbackOptimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
+				} else {
+					queueIfPresent(vehicleResourceCache.fallbackOptimizedModels, storedMatrixTransformations, vehicle, light, false);
+				}
 			} else {
-				queue(vehicleResourceCache.optimizedModels, storedMatrixTransformations, vehicle, light, false);
+				final GpuObjDebugStats.VehicleFallbackReason supportedFallbackReason = !instancingEnabled ? GpuObjDebugStats.VehicleFallbackReason.CONFIG_DISABLED : !optimizedRenderingAvailable ? GpuObjDebugStats.VehicleFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE : GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE;
+				final int approximateFallbackCount = noOpenDoorways ? countRenderableModels(vehicleResourceCache.optimizedModelsDoorsClosed, vehicle, true) : countRenderableModels(vehicleResourceCache.optimizedModels, vehicle, false);
+				recordVehicleCoverage(vehicleGpuCache, vehicle, noOpenDoorways, supportedFallbackReason, approximateFallbackCount);
+				if (noOpenDoorways) {
+					queueIfPresent(vehicleResourceCache.optimizedModelsDoorsClosed, storedMatrixTransformations, vehicle, light, true);
+				} else {
+					queueIfPresent(vehicleResourceCache.optimizedModels, storedMatrixTransformations, vehicle, light, false);
+				}
 			}
 		}
 	}
 
-	public void queueBogie(int bogieIndex, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light) {
+	public void queueBogie(int bogieIndex, Supplier<StoredMatrixTransformations> storedMatrixTransformationsSupplier, boolean useDefaultOffset, PositionAndRotation positionAndRotation, VehicleExtension vehicle, int light) {
 		final VehicleResourceCache vehicleResourceCache = getCachedVehicleResource(0, 1, false);
 		if (vehicleResourceCache != null && Utilities.isBetween(bogieIndex, 0, 1)) {
-			queue(bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
+			final boolean instancingEnabled = Config.getClient().getEnableGpuObjInstancing();
+			final boolean optimizedRenderingAvailable = GpuObjCompat.isSupported();
+			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = bogieIndex == 0 ? vehicleResourceCache.optimizedModelsBogie1 : vehicleResourceCache.optimizedModelsBogie2;
+			final VehicleGpuCache bogieGpuCache = (bogieIndex == 0 ? vehicleResourceCache.bogie1GpuCache : vehicleResourceCache.bogie2GpuCache).getData(false);
+			final StoredMatrixTransformations storedMatrixTransformations = storedMatrixTransformationsSupplier.get();
+			final boolean gpuQueued = instancingEnabled && optimizedRenderingAvailable && bogieGpuCache != null && bogieGpuCache.hasParts && queueGpu(bogieGpuCache, storedMatrixTransformations, useDefaultOffset, vehicle, light, true);
+			if (gpuQueued) {
+				recordVehicleCoverage(bogieGpuCache, vehicle, true, null, 0);
+				queueIfPresent(bogieIndex == 0 ? vehicleResourceCache.fallbackOptimizedModelsBogie1 : vehicleResourceCache.fallbackOptimizedModelsBogie2, storedMatrixTransformations, vehicle, light, true);
+			} else {
+				final GpuObjDebugStats.VehicleFallbackReason supportedFallbackReason = !instancingEnabled ? GpuObjDebugStats.VehicleFallbackReason.CONFIG_DISABLED : !optimizedRenderingAvailable ? GpuObjDebugStats.VehicleFallbackReason.OPTIMIZED_RENDERING_UNAVAILABLE : GpuObjDebugStats.VehicleFallbackReason.GPU_CACHE_UNAVAILABLE;
+				recordVehicleCoverage(bogieGpuCache, vehicle, true, supportedFallbackReason, countRenderableModels(optimizedModels, vehicle, true));
+				queueIfPresent(optimizedModels, storedMatrixTransformations, vehicle, light, true);
+			}
 		}
 	}
 
@@ -433,9 +478,12 @@ public final class VehicleResource extends VehicleResourceSchema {
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie1Model = new Object2ObjectOpenHashMap<>();
 				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsBogie2Model = new Object2ObjectOpenHashMap<>();
-
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsModel = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsModelDoorsClosed = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie1Model = new Object2ObjectOpenHashMap<>();
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> fallbackObjModelsBogie2Model = new Object2ObjectOpenHashMap<>();
 				final ObjectArrayList<Box> doorways = new ObjectArrayList<>();
-				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed), force);
+				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(floors, doorways, materialGroupsModel, materialGroupsModelDoorsClosed, objModelsModel, objModelsModelDoorsClosed, fallbackObjModelsModel, fallbackObjModelsModelDoorsClosed), force);
 
 				if (floors.isEmpty() && doorways.isEmpty()) {
 					Init.LOGGER.info("[{}] No floors or doorways found in vehicle models", id);
@@ -451,15 +499,19 @@ public final class VehicleResource extends VehicleResourceSchema {
 				}
 
 				forEachNonNull(allModelsList, dynamicVehicleModel -> dynamicVehicleModel.modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.mapDoors(doorways)), force);
-				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model), force);
-				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model), force);
+				forEachNonNull(bogie1Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie1Model, new Object2ObjectOpenHashMap<>(), objModelsBogie1Model, fallbackObjModelsBogie1Model, new Object2ObjectOpenHashMap<>()), force);
+				forEachNonNull(bogie2Models, dynamicVehicleModel -> dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroupsBogie2Model, new Object2ObjectOpenHashMap<>(), objModelsBogie2Model, fallbackObjModelsBogie2Model, new Object2ObjectOpenHashMap<>()), force);
 
 				return new CachedResource<>(() -> {
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels = writeToOptimizedModels(materialGroupsModel, objModelsModel, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, objModelsModelDoorsClosed, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, objModelsBogie1Model, modelLifespan);
 					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, objModelsBogie2Model, modelLifespan);
-					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels = writeToOptimizedModels(materialGroupsModel, fallbackObjModelsModel, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed = writeToOptimizedModels(materialGroupsModelDoorsClosed, fallbackObjModelsModelDoorsClosed, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1 = writeToOptimizedModels(materialGroupsBogie1Model, fallbackObjModelsBogie1Model, modelLifespan);
+					final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2 = writeToOptimizedModels(materialGroupsBogie2Model, fallbackObjModelsBogie2Model, modelLifespan);
+					return new VehicleResourceCacheHolder(new ObjectImmutableList<>(floors), new ObjectImmutableList<>(doorways), optimizedModels, optimizedModelsDoorsClosed, optimizedModelsBogie1, optimizedModelsBogie2, fallbackOptimizedModels, fallbackOptimizedModelsDoorsClosed, fallbackOptimizedModelsBogie1, fallbackOptimizedModelsBogie2, writeToGpuCache(allModelsList, modelLifespan), writeToGpuCache(bogie1Models, modelLifespan), writeToGpuCache(bogie2Models, modelLifespan));
 				}, modelLifespan);
 			}, modelLifespan);
 		}, modelLifespan);
@@ -527,6 +579,147 @@ public final class VehicleResource extends VehicleResourceSchema {
 		});
 	}
 
+	private static void queueIfPresent(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+		if (countRenderableModels(optimizedModels, vehicle, noOpenDoorways) > 0) {
+			queue(optimizedModels, storedMatrixTransformations, vehicle, light, noOpenDoorways);
+		}
+	}
+
+	private static void queueIfPresent(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, Supplier<StoredMatrixTransformations> storedMatrixTransformationsSupplier, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+		if (countRenderableModels(optimizedModels, vehicle, noOpenDoorways) > 0) {
+			queue(optimizedModels, storedMatrixTransformationsSupplier.get(), vehicle, light, noOpenDoorways);
+		}
+	}
+
+	private static boolean queueGpu(@Nullable VehicleGpuCache vehicleGpuCache, StoredMatrixTransformations storedMatrixTransformations, boolean useDefaultOffset, VehicleExtension vehicle, int light, boolean noOpenDoorways) {
+		final boolean collectTimings = GpuObjDebugStats.shouldCollectTimings();
+		final long startNanos = collectTimings ? System.nanoTime() : 0;
+		try {
+			if (vehicleGpuCache == null || !GpuObjCompat.isSupported()) {
+				return false;
+			}
+
+			final boolean diagnosticsEnabled = GpuObjDebugStats.isDiagnosticEnabled();
+			final Matrix4f worldMatrix = diagnosticsEnabled ? GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, InstancingMatrixHelper.ZERO_OFFSET) : null;
+			final org.mtr.mapping.holder.Vector3d drawOffset = GpuObjDebugStats.shouldSkipCameraOffset() ? InstancingMatrixHelper.ZERO_OFFSET : GpuObjRenderer.INSTANCE.getFrameOffset();
+			final Matrix4f drawMatrix = GpuObjRenderer.INSTANCE.captureFrameMatrix(storedMatrixTransformations, drawOffset);
+			final Matrix4f finalWorldMatrix = diagnosticsEnabled ? new Matrix4f() : null;
+			final Matrix4f finalDrawMatrix = new Matrix4f();
+			final int packedLight = org.mtr.mapping.render.tool.Utilities.exchangeLightmapUVBits(light);
+			boolean queuedAny = false;
+			long eligiblePartCount = 0;
+
+			for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
+				final boolean matchesCondition = matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways);
+				if (diagnosticsEnabled) {
+					GpuObjDebugStats.recordVehicleConditionBucketSample(String.format(
+							"condition=%s matched=%s gpuParts=%d fallbackParts=%d supportedPlacements=%d unsupportedPlacements=%d noOpenDoorways=%s",
+							conditionBucket.condition,
+							matchesCondition,
+							conditionBucket.parts.size(),
+							conditionBucket.fallbackParts.size(),
+							conditionBucket.supportedPlacementCount,
+							conditionBucket.getTotalUnsupportedPlacementCount(),
+							noOpenDoorways
+					));
+				}
+				if (!matchesCondition) {
+					continue;
+				}
+
+				eligiblePartCount += conditionBucket.supportedPlacementCount;
+				if (!conditionBucket.partGroups.isEmpty()) {
+					queuedAny = true;
+					conditionBucket.partGroups.forEach(partGroup -> {
+						final GpuObjRenderer.QueuedMesh queuedMesh = GpuObjRenderer.INSTANCE.beginQueue(partGroup.batchKey, partGroup.materialProperties, partGroup.mesh, packedLight, 0xFFFFFFFF, GpuObjDebugStats.Source.VEHICLE);
+						partGroup.parts.forEach(part -> {
+							final Matrix4f partDrawMatrix = finalDrawMatrix.set(drawMatrix).multiply(part.localTransform);
+							final Matrix4f partWorldMatrix = diagnosticsEnabled ? finalWorldMatrix.set(worldMatrix).multiply(part.localTransform) : null;
+							final GpuObjDebugStats.DiagnosticSample diagnosticSample = queuedMesh.queue(partDrawMatrix, partWorldMatrix, useDefaultOffset);
+							if (diagnosticSample != null) {
+								diagnosticSample.setCaptureOffset(drawOffset);
+								diagnosticSample.setLight(light, packedLight);
+								final StoredMatrixTransformations normalReferenceTransformations = storedMatrixTransformations.copy();
+								normalReferenceTransformations.add(part.normalReferenceLocalTransformations);
+								diagnosticSample.setNormalReference(part.getOrCreateNormalReferenceModel(), normalReferenceTransformations, partWorldMatrix, true, part.debugSampleId);
+							}
+						});
+					});
+				}
+				if (!conditionBucket.fallbackParts.isEmpty()) {
+					queuedAny = true;
+					conditionBucket.fallbackParts.forEach(fallbackPart -> {
+						final OptimizedModelWrapper fallbackModel = fallbackPart.getOrCreateModel();
+						final boolean renderable = fallbackModel != null && fallbackModel.optimizedModel != null;
+						if (diagnosticsEnabled) {
+							GpuObjDebugStats.recordVehicleFallbackQueueSample(fallbackPart.describeQueueState(renderable));
+						}
+						if (renderable) {
+							GpuObjDebugStats.recordVehicleFallbackScheduled();
+							final StoredMatrixTransformations fallbackTransformations = storedMatrixTransformations.copy();
+							MainRenderer.scheduleRender(QueuedRenderLayer.TEXT, (graphicsHolder, offset) -> {
+								fallbackTransformations.transform(graphicsHolder, offset);
+								GpuObjDebugStats.recordVehicleFallbackExecuted();
+								GpuObjDebugStats.recordVehicleFallbackOptimizedQueue(CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.queue(fallbackModel, graphicsHolder, light));
+								graphicsHolder.pop();
+							});
+						}
+					});
+				}
+			}
+
+			GpuObjDebugStats.recordVehicleEligibleParts(eligiblePartCount);
+			if (eligiblePartCount > 0) {
+				GpuObjDebugStats.recordVehicleGpuQueueCall();
+			}
+			GpuObjDebugStats.recordVehicleQueuedParts(eligiblePartCount);
+			return queuedAny;
+		} finally {
+			if (collectTimings) {
+				GpuObjDebugStats.recordVehicleQueueNanos(System.nanoTime() - startNanos);
+			}
+		}
+	}
+
+	private static void recordVehicleCoverage(@Nullable VehicleGpuCache vehicleGpuCache, VehicleExtension vehicle, boolean noOpenDoorways, @Nullable GpuObjDebugStats.VehicleFallbackReason supportedFallbackReason, long approximateFallbackCountIfCacheUnavailable) {
+		if (vehicleGpuCache == null) {
+			if (supportedFallbackReason != null && approximateFallbackCountIfCacheUnavailable > 0) {
+				GpuObjDebugStats.recordVehicleFallbackParts(supportedFallbackReason, approximateFallbackCountIfCacheUnavailable);
+			}
+			return;
+		}
+
+		for (final VehicleGpuCache.ConditionBucket conditionBucket : vehicleGpuCache.conditionBuckets) {
+			final long totalBucketParts = conditionBucket.supportedPlacementCount + conditionBucket.getTotalUnsupportedPlacementCount();
+			if (!matchesCondition(vehicle, conditionBucket.condition, noOpenDoorways)) {
+				GpuObjDebugStats.recordVehicleConditionFilteredParts(totalBucketParts);
+				continue;
+			}
+
+			if (supportedFallbackReason != null && conditionBucket.supportedPlacementCount > 0) {
+				GpuObjDebugStats.recordVehicleEligibleParts(conditionBucket.supportedPlacementCount);
+			}
+
+			if (supportedFallbackReason != null && conditionBucket.supportedPlacementCount > 0) {
+				GpuObjDebugStats.recordVehicleFallbackParts(supportedFallbackReason, conditionBucket.supportedPlacementCount);
+			}
+
+			for (final GpuObjDebugStats.VehicleFallbackReason reason : GpuObjDebugStats.VehicleFallbackReason.values()) {
+				GpuObjDebugStats.recordVehicleFallbackParts(reason, conditionBucket.getUnsupportedPlacementCount(reason));
+			}
+		}
+	}
+
+	private static int countRenderableModels(Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels, VehicleExtension vehicle, boolean noOpenDoorways) {
+		int count = 0;
+		for (final Object2ObjectMap.Entry<PartCondition, OptimizedModelWrapper> entry : optimizedModels.object2ObjectEntrySet()) {
+			if (entry.getValue().optimizedModel != null && matchesCondition(vehicle, entry.getKey(), noOpenDoorways)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	private static CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> writeToOptimizedModels(
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsModel,
 			Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModelsModel,
@@ -552,6 +745,33 @@ public final class VehicleResource extends VehicleResourceSchema {
 		}, modelLifespan);
 	}
 
+	private static CachedResource<VehicleGpuCache> writeToGpuCache(ObjectArrayList<VehicleModel> models, int modelLifespan) {
+		return new CachedResource<>(() -> {
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.Part>> gpuPartsForCondition = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<VehicleGpuCache.FallbackPart>> fallbackPartsForCondition = new Object2ObjectOpenHashMap<>();
+			final Object2ObjectOpenHashMap<PartCondition, VehicleGpuCache.PlacementStats> placementStatsByCondition = new Object2ObjectOpenHashMap<>();
+			models.forEach(vehicleModel -> {
+				final VehicleGpuCache vehicleGpuCache = vehicleModel.cachedGpuCache.getData(true);
+				if (vehicleGpuCache != null) {
+					vehicleGpuCache.conditionBuckets.forEach(conditionBucket -> {
+						if (!conditionBucket.parts.isEmpty()) {
+							Data.put(gpuPartsForCondition, conditionBucket.condition, conditionBucket.parts, ObjectArrayList::new);
+						}
+						if (!conditionBucket.fallbackParts.isEmpty()) {
+							Data.put(fallbackPartsForCondition, conditionBucket.condition, conditionBucket.fallbackParts, ObjectArrayList::new);
+						}
+						final VehicleGpuCache.PlacementStats placementStats = VehicleGpuCache.getOrCreatePlacementStats(placementStatsByCondition, conditionBucket.condition);
+						placementStats.addSupportedPlacementCount(conditionBucket.supportedPlacementCount);
+						for (final GpuObjDebugStats.VehicleFallbackReason reason : GpuObjDebugStats.VehicleFallbackReason.values()) {
+							placementStats.addUnsupportedReasonCount(reason, conditionBucket.getUnsupportedPlacementCount(reason));
+						}
+					});
+				}
+			});
+			return new VehicleGpuCache(gpuPartsForCondition, fallbackPartsForCondition, placementStatsByCondition);
+		}, modelLifespan);
+	}
+
 	private static void forEachNonNull(ObjectArrayList<VehicleModel> models, Consumer<DynamicVehicleModel> consumer, boolean force) {
 		models.forEach(vehicleModel -> {
 			final DynamicVehicleModel dynamicVehicleModel = vehicleModel.cachedModel.getData(force);
@@ -569,13 +789,27 @@ public final class VehicleResource extends VehicleResourceSchema {
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1;
 		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1;
+		private final CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2;
+		private final CachedResource<VehicleGpuCache> vehicleGpuCache;
+		private final CachedResource<VehicleGpuCache> bogie1GpuCache;
+		private final CachedResource<VehicleGpuCache> bogie2GpuCache;
 
 		private VehicleResourceCacheHolder(
 				ObjectImmutableList<Box> floors, ObjectImmutableList<Box> doorways,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModels,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsDoorsClosed,
 				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie1,
-				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> optimizedModelsBogie2,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModels,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsDoorsClosed,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie1,
+				CachedResource<Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper>> fallbackOptimizedModelsBogie2,
+				CachedResource<VehicleGpuCache> vehicleGpuCache,
+				CachedResource<VehicleGpuCache> bogie1GpuCache,
+				CachedResource<VehicleGpuCache> bogie2GpuCache
 		) {
 			this.floors = floors;
 			this.doorways = doorways;
@@ -583,6 +817,13 @@ public final class VehicleResource extends VehicleResourceSchema {
 			this.optimizedModelsDoorsClosed = optimizedModelsDoorsClosed;
 			this.optimizedModelsBogie1 = optimizedModelsBogie1;
 			this.optimizedModelsBogie2 = optimizedModelsBogie2;
+			this.fallbackOptimizedModels = fallbackOptimizedModels;
+			this.fallbackOptimizedModelsDoorsClosed = fallbackOptimizedModelsDoorsClosed;
+			this.fallbackOptimizedModelsBogie1 = fallbackOptimizedModelsBogie1;
+			this.fallbackOptimizedModelsBogie2 = fallbackOptimizedModelsBogie2;
+			this.vehicleGpuCache = vehicleGpuCache;
+			this.bogie1GpuCache = bogie1GpuCache;
+			this.bogie2GpuCache = bogie2GpuCache;
 		}
 	}
 
