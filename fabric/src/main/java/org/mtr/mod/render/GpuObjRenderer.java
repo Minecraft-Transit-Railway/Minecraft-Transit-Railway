@@ -51,6 +51,7 @@ public final class GpuObjRenderer implements IGui {
 	private static final int INSTANCE_STRIDE = MATRIX_BYTES + INSTANCE_HEADER_BYTES;
 	private static final VertexAttributeState DEFAULT_DRAW_STATE = new VertexAttributeState(ARGB_WHITE, GraphicsHolder.getDefaultLight(), org.mtr.mapping.render.tool.Utilities.create());
 	private static boolean loggedMissingInstanceDivisorSupport;
+	private static boolean loggedRenderFailure;
 
 	private final ShaderManager shaderManager = new ShaderManager();
 	private final VertexBuffer instanceBuffer = new VertexBuffer();
@@ -177,18 +178,47 @@ public final class GpuObjRenderer implements IGui {
 				final ObjectArrayList<BatchEntry> batchEntries = activeOpaqueBatchesByStage[renderStage.ordinal()];
 				for (int i = 0; i < batchEntries.size(); i++) {
 					final BatchEntry batchEntry = batchEntries.get(i);
-					final MaterialProperties activeMaterialProperties = batchEntry.materialProperties;
-					shaderManager.setupShaderBatchState(activeMaterialProperties);
-					uploadBatchInstances(batchEntry);
-					for (int j = 0; j < batchEntry.activeMeshes.size(); j++) {
-						render(activeMaterialProperties, batchEntry.activeMeshes.get(j), offset);
+					final boolean diagnosticBatch = batchEntry.hasDiagnosticSample(GpuObjDebugStats.Source.VEHICLE);
+					final GpuObjGlStateGuard.State beforeState = diagnosticBatch ? GpuObjGlStateGuard.captureState() : null;
+					try (final GpuObjGlStateGuard ignored = GpuObjGlStateGuard.capture()) {
+						renderBatch(batchEntry, offset);
+						if (diagnosticBatch) {
+							GpuObjDebugStats.recordVehicleBatchGlState(beforeState, GpuObjGlStateGuard.captureState());
+						}
+					} catch (RuntimeException e) {
+						GpuObjDebugStats.recordRenderFailure(e);
+						if (!loggedRenderFailure) {
+							loggedRenderFailure = true;
+							Init.LOGGER.warn("[MTR Debug] GPU OBJ instancing render failed; skipping the remaining GPU OBJ batches for this frame.", e);
+						}
+						return;
 					}
-					shaderManager.cleanupShaderBatchState();
 				}
 			}
 		} finally {
 			if (collectTimings) {
 				GpuObjDebugStats.recordRenderOpaqueNanos(System.nanoTime() - startNanos);
+			}
+		}
+	}
+
+	private void renderBatch(BatchEntry batchEntry, Vector3d offset) {
+		final MaterialProperties activeMaterialProperties = batchEntry.materialProperties;
+		boolean shaderStateSet = false;
+		try {
+			shaderManager.setupShaderBatchState(activeMaterialProperties);
+			shaderStateSet = true;
+			uploadBatchInstances(batchEntry);
+			for (int i = 0; i < batchEntry.activeMeshes.size(); i++) {
+				render(activeMaterialProperties, batchEntry.activeMeshes.get(i), offset);
+			}
+		} finally {
+			try {
+				if (shaderStateSet) {
+					shaderManager.cleanupShaderBatchState();
+				}
+			} finally {
+				GpuObjGlStateGuard.clearInstanceBufferBinding();
 			}
 		}
 	}
@@ -303,6 +333,15 @@ public final class GpuObjRenderer implements IGui {
 			}
 			activeMeshes.clear();
 		}
+
+		private boolean hasDiagnosticSample(GpuObjDebugStats.Source source) {
+			for (int i = 0; i < activeMeshes.size(); i++) {
+				if (activeMeshes.get(i).hasDiagnosticSample(source)) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	private static final class MeshEntry {
@@ -328,6 +367,10 @@ public final class GpuObjRenderer implements IGui {
 		private void addInstance(byte[] instanceData) {
 			payload.addElements(payload.size(), instanceData, 0, INSTANCE_STRIDE);
 			instanceCount++;
+		}
+
+		private boolean hasDiagnosticSample(GpuObjDebugStats.Source source) {
+			return diagnosticSample != null && diagnosticSample.isSource(source);
 		}
 
 		private VertexArray getOrCreateVertexArray(MaterialProperties materialProperties) {

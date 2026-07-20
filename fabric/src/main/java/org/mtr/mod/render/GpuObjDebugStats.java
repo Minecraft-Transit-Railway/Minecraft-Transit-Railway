@@ -3,6 +3,7 @@ package org.mtr.mod.render;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.Matrix4f;
 import org.mtr.mapping.holder.Vector3d;
+import org.mtr.mapping.mapper.OptimizedRenderer;
 import org.mtr.mapping.render.batch.MaterialProperties;
 import org.mtr.mod.Init;
 import org.mtr.mod.resource.OptimizedModelWrapper;
@@ -170,6 +171,24 @@ public final class GpuObjDebugStats {
 		}
 	}
 
+	public static void recordVehicleBatchGlState(@Nullable GpuObjGlStateGuard.State beforeState, GpuObjGlStateGuard.State afterState) {
+		if (!collectingStatus || beforeState == null || CURRENT_FRAME.vehicleBatchGlStateBefore != null) {
+			return;
+		}
+		CURRENT_FRAME.vehicleBatchGlStateBefore = beforeState.summary();
+		CURRENT_FRAME.vehicleBatchGlStateAfter = afterState.summary();
+	}
+
+	public static void recordRenderFailure(RuntimeException e) {
+		if (!collectingStatus) {
+			return;
+		}
+		CURRENT_FRAME.renderFailures++;
+		if (CURRENT_FRAME.renderFailureMessage == null) {
+			CURRENT_FRAME.renderFailureMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
+		}
+	}
+
 	public static void recordRailOutcome(boolean success, RailFallbackReason fallbackReason) {
 		if (!collectingStatus) {
 			return;
@@ -283,8 +302,10 @@ public final class GpuObjDebugStats {
 		final ObjectArrayList<String> lines = new ObjectArrayList<>();
 		lines.add("[MTR Debug] GPU instancing status");
 		lines.add("Instancing enabled: " + instancingEnabled);
+		lines.add("Rendering shadow pass: " + OptimizedRenderer.renderingShadows());
 		lines.add(String.format("Frame instances total/rails/vehicles: %d/%d/%d", CURRENT_FRAME.instancesTotal, CURRENT_FRAME.railInstances, CURRENT_FRAME.vehicleInstances));
 		lines.add(String.format("Frame active batches/meshes/instanced draws: %d/%d/%d", CURRENT_FRAME.activeBatches, CURRENT_FRAME.activeMeshes, CURRENT_FRAME.instancedDraws));
+		lines.add(String.format("Frame render failures: %d%s", CURRENT_FRAME.renderFailures, CURRENT_FRAME.renderFailureMessage == null ? "" : " (" + CURRENT_FRAME.renderFailureMessage + ")"));
 		lines.add(String.format(
 				"Frame GPU timings ms railQueue/vehicleQueue/render/upload/draw: %.3f/%.3f/%.3f/%.3f/%.3f",
 				nanosToMillis(CURRENT_FRAME.railQueueNanos),
@@ -307,6 +328,8 @@ public final class GpuObjDebugStats {
 				CURRENT_FRAME.optimizedRendererRenderAvailable,
 				CURRENT_FRAME.optimizedRendererRenderTranslucent
 		));
+		lines.add("Vehicle GL state before batch: " + (CURRENT_FRAME.vehicleBatchGlStateBefore == null ? "none captured" : CURRENT_FRAME.vehicleBatchGlStateBefore));
+		lines.add("Vehicle GL state after batch: " + (CURRENT_FRAME.vehicleBatchGlStateAfter == null ? "none captured" : CURRENT_FRAME.vehicleBatchGlStateAfter));
 		appendDiagnosticSample(lines, "Rail", currentRailDiagnosticSample);
 		appendDiagnosticSample(lines, "Vehicle", currentVehicleDiagnosticSample);
 		lines.forEach(Init.LOGGER::info);
@@ -419,6 +442,10 @@ public final class GpuObjDebugStats {
 			this.instanceCount = instanceCount;
 		}
 
+		boolean isSource(Source source) {
+			return this.source == source;
+		}
+
 		void setPreparedDrawMatrix(Matrix4f matrix) {
 		}
 
@@ -486,6 +513,13 @@ public final class GpuObjDebugStats {
 		private long optimizedRendererRenderCalls;
 		private long optimizedRendererRenderAvailable;
 		private long optimizedRendererRenderTranslucent;
+		private long renderFailures;
+		@Nullable
+		private String renderFailureMessage;
+		@Nullable
+		private String vehicleBatchGlStateBefore;
+		@Nullable
+		private String vehicleBatchGlStateAfter;
 
 		private void clear() {
 			instancesTotal = 0;
@@ -516,6 +550,10 @@ public final class GpuObjDebugStats {
 			optimizedRendererRenderCalls = 0;
 			optimizedRendererRenderAvailable = 0;
 			optimizedRendererRenderTranslucent = 0;
+			renderFailures = 0;
+			renderFailureMessage = null;
+			vehicleBatchGlStateBefore = null;
+			vehicleBatchGlStateAfter = null;
 		}
 
 		private static void clearArray(long[] array) {
