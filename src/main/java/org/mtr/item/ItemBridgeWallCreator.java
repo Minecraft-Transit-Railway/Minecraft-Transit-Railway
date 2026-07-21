@@ -9,9 +9,9 @@ import org.mtr.MTR;
 import org.mtr.core.data.Rail;
 import org.mtr.registry.DataComponentTypes;
 
-public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
+public class ItemBridgeWallCreator extends ItemNodeModifierSelectableBlockBase {
 
-	public ItemTunnelWallCreator(int height, int width, Item.Properties settings) {
+	public ItemBridgeWallCreator(int height, int width, Item.Properties settings) {
 		super(true, height, width, settings);
 	}
 
@@ -24,6 +24,6 @@ public class ItemTunnelWallCreator extends ItemNodeModifierSelectableBlockBase {
 	public void onConnect(Rail rail, ServerPlayer serverPlayerEntity, ItemStack itemStack, int radius, int height, int batchIndex, int batchTotal, BlockPos posStart, BlockPos posEnd) {
 		final BlockState blockState = getSavedState(itemStack);
 		final int wallSide = resolveWallSide(rail, posStart, posEnd, itemStack.getOrDefault(DataComponentTypes.WALL_SIDE.get(), 0));
-		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForTunnelWall(rail, serverPlayerEntity, radius, height, blockState, batchIndex, batchTotal, wallSide));
+		MTR.getRailActionModule(serverPlayerEntity.serverLevel(), railActionModule -> railActionModule.markRailForBridgeWall(rail, serverPlayerEntity, radius, height, blockState, batchIndex, batchTotal, wallSide));
 	}
 }

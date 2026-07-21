@@ -28,18 +28,23 @@ public class RailActionModule {
 		}
 	}
 
-	public void markRailForBridge(Rail rail, ServerPlayer serverPlayerEntity, int radius, BlockState blockState) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, blockState));
+	public void markRailForBridge(Rail rail, ServerPlayer serverPlayerEntity, int radius, BlockState blockState, int batchIndex, int batchTotal) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE, rail, radius, 0, blockState, 0, batchIndex, batchTotal));
 		broadcastUpdate();
 	}
 
-	public void markRailForTunnel(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null));
+	public void markRailForTunnel(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, int batchIndex, int batchTotal) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL, rail, radius, height, null, 0, batchIndex, batchTotal));
 		broadcastUpdate();
 	}
 
-	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState) {
-		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState));
+	public void markRailForTunnelWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int batchIndex, int batchTotal, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.TUNNEL_WALL, rail, radius + 1, height + 1, blockState, batchIndex , batchTotal, wallSide));
+		broadcastUpdate();
+	}
+
+	public void markRailForBridgeWall(Rail rail, ServerPlayer serverPlayerEntity, int radius, int height, BlockState blockState, int batchIndex, int batchTotal, int wallSide) {
+		railActions.add(new RailAction(serverWorld, serverPlayerEntity, RailActionType.BRIDGE_WALL, rail, radius + 1, height + 1, blockState, batchIndex, batchTotal, wallSide));
 		broadcastUpdate();
 	}
 
