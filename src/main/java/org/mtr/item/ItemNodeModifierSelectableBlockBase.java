@@ -189,20 +189,25 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 			return;
 		}
 
-		final int capturedRadius = item.radius;
-		final int capturedHeight = item.height;
-		final int batchTotal = railPairs.size();
-		for (int i = 0; i < railPairs.size(); i++) {
-			final ObjectObjectImmutablePair<BlockPos, BlockPos> pair = railPairs.get(i);
-			final int batchIndex = i + 1;
-			getRail(
-				serverPlayerEntity.serverLevel(),
-				pair.left(),
-				pair.right(),
-				serverPlayerEntity,
-				rail -> item.onConnect(rail, serverPlayerEntity, itemStack, capturedRadius, capturedHeight, batchIndex, batchTotal, pair.left(), pair.right())
-			);
+		processRailActionsSequentially(serverPlayerEntity, item, itemStack, railPairs, 0, item.radius, item.height, railPairs.size());
+	}
+
+	private static void processRailActionsSequentially(ServerPlayer serverPlayerEntity, ItemNodeModifierSelectableBlockBase item, ItemStack itemStack, ObjectArrayList<ObjectObjectImmutablePair<BlockPos, BlockPos>> railPairs, int index, int radius, int height, int batchTotal) {
+		if (index >= railPairs.size()) {
+			return;
 		}
+
+		final ObjectObjectImmutablePair<BlockPos, BlockPos> pair = railPairs.get(index);
+		getRail(
+			serverPlayerEntity.serverLevel(),
+			pair.left(),
+			pair.right(),
+			serverPlayerEntity,
+			rail -> {
+				item.onConnect(rail, serverPlayerEntity, itemStack, radius, height, index + 1, batchTotal, pair.left(), pair.right());
+				processRailActionsSequentially(serverPlayerEntity, item, itemStack, railPairs, index + 1, radius, height, batchTotal);
+			}
+		);
 	}
 
 	/**
