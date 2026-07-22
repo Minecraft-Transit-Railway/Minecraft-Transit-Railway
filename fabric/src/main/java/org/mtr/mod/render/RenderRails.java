@@ -62,7 +62,7 @@ public class RenderRails implements IGui {
 			return;
 		}
 
-		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
+		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = OptimizedRenderer.renderingShadows() ? null : new ObjectArrayList<>();
 		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean holdingRailRelated = isHoldingRailRelated(clientPlayerEntity);
@@ -70,10 +70,12 @@ public class RenderRails implements IGui {
 		// Finding visible rails
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
-			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
-				return () -> railWrapper.shouldRender = shouldRender;
-			});
+			if (cullingTasks != null) {
+				cullingTasks.add(occlusionCullingInstance -> {
+					final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
+					return () -> railWrapper.shouldRender = shouldRender;
+				});
+			}
 			if (railWrapper.shouldRender) {
 				railsToRender.add(railWrapper.getRail());
 			}
@@ -203,7 +205,7 @@ public class RenderRails implements IGui {
 			}
 		}
 
-		if (!OptimizedRenderer.renderingShadows()) {
+		if (cullingTasks != null) {
 			MainRenderer.WORKER_THREAD.scheduleMTRRails(occlusionCullingInstance -> {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));

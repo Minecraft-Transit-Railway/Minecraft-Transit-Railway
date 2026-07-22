@@ -57,7 +57,13 @@ public abstract class PacketRequestResponseBase extends PacketHandler {
 					Init.REGISTRY.sendPacketToClient(serverPlayerEntity, getInstance(responseJson.toString()));
 				}
 			} else {
-				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseJson.toString())));
+				final String[] responseContent = {null};
+				MinecraftServerHelper.iteratePlayers(serverWorld, serverPlayerEntityNew -> {
+					if (responseContent[0] == null) {
+						responseContent[0] = responseJson.toString();
+					}
+					Init.REGISTRY.sendPacketToClient(serverPlayerEntityNew, getInstance(responseContent[0]));
+				});
 			}
 			runServerInbound(serverWorld, responseJson);
 		}, SerializedDataBase.class);
