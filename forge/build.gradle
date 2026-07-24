@@ -3,7 +3,7 @@ import org.mtr.mod.BuildTools
 
 plugins {
 	id "net.minecraftforge.gradle" version "6.0.54"
-	id "org.spongepowered.mixin" version "+"
+	id "org.spongepowered.mixin" version "0.7.38"
 }
 
 final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", project)
