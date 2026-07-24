@@ -70,6 +70,7 @@ tasks.register("setupFiles") {
 		outputs.upToDateWhen { false }
 		from "../fabric/src/main/java/org/mtr/mod"
 		into "src/main/java/org/mtr/mod"
+		exclude "mixin/ClientChunkLightUpdateMixin.java"
 	}
 
 	copy {
