@@ -19,47 +19,48 @@ public interface StoredModelResourceBase {
 
 	default ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> load(String modelResource, String textureResource, boolean flipTextureV, double modelYOffset, ResourceProvider resourceProvider) {
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
+		try {
+			final boolean isBlockbench = modelResource.endsWith(".bbmodel");
+			final boolean isSupportedModelResource = ModelResourceLoader.isSupportedModelResource(modelResource);
+			final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+			ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> models;
 
-		final boolean isBlockbench = modelResource.endsWith(".bbmodel");
-		final boolean isSupportedModelResource = ModelResourceLoader.isSupportedModelResource(modelResource);
-		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
-		ObjectObjectImmutablePair<OptimizedModelWrapper, DynamicVehicleModel> models;
-
-		if (isBlockbench) {
-			final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroups = new Object2ObjectOpenHashMap<>();
-			final DynamicVehicleModel tempDynamicVehicleModel = new DynamicVehicleModel(
-					new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
-					textureId,
-					new ModelProperties(modelYOffset),
-					new PositionDefinitions(),
-					""
-			);
-			tempDynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
-			models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL)), tempDynamicVehicleModel);
-		} else if (isSupportedModelResource) {
-			try {
-				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
-				final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider);
-				transform(rawModels.values());
-				final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
-						rawModels,
+			if (isBlockbench) {
+				final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper>> materialGroups = new Object2ObjectOpenHashMap<>();
+				final DynamicVehicleModel tempDynamicVehicleModel = new DynamicVehicleModel(
+						new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
 						textureId,
 						new ModelProperties(modelYOffset),
 						new PositionDefinitions(),
 						""
 				);
-				dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
-				models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL)), dynamicVehicleModel);
-			} catch (Exception e) {
-				Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
+				tempDynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), materialGroups, new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>());
+				models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromMaterialGroups(materialGroups.get(PartCondition.NORMAL)), tempDynamicVehicleModel);
+			} else if (isSupportedModelResource) {
+				try {
+					final Object2ObjectOpenHashMap<PartCondition, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>> objModels = new Object2ObjectOpenHashMap<>();
+					final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> rawModels = ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider);
+					transform(rawModels.values());
+					final DynamicVehicleModel dynamicVehicleModel = new DynamicVehicleModel(
+							rawModels,
+							textureId,
+							new ModelProperties(modelYOffset),
+							new PositionDefinitions(),
+							""
+					);
+					dynamicVehicleModel.writeFloorsAndDoorways(new ObjectArrayList<>(), new ObjectArrayList<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), new Object2ObjectOpenHashMap<>(), objModels);
+					models = new ObjectObjectImmutablePair<>(OptimizedModelWrapper.fromObjModels(objModels.get(PartCondition.NORMAL)), dynamicVehicleModel);
+				} catch (Exception e) {
+					Init.LOGGER.error("[{}] Invalid model!", modelResource, e);
+					models = new ObjectObjectImmutablePair<>(null, null);
+				}
+			} else {
 				models = new ObjectObjectImmutablePair<>(null, null);
 			}
-		} else {
-			models = new ObjectObjectImmutablePair<>(null, null);
+			return models;
+		} finally {
+			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 		}
-
-		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-		return models;
 	}
 
 	default void render(StoredMatrixTransformations storedMatrixTransformations, int light) {

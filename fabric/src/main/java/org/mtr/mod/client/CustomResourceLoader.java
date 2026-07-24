@@ -11,6 +11,7 @@ import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.Keys;
 import org.mtr.mod.config.Config;
+import org.mtr.mod.render.DefaultRailMeshCache;
 import org.mtr.mod.resource.*;
 
 import java.io.InputStream;
@@ -70,6 +71,8 @@ public class CustomResourceLoader {
 	}
 
 	public static void reload() {
+		OPTIMIZED_RENDERER_WRAPPER.markReloadRequired();
+		DefaultRailMeshCache.clear();
 		MINECRAFT_MODEL_RESOURCES.clear();
 		MINECRAFT_TEXTURE_RESOURCES.clear();
 		RESOURCE_CACHE.clear();

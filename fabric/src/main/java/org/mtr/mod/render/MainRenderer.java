@@ -82,8 +82,9 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 			return;
 		}
 
+		final boolean renderingShadows = OptimizedRenderer.renderingShadows();
 		final long millisElapsed;
-		if (OptimizedRenderer.renderingShadows()) {
+		if (renderingShadows) {
 			if (Config.getClient().getDisableShadowsForShaders()) {
 				return;
 			}
@@ -111,7 +112,10 @@ public class MainRenderer extends EntityRenderer<EntityRendering> implements IGu
 		final Vector3d cameraShakeOffset = clientPlayerEntity.getPos().subtract(offset);
 		RenderVehicles.render(millisElapsed, cameraShakeOffset);
 		RenderLifts.render(millisElapsed, cameraShakeOffset);
+		DefaultRailMeshCache.beginFrame(clientWorld, renderingShadows);
 		RenderRails.render();
+		DefaultRailMeshCache.finishFrame(clientWorld);
+		DefaultRailMeshCache.scheduleRender();
 
 		for (int i = 0; i < TOTAL_RENDER_STAGES; i++) {
 			for (int j = 0; j < QueuedRenderLayer.values().length; j++) {

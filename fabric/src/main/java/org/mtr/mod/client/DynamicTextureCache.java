@@ -4,10 +4,10 @@ import org.mtr.core.servlet.MessageQueue;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2LongArrayMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
+import org.mtr.mod.config.Client;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.config.LanguageDisplay;
 import org.mtr.mod.data.IGui;
@@ -31,14 +31,17 @@ public class DynamicTextureCache implements IGui {
 	private Font fontCjk;
 
 	private final Object2ObjectLinkedOpenHashMap<String, DynamicResource> dynamicResources = new Object2ObjectLinkedOpenHashMap<>();
-	private final ObjectOpenHashSet<String> generatingResources = new ObjectOpenHashSet<>();
+	private final DynamicTextureGenerationTracker generationTracker = new DynamicTextureGenerationTracker();
 	private final MessageQueue<Runnable> resourceRegistryQueue = new MessageQueue<>();
-	private final Object2LongArrayMap<Identifier> deletedResources = new Object2LongArrayMap<>();
+	private final Object2ObjectLinkedOpenHashMap<Identifier, NativeImageBackedTexture> deletedResources = new Object2ObjectLinkedOpenHashMap<>();
+	private final Object2LongArrayMap<Identifier> deletedResourceExpiryTimes = new Object2LongArrayMap<>();
 
 	public static DynamicTextureCache instance = new DynamicTextureCache();
 
 	public static final float LINE_HEIGHT_MULTIPLIER = 1.25F;
 	private static final int COOLDOWN_TIME = 10000; // Images not requested within the last 10 seconds will be unregistered
+	private static final int FAILURE_RETRY_TIME = 1000;
+	private static final String DYNAMIC_TEXTURE_NAME = Init.MOD_ID + "_dynamic_texture";
 	private static final Identifier DEFAULT_BLACK_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/black.png");
 	private static final Identifier DEFAULT_WHITE_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/white.png");
 	private static final Identifier DEFAULT_TRANSPARENT_RESOURCE = new Identifier(Init.MOD_ID, "textures/block/transparent.png");
@@ -59,7 +62,7 @@ public class DynamicTextureCache implements IGui {
 	public void refresh() {
 		Init.LOGGER.debug("Refreshing dynamic resources; {} textures in memory; {} textures queued to be destroyed", dynamicResources.size(), deletedResources.size());
 		dynamicResources.values().forEach(dynamicResource -> dynamicResource.needsRefresh = true);
-		generatingResources.clear();
+		generationTracker.refresh();
 	}
 
 	public void tick() {
@@ -68,20 +71,23 @@ public class DynamicTextureCache implements IGui {
 		dynamicResources.forEach((checkKey, checkDynamicResource) -> {
 			if (checkDynamicResource.expiryTime < currentTimeMillis) {
 				checkDynamicResource.remove();
-				deletedResources.put(checkDynamicResource.identifier, currentTimeMillis + COOLDOWN_TIME);
+				queueResourceForDeletion(checkDynamicResource, currentTimeMillis);
 				keysToRemove.add(checkKey);
 			}
 		});
 		keysToRemove.forEach(dynamicResources::remove);
 
 		final ObjectArrayList<Identifier> deletedResourcesToRemove = new ObjectArrayList<>();
-		deletedResources.forEach((identifier, expiryTime) -> {
+		deletedResourceExpiryTimes.forEach((identifier, expiryTime) -> {
 			if (expiryTime < currentTimeMillis) {
-				MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
+				destroyTexture(identifier, deletedResources.get(identifier));
 				deletedResourcesToRemove.add(identifier);
 			}
 		});
-		deletedResourcesToRemove.forEach(deletedResources::removeLong);
+		deletedResourcesToRemove.forEach(identifier -> {
+			deletedResources.remove(identifier);
+			deletedResourceExpiryTimes.removeLong(identifier);
+		});
 	}
 
 	public DynamicResource getPixelatedText(String text, int textColor, int maxWidth, double cjkSizeRatio, boolean fullPixel) {
@@ -232,18 +238,36 @@ public class DynamicTextureCache implements IGui {
 
 	private DynamicResource getResource(String key, Supplier<NativeImage> supplier, DefaultRenderingColor defaultRenderingColor) {
 		resourceRegistryQueue.process(Runnable::run);
+		final long currentTimeMillis = System.currentTimeMillis();
 		final DynamicResource dynamicResource = dynamicResources.get(key);
 
 		if (dynamicResource != null && !dynamicResource.needsRefresh) {
-			dynamicResource.expiryTime = System.currentTimeMillis() + COOLDOWN_TIME;
+			dynamicResource.expiryTime = currentTimeMillis + COOLDOWN_TIME;
 			return dynamicResource;
 		}
 
-		if (generatingResources.contains(key)) {
-			return defaultRenderingColor.dynamicResource;
+		if (generationTracker.isActive(key) || generationTracker.isRetryBlocked(key, currentTimeMillis)) {
+			return getExistingOrDefault(dynamicResource, defaultRenderingColor, currentTimeMillis);
 		}
 
-		MainRenderer.WORKER_THREAD.scheduleDynamicTextures(() -> {
+		final DynamicTextureGenerationTracker.Token generationToken = generationTracker.start(key);
+		boolean generationScheduled = false;
+		try {
+			RouteMapGenerator.setConstants();
+			MainRenderer.WORKER_THREAD.scheduleDynamicTextures(() -> generateResource(key, generationToken, supplier));
+			generationScheduled = true;
+		} finally {
+			if (!generationScheduled) {
+				generationTracker.completeFailure(key, generationToken, currentTimeMillis + FAILURE_RETRY_TIME);
+			}
+		}
+		return getExistingOrDefault(dynamicResource, defaultRenderingColor, currentTimeMillis);
+	}
+
+	private void generateResource(String key, DynamicTextureGenerationTracker.Token generationToken, Supplier<NativeImage> supplier) {
+		NativeImage nativeImage = null;
+		boolean registryTaskQueued = false;
+		try {
 			while (font == null) {
 				ResourceManagerHelper.readResource(new Identifier(Init.MOD_ID, "font/noto-sans-semibold.ttf"), inputStream -> {
 					try {
@@ -264,49 +288,147 @@ public class DynamicTextureCache implements IGui {
 				});
 			}
 
-			final NativeImage nativeImage = supplier.get();
-
-			resourceRegistryQueue.put(() -> {
-				final DynamicResource staticTextureProviderOld = dynamicResources.get(key);
-				if (staticTextureProviderOld != null) {
-					staticTextureProviderOld.remove();
-					deletedResources.put(staticTextureProviderOld.identifier, System.currentTimeMillis() + COOLDOWN_TIME);
-				}
-
-				final DynamicResource dynamicResourceNew;
+			nativeImage = supplier.get();
+			final NativeImage nativeImageToRegister = nativeImage;
+			resourceRegistryQueue.put(() -> registerResource(key, generationToken, nativeImageToRegister));
+			registryTaskQueued = true;
+		} finally {
+			if (!registryTaskQueued) {
 				if (nativeImage != null) {
-					final NativeImage newNativeImage;
-					final int newMaxImageSize = MAX_IMAGE_SIZE * (int) Math.pow(2, Config.getClient().getDynamicTextureResolution());
-					if (nativeImage.getWidth() > newMaxImageSize || nativeImage.getHeight() > newMaxImageSize) {
-						newNativeImage = new NativeImage(NativeImageFormat.getAbgrMapped(), Math.min(newMaxImageSize, nativeImage.getWidth()), Math.min(newMaxImageSize, nativeImage.getHeight()), false);
-						for (int x = 0; x < Math.min(newMaxImageSize, nativeImage.getWidth()); x++) {
-							for (int y = 0; y < Math.min(newMaxImageSize, nativeImage.getHeight()); y++) {
-								newNativeImage.setPixelColor(x, y, nativeImage.getColor(x, y));
-							}
-						}
-					} else {
-						newNativeImage = nativeImage;
-					}
-
-					final NativeImageBackedTexture nativeImageBackedTexture = new NativeImageBackedTexture(newNativeImage);
-					final Identifier identifier = new Identifier(Init.MOD_ID, "id_" + Init.randomString());
-					MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new AbstractTexture(nativeImageBackedTexture.data));
-					dynamicResourceNew = new DynamicResource(identifier, nativeImageBackedTexture);
-					dynamicResources.put(key, dynamicResourceNew);
+					nativeImage.close();
 				}
+				resourceRegistryQueue.put(() -> completeFailedGeneration(key, generationToken));
+			}
+		}
+	}
 
-				generatingResources.remove(key);
-			});
-		});
-		RouteMapGenerator.setConstants();
-		generatingResources.add(key);
+	private void registerResource(String key, DynamicTextureGenerationTracker.Token generationToken, @Nullable NativeImage nativeImage) {
+		if (!generationTracker.isCurrent(key, generationToken)) {
+			if (nativeImage != null) {
+				nativeImage.close();
+			}
+			return;
+		}
 
+		if (nativeImage == null) {
+			completeFailedGeneration(key, generationToken);
+			return;
+		}
+
+		DynamicResource dynamicResourceNew = null;
+		boolean resourceInstalled = false;
+		try {
+			dynamicResourceNew = registerTexture(nativeImage);
+			final long currentTimeMillis = System.currentTimeMillis();
+			dynamicResourceNew.expiryTime = currentTimeMillis + COOLDOWN_TIME;
+			final DynamicResource dynamicResourceOld = dynamicResources.put(key, dynamicResourceNew);
+			resourceInstalled = true;
+			if (dynamicResourceOld != null) {
+				try {
+					dynamicResourceOld.remove();
+				} finally {
+					queueResourceForDeletion(dynamicResourceOld, currentTimeMillis);
+				}
+			}
+		} catch (RuntimeException e) {
+			Init.LOGGER.error("Unable to register dynamic texture", e);
+		} finally {
+			if (!resourceInstalled && dynamicResourceNew != null) {
+				destroyResource(dynamicResourceNew);
+			}
+			if (resourceInstalled) {
+				generationTracker.completeSuccess(key, generationToken);
+			} else {
+				generationTracker.completeFailure(key, generationToken, System.currentTimeMillis() + FAILURE_RETRY_TIME);
+			}
+		}
+	}
+
+	private DynamicResource registerTexture(NativeImage nativeImage) {
+		NativeImage ownedImage = nativeImage;
+		NativeImageBackedTexture ownedTexture = null;
+		Identifier registeredIdentifier = null;
+		try {
+			final int dynamicTextureResolution = Math.max(0, Math.min(Client.DYNAMIC_RESOLUTION_COUNT, Config.getClient().getDynamicTextureResolution()));
+			final int newMaxImageSize = MAX_IMAGE_SIZE << dynamicTextureResolution;
+			if (ownedImage.getWidth() > newMaxImageSize || ownedImage.getHeight() > newMaxImageSize) {
+				final int width = Math.min(newMaxImageSize, ownedImage.getWidth());
+				final int height = Math.min(newMaxImageSize, ownedImage.getHeight());
+				final NativeImage resizedImage = new NativeImage(NativeImageFormat.getAbgrMapped(), width, height, false);
+				boolean copySucceeded = false;
+				try {
+					for (int x = 0; x < width; x++) {
+						for (int y = 0; y < height; y++) {
+							resizedImage.setPixelColor(x, y, ownedImage.getColor(x, y));
+						}
+					}
+					copySucceeded = true;
+				} finally {
+					if (!copySucceeded) {
+						resizedImage.close();
+					}
+				}
+				final NativeImage originalImage = ownedImage;
+				ownedImage = resizedImage;
+				originalImage.close();
+			}
+
+			ownedTexture = new NativeImageBackedTexture(ownedImage);
+			ownedImage = null;
+			registeredIdentifier = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(DYNAMIC_TEXTURE_NAME, ownedTexture);
+			final DynamicResource dynamicResource = new DynamicResource(registeredIdentifier, ownedTexture);
+			ownedTexture = null;
+			registeredIdentifier = null;
+			return dynamicResource;
+		} finally {
+			if (ownedTexture != null) {
+				if (registeredIdentifier == null) {
+					ownedTexture.close();
+				} else {
+					destroyTexture(registeredIdentifier, ownedTexture);
+				}
+			}
+			if (ownedImage != null) {
+				ownedImage.close();
+			}
+		}
+	}
+
+	private DynamicResource getExistingOrDefault(@Nullable DynamicResource dynamicResource, DefaultRenderingColor defaultRenderingColor, long currentTimeMillis) {
 		if (dynamicResource == null) {
 			return defaultRenderingColor.dynamicResource;
-		} else {
-			dynamicResource.expiryTime = System.currentTimeMillis() + COOLDOWN_TIME;
-			dynamicResource.needsRefresh = false;
-			return dynamicResource;
+		}
+		dynamicResource.expiryTime = currentTimeMillis + COOLDOWN_TIME;
+		return dynamicResource;
+	}
+
+	private void completeFailedGeneration(String key, DynamicTextureGenerationTracker.Token generationToken) {
+		generationTracker.completeFailure(key, generationToken, System.currentTimeMillis() + FAILURE_RETRY_TIME);
+	}
+
+	private void queueResourceForDeletion(DynamicResource dynamicResource, long currentTimeMillis) {
+		if (dynamicResource.texture != null) {
+			deletedResources.put(dynamicResource.identifier, dynamicResource.texture);
+			deletedResourceExpiryTimes.put(dynamicResource.identifier, currentTimeMillis + COOLDOWN_TIME);
+		}
+	}
+
+	private static void destroyResource(DynamicResource dynamicResource) {
+		destroyTexture(dynamicResource.identifier, dynamicResource.texture);
+	}
+
+	private static void destroyTexture(Identifier identifier, @Nullable NativeImageBackedTexture texture) {
+		try {
+			MinecraftClient.getInstance().getTextureManager().destroyTexture(identifier);
+		} catch (RuntimeException e) {
+			Init.LOGGER.error("Unable to destroy dynamic texture", e);
+		}
+		if (texture != null) {
+			try {
+				texture.close();
+			} catch (RuntimeException e) {
+				Init.LOGGER.error("Unable to close dynamic texture", e);
+			}
 		}
 	}
 
@@ -314,12 +436,14 @@ public class DynamicTextureCache implements IGui {
 
 		private long expiryTime;
 		private boolean needsRefresh;
+		private final NativeImageBackedTexture texture;
 		public final int width;
 		public final int height;
 		public final Identifier identifier;
 
 		private DynamicResource(Identifier identifier, @Nullable NativeImageBackedTexture nativeImageBackedTexture) {
 			this.identifier = identifier;
+			texture = nativeImageBackedTexture;
 			if (nativeImageBackedTexture != null) {
 				final NativeImage nativeImage = nativeImageBackedTexture.getImage();
 				if (nativeImage != null) {

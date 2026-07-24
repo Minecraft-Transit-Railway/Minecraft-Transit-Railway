@@ -62,7 +62,7 @@ public class RenderRails implements IGui {
 			return;
 		}
 
-		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = new ObjectArrayList<>();
+		final ObjectArrayList<Function<OcclusionCullingInstance, Runnable>> cullingTasks = OptimizedRenderer.renderingShadows() ? null : new ObjectArrayList<>();
 		final Vector3d cameraPosition = minecraftClient.getGameRendererMapped().getCamera().getPos();
 		final Vec3d camera = new Vec3d(cameraPosition.getXMapped(), cameraPosition.getYMapped(), cameraPosition.getZMapped());
 		final boolean holdingRailRelated = isHoldingRailRelated(clientPlayerEntity);
@@ -70,10 +70,12 @@ public class RenderRails implements IGui {
 		// Finding visible rails
 		final ObjectArrayList<Rail> railsToRender = new ObjectArrayList<>();
 		MinecraftClientData.getInstance().railWrapperList.values().forEach(railWrapper -> {
-			cullingTasks.add(occlusionCullingInstance -> {
-				final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
-				return () -> railWrapper.shouldRender = shouldRender;
-			});
+			if (cullingTasks != null) {
+				cullingTasks.add(occlusionCullingInstance -> {
+					final boolean shouldRender = occlusionCullingInstance.isAABBVisible(railWrapper.startVector, railWrapper.endVector, camera);
+					return () -> railWrapper.shouldRender = shouldRender;
+				});
+			}
 			if (railWrapper.shouldRender) {
 				railsToRender.add(railWrapper.getRail());
 			}
@@ -203,7 +205,7 @@ public class RenderRails implements IGui {
 			}
 		}
 
-		if (!OptimizedRenderer.renderingShadows()) {
+		if (cullingTasks != null) {
 			MainRenderer.WORKER_THREAD.scheduleMTRRails(occlusionCullingInstance -> {
 				final ObjectArrayList<Runnable> tasks = new ObjectArrayList<>();
 				cullingTasks.forEach(occlusionCullingInstanceRunnableFunction -> tasks.add(occlusionCullingInstanceRunnableFunction.apply(occlusionCullingInstance)));
@@ -236,6 +238,9 @@ public class RenderRails implements IGui {
 	}
 
 	private static void renderRailStandard(ClientWorld clientWorld, Rail rail, RenderState renderState, float railWidth) {
+		if (DefaultRailMeshCache.tryRender(clientWorld, rail, renderState == RenderState.NORMAL, railWidth)) {
+			return;
+		}
 		renderRailStandard(clientWorld, rail, 0.065625F, renderState, railWidth, renderState.hasColor ? RAIL_PREVIEW_TEXTURE : RAIL_TEXTURE, -1, -1, -1, -1);
 	}
 
@@ -317,20 +322,21 @@ public class RenderRails implements IGui {
 	private static void renderWithinRenderDistance(Rail rail, RenderRailWithBlockPos callback, double interval, float offsetRadius1, float offsetRadius2) {
 		final Camera camera = MinecraftClient.getInstance().getGameRendererMapped().getCamera();
 		final Vector3d cameraPosition = camera.getPos();
-		final int renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
+		final double cameraX = cameraPosition.getXMapped();
+		final double cameraY = cameraPosition.getYMapped();
+		final double cameraZ = cameraPosition.getZMapped();
+		final double renderDistance = MinecraftClientHelper.getRenderDistance() * 16;
+		final double renderDistanceSquared = renderDistance * renderDistance;
+		final float yaw = (float) Math.toRadians(camera.getYaw());
+		final float pitch = (float) Math.toRadians(camera.getPitch());
+		final float yawCos = MathHelper.cos(yaw);
+		final float yawSin = MathHelper.sin(yaw);
+		final float pitchCos = MathHelper.cos(pitch);
+		final float pitchSin = MathHelper.sin(pitch);
 
 		rail.railMath.render((x1, z1, x2, z2, x3, z3, x4, z4, y1, y2) -> {
-			final BlockPos blockPos = Init.newBlockPos(x1, y1 + LIGHT_REFERENCE_OFFSET, z1);
-			final double distanceToCamera = new Vector3d(x1, 0, z1).distanceTo(new Vector3d(cameraPosition.getXMapped(), 0, cameraPosition.getZMapped())); // Minecraft does not have vertical render distance, no need to compare the Y-axis.
-			if (distanceToCamera <= renderDistance) {
-				if (distanceToCamera < 32) {
-					callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
-				} else {
-					final Vector3d rotatedVector = new Vector3d(x1, y1, z1).subtract(cameraPosition).rotateY((float) Math.toRadians(camera.getYaw())).rotateX((float) Math.toRadians(camera.getPitch()));
-					if (rotatedVector.getZMapped() > 0) {
-						callback.renderRail(blockPos, x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
-					}
-				}
+			if (RailVisibility.shouldRender(x1, y1, z1, cameraX, cameraY, cameraZ, renderDistance, renderDistanceSquared, yawCos, yawSin, pitchCos, pitchSin)) {
+				callback.renderRail(Init.newBlockPos(x1, y1 + LIGHT_REFERENCE_OFFSET, z1), x1, z1, x2, z2, x3, z3, x4, z4, y1, y2);
 			}
 		}, interval, offsetRadius1, offsetRadius2);
 	}

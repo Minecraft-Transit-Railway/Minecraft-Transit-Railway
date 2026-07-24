@@ -392,6 +392,7 @@ public final class InitClient {
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerClientDisconnect(() -> {
+			DefaultRailMeshCache.clear();
 			if (webserver != null) {
 				webserver.stop();
 				webserver = null;
@@ -449,11 +450,12 @@ public final class InitClient {
 		});
 
 		REGISTRY_CLIENT.eventRegistryClient.registerChunkLoad((clientWorld, worldChunk) -> {
+			final ChunkPos chunkPos = worldChunk.getPos();
+			DefaultRailMeshCache.invalidateChunk(chunkPos.getXMapped(), chunkPos.getZMapped());
 			if (lastUpdatePacketMillis == 0) {
 				lastUpdatePacketMillis = getGameMillis() + 500;
 			}
 		});
-
 		REGISTRY_CLIENT.eventRegistryClient.registerResourceReloadEvent(CustomResourceLoader::reload);
 
 		REGISTRY_CLIENT.eventRegistryClient.registerGuiRendering(DrivingGuiRenderer::render);
@@ -500,7 +502,7 @@ public final class InitClient {
 
 	public static void findClosePlatform(BlockPos blockPos, int radius, Consumer<Platform> consumer) {
 		final Position position = Init.blockPosToPosition(blockPos);
-		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(Init.blockPosToPosition(blockPos), radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
+		MinecraftClientData.getInstance().platforms.stream().filter(platform -> platform.closeTo(position, radius)).min(Comparator.comparingDouble(platform -> platform.getApproximateClosestDistance(position, MinecraftClientData.getInstance()))).ifPresent(consumer);
 	}
 
 	@Nullable

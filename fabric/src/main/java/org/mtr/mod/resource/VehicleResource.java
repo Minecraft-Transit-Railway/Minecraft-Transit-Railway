@@ -534,21 +534,24 @@ public final class VehicleResource extends VehicleResourceSchema {
 	) {
 		return new CachedResource<>(() -> {
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
-			final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = new Object2ObjectOpenHashMap<>();
+			try {
+				final Object2ObjectOpenHashMap<PartCondition, OptimizedModelWrapper> optimizedModels = new Object2ObjectOpenHashMap<>();
 
-			for (final PartCondition partCondition : PartCondition.values()) {
-				final OptimizedModelWrapper optimizedModel1;
-				final ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper> materialGroups = materialGroupsModel.get(partCondition);
-				optimizedModel1 = materialGroups == null ? null : OptimizedModelWrapper.fromMaterialGroups(materialGroups);
+				for (final PartCondition partCondition : PartCondition.values()) {
+					final OptimizedModelWrapper optimizedModel1;
+					final ObjectArrayList<OptimizedModelWrapper.MaterialGroupWrapper> materialGroups = materialGroupsModel.get(partCondition);
+					optimizedModel1 = materialGroups == null ? null : OptimizedModelWrapper.fromMaterialGroups(materialGroups);
 
-				final OptimizedModelWrapper optimizedModel2;
-				final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = objModelsModel.get(partCondition);
-				optimizedModel2 = objModels == null ? null : OptimizedModelWrapper.fromObjModels(objModels);
-				optimizedModels.put(partCondition, new OptimizedModelWrapper(optimizedModel1, optimizedModel2));
+					final OptimizedModelWrapper optimizedModel2;
+					final ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper> objModels = objModelsModel.get(partCondition);
+					optimizedModel2 = objModels == null ? null : OptimizedModelWrapper.fromObjModels(objModels);
+					optimizedModels.put(partCondition, new OptimizedModelWrapper(optimizedModel1, optimizedModel2));
+				}
+
+				return optimizedModels;
+			} finally {
+				CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
 			}
-
-			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
-			return optimizedModels;
 		}, modelLifespan);
 	}
 
