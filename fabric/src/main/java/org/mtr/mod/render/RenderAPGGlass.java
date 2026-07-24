@@ -19,6 +19,15 @@ public class RenderAPGGlass extends RenderRouteBase<BlockAPGGlass.BlockEntity> {
 	}
 
 	@Override
+	protected boolean shouldRenderRoute(BlockState state) {
+		return getClass() != RenderAPGGlass.class || shouldRenderState(IBlock.getStatePropertySafe(state, HALF), IBlock.getStatePropertySafe(state, SIDE_EXTENDED));
+	}
+
+	static boolean shouldRenderState(DoubleBlockHalf half, EnumSide side) {
+		return half == DoubleBlockHalf.UPPER && side != EnumSide.SINGLE;
+	}
+
+	@Override
 	protected RenderType getRenderType(World world, BlockPos pos, BlockState state) {
 		if (IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.LOWER) {
 			return RenderType.NONE;

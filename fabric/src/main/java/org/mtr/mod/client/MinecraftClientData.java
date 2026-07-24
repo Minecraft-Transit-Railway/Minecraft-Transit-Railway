@@ -14,6 +14,7 @@ import org.mtr.mod.Init;
 import org.mtr.mod.block.BlockNode;
 import org.mtr.mod.data.PersistentVehicleData;
 import org.mtr.mod.data.VehicleExtension;
+import org.mtr.mod.render.DefaultRailMeshCache;
 import org.mtr.mod.screen.DashboardListItem;
 
 import javax.annotation.Nullable;
@@ -68,12 +69,17 @@ public final class MinecraftClientData extends ClientData {
 		positionsToRail.forEach((startPosition, railMap) -> railMap.forEach((endPosition, rail) -> {
 			final String hexId = rail.getHexId();
 			final RailWrapper railWrapper = railWrapperList.get(hexId);
-			if (railWrapper == null) {
-				railWrapperList.put(hexId, new RailWrapper(rail, hexId));
-			} else {
-				railWrapper.rail = rail;
+			if (railWrapper == null || railWrapper.rail != rail) {
+				final RailWrapper newRailWrapper = new RailWrapper(rail, hexId);
+				if (railWrapper != null) {
+					newRailWrapper.shouldRender = railWrapper.shouldRender;
+				}
+				railWrapperList.put(hexId, newRailWrapper);
 			}
 		}));
+		if (this == getInstance()) {
+			DefaultRailMeshCache.reconcile(railWrapperList.values());
+		}
 
 		simplifiedRoutes.forEach(simplifiedRoute -> simplifiedRouteIdMap.put(simplifiedRoute.getId(), simplifiedRoute));
 	}
@@ -142,6 +148,7 @@ public final class MinecraftClientData extends ClientData {
 	}
 
 	public static void reset() {
+		DefaultRailMeshCache.clear();
 		MinecraftClientData.instance = new MinecraftClientData();
 		MinecraftClientData.dashboardInstance = new MinecraftClientData();
 	}
