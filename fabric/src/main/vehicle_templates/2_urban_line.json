@@ -1799,10 +1799,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "c_train",
-			"legacySpeedSoundCount": 69,
-			"legacyDoorSoundBaseResource": "sp1900",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "c_train"
 		},
 		{
 			"id": "c_train@definition@_cab_1",
@@ -1869,10 +1866,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "c_train",
-			"legacySpeedSoundCount": 69,
-			"legacyDoorSoundBaseResource": "sp1900",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "c_train"
 		},
 		{
 			"id": "c_train@definition@_cab_2",
@@ -1939,10 +1933,7 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "c_train",
-			"legacySpeedSoundCount": 69,
-			"legacyDoorSoundBaseResource": "sp1900",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "c_train"
 		},
 		{
 			"id": "c_train@definition@_cab_3",
@@ -2009,10 +2000,7 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "c_train",
-			"legacySpeedSoundCount": 69,
-			"legacyDoorSoundBaseResource": "sp1900",
-			"legacyDoorCloseSoundTime": 0.5
+			"bveSoundBaseResource": "c_train"
 		},
 		{
 			"id": "s_train@definition@_trailer",
