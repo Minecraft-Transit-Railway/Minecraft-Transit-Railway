@@ -88,7 +88,7 @@ dependencies {
 	// though the version is fixed. Nothing newer than 0.0.8 exists to move to.
 	implementationAndShadow("com.logisticscraft:occlusionculling:0.0.8-SNAPSHOT")
 	implementationAndInclude("gg.essential:elementa:${property("dependency.elementa")}")
-	implementationAndInclude("org.jetbrains.kotlin:kotlin-stdlib:2.4.20-RC3")
+	implementationAndInclude("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
 	implementation("org.jspecify:jspecify:1.0.1")
 
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.4")

@@ -71,7 +71,7 @@ dependencies {
 	implementationAndShadow("com.logisticscraft:occlusionculling:0.0.8-SNAPSHOT")
 	implementationAndShadow("gg.essential:elementa:${property("dependency.elementa")}")
 	implementationAndShadow("gg.essential:universalcraft-${property("dependency.universal_craft_minecraft")}-neoforge:${property("dependency.universal_craft")}")
-	implementationAndShadow("org.jetbrains.kotlin:kotlin-stdlib:2.4.20-RC3")
+	implementationAndShadow("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
 	implementation("org.jspecify:jspecify:1.0.1")
 
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.4")
