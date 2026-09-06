@@ -5,7 +5,7 @@ import org.mtr.core.WebserverSetup
 
 plugins {
 	id("net.neoforged.moddev")
-	id("dev.kikugie.fletching-table.neoforge") version "+"
+	id("dev.kikugie.fletching-table.neoforge") version "0.1.0-alpha.23"
 	id("io.freefair.lombok") version "+"
 	id("com.gradleup.shadow") version "+"
 }
