@@ -140,8 +140,13 @@ tasks {
 
 	// Only the remapping variant has a remap step to feed the shaded jar into. On unobfuscated
 	// versions the plain jar task is already the mod jar, so there is nothing to rewire.
+	//
+	// The task is resolved by name with an explicit type rather than through the type-safe accessor,
+	// because that accessor is generated only while the remapping variant is applied and referencing
+	// it would stop the script compiling on 26.1 and newer. Both variants ship in the same Loom
+	// artefact, so the task class is on the build classpath either way.
 	if (!loomx.isUnobfuscated) {
-		remapJar {
+		named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
 			inputFile.set(shadowJar.get().archiveFile)
 		}
 	}
