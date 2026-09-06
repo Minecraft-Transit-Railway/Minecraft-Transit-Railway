@@ -1,4 +1,4 @@
-	package org.mtr.mod.screen;
+package org.mtr.mod.screen;
 
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.ScreenExtension;
@@ -35,13 +35,12 @@ public class RailActionsScreen extends MTRScreenBase implements IGui {
 		renderBackground(graphicsHolder);
 		railActionsList.render(graphicsHolder);
 		
-		// Render main title
+		// Render main title using MTR Translation Provider
 		graphicsHolder.drawCenteredText(TranslationProvider.GUI_MTR_RAIL_ACTIONS.getMutableText(), width / 2, SQUARE_SIZE + TEXT_PADDING, ARGB_WHITE);
 		
-		// Render temporary queue status message if active
+		// Render queue status message cleanly across 1.16.5, 1.20.1, and 1.20.4
 		if (queueDisplayTicks > 0 && lastQueueSize > 0) {
-			String queueMessage = "Operations in queue: " + lastQueueSize;
-			graphicsHolder.drawCenteredText(queueMessage, width / 2, SQUARE_SIZE * 2 - 12, ARGB_YELLOW);
+			graphicsHolder.drawCenteredText("Operations in queue: " + lastQueueSize, width / 2, SQUARE_SIZE * 2 - 12, ARGB_LIGHT_GRAY);
 		}
 		
 		super.render(graphicsHolder, mouseX, mouseY, delta);
@@ -52,10 +51,11 @@ public class RailActionsScreen extends MTRScreenBase implements IGui {
 		railActionsList.mouseMoved(mouseX, mouseY);
 	}
 
+	// Updated to handle 1.20.4 dual-axis scroll inputs while maintaining 1.16.5/1.20.1 support
 	@Override
-	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
-		railActionsList.mouseScrolled(mouseX, mouseY, amount);
-		return super.mouseScrolled2(mouseX, mouseY, amount);
+	public boolean mouseScrolled2(double mouseX, double mouseY, double amountX, double amountY) {
+		railActionsList.mouseScrolled(mouseX, mouseY, amountY);
+		return super.mouseScrolled2(mouseX, mouseY, amountX, amountY);
 	}
 
 	@Override
@@ -63,16 +63,15 @@ public class RailActionsScreen extends MTRScreenBase implements IGui {
 		railActionsList.tick();
 		railActionsList.setData(MinecraftClientData.getInstance().railActions, false, false, false, false, false, true);
 
-		// Check queue size changes to trigger the temporary notice
+		// Check queue size changes to trigger temporary notice
 		int currentSize = MinecraftClientData.getInstance().railActions.size();
 		if (currentSize != lastQueueSize) {
 			lastQueueSize = currentSize;
 			if (currentSize > 0) {
-				queueDisplayTicks = 60; // Show notification for 3 seconds (60 ticks at 20 ticks/sec)
+				queueDisplayTicks = 60; // 3 seconds at 20 ticks/sec
 			}
 		}
 
-		// Count down the display timer
 		if (queueDisplayTicks > 0) {
 			queueDisplayTicks--;
 		}
