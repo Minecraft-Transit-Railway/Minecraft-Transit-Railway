@@ -6,8 +6,8 @@ import org.mtr.core.WebserverSetup
 plugins {
 	id("net.fabricmc.fabric-loom-remap")
 	id("dev.kikugie.fletching-table.fabric") version "0.1.0-alpha.23"
-	id("io.freefair.lombok") version "+"
-	id("com.gradleup.shadow") version "+"
+	id("io.freefair.lombok") version "9.5.0"
+	id("com.gradleup.shadow") version "9.6.1"
 }
 
 base.archivesName = property("mod.id") as String
@@ -83,15 +83,17 @@ dependencies {
 	modImplementation(fletchingTable.modrinth("modmenu", sc.current.version))
 	modImplementationAndInclude("gg.essential:universalcraft-${property("dependency.universal_craft_minecraft")}-fabric:${property("dependency.universal_craft")}")
 
-	implementationAndShadow("org.mtr:transport-simulation-core:+")
-	implementationAndShadow("com.logisticscraft:occlusionculling:+")
+	implementationAndShadow("org.mtr:transport-simulation-core:1.0.2")
+	// Occlusion Culling has only ever published snapshots, so this coordinate stays mutable even
+	// though the version is fixed. Nothing newer than 0.0.8 exists to move to.
+	implementationAndShadow("com.logisticscraft:occlusionculling:0.0.8-SNAPSHOT")
 	implementationAndInclude("gg.essential:elementa:${property("dependency.elementa")}")
-	implementationAndInclude("org.jetbrains.kotlin:kotlin-stdlib:+")
-	implementation("org.jspecify:jspecify:+")
+	implementationAndInclude("org.jetbrains.kotlin:kotlin-stdlib:2.4.20-RC3")
+	implementation("org.jspecify:jspecify:1.0.1")
 
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.+")
-	testImplementation("org.junit.platform:junit-platform-launcher:1.+")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.+")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.4")
+	testImplementation("org.junit.platform:junit-platform-launcher:1.14.4")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.4")
 }
 
 tasks {
