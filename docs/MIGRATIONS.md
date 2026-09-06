@@ -504,6 +504,22 @@ rather than in the build.
 `getIntOr`, `getBooleanOr` and the rest, so the bodies already converted for the `Optional`
 change carry over nearly unaltered. Only the signatures need guarding.
 
+Long arrays are the trap. `ValueOutput` has `putIntArray` but no `putLongArray`, and
+`ValueInput` has `getIntArray` but no `getLongArray`, while this mod stores its identifiers as
+longs: platform ids, route ids, railway sign selections and lift track floor positions. Those
+have to move to `store(key, codec, value)` and `read(key, codec)`.
+
+**Use `Codec.LONG_STREAM`, not `Codec.LONG.listOf()`.** Both compile and both round-trip within
+a single version, but they do not write the same NBT. `NbtOps` implements the `createLongList`
+and `getLongStream` hooks, so a `LONG_STREAM` codec produces a `LongArrayTag`, which is exactly
+what `putLongArray` wrote before. A list codec produces a `ListTag` of `LongTag` instead, and
+every world saved by an older version silently loses those values on load: a passenger
+information display forgets its platforms, a train sensor forgets its routes, a railway sign
+forgets its selections.
+
+Nothing in the build catches this. It appears only as data quietly missing after an upgrade,
+so verify it by loading a world saved on 1.21.4 rather than a freshly created one.
+
 Treat this as needing a client despite looking mechanical. It is the save and load path, so a
 mistake does not fail to compile and does not misdraw; it silently loses a player's block data
 on the next world reload. Verify by placing configured blocks, restarting the world, and
