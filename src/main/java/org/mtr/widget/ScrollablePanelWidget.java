@@ -5,6 +5,9 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import org.mtr.core.tool.Utilities;
 import org.mtr.tool.GuiHelper;
 
@@ -41,8 +44,18 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 		return active && visible && super.isValidClickButton(button);
 	}
 
+//? if >= 26.1 {
+	/*// The handlers take the event itself now. It is unpacked here so the body below reads the same
+	// on both versions.
+	@Override
+	public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+//? }
 		if (isValidClickButton(button)) {
 			if (clickedScrollbar(mouseX, mouseY)) {
 				scrolling = true;
@@ -57,8 +70,15 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 		return false;
 	}
 
+//? if >= 26.1 {
+	/*@Override
+	public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double deltaX, double deltaY) {
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+//? }
 		if (scrolling && button == 0) {
 			final int h = height - scrollerHeight();
 			if (h > 0) {
@@ -66,7 +86,11 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 			}
 			return true;
 		}
+//? if >= 26.1 {
+		/*return super.mouseDragged(mouseButtonEvent, deltaX, deltaY);
+*///? } else {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+//? }
 	}
 
 	@Override

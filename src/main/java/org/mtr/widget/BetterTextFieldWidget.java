@@ -7,6 +7,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.mixin.TextFieldSelectionEndAccessor;
 import org.mtr.screen.TextCase;
@@ -163,8 +166,18 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		textFieldWidget.onClick(mouseX, mouseY);
 	}
 
+//? if >= 26.1 {
+	/*// The handlers take the event itself now. It is unpacked here so the body below reads the same
+	// on both versions.
+	@Override
+	public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+//? }
 		if (visible) {
 			if (isMouseOver(mouseX, mouseY)) {
 				setFocused(true);
@@ -172,7 +185,11 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 					setText(getText(), "", true);
 					return true;
 				} else {
+//? if >= 26.1 {
+					/*return super.mouseClicked(mouseButtonEvent, doubleClick);
+*///? } else {
 					return super.mouseClicked(mouseX, mouseY, button);
+//? }
 				}
 			} else {
 				setFocused(false);
