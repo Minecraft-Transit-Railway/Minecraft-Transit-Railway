@@ -6,6 +6,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 //? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
+//? if >= 26.1 {
 /*import net.minecraft.client.input.MouseButtonInfo;
 *///? }
 //? if >= 26.1 {
@@ -26,7 +29,13 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public final void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+*///? } else {
 	public final void onClick(double mouseX, double mouseY) {
+//? }
 		if (!clickedScrollbar(mouseX, mouseY)) {
 			onClickNew(mouseX, mouseY);
 		}
@@ -110,7 +119,12 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	}
 
 	protected void onClickNew(double mouseX, double mouseY) {
+//? if >= 26.1 {
+		/*// The widget's own click hook takes the event now and has an empty body, so there is nothing
+		// to pass up to from here, where only the coordinates are known.
+*///? } else {
 		super.onClick(mouseX, mouseY);
+//? }
 	}
 
 	protected final int getScrollbarWidth() {

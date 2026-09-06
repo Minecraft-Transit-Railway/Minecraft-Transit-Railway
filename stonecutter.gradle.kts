@@ -124,6 +124,7 @@ stonecutter parameters {
 
 			// The server field on a player is private now; the level it is in still exposes the server.
 			string(true) { replace("context.player().server", "context.player().level().getServer()") }
+			string(true) { replace("serverPlayerEntity.server::execute", "serverPlayerEntity.level().getServer()::execute") }
 
 			// Render targets take a name for debugging, as the textures do.
 			string(true) { replace("new TextureTarget(", "new TextureTarget(\"MTR preview\", ") }
