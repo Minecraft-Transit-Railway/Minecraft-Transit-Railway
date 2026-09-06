@@ -127,6 +127,19 @@ stonecutter parameters {
 
 			// Render targets take a name for debugging, as the textures do.
 			string(true) { replace("new TextureTarget(", "new TextureTarget(\"MTR preview\", ") }
+
+			// Widgets follow the same retained model as everything else drawn on screen: what was a
+			// render method is now an extraction one. Only the name changed, the arguments being the
+			// same once the graphics context rename above has applied.
+			string(true) { replace("renderWidget(", "extractWidgetRenderState(") }
+
+			// Click validation takes the button information rather than a bare button number.
+			string(true) { replace("isValidClickButton(int button)", "isValidClickButton(MouseButtonInfo mouseButtonInfo)") }
+			string(true) { replace("super.isValidClickButton(button)", "super.isValidClickButton(mouseButtonInfo)") }
+			string(true) { replace("if (isValidClickButton(button)) {", "if (isValidClickButton(mouseButtonEvent.buttonInfo())) {") }
+
+			// The second texture site, matching the one already rewritten above.
+			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }
 		}
 	}
 }

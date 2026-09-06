@@ -6,6 +6,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 //? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonInfo;
+*///? }
+//? if >= 26.1 {
 /*import net.minecraft.client.input.MouseButtonEvent;
 *///? }
 import org.mtr.core.tool.Utilities;
