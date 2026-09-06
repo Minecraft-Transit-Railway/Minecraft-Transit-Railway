@@ -213,7 +213,7 @@ public final class MTRClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.EYE_CANDY, context -> new RenderEyeCandy());
 
-		RegistryClient.registerBlockColors((blockState, blockRenderView, blockPos, tintIndex) -> getStationColor(blockPos),
+		RegistryClient.registerBlockColors(MTRClient::getStationColor,
 			Blocks.STATION_COLOR_ANDESITE,
 			Blocks.STATION_COLOR_BEDROCK,
 			Blocks.STATION_COLOR_BIRCH_WOOD,

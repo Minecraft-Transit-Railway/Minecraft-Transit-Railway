@@ -64,6 +64,13 @@ stonecutter parameters {
 			string(true) { replace(".blockUpdated(pos, Blocks.AIR);", ".updateNeighborsAt(pos, Blocks.AIR, null);") }
 			string(true) { replace(".blockUpdated(blockPos, Blocks.AIR);", ".updateNeighborsAt(blockPos, Blocks.AIR, null);") }
 			string(true) { replace(".blockUpdated(blockPos.relative(rotatedDirection), Blocks.AIR);", ".updateNeighborsAt(blockPos.relative(rotatedDirection), Blocks.AIR, null);") }
+
+			// Block colours on NeoForge. RegisterColorHandlersEvent.Block became BlockTintSources and
+			// now takes a list, matching the interface change. Rewritten rather than guarded because
+			// these lines sit inside the comment-toggled "if neoforge" block, and Stonecutter cannot
+			// parse a condition nested inside a commented-out region.
+			string(true) { replace("RegisterColorHandlersEvent.Block", "RegisterColorHandlersEvent.BlockTintSources") }
+			string(true) { replace("event.getBlockColors().register(createTintSource(blockColorProvider), ", "event.register(List.of(createTintSource(blockColorProvider)), ") }
 		}
 	}
 }

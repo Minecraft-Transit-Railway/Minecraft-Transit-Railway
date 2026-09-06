@@ -1,8 +1,15 @@
 package org.mtr.registry;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+//? if >= 26.1 {
+/*import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import java.util.List;
+*///? } else {
 import net.minecraft.client.color.block.BlockColor;
+//? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.Block;
@@ -15,12 +22,17 @@ import org.mtr.packet.PacketHandler;
 
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 //? if fabric {
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+//? if >= 26.1 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
+*///? } else {
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+//? }
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import org.mtr.MTR;
 import org.mtr.fabric.MTRFabric;
@@ -68,14 +80,45 @@ public final class RegistryClient {
 *///? }
 	}
 
+	// Takes the position-to-colour function rather than a Minecraft interface, because that
+	// interface changed shape in 26.1: BlockColor's single method carried a tint index and a
+	// position, while BlockTintSource splits into a positionless colour and a colourInWorld. Both
+	// are built from the same function here, and the positionless case passes null, which the
+	// station colour lookup already answers with its own default.
+
+	// Built here rather than at each registration site so the version guard sits outside the
+	// per-loader blocks. A guard nested inside a commented-out block cannot be parsed.
+//? if >= 26.1 {
+	/*private static BlockTintSource createTintSource(ToIntFunction<BlockPos> blockColorProvider) {
+		return new BlockTintSource() {
+			@Override
+			public int color(BlockState blockState) {
+				return blockColorProvider.applyAsInt(null);
+			}
+
+			@Override
+			public int colorInWorld(BlockState blockState, BlockAndTintGetter blockRenderView, BlockPos blockPos) {
+				return blockColorProvider.applyAsInt(blockPos);
+			}
+		};
+	}
+*///? } else {
+	private static BlockColor createTintSource(ToIntFunction<BlockPos> blockColorProvider) {
+		return (blockState, blockRenderView, blockPos, tintIndex) -> blockColorProvider.applyAsInt(blockPos);
+	}
+//? }
 	@SafeVarargs
-	public static void registerBlockColors(BlockColor blockColorProvider, ObjectHolder<Block>... blocks) {
+	public static void registerBlockColors(ToIntFunction<BlockPos> blockColorProvider, ObjectHolder<Block>... blocks) {
 //? if fabric {
-		ColorProviderRegistry.BLOCK.register(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new));
+//? if >= 26.1 {
+		/*BlockColorRegistry.register(List.of(createTintSource(blockColorProvider)), Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new));
+*///? } else {
+		ColorProviderRegistry.BLOCK.register(createTintSource(blockColorProvider), Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new));
+//? }
 //? }
 
 //? if neoforge {
-		/*ModEventBusClient.BLOCK_COLORS.add(event -> event.getBlockColors().register(blockColorProvider, Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new)));
+		/*ModEventBusClient.BLOCK_COLORS.add(event -> event.getBlockColors().register(createTintSource(blockColorProvider), Arrays.stream(blocks).map(ObjectHolder::get).toArray(Block[]::new)));
 //
 *///? }
 	}
