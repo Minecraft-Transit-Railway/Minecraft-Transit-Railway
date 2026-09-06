@@ -34,6 +34,14 @@ stonecutter parameters {
 			// only the static calls, which are followed by a dot.
 			string(true) { replace("net.minecraft.client.renderer.LightTexture", "net.minecraft.util.LightCoordsUtil") }
 			string(true) { replace("LightTexture.", "LightCoordsUtil.") }
+
+			// NeoForge dropped the bus attribute and the Bus enum from @EventBusSubscriber; events now
+			// declare which bus they belong to themselves. Only the attribute needs removing, and it is
+			// stripped here rather than guarded in the four subscriber classes because those files sit
+			// entirely inside a comment-toggled "if neoforge" block, and nesting a second condition inside
+			// one is a pattern this codebase does not use anywhere.
+			string(true) { replace(", bus = EventBusSubscriber.Bus.GAME", "") }
+			string(true) { replace(", bus = EventBusSubscriber.Bus.MOD", "") }
 		}
 	}
 }
