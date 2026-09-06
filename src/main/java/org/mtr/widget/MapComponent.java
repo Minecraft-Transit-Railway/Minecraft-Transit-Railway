@@ -3,7 +3,7 @@ package org.mtr.widget;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import org.mtr.model.StoredMesh;
 import gg.essential.elementa.UIComponent;
 import gg.essential.elementa.components.UIBlock;
 import gg.essential.elementa.constraints.CoerceAtMostConstraint;
@@ -19,6 +19,15 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+//? if >= 26.1 {
+/*import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import org.joml.Vector4f;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+*///? }
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
@@ -296,14 +305,28 @@ public final class MapComponent extends UIComponent {
 			final DoubleDoubleImmutablePair topLeftWorldCoords = coordsToWorldPos(0D, 0D);
 			final float offsetX = clampTileSize(topLeftWorldCoords.leftDouble()) - (float) topLeftWorldCoords.leftDouble();
 			final float offsetY = clampTileSize(topLeftWorldCoords.rightDouble()) - (float) topLeftWorldCoords.rightDouble();
+//? if >= 26.1 {
+			/*// One pass covers every tile: the pipeline is bound once and each tile supplies its own
+			// transform and colour. The fade that used to be a global shader colour is now part of
+			// that per-tile uniform, since the global one no longer exists.
+			final RenderType mapRenderLayer = GuiHelper.getGuiRenderType();
+			final RenderTarget mapRenderTarget = mapRenderLayer.outputTarget().getRenderTarget();
+			final GpuTextureView mapColorTexture = RenderSystem.outputColorTextureOverride == null ? mapRenderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
+			final GpuTextureView mapDepthTexture = mapRenderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? mapRenderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
+
+			try (final RenderPass mapRenderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR map tiles", mapColorTexture, OptionalInt.empty(), mapDepthTexture, OptionalDouble.empty())) {
+			mapRenderPass.setPipeline(mapRenderLayer.pipeline());
+			RenderSystem.bindDefaultUniforms(mapRenderPass);
+*///? } else {
 			GuiHelper.getGuiRenderType().setupRenderState();
+//? }
 
 			for (double x = 0; x < width + tileSize; x += tileSize) {
 				for (double y = 0; y < height + tileSize; y += tileSize) {
 					final DoubleDoubleImmutablePair worldCoords = coordsToWorldPos(x, y);
 					final BlockPos tilePos = new BlockPos(clampTileSize(worldCoords.leftDouble()), player == null ? 0 : player.blockPosition().getY(), clampTileSize(worldCoords.rightDouble()));
 					final long key = tilePos.asLong();
-					final VertexBuffer vertexBuffer = mapTileProvider.getTile(tilePos);
+					final StoredMesh vertexBuffer = mapTileProvider.getTile(tilePos);
 
 					if (vertexBuffer == null) {
 						tileOpacityValues.remove(key);
@@ -317,19 +340,31 @@ public final class MapComponent extends UIComponent {
 
 						final float newX = (float) x + left;
 						final float newY = (float) y + top;
+//? if >= 26.1 {
+						/*vertexBuffer.draw(
+							mapRenderPass,
+							new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
+							new Vector4f(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1)
+						);
+*///? } else {
 						IDrawing.changeShaderColor(new Color(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1), () -> {
-							vertexBuffer.bind();
-							vertexBuffer.drawWithShader(
+							vertexBuffer.getVertexBuffer().bind();
+							vertexBuffer.getVertexBuffer().drawWithShader(
 								new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
 								RenderSystem.getProjectionMatrix(),
 								RenderSystem.getShader()
 							);
 						});
+//? }
 					}
 				}
 			}
 
+//? if >= 26.1 {
+			/*}
+*///? } else {
 			GuiHelper.getGuiRenderType().clearRenderState();
+//? }
 		}
 
 		final ObjectArrayList<Consumer<PoseStack>> deferredRenders = new ObjectArrayList<>();

@@ -1,6 +1,6 @@
 package org.mtr.map;
 
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import org.mtr.model.StoredMesh;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ public final class MapTileProvider extends CachedFileProvider<MapTileResource> {
 	}
 
 	@Nullable
-	public VertexBuffer getTile(BlockPos blockPos) {
+	public StoredMesh getTile(BlockPos blockPos) {
 		final int chunkX = Math.floorDiv(blockPos.getX(), TILE_SIZE);
 		final int y = mapType == MapType.DYNAMIC ? blockPos.getY() : 0;
 		final int chunkZ = Math.floorDiv(blockPos.getZ(), TILE_SIZE);
