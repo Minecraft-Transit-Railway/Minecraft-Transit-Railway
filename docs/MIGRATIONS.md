@@ -404,15 +404,26 @@ Two techniques are in use, and the choice between them is deliberate:
 
 What remains, largest first:
 
-| Item | Errors | Notes |
-|---|---|---|
-| `GuiGraphics` to `GuiGraphicsExtractor` | 84 | Retained-mode rendering; see below |
-| Override signatures no longer matching | 30 | `loadAdditional`, `saveAdditional`, `entityInside`, `updateShape` |
-| `VertexBuffer` | 16 | Removed outright; needs the GPU buffer model |
-| `blockUpdated`, `displayClientMessage`, `getInstance`, `getDyeColor` | 20 | Individual signature changes |
-| `CompiledShaderProgram` | 6 | Replaced by `RenderPipelines` |
-| Deleted Fabric API modules | 6 | `itemgroup.v1`, `keybinding.v1`, `blockrenderlayer.v1` |
-| `BlockColor` | 4 | Replaced by `BlockTintSource` |
+| Item | Errors | Needs a client? | Notes |
+|---|---|---|---|
+| `GuiGraphics` to `GuiGraphicsExtractor` | 88 | yes | Retained-mode rendering; see below |
+| Override signatures no longer matching | 34 | no | `loadAdditional`, `saveAdditional`, `entityInside`, `updateShape` |
+| `VertexBuffer` and `CompiledShaderProgram` | 22 | yes | Removed; needs the GPU buffer and pipeline model |
+| `blockUpdated`, `displayClientMessage`, `getInstance` | 18 | no | Individual signature changes |
+| Deleted Fabric API modules | 6 | partly | See the table below |
+| `BlockColor` | 4 | no | Replaced by `BlockTintSource` |
+| Assorted inference and generics failures | 12 | no | Follows from the changes above |
+
+`appendHoverText` is done: Minecraft swapped its tooltip list for a consumer and added a
+display parameter, which broke the override in twenty-one blocks and items. Both branches
+now write through a `Consumer<Component>`, which the older signature obtains by adapting its
+list parameter, so only the signature line and three super calls are guarded and the tooltip
+bodies are shared.
+
+The "needs a client" column is the important one. Everything marked no can be finished
+against the compiler. Everything marked yes compiles just as happily when it is wrong, and
+shows up only as incorrect drawing, wrong draw order, or a collapsed frame rate, so it wants
+someone watching the game rather than the build log.
 
 The `GuiGraphics` work is the substantial one. Minecraft 26.1 replaced immediate-mode
 drawing with retained-mode extraction: `Screen.render(GuiGraphics, ...)` became
