@@ -41,9 +41,12 @@ repositories {
 }
 
 val buildTools = BuildTools(sc.current.version, "neoforge", project.property("mod.version").toString(), project.rootDir)
+// Minecraft 26.1 runs on Java 25, not 26: its version manifest pins the java-runtime-epsilon
+// component to major version 25. Targeting 26 would emit class files the game's own runtime
+// refuses to load, and the mismatch would only surface at launch rather than during the build.
 val requiredJava = when {
 	sc.current.parsed < "26.0" -> JavaVersion.VERSION_21
-	else -> JavaVersion.VERSION_26
+	else -> JavaVersion.VERSION_25
 }
 
 configurations {
