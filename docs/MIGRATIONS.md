@@ -421,6 +421,36 @@ survives, but `blit` and `fill` take a `RenderPipeline` first, `drawString` beca
 and `centeredText`, and `pose()` returns a two-dimensional `Matrix3x2fStack` rather than a
 `PoseStack`. That last one is the only part needing real thought.
 
+**Fabric API replacements**
+
+Verified against Fabric API 0.155.2+26.1.2 by reading the shipped module jars, since several
+of these modules were deleted outright rather than renamed:
+
+| Old | New |
+|---|---|
+| `client.rendering.v1.ColorProviderRegistry` | `client.rendering.v1.BlockColorRegistry` |
+| `client.rendering.v1.HudRenderCallback` | `client.rendering.v1.hud.HudElementRegistry` |
+| `client.rendering.v1.HudLayerRegistrationCallback` | `client.rendering.v1.hud.HudElementRegistry` |
+| `client.rendering.v1.IdentifiedLayer` | `client.rendering.v1.hud.VanillaHudElements` |
+| `client.rendering.v1.WorldRenderEvents` | `client.rendering.v1.level.LevelRenderEvents` |
+| `client.keybinding.v1.KeyBindingHelper` | `client.keymapping.v1.KeyMappingHelper` |
+| `itemgroup.v1.FabricItemGroup` | `creativetab.v1.FabricCreativeModeTab` |
+| `blockrenderlayer.v1.BlockRenderLayerMap` | **no replacement** — see below |
+
+Two of these are not mechanical and want a running client before they are settled.
+
+`WorldRenderEvents.AFTER_ENTITIES` has no exact counterpart. `LevelRenderEvents` splits the
+frame far more finely, into `AFTER_OPAQUE_TERRAIN`, `AFTER_SOLID_FEATURES`,
+`BEFORE_TRANSLUCENT_TERRAIN`, `AFTER_TRANSLUCENT_FEATURES`, `COLLECT_SUBMITS` and others.
+`AFTER_SOLID_FEATURES` is the closest reading of the old behaviour, but this is where every
+vehicle, rail and sign is drawn, so the wrong choice changes draw order and depth sorting
+rather than failing to compile.
+
+`BlockRenderLayerMap` is gone with nothing to replace it. Assigning a render layer to a
+block moved out of code and into the block model JSON, so the fix is a resource change
+across the affected models rather than a source change. `ChunkSectionLayerHelper` is not a
+substitute; it only converts between layer and render type.
+
 **Finish line**
 
 Both 26.1.2 nodes compile, the mod loads on each loader, and the packaging gap below is
