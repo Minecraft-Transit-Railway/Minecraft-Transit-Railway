@@ -95,6 +95,10 @@ stonecutter parameters {
 			// ResourceKey follows ResourceLocation: its accessor is identifier() now. Anchored to the
 			// dimension key, because other types in this codebase still have a location() of their own.
 			string(true) { replace("dimension().location()", "dimension().identifier()") }
+
+			// Two Fabric modules were renamed wholesale rather than moved, along with their entry points.
+			string(true) { replace("KeyBindingHelper.registerKeyBinding(", "KeyMappingHelper.registerKeyMapping(") }
+			string(true) { replace("FabricItemGroup.builder()", "FabricCreativeModeTab.builder()") }
 		}
 	}
 }

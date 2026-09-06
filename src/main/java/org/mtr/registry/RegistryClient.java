@@ -25,8 +25,12 @@ import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 //? if fabric {
+//? if >= 26.1 {
+/*import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+*///? } else {
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+//? }
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //? if >= 26.1 {
 /*import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
@@ -58,7 +62,29 @@ public final class RegistryClient {
 *///? }
 	}
 
-	public static void registerBlockRenderType(RenderType renderLayer, ObjectHolder<Block> block) {
+	/**
+	 * The layer a block is drawn in. Named here rather than taken as a Minecraft render type because
+	 * the two versions disagree about what that is, and because from 26.1 it is not a runtime choice
+	 * at all.
+	 */
+	public enum BlockRenderLayer {
+		CUTOUT, TRANSLUCENT
+	}
+
+	/**
+	 * Declares the layer a block is drawn in.
+	 *
+	 * <p>From 26.1 this does nothing. Neither loader offers a way to say it in code any more:
+	 * Fabric's map and NeoForge's setter are both gone, and a block declares its own layer through
+	 * the {@code render_type} field of its model instead. The calls are left in place so that the
+	 * older versions keep working and so the intent stays visible in one list.</p>
+	 */
+	public static void registerBlockRenderType(BlockRenderLayer blockRenderLayer, ObjectHolder<Block> block) {
+//? if >= 26.1 {
+		/*// Declared in the block model rather than here.
+*///? } else {
+		final RenderType renderLayer = blockRenderLayer == BlockRenderLayer.TRANSLUCENT ? RenderType.translucent() : RenderType.cutout();
+
 //? if fabric {
 		BlockRenderLayerMap.INSTANCE.putBlock(block.get(), renderLayer);
 //? }
@@ -67,6 +93,7 @@ public final class RegistryClient {
 		/*ModEventBusClient.CLIENT_OBJECTS_TO_REGISTER.add(() -> ItemBlockRenderTypes.setRenderLayer(block.get(), renderLayer));
 //
 *///? }
+//? }
 	}
 
 	public static void registerKeyBinding(KeyMapping keyBinding) {
