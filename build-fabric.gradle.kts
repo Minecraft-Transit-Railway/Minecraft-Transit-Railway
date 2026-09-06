@@ -14,15 +14,28 @@ base.archivesName = property("mod.id") as String
 version = "${property("mod.version")}+${sc.current.version}-fabric"
 
 repositories {
+	// Transport Simulation Core can be built from source and published locally, which is the only
+	// route that works without GitHub credentials. Restricted to that single module so every other
+	// dependency keeps resolving from its canonical remote instead of a stale local artifact.
+	mavenLocal {
+		content { includeModule("org.mtr", "transport-simulation-core") }
+	}
 	mavenCentral()
 	maven { url = uri("https://repo.codemc.org/repository/maven-public") } // Occlusion Culling
 	maven { url = uri("https://repo.essential.gg/repository/maven-public") } // Elementa and UniversalCraft
 	maven { url = uri("https://api.modrinth.com/maven") }
-	maven {
-		url = uri("https://maven.pkg.github.com/Minecraft-Transit-Railway/Transport-Simulation-Core")
-		credentials {
-			username = providers.gradleProperty("gpr.user").getOrNull() ?: "github-actions"
-			password = providers.gradleProperty("gpr.key").getOrNull() ?: System.getenv("GITHUB_TOKEN")
+	// GitHub Packages demands an access token even though Transport Simulation Core is a public
+	// repository, so this repository is only declared once a token is actually available. Gradle
+	// rejects a null password while configuring the project, which would otherwise abort every
+	// credential-less build before it reached the locally published copy above.
+	val githubPackagesToken = providers.gradleProperty("gpr.key").orNull ?: System.getenv("GITHUB_TOKEN")
+	if (githubPackagesToken != null) {
+		maven {
+			url = uri("https://maven.pkg.github.com/Minecraft-Transit-Railway/Transport-Simulation-Core")
+			credentials {
+				username = providers.gradleProperty("gpr.user").orNull ?: "github-actions"
+				password = githubPackagesToken
+			}
 		}
 	}
 }
