@@ -1,5 +1,8 @@
 package org.mtr.registry;
 
+//? if >= 26.1 {
+/*import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+*///? }
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -51,7 +54,12 @@ import org.mtr.neoforge.ModEventBusClient;
 
 public final class RegistryClient {
 
+//? if >= 26.1 {
+	/*// The provider names the render state it produces as well as the block entity it draws.
+	public static <T extends BlockEntity, U extends T, S extends BlockEntityRenderState> void registerBlockEntityRenderer(ObjectHolder<BlockEntityType<U>> blockEntityType, BlockEntityRendererProvider<T, S> factory) {
+*///? } else {
 	public static <T extends BlockEntity, U extends T> void registerBlockEntityRenderer(ObjectHolder<BlockEntityType<U>> blockEntityType, BlockEntityRendererProvider<T> factory) {
+//? }
 //? if fabric {
 		BlockEntityRenderers.register(blockEntityType.get(), factory);
 //? }
