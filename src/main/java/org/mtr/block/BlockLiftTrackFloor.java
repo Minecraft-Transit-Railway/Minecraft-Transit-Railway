@@ -90,9 +90,15 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements EntityBlo
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			floorNumber = nbtCompound.getStringOr(KEY_FLOOR_NUMBER, "");
+			floorDescription = nbtCompound.getStringOr(KEY_FLOOR_DESCRIPTION, "");
+			shouldDing = nbtCompound.getBooleanOr(KEY_SHOULD_DING, false);
+*///? } else {
 			floorNumber = nbtCompound.getString(KEY_FLOOR_NUMBER);
 			floorDescription = nbtCompound.getString(KEY_FLOOR_DESCRIPTION);
 			shouldDing = nbtCompound.getBoolean(KEY_SHOULD_DING);
+//? }
 		}
 
 		@Override

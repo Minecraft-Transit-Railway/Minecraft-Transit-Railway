@@ -145,7 +145,11 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			final long data = nbtCompound.getLongOr(KEY_TRACK_FLOOR_POS, 0);
+*///? } else {
 			final long data = nbtCompound.getLong(KEY_TRACK_FLOOR_POS);
+//? }
 			trackPosition = data == 0 ? null : BlockPos.of(data);
 		}
 

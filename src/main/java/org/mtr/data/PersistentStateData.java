@@ -27,14 +27,22 @@ public final class PersistentStateData extends SavedData {
 
 	public PersistentStateData(CompoundTag nbt) {
 		super();
+//? if >= 26.1 {
+/*		final String tempUniqueWorldId = nbt.getStringOr(KEY_UNIQUE_WORLD_ID, "");
+*///? } else {
 		final String tempUniqueWorldId = nbt.getString(KEY_UNIQUE_WORLD_ID);
+//? }
 		if (tempUniqueWorldId.isEmpty()) {
 			uniqueWorldId = MTR.randomString();
 			setDirty();
 		} else {
 			uniqueWorldId = tempUniqueWorldId;
 		}
+//? if >= 26.1 {
+/*		for (final long routeId : nbt.getLongArray(KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS).orElse(new long[0])) {
+*///? } else {
 		for (final long routeId : nbt.getLongArray(KEY_ROUTE_IDS_WITH_DISABLED_ANNOUNCEMENTS)) {
+//? }
 			routeIdsWithDisabledAnnouncements.add(routeId);
 		}
 	}

@@ -67,9 +67,15 @@ public class BlockTrainAnnouncer extends BlockTrainSensorBase {
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			message = nbtCompound.getStringOr(KEY_MESSAGE, "");
+			soundId = nbtCompound.getStringOr(KEY_SOUND_ID, "");
+			delay = nbtCompound.getIntOr(KEY_DELAY, 0);
+*///? } else {
 			message = nbtCompound.getString(KEY_MESSAGE);
 			soundId = nbtCompound.getString(KEY_SOUND_ID);
 			delay = nbtCompound.getInt(KEY_DELAY);
+//? }
 		}
 
 		@Override

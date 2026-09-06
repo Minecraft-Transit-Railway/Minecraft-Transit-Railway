@@ -133,10 +133,17 @@ public class BlockDriverKeyDispenser extends BlockWaterloggable implements Entit
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			dispenseBasicDriverKey = nbtCompound.getBooleanOr(KEY_DISPENSE_BASIC_DRIVER_KEY, false);
+			dispenseAdvancedDriverKey = nbtCompound.getBooleanOr(KEY_DISPENSE_ADVANCED_DRIVER_KEY, false);
+			dispenseGuardKey = nbtCompound.getBooleanOr(KEY_DISPENSE_GUARD_KEY, false);
+			timeout = nbtCompound.getLongOr(KEY_TIMEOUT, 0);
+*///? } else {
 			dispenseBasicDriverKey = nbtCompound.getBoolean(KEY_DISPENSE_BASIC_DRIVER_KEY);
 			dispenseAdvancedDriverKey = nbtCompound.getBoolean(KEY_DISPENSE_ADVANCED_DRIVER_KEY);
 			dispenseGuardKey = nbtCompound.getBoolean(KEY_DISPENSE_GUARD_KEY);
 			timeout = nbtCompound.getLong(KEY_TIMEOUT);
+//? }
 		}
 
 		@Override

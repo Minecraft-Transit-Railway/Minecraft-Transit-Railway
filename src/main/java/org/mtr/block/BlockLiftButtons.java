@@ -152,7 +152,11 @@ public class BlockLiftButtons extends BlockWaterloggable implements EntityBlock 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
 			trackPositions.clear();
+//? if >= 26.1 {
+/*			for (final long position : nbtCompound.getLongArray(KEY_TRACK_FLOOR_POS).orElse(new long[0])) {
+*///? } else {
 			for (final long position : nbtCompound.getLongArray(KEY_TRACK_FLOOR_POS)) {
+//? }
 				trackPositions.add(BlockPos.of(position));
 			}
 		}

@@ -142,18 +142,32 @@ public abstract class BlockPIDSBase extends Block implements EntityBlock {
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
 			for (int i = 0; i < maxArrivals; i++) {
+//? if >= 26.1 {
+/*				messages[i] = nbtCompound.getStringOr(KEY_MESSAGE + i, "");
+				hideArrivalArray[i] = nbtCompound.getBooleanOr(KEY_HIDE_ARRIVAL + i, false);
+*///? } else {
 				messages[i] = nbtCompound.getString(KEY_MESSAGE + i);
 				hideArrivalArray[i] = nbtCompound.getBoolean(KEY_HIDE_ARRIVAL + i);
+//? }
 			}
 
 			platformIds.clear();
+//? if >= 26.1 {
+/*			final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS).orElse(new long[0]);
+*///? } else {
 			final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS);
+//? }
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
 
+//? if >= 26.1 {
+/*			displayPage = nbtCompound.getIntOr(KEY_DISPLAY_PAGE, 0);
+			final int tempCustomColor = nbtCompound.getIntOr(KEY_CUSTOM_COLOR, 0);
+*///? } else {
 			displayPage = nbtCompound.getInt(KEY_DISPLAY_PAGE);
 			final int tempCustomColor = nbtCompound.getInt(KEY_CUSTOM_COLOR);
+//? }
 			customColor = tempCustomColor == 0 ? null : tempCustomColor;
 		}
 
