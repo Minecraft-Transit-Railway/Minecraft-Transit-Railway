@@ -490,7 +490,12 @@ most of the drawing vocabulary survived. Across seventeen files:
 | `blitSprite(…)` | takes a `RenderPipeline` first | pick the right pipeline |
 | `pose()` held as a `PoseStack` | now a two-dimensional `Matrix3x2fStack` | see below |
 
-Nineteen text calls and the scissor and fill calls are pure renames. The transform calls in
+The renames are done. `GuiGraphics` to `GuiGraphicsExtractor`, `drawString` to `text` and
+`drawCenteredString` to `centeredText` are rewritten while building, which cleared every
+GuiGraphics symbol error. The text renames are anchored to their receiver because this
+codebase also draws with `java.awt.Graphics2D`, whose own `drawString` must not be touched.
+
+The scissor and fill calls needed nothing. The transform calls in
 `BetaWarningScreen` and `FakePauseScreen` are safe too, because they all pass zero for the
 translation's third axis and one for the scale's, so flattening to two dimensions loses
 nothing.
