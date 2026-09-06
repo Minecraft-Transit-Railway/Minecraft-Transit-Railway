@@ -75,7 +75,7 @@ dependencies {
 	implementationAndShadow("gg.essential:elementa:${property("dependency.elementa")}")
 	implementationAndShadow("gg.essential:universalcraft-${property("dependency.universal_craft_minecraft")}-neoforge:${property("dependency.universal_craft")}")
 	implementationAndShadow("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
-	implementation("org.jspecify:jspecify:1.0.1")
+	implementation("org.jspecify:jspecify:1.0.0")
 
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.14.4")
 	testImplementation("org.junit.platform:junit-platform-launcher:1.14.4")
