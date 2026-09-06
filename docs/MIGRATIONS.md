@@ -376,6 +376,79 @@ A `// TODO` without follow-up over a year old is a bug. Audit this list each rel
 
 ---
 
+## 12. Minecraft 26.1 port
+
+**What's old / what's new**
+
+- **Old**: 1.21.1 and 1.21.4, obfuscated, built through Loom's remapping variant.
+- **New**: 26.1.2, unobfuscated, built through Loom's non-remapping variant. Minecraft has
+  used year-based versions since 2026, and everything from 26.1 onwards ships without
+  obfuscation, so mappings no longer exist and Yarn is discontinued.
+
+**State**
+
+Both 26.1.2 nodes configure and resolve completely. Neither compiles yet. Roughly 160
+errors remain across 42 files, down from about 200 when the nodes were added, and the
+count moves unevenly because `javac` stops early and reveals more as earlier errors clear.
+
+Two techniques are in use, and the choice between them is deliberate:
+
+- **Rewritten while building**, declared in `stonecutter.gradle.kts` under
+  `replacements`. Used only where a name changed and behaviour did not, such as
+  `ResourceLocation` becoming `Identifier`, the packages that moved, and the
+  `EventBusSubscriber` attribute that was deleted. This keeps roughly 220 sites free of
+  guards and leaves the shared source untouched.
+- **Guarded in the source** with `//? if >= 26.1 {`. Used where behaviour differs, such as
+  the NBT getters that now return `Optional`. A reader of those methods needs to see that
+  two forms exist, which a rewrite would hide.
+
+What remains, largest first:
+
+| Item | Errors | Notes |
+|---|---|---|
+| `GuiGraphics` to `GuiGraphicsExtractor` | 84 | Retained-mode rendering; see below |
+| Override signatures no longer matching | 30 | `loadAdditional`, `saveAdditional`, `entityInside`, `updateShape` |
+| `VertexBuffer` | 16 | Removed outright; needs the GPU buffer model |
+| `blockUpdated`, `displayClientMessage`, `getInstance`, `getDyeColor` | 20 | Individual signature changes |
+| `CompiledShaderProgram` | 6 | Replaced by `RenderPipelines` |
+| Deleted Fabric API modules | 6 | `itemgroup.v1`, `keybinding.v1`, `blockrenderlayer.v1` |
+| `BlockColor` | 4 | Replaced by `BlockTintSource` |
+
+The `GuiGraphics` work is the substantial one. Minecraft 26.1 replaced immediate-mode
+drawing with retained-mode extraction: `Screen.render(GuiGraphics, ...)` became
+`Screen.extractRenderState(GuiGraphicsExtractor, ...)`. The drawing vocabulary largely
+survives, but `blit` and `fill` take a `RenderPipeline` first, `drawString` became `text`
+and `centeredText`, and `pose()` returns a two-dimensional `Matrix3x2fStack` rather than a
+`PoseStack`. That last one is the only part needing real thought.
+
+**Finish line**
+
+Both 26.1.2 nodes compile, the mod loads on each loader, and the packaging gap below is
+closed. At that point this section can be deleted.
+
+**Pitfall**
+
+Do **not** reach for a build-time replacement to fix a compile error without first checking
+who else calls the method. Of roughly two hundred `getString` callers here, only eight read
+NBT; the rest are translation holders and the schema reader. A blanket rewrite would have
+silently corrupted them. The same applies to any token short enough to appear inside an
+unrelated name: rewriting `Identifier` in reverse would have mangled `formatIdentifier` and
+a log message that mentions the word in prose.
+
+Note also that a runtime check cannot guard a Gradle task accessor. Referring to `remapJar`
+directly stops the build script compiling on unobfuscated versions, because the type-safe
+accessor is generated only while the remapping Loom variant is applied. Resolve such tasks
+by name with an explicit type instead.
+
+**Known gap**
+
+The Fabric 26.1.2 jar will not contain its shaded libraries. With no remap step the plain
+`jar` task becomes the mod jar, and the Shadow output is not wired into it. This does not
+affect compilation, so it does not block the port, but it will produce a broken artefact if
+a release is built before it is fixed.
+
+---
+
 ## How to use this document
 
 - Before starting a refactor on any code that touches the files referenced above, read the

@@ -88,6 +88,11 @@ All supported version/loader combinations are listed in `settings.gradle.kts`:
 | 1.21.1            | NeoForge | `1.21.1-neoforge`      |
 | 1.21.4            | Fabric   | `1.21.4-fabric`        |
 | 1.21.4            | NeoForge | `1.21.4-neoforge`      |
+| 26.1.2            | Fabric   | `26.1.2-fabric`        |
+| 26.1.2            | NeoForge | `26.1.2-neoforge`      |
+
+The 26.1.2 nodes are a port in progress and do not compile yet. See
+[`MIGRATIONS.md`](MIGRATIONS.md) for what remains.
 
 Active versions are configured in the `versions/` directory.
 
