@@ -13,14 +13,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-//? if >= 26.1 {
-/*import net.minecraft.world.item.component.TooltipDisplay;
-*///? }
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.BlockEntityTypes;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 
@@ -35,15 +31,12 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING));
 	}
 
+//? if <26.1 {
 	@Override
-//? if >= 26.1 {
-/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
-*///? } else {
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
-		final Consumer<Component> tooltip = tooltipList::add;
-//? }
-		tooltip.accept(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(1).withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(1).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {

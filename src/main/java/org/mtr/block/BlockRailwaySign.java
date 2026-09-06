@@ -42,13 +42,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 //? if >= 1.21.4 {
 import net.minecraft.world.level.ScheduledTickAccess;
-//? if >= 26.1 {
-/*import net.minecraft.world.item.component.TooltipDisplay;
-*///? }
 //? } else {
 /*import net.minecraft.world.level.LevelAccessor;
  *///? }
@@ -145,16 +141,13 @@ public class BlockRailwaySign extends Block implements IBlock, EntityBlock {
 		}
 	}
 
+//? if <26.1 {
 	@Override
-//? if >= 26.1 {
-/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
-*///? } else {
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
-		final Consumer<Component> tooltip = tooltipList::add;
-//? }
-		tooltip.accept(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).withStyle(ChatFormatting.GRAY));
-		tooltip.accept((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).withStyle(ChatFormatting.GRAY));
+		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Nullable
 	@Override

@@ -20,9 +20,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-//? if >= 26.1 {
-/*import net.minecraft.world.item.component.TooltipDisplay;
-*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 
 public abstract class BlockPIDSBase extends Block implements EntityBlock {
 
@@ -104,15 +100,12 @@ public abstract class BlockPIDSBase extends Block implements EntityBlock {
 		return InteractionResult.PASS;
 	}
 
+//? if <26.1 {
 	@Override
-//? if >= 26.1 {
-/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
-*///? } else {
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
-		final Consumer<Component> tooltip = tooltipList::add;
-//? }
-		tooltip.accept(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 

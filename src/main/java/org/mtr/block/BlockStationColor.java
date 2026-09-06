@@ -7,13 +7,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-//? if >= 26.1 {
-/*import net.minecraft.world.item.component.TooltipDisplay;
-*///? }
 import org.mtr.generated.lang.TranslationProvider;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class BlockStationColor extends Block {
 
@@ -21,13 +17,10 @@ public class BlockStationColor extends Block {
 		super(settings);
 	}
 
+//? if <26.1 {
 	@Override
-//? if >= 26.1 {
-/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
-*///? } else {
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
-		final Consumer<Component> tooltip = tooltipList::add;
-//? }
-		tooltip.accept(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 }

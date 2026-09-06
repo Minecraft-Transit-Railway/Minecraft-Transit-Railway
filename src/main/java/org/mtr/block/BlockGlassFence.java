@@ -17,12 +17,8 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-//? if >= 26.1 {
-/*import net.minecraft.world.item.component.TooltipDisplay;
-*///? }
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 
@@ -53,15 +49,12 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 		return Shapes.empty();
 	}
 
+//? if <26.1 {
 	@Override
-//? if >= 26.1 {
-/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
-*///? } else {
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
-		final Consumer<Component> tooltip = tooltipList::add;
-//? }
-		tooltip.accept(Component.translatable("tooltip." + stack.getItem().getDescriptionId()).withStyle(ChatFormatting.GRAY));
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+		tooltip.add(Component.translatable("tooltip." + stack.getItem().getDescriptionId()).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
