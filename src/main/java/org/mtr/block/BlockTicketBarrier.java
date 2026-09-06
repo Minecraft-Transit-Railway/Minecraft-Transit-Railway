@@ -20,6 +20,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.ScheduledTick;
+//? if >= 26.1 {
+/*import net.minecraft.world.entity.InsideBlockEffectApplier;
+*///? }
 import org.mtr.data.TicketSystem;
 import org.mtr.registry.SoundEvents;
 
@@ -35,7 +38,11 @@ public class BlockTicketBarrier extends Block {
 	}
 
 	@Override
+//? if >= 26.1 {
+/*	public void entityInside(BlockState state, Level world, BlockPos blockPos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+*///? } else {
 	public void entityInside(BlockState state, Level world, BlockPos blockPos, Entity entity) {
+//? }
 		if (!world.isClientSide() && entity instanceof Player) {
 			final Direction facing = IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING);
 			final Vec3 playerPosRotated = entity.position().subtract(blockPos.getX() + 0.5, 0, blockPos.getZ() + 0.5).yRot((float) Math.toRadians(facing.toYRot()));
