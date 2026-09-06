@@ -14,7 +14,12 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 //? if >= 26.1 {
-/*import net.minecraft.client.renderer.rendertype.RenderTypes;
+/*import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 *///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
@@ -319,6 +324,24 @@ public class MainRenderer {
 				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
 				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
 			};
+//? if >= 26.1 {
+			/*// The render pass replaces the old setup and clear pair, and owns the batch: the pipeline,
+			// vertex buffer and textures are bound once, then every instance writes its own transform
+			// uniform and draws. The target is taken from the render layer rather than the main one so
+			// that layers drawing elsewhere still land in the right place.
+			final RenderTarget renderTarget = renderLayer.outputTarget().getRenderTarget();
+			final GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride == null ? renderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
+			final GpuTextureView depthTexture = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? renderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
+
+			try (final RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR models", colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
+				newOptimizedModel.begin(renderPass, renderLayer);
+				renderDetails.forEach(renderDetailsEntry -> {
+					renderDetailsEntry.left().transform(matrixStack, offset);
+					newOptimizedModel.render(renderPass, matrixStack.last().pose(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF);
+					matrixStack.popPose();
+				});
+			}
+*///? } else {
 			renderLayer.setupRenderState();
 			newOptimizedModel.begin(RenderSystem.getShader());
 			renderDetails.forEach(renderDetailsEntry -> {
@@ -327,6 +350,7 @@ public class MainRenderer {
 				matrixStack.popPose();
 			});
 			renderLayer.clearRenderState();
+//? }
 		}));
 	}
 

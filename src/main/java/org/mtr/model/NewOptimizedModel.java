@@ -9,7 +9,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+/*import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.systems.RenderPass;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+*///? } else if >= 1.21.4 {
 import net.minecraft.client.renderer.CompiledShaderProgram;
 //? } else {
 /*import net.minecraft.client.renderer.ShaderInstance;
@@ -33,8 +41,14 @@ import net.minecraft.client.renderer.CompiledShaderProgram;
 public final class NewOptimizedModel {
 
 	public final ResourceLocation texture;
+//? if >= 26.1 {
+	/*@Nullable
+	private final GpuBuffer vertexBuffer;
+	private final int indexCount;
+*///? } else {
 	@Nullable
 	private final VertexBuffer vertexBuffer;
+//? }
 	private final VertexFormat.Mode drawMode;
 
 	/**
@@ -42,6 +56,11 @@ public final class NewOptimizedModel {
 	 * a single buffer avoids a per-draw allocation. See {@code docs/PERFORMANCE.md} §3.2.
 	 */
 	private static final Matrix4f MODEL_VIEW_SCRATCH = new Matrix4f();
+//? if >= 26.1 {
+	/*private static final Vector4f COLOR_MODULATOR_SCRATCH = new Vector4f();
+	private static final Vector3f MODEL_OFFSET_SCRATCH = new Vector3f();
+	private static final Matrix4f TEXTURE_MATRIX_SCRATCH = new Matrix4f();
+*///? }
 	/**
 	 * Pre-built {@code colorModulator} arrays for every value of {@code lightMultiplier}
 	 * the renderer ever emits. The renderer derives {@code lightMultiplier} from a 4-bit
@@ -69,11 +88,37 @@ public final class NewOptimizedModel {
 	 * @param callback the vertex-emitter callback invoked exactly once to populate the
 	 *                 buffer, or {@code null} to skip buffer creation entirely
 	 */
+//? if >= 26.1 {
+	/*public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, @Nullable Consumer<VertexConsumer> callback) {
+		// The mesh is built once and handed straight to the GPU. From 26.1 the vertex data lives in a
+		// GpuBuffer rather than a VertexBuffer, and the index count has to be kept because the draw
+		// call needs it; the old VertexBuffer carried that itself.
+		GpuBuffer builtBuffer = null;
+		int builtIndexCount = 0;
+
+		if (callback != null) {
+			final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(drawMode, DefaultVertexFormat.ENTITY);
+			callback.accept(bufferBuilder);
+			try (final MeshData meshData = bufferBuilder.build()) {
+				if (meshData != null) {
+					builtIndexCount = meshData.drawState().indexCount();
+					builtBuffer = RenderSystem.getDevice().createBuffer(() -> "MTR model " + texture, GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
+				}
+			}
+		}
+
+		this.vertexBuffer = builtBuffer;
+		this.indexCount = builtIndexCount;
+		this.texture = texture;
+		this.drawMode = drawMode;
+	}
+*///? } else {
 	public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, @Nullable Consumer<VertexConsumer> callback) {
 		this.vertexBuffer = callback == null ? null : createVertexBuffer(drawMode, DefaultVertexFormat.NEW_ENTITY, callback);
 		this.texture = texture;
 		this.drawMode = drawMode;
 	}
+//? }
 
 	/**
 	 * Issue the draw call after {@link #begin(CompiledShaderProgram)} has bound the buffer.
@@ -82,12 +127,21 @@ public final class NewOptimizedModel {
 	 * @param lightMultiplier brightness scale in {@code [0, 1]}; {@code 1} for full-bright stages
 	 * @param shaderProgram   the active shader, may be {@code null} during reload
 	 */
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+	/*public void render(RenderPass renderPass, Matrix4f matrix4f, float lightMultiplier) {
+		if (vertexBuffer != null) {
+			// The two uniforms the older code set by hand are now written together into one buffer
+			// slice. Scratch objects are reused for the same reason the matrix always was: this runs
+			// once per instance per frame and allocating here shows up in the frame time.
+			MODEL_VIEW_SCRATCH.set(RenderSystem.getModelViewMatrix()).mul(matrix4f);
+			final float[] colorModulator = colorModulatorFor(lightMultiplier);
+			COLOR_MODULATOR_SCRATCH.set(colorModulator[0], colorModulator[1], colorModulator[2], colorModulator[3]);
+			renderPass.setUniform("DynamicTransforms", RenderSystem.getDynamicUniforms().writeTransform(MODEL_VIEW_SCRATCH, COLOR_MODULATOR_SCRATCH, MODEL_OFFSET_SCRATCH, TEXTURE_MATRIX_SCRATCH));
+			renderPass.drawIndexed(0, 0, indexCount, 1);
+		}
+	}
+*///? } else if >= 1.21.4 {
 	public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable CompiledShaderProgram shaderProgram) {
-//? } else {
-	/*public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable ShaderInstance shaderProgram) {
-//
-*///? }
 		if (vertexBuffer != null && shaderProgram != null) {
 			if (shaderProgram.MODEL_VIEW_MATRIX != null) {
 				// Reuse the static scratch matrix instead of `new Matrix4f(...)` per draw call.
@@ -102,6 +156,22 @@ public final class NewOptimizedModel {
 			vertexBuffer.draw();
 		}
 	}
+//? } else {
+	/*public void render(Matrix4f matrix4f, float lightMultiplier, @Nullable ShaderInstance shaderProgram) {
+		if (vertexBuffer != null && shaderProgram != null) {
+			if (shaderProgram.MODEL_VIEW_MATRIX != null) {
+				MODEL_VIEW_SCRATCH.set(RenderSystem.getModelViewMatrix()).mul(matrix4f);
+				shaderProgram.MODEL_VIEW_MATRIX.set(MODEL_VIEW_SCRATCH);
+				shaderProgram.MODEL_VIEW_MATRIX.upload();
+			}
+			if (shaderProgram.COLOR_MODULATOR != null) {
+				shaderProgram.COLOR_MODULATOR.set(colorModulatorFor(lightMultiplier));
+				shaderProgram.COLOR_MODULATOR.upload();
+			}
+			vertexBuffer.draw();
+		}
+	}
+*///? }
 
 	public static VertexBuffer createVertexBuffer(VertexFormat.Mode drawMode, VertexFormat vertexFormat, Consumer<VertexConsumer> callback) {
 //? if >= 1.21.4 {
@@ -141,16 +211,42 @@ public final class NewOptimizedModel {
 	 * GL state. Must be paired with one or more {@link #render(Matrix4f, float, CompiledShaderProgram)}
 	 * calls per frame, then the next mesh's {@code begin(...)}.
 	 */
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+	/*public void begin(RenderPass renderPass, RenderType renderLayer) {
+		if (vertexBuffer != null) {
+			renderPass.setPipeline(renderLayer.pipeline());
+			RenderSystem.bindDefaultUniforms(renderPass);
+			renderPass.setVertexBuffer(0, vertexBuffer);
+
+			// All three samplers have to be bound by hand. The render setup that would normally do it
+			// keeps its texture map private, and the entity vertex format carries overlay and lightmap
+			// coordinates, so binding only the model's own texture would light every model wrongly
+			// without any error to show for it.
+			final AbstractTexture abstractTexture = Minecraft.getInstance().getTextureManager().getTexture(texture);
+			renderPass.bindTexture("Sampler0", abstractTexture.getTextureView(), abstractTexture.getSampler());
+			renderPass.bindTexture("Sampler1", Minecraft.getInstance().gameRenderer.overlayTexture().getTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+			renderPass.bindTexture("Sampler2", Minecraft.getInstance().gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
+
+			// Quads are drawn through the shared sequential index buffer rather than one of our own.
+			final RenderSystem.AutoStorageIndexBuffer autoStorageIndexBuffer = RenderSystem.getSequentialBuffer(drawMode);
+			renderPass.setIndexBuffer(autoStorageIndexBuffer.getBuffer(indexCount), autoStorageIndexBuffer.type());
+		}
+	}
+*///? } else if >= 1.21.4 {
 	public void begin(@Nullable CompiledShaderProgram shaderProgram) {
-//? } else {
-	/*public void begin(@Nullable ShaderInstance shaderProgram) {
-//
-*///? }
 		if (vertexBuffer != null && shaderProgram != null) {
 			vertexBuffer.bind();
 			shaderProgram.setDefaultUniforms(drawMode, RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), Minecraft.getInstance().getWindow());
 			shaderProgram.apply();
 		}
 	}
+//? } else {
+	/*public void begin(@Nullable ShaderInstance shaderProgram) {
+		if (vertexBuffer != null && shaderProgram != null) {
+			vertexBuffer.bind();
+			shaderProgram.setDefaultUniforms(drawMode, RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), Minecraft.getInstance().getWindow());
+			shaderProgram.apply();
+		}
+	}
+*///? }
 }
