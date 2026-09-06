@@ -39,7 +39,11 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 	@Override
 	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		setDimensions();
+//? if >= 26.1 {
+		/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
+*///? } else {
 		final PoseStack matrixStack = context.pose();
+//? }
 
 		// Draw background
 		new Drawing(matrixStack, GuiHelper.getGuiRenderType())

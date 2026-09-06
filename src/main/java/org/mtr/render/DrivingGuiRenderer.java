@@ -59,7 +59,11 @@ public final class DrivingGuiRenderer {
 			final int speedometerY = window.getGuiScaledHeight() - TOOL_SIZE - EDGE_PADDING;
 			final int radius = TOOL_SIZE / 2;
 
+//? if >= 26.1 {
+			/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
+*///? } else {
 			final PoseStack matrixStack = context.pose();
+//? }
 			matrixStack.pushPose();
 			matrixStack.translate(speedometerX + radius, speedometerY + radius, 0);
 			final Drawing drawing1 = new Drawing(matrixStack, GuiHelper.getGuiRenderType());

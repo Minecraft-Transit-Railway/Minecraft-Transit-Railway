@@ -134,6 +134,19 @@ stonecutter parameters {
 			// same once the graphics context rename above has applied.
 			string(true) { replace("renderWidget(", "extractWidgetRenderState(") }
 
+			// The interface matrix is two dimensional now. Every transform in these two screens passes
+			// zero for the translation's third axis and one for the scale's, so flattening them costs
+			// nothing. Anchored to the graphics context, because the world renderers still push and pop
+			// a three dimensional stack of their own.
+			string(true) { replace("context.pose().pushPose()", "context.pose().pushMatrix()") }
+			string(true) { replace("context.pose().popPose()", "context.pose().popMatrix()") }
+			string(true) { replace("context.pose().translate(width / 2F, SQUARE_SIZE, 0)", "context.pose().translate(width / 2F, SQUARE_SIZE)") }
+			string(true) { replace("context.pose().scale(2, 2, 1)", "context.pose().scale(2, 2)") }
+			string(true) { replace("context.pose().translate(width / 2F, i + TEXT_HEIGHT + TEXT_PADDING / 2F, 0)", "context.pose().translate(width / 2F, i + TEXT_HEIGHT + TEXT_PADDING / 2F)") }
+			string(true) { replace("context.pose().scale(0.5F, 0.5F, 1)", "context.pose().scale(0.5F, 0.5F)") }
+			string(true) { replace("context.pose().translate(width / 2F - newWidth / 2F, height / 2F - newHeight / 2F, 0)", "context.pose().translate(width / 2F - newWidth / 2F, height / 2F - newHeight / 2F)") }
+			string(true) { replace("context.pose().scale(newWidth / width, newHeight / height, 1)", "context.pose().scale(newWidth / width, newHeight / height)") }
+
 			// Click validation takes the button information rather than a bare button number.
 			string(true) { replace("isValidClickButton(int button)", "isValidClickButton(MouseButtonInfo mouseButtonInfo)") }
 			string(true) { replace("super.isValidClickButton(button)", "super.isValidClickButton(mouseButtonInfo)") }

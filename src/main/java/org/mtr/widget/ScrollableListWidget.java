@@ -44,7 +44,11 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		clickAction = null;
 		hoverItem = null;
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = initDimensions();
+//? if >= 26.1 {
+		/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
+*///? } else {
 		final PoseStack matrixStack = context.pose();
+//? }
 		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 

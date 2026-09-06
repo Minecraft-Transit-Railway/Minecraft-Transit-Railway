@@ -21,6 +21,7 @@ import java.awt.*;
 
 //? if >= 26.1 {
 /*import net.minecraft.client.renderer.RenderPipelines;
+import org.joml.Matrix3x2f;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.util.Util;
 import java.util.function.Function;
@@ -198,6 +199,23 @@ public final class GuiHelper {
 	 * dropped the ready-made one; the pipeline behind it is the one the game draws its own interface
 	 * with.
 	 */
+//? if >= 26.1 {
+	/*// Widens the interface matrix, which is two dimensional from 26.1, into the three dimensional
+	// form the drawing code works in, wrapped in a stack so that the transforms around it are
+	// unchanged. Depth is identity: the interface is ordered by the sequence things are drawn in now,
+	// not by where they sit on a third axis.
+	public static PoseStack asPoseStack(Matrix3x2f matrix3x2f) {
+		final PoseStack poseStack = new PoseStack();
+		poseStack.last().pose().set(
+			matrix3x2f.m00(), matrix3x2f.m01(), 0, 0,
+			matrix3x2f.m10(), matrix3x2f.m11(), 0, 0,
+			0, 0, 1, 0,
+			matrix3x2f.m20(), matrix3x2f.m21(), 0, 1
+		);
+		return poseStack;
+	}
+*///? }
+
 	public static RenderType getGuiRenderType() {
 //? if >= 26.1 {
 		/*return GUI;
@@ -340,7 +358,11 @@ public final class GuiHelper {
 
 	private static void drawText(GuiGraphics context, @Nullable String text1, @Nullable Component text2, double x, double y, double z, int color) {
 		if ((text1 != null || text2 != null) && (color & 0xFF000000) != 0) {
+//? if >= 26.1 {
+			/*final PoseStack matrixStack = asPoseStack(context.pose());
+*///? } else {
 			final PoseStack matrixStack = context.pose();
+//? }
 			matrixStack.pushPose();
 			matrixStack.translate(x, y, z);
 			if (text1 != null) {

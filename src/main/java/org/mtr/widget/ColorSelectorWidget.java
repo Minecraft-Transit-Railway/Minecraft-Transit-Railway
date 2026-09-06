@@ -65,7 +65,11 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 		greenTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE * 2);
 		blueTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 4 + GuiHelper.DEFAULT_LINE_SIZE * 3);
 
+//? if >= 26.1 {
+		/*final Drawing drawing = new Drawing(GuiHelper.asPoseStack(context.pose()), GuiHelper.getGuiRenderType());
+*///? } else {
 		final Drawing drawing = new Drawing(context.pose(), GuiHelper.getGuiRenderType());
+//? }
 		final int mainHeight = height - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE;
 		final int mainWidth = width - GuiHelper.DEFAULT_PADDING * 4 - GuiHelper.DEFAULT_LINE_SIZE - CONTROLS_SIZE;
 		hoverMouseZone = MouseZone.NONE;
