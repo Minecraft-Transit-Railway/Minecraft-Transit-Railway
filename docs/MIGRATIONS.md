@@ -472,6 +472,41 @@ that method only below 26.1 and contribute nothing on newer versions.
 Restoring them means moving the text onto the matching `BlockItem`, which changes how those
 blocks are registered. That is deliberate outstanding work, not an oversight.
 
+**The GuiGraphics rework, broken down**
+
+`GuiGraphics` became `GuiGraphicsExtractor` and `Screen.render` became
+`Screen.extractRenderState`. The eighty-eight errors are less daunting than they look, because
+most of the drawing vocabulary survived. Across seventeen files:
+
+| Call | 26.1 | Risk |
+|---|---|---|
+| `drawString(Font, …, x, y, colour)` | `text(…)` | none, identical arguments |
+| `drawCenteredString(…)` | `centeredText(…)` | none, identical arguments |
+| `enableScissor` / `disableScissor` | unchanged | none |
+| `fill(x1, y1, x2, y2, colour)` | unchanged | none |
+| `pose().pushPose()` / `popPose()` | `pushMatrix()` / `popMatrix()` | none |
+| `pose().translate(x, y, 0)` | `translate(x, y)` | none, every call passes zero |
+| `pose().scale(x, y, 1)` | `scale(x, y)` | none, every call passes one |
+| `blitSprite(…)` | takes a `RenderPipeline` first | pick the right pipeline |
+| `pose()` held as a `PoseStack` | now a two-dimensional `Matrix3x2fStack` | see below |
+
+Nineteen text calls and the scissor and fill calls are pure renames. The transform calls in
+`BetaWarningScreen` and `FakePauseScreen` are safe too, because they all pass zero for the
+translation's third axis and one for the scale's, so flattening to two dimensions loses
+nothing.
+
+Three places do need a decision:
+
+- `GuiHelper.drawText` translates by a **variable** z to layer text. Two dimensions have no
+  third axis, and 26.1 orders the interface by draw order rather than depth, so this needs
+  re-expressing rather than translating.
+- `Drawing` has a `Drawing(PoseStack, RenderType)` constructor that two widgets feed
+  `context.pose()` into. It needs a two-dimensional counterpart.
+- Four widgets hold `context.pose()` in a `PoseStack` local and pass it around.
+
+Note that `DrivingGuiRenderer` and `BlockEntityRendererExtension` also use a `PoseStack`, but
+theirs comes from world rendering rather than from `GuiGraphics`, and is unaffected.
+
 **Block colour handlers**
 
 `BlockColor` became `BlockTintSource`, and the registration changed on both loaders at once.
