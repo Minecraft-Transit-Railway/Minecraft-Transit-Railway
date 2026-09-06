@@ -80,6 +80,17 @@ stonecutter parameters {
 			string(true) { replace("RenderType.text(", "RenderTypes.text(") }
 			string(true) { replace("RenderType.lines(", "RenderTypes.lines(") }
 			string(true) { replace("RenderType.itemEntityTranslucentCull(", "RenderTypes.entityTranslucentCullItemTarget(") }
+
+			// ServerPlayer.level() now returns a ServerLevel directly, so the separate accessor went.
+			string(true) { replace("serverPlayerEntity.serverLevel()", "serverPlayerEntity.level()") }
+
+			// The daylight rule was renamed as well as moved: reading the old name in the new package
+			// would still fail. Rules are now fetched by their GameRule constant rather than by type.
+			string(true) { replace("getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)", "getGameRules().get(GameRules.ADVANCE_TIME)") }
+
+			// Command permissions moved from a numeric level to a named check.
+			string(true) { replace("serverCommandSource -> serverCommandSource.hasPermission(4)", "Commands.hasPermission(Commands.LEVEL_OWNERS)") }
+			string(true) { replace("serverCommandSource -> serverCommandSource.hasPermission(2)", "Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)") }
 		}
 	}
 }
