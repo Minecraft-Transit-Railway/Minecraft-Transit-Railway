@@ -121,6 +121,12 @@ stonecutter parameters {
 
 			// The texture constructor takes a name for debugging alongside the image.
 			string(true) { replace("new DynamicTexture(newNativeImage)", "new DynamicTexture(() -> \"MTR dynamic texture\", newNativeImage)") }
+
+			// The server field on a player is private now; the level it is in still exposes the server.
+			string(true) { replace("context.player().server", "context.player().level().getServer()") }
+
+			// Render targets take a name for debugging, as the textures do.
+			string(true) { replace("new TextureTarget(", "new TextureTarget(\"MTR preview\", ") }
 		}
 	}
 }
