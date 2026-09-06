@@ -8,6 +8,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+//? if >= 26.1 {
+/*import net.minecraft.network.chat.FontDescription;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.data.IGui;

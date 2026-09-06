@@ -99,6 +99,28 @@ stonecutter parameters {
 			// Two Fabric modules were renamed wholesale rather than moved, along with their entry points.
 			string(true) { replace("KeyBindingHelper.registerKeyBinding(", "KeyMappingHelper.registerKeyMapping(") }
 			string(true) { replace("FabricItemGroup.builder()", "FabricCreativeModeTab.builder()") }
+
+			// A style now names its font through a description rather than an identifier directly.
+			string(true) { replace("withFont(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\"))", "withFont(new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\")))") }
+
+			// The level exposes this through a method now; the field itself is private.
+			string(true) { replace("world.isClientSide &&", "world.isClientSide() &&") }
+			string(true) { replace("world.isClientSide ?", "world.isClientSide() ?") }
+
+			// The font helper takes an identifier and hands it to a style, so it wraps it too.
+			string(true) { replace("Style.EMPTY.withFont(font)", "Style.EMPTY.withFont(new FontDescription.Resource(font))") }
+
+			// The array writers take primitive arrays now rather than boxed lists, so the fastutil sets
+			// hand over their own contents directly instead of being copied into an ArrayList first.
+			string(true) { replace("putLongArray(KEY_PLATFORM_IDS, new ArrayList<>(platformIds))", "putLongArray(KEY_PLATFORM_IDS, platformIds.toLongArray())") }
+			string(true) { replace("putLongArray(KEY_SELECTED_IDS + i, new ArrayList<>(selectedIds[i]))", "putLongArray(KEY_SELECTED_IDS + i, selectedIds[i].toLongArray())") }
+			string(true) { replace("putLongArray(KEY_ROUTE_IDS, new ArrayList<>(filterRouteIds))", "putLongArray(KEY_ROUTE_IDS, filterRouteIds.toLongArray())") }
+			string(true) { replace("putIntArray(KEY_SIGNAL_COLORS_1, new ArrayList<>(signalColors1))", "putIntArray(KEY_SIGNAL_COLORS_1, signalColors1.toIntArray())") }
+			string(true) { replace("putIntArray(KEY_SIGNAL_COLORS_2, new ArrayList<>(signalColors2))", "putIntArray(KEY_SIGNAL_COLORS_2, signalColors2.toIntArray())") }
+			string(true) { replace("putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList)", "putLongArray(KEY_TRACK_FLOOR_POS, trackPositionsList.stream().mapToLong(Long::longValue).toArray())") }
+
+			// The texture constructor takes a name for debugging alongside the image.
+			string(true) { replace("new DynamicTexture(newNativeImage)", "new DynamicTexture(() -> \"MTR dynamic texture\", newNativeImage)") }
 		}
 	}
 }
