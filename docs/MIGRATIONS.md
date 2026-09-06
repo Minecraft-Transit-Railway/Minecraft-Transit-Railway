@@ -507,6 +507,18 @@ Three places do need a decision:
 Note that `DrivingGuiRenderer` and `BlockEntityRendererExtension` also use a `PoseStack`, but
 theirs comes from world rendering rather than from `GuiGraphics`, and is unaffected.
 
+The `Drawing` case is worse than a missing constructor, and it joins the two GUI widgets to the
+same problem the world renderer has. `Drawing(PoseStack, RenderType)` resolves its buffer with
+`RenderType.gui()`, and 26.1 has neither piece: `RenderType` no longer offers a GUI variant at
+all, and interface drawing goes through `RenderPipelines.GUI`, `GUI_TEXTURED` and `GUI_TEXT`
+instead. JOML offers no conversion from `Matrix3x2f` to `Matrix4f` either, so the matrix cannot
+simply be widened.
+
+So the custom drawing path is not portable by adaptation. It has to move onto the pipeline
+model, which is the same change the world renderer needs. Treating them as one piece of work
+rather than two is likely to be less effort, not more, because they end up sharing the same
+approach to buffers, pipelines and uniforms.
+
 **Block colour handlers**
 
 `BlockColor` became `BlockTintSource`, and the registration changed on both loaders at once.
