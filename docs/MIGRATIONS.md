@@ -462,6 +462,31 @@ block moved out of code and into the block model JSON, so the fix is a resource 
 across the affected models rather than a source change. `ChunkSectionLayerHelper` is not a
 substitute; it only converts between layer and render type.
 
+**Block tooltips are gone on 26.1**
+
+Minecraft keeps `appendHoverText` on `Item`, adding a display parameter and swapping the list
+for a consumer, and removes it from `Block` entirely. Nothing in the game, NeoForge or Fabric
+offers a block-side replacement, so the fifteen block classes that had tooltips now compile
+that method only below 26.1 and contribute nothing on newer versions.
+
+Restoring them means moving the text onto the matching `BlockItem`, which changes how those
+blocks are registered. That is deliberate outstanding work, not an oversight.
+
+**Block entity persistence moves to ValueInput and ValueOutput**
+
+`loadAdditional` and `saveAdditional` no longer take a `CompoundTag` and a
+`HolderLookup.Provider`; they take `ValueInput` and `ValueOutput`. This affects the twenty-six
+`readNbt` and `writeNbt` implementations across thirteen classes.
+
+`ValueInput` exposes the same accessor shape the new `CompoundTag` does, `getStringOr`,
+`getIntOr`, `getBooleanOr` and the rest, so the bodies already converted for the `Optional`
+change carry over nearly unaltered. Only the signatures need guarding.
+
+Treat this as needing a client despite looking mechanical. It is the save and load path, so a
+mistake does not fail to compile and does not misdraw; it silently loses a player's block data
+on the next world reload. Verify by placing configured blocks, restarting the world, and
+confirming their settings survived.
+
 **Finish line**
 
 Both 26.1.2 nodes compile, the mod loads on each loader, and the packaging gap below is
