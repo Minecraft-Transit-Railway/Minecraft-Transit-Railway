@@ -4,7 +4,7 @@ import org.mtr.core.Generator
 import org.mtr.core.WebserverSetup
 
 plugins {
-	id("net.fabricmc.fabric-loom-remap")
+	id("dev.kikugie.loom-back-compat")
 	id("dev.kikugie.fletching-table.fabric") version "0.1.0-alpha.23"
 	id("io.freefair.lombok") version "9.5.0"
 	id("com.gradleup.shadow") version "9.6.1"
@@ -79,7 +79,7 @@ fun DependencyHandlerScope.implementationAndShadow(notation: Any) {
 
 dependencies {
 	minecraft("com.mojang:minecraft:${sc.current.version}")
-	mappings(loom.officialMojangMappings())
+	loomx.applyMojangMappings()
 
 	modImplementation("net.fabricmc:fabric-loader:${property("dependency.fabric_loader")}")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${property("dependency.fabric_api")}")
@@ -138,8 +138,12 @@ tasks {
 		relocate("de.javagl", "org.mtr.libraries.de.javagl")
 	}
 
-	remapJar {
-		inputFile.set(shadowJar.get().archiveFile)
+	// Only the remapping variant has a remap step to feed the shaded jar into. On unobfuscated
+	// versions the plain jar task is already the mod jar, so there is nothing to rewire.
+	if (!loomx.isUnobfuscated) {
+		remapJar {
+			inputFile.set(shadowJar.get().archiveFile)
+		}
 	}
 
 	withType<JavaCompile>().configureEach {
@@ -157,7 +161,7 @@ tasks {
 		description = "Builds the mod and collects the JAR and sources JAR into the build/libs directory with versioned naming."
 		group = "build"
 		outputs.upToDateWhen { false }
-		from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile })
+		from(loomx.modJar.map { it.archiveFile }, loomx.modSourcesJar.map { it.archiveFile })
 		into(rootProject.layout.buildDirectory.file("release"))
 		rename("${project.property("mod.id")}-([^-]+)-([^-]+)-([a-z]+)(-sources|)\\.jar", "${project.property("mod.id").toString().uppercase()}-$3-$1-$2$4.jar")
 		dependsOn("build")

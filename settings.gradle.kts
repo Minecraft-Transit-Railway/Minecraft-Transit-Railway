@@ -10,6 +10,9 @@ pluginManagement {
 
 plugins {
 	id("dev.kikugie.stonecutter") version "0.10-alpha.8"
+	// Selects between Loom's remapping and non-remapping variants per version. Minecraft is
+	// unobfuscated from 26.1 onwards, so the two cannot be served by a single Loom plugin id.
+	id("dev.kikugie.loom-back-compat") version "0.4.2"
 	id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
