@@ -43,7 +43,7 @@ public final class TabGroupWidget extends ClickableWidgetBase {
 		buttonGroup.renderWidget(context, mouseX, mouseY, delta);
 
 		final PoseStack matrixStack = context.pose();
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
 
 		// Handle animation
 		guiAnimation1.tick();

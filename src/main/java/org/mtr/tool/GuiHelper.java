@@ -19,6 +19,13 @@ import org.mtr.widget.SlotBackgroundComponent;
 
 import java.awt.*;
 
+//? if >= 26.1 {
+/*import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.util.Util;
+import java.util.function.Function;
+*///? }
+
 //? if < 1.21.4 {
 /*import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -89,6 +96,11 @@ public final class GuiHelper {
 
 	private static final int SHADOW_COLOR_DARK = 0x11000000;
 	private static final int SHADOW_COLOR_LIGHT = 0x11FFFFFF;
+
+//? if >= 26.1 {
+	/*private static final RenderType GUI = RenderType.create("mtr_gui", RenderSetup.builder(RenderPipelines.GUI).createRenderSetup());
+	private static final Function<ResourceLocation, RenderType> GUI_TEXTURED_26 = Util.memoize(resourceLocation -> RenderType.create("mtr_gui_textured", RenderSetup.builder(RenderPipelines.GUI_TEXTURED).withTexture("Sampler0", resourceLocation).createRenderSetup()));
+*///? }
 
 //? if < 1.21.4 {
 	/*private static final RenderStateShard.ShaderStateShard POSITION_TEXTURE_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
@@ -181,8 +193,23 @@ public final class GuiHelper {
 		);
 	}
 
+	/**
+	 * The untextured render type used for the mod's own interface geometry. Built here because 26.1
+	 * dropped the ready-made one; the pipeline behind it is the one the game draws its own interface
+	 * with.
+	 */
+	public static RenderType getGuiRenderType() {
+//? if >= 26.1 {
+		/*return GUI;
+*///? } else {
+		return RenderType.gui();
+//? }
+	}
+
 	public static RenderType getGuiTexturedRenderType(ResourceLocation texture) {
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+		/*return GUI_TEXTURED_26.apply(texture);
+*///? } else if >= 1.21.4 {
 		return RenderType.guiTextured(texture);
 //? } else {
 		/*return GUI_TEXTURED.apply(texture);

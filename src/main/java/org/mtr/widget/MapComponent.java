@@ -282,7 +282,7 @@ public final class MapComponent extends UIComponent {
 		final float delta = MTRClient.getGameTimeDeltaTicks();
 
 		// Background
-		new Drawing(matrixStack, RenderType.gui()).setVerticesWH(left, top, width, height).setColor(Color.BLACK).draw();
+		new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setVerticesWH(left, top, width, height).setColor(Color.BLACK).draw();
 
 		guiAnimationX.tick();
 		guiAnimationY.tick();
@@ -296,7 +296,7 @@ public final class MapComponent extends UIComponent {
 			final DoubleDoubleImmutablePair topLeftWorldCoords = coordsToWorldPos(0D, 0D);
 			final float offsetX = clampTileSize(topLeftWorldCoords.leftDouble()) - (float) topLeftWorldCoords.leftDouble();
 			final float offsetY = clampTileSize(topLeftWorldCoords.rightDouble()) - (float) topLeftWorldCoords.rightDouble();
-			RenderType.gui().setupRenderState();
+			GuiHelper.getGuiRenderType().setupRenderState();
 
 			for (double x = 0; x < width + tileSize; x += tileSize) {
 				for (double y = 0; y < height + tileSize; y += tileSize) {
@@ -329,7 +329,7 @@ public final class MapComponent extends UIComponent {
 				}
 			}
 
-			RenderType.gui().clearRenderState();
+			GuiHelper.getGuiRenderType().clearRenderState();
 		}
 
 		final ObjectArrayList<Consumer<PoseStack>> deferredRenders = new ObjectArrayList<>();
@@ -348,7 +348,7 @@ public final class MapComponent extends UIComponent {
 			});
 		}
 
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui()).setGuiBoundsWH(left, top, width, height);
+		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setGuiBoundsWH(left, top, width, height);
 		hoverStationsHomesLandmarks.clear();
 		hoverPlatforms.clear();
 		hoverDepots.clear();
