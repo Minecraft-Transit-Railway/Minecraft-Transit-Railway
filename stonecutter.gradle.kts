@@ -41,6 +41,18 @@ stonecutter parameters {
 			// one is a pattern this codebase does not use anywhere.
 			string(true) { replace(", bus = EventBusSubscriber.Bus.GAME", "") }
 			string(true) { replace(", bus = EventBusSubscriber.Bus.MOD", "") }
+
+			// GuiGraphics became GuiGraphicsExtractor in the same net.minecraft.client.gui package, so
+			// the token covers the imports, the parameter types and the locals alike. Most of the drawing
+			// vocabulary survived the rename; the calls that genuinely changed shape, such as pose() and
+			// blitSprite, still fail to compile and are guarded separately rather than rewritten here.
+			string(true) { replace("GuiGraphics", "GuiGraphicsExtractor") }
+
+			// drawString and drawCenteredString were renamed with their argument lists unchanged. Both
+			// are anchored to the receiver: this codebase also draws with java.awt.Graphics2D, which has
+			// its own drawString, and rewriting that one would corrupt the font atlas generation.
+			string(true) { replace("context.drawString(", "context.text(") }
+			string(true) { replace("context.drawCenteredString(", "context.centeredText(") }
 		}
 	}
 }
