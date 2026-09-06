@@ -472,6 +472,28 @@ that method only below 26.1 and contribute nothing on newer versions.
 Restoring them means moving the text onto the matching `BlockItem`, which changes how those
 blocks are registered. That is deliberate outstanding work, not an oversight.
 
+**Block colour handlers**
+
+`BlockColor` became `BlockTintSource`, and the registration changed on both loaders at once.
+The whole mapping, verified against the jars:
+
+| Old | New |
+|---|---|
+| `BlockColor.getColor(BlockState, BlockAndTintGetter, BlockPos, int)` | `BlockTintSource.colorInWorld(BlockState, BlockAndTintGetter, BlockPos)` |
+| Fabric `ColorProviderRegistry.BLOCK.register(handler, blocks)` | `BlockColorRegistry.register(List<BlockTintSource>, Block...)` |
+| NeoForge `RegisterColorHandlersEvent.Block` | `RegisterColorHandlersEvent.BlockTintSources` |
+
+Both loaders now take the same `register(List<BlockTintSource>, Block...)` shape, so the two
+registration paths converge rather than diverging further.
+
+Two things are not mechanical. The tint index is gone, which costs this mod nothing because
+the existing handler ignored it. More importantly `BlockTintSource` has an abstract
+`color(BlockState)` alongside the position-aware default, so the current lambda has to become
+a real implementation, and something has to be decided for the case with no position, which is
+what inventory and particle rendering use. Station colouring is derived from the position, so
+that fallback is a genuine choice rather than a transcription, and it is visible in the game
+rather than in the build.
+
 **Block entity persistence moves to ValueInput and ValueOutput**
 
 `loadAdditional` and `saveAdditional` no longer take a `CompoundTag` and a
