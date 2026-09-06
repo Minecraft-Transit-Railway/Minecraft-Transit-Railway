@@ -49,7 +49,11 @@ public class BlockLiftButtons extends BlockWaterloggable implements EntityBlock 
 		final InteractionResult result = IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = !IBlock.getStatePropertySafe(state, UNLOCKED);
 			world.setBlockAndUpdate(pos, state.setValue(UNLOCKED, unlocked));
+//? if >= 26.1 {
+/*			player.sendOverlayMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText());
+*///? } else {
 			player.displayClientMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText(), true);
+//? }
 		});
 
 		if (result == InteractionResult.SUCCESS) {

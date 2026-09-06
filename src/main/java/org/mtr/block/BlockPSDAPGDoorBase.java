@@ -97,7 +97,11 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 					lockDoor(world, pos.above(y), scanState, !unlocked);
 				}
 			}
+//? if >= 26.1 {
+/*			player.sendOverlayMessage((unlocked ? TranslationProvider.GUI_MTR_PSD_APG_DOOR_LOCKED : TranslationProvider.GUI_MTR_PSD_APG_DOOR_UNLOCKED).getText());
+*///? } else {
 			player.displayClientMessage((unlocked ? TranslationProvider.GUI_MTR_PSD_APG_DOOR_LOCKED : TranslationProvider.GUI_MTR_PSD_APG_DOOR_UNLOCKED).getText(), true);
+//? }
 		});
 	}
 

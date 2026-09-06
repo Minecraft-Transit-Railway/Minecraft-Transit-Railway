@@ -53,6 +53,17 @@ stonecutter parameters {
 			// its own drawString, and rewriting that one would corrupt the font atlas generation.
 			string(true) { replace("context.drawString(", "context.text(") }
 			string(true) { replace("context.drawCenteredString(", "context.centeredText(") }
+
+			// Renamed with an identical argument list.
+			string(true) { replace(".absMoveTo(", ".absSnapTo(") }
+
+			// blockUpdated became updateNeighborsAt, which also takes a redstone orientation. Every
+			// call here notifies neighbours after a plain block change rather than a redstone one, and
+			// the parameter is annotated nullable, so null is the faithful translation. Written out per
+			// receiver name because a pattern spanning the argument would need a regular expression.
+			string(true) { replace(".blockUpdated(pos, Blocks.AIR);", ".updateNeighborsAt(pos, Blocks.AIR, null);") }
+			string(true) { replace(".blockUpdated(blockPos, Blocks.AIR);", ".updateNeighborsAt(blockPos, Blocks.AIR, null);") }
+			string(true) { replace(".blockUpdated(blockPos.relative(rotatedDirection), Blocks.AIR);", ".updateNeighborsAt(blockPos.relative(rotatedDirection), Blocks.AIR, null);") }
 		}
 	}
 }

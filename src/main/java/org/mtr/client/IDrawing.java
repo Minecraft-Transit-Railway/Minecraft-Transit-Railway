@@ -210,7 +210,11 @@ public interface IDrawing {
 			if (player != null) {
 				chatMessages.forEach(chatMessage -> {
 					if (!chatMessage.getString().isEmpty()) {
+//? if >= 26.1 {
+/*						player.sendSystemMessage(chatMessage);
+*///? } else {
 						player.displayClientMessage(chatMessage, false);
+//? }
 					}
 				});
 			}

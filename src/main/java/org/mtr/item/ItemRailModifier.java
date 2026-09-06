@@ -77,7 +77,11 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 				world.setBlockAndUpdate(posEnd, stateEnd.setValue(BlockNode.IS_CONNECTED, true));
 				PacketUpdateData.sendDirectlyToServerRail((ServerLevel) world, rail);
 			} else if (player != null) {
+//? if >= 26.1 {
+/*				player.sendOverlayMessage(TranslationProvider.GUI_MTR_INVALID_ORIENTATION.getText());
+*///? } else {
 				player.displayClientMessage(TranslationProvider.GUI_MTR_INVALID_ORIENTATION.getText(), true);
+//? }
 			}
 		}
 	}

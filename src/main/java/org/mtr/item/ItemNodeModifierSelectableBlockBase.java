@@ -68,7 +68,11 @@ public abstract class ItemNodeModifierSelectableBlockBase extends ItemNodeModifi
 					} else {
 						neighborState = state;
 					}
+//? if >= 26.1 {
+/*					playerEntity.sendOverlayMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(Component.translatable(neighborState.getBlock().getDescriptionId()).getString()));
+*///? } else {
 					playerEntity.displayClientMessage(TranslationProvider.TOOLTIP_MTR_SELECTED_MATERIAL.getText(Component.translatable(neighborState.getBlock().getDescriptionId()).getString()), true);
+//? }
 					context.getItemInHand().set(DataComponentTypes.BLOCK_ID.get(), Block.getId(neighborState));
 					return InteractionResult.SUCCESS;
 				}
