@@ -19,6 +19,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
 //? if >= 26.1 {
+/*import net.minecraft.sounds.SoundSource;
+*///? }
+//? if >= 26.1 {
 /*import net.minecraft.network.chat.FontDescription;
 *///? }
 import org.joml.Matrix4f;
@@ -206,7 +209,11 @@ public interface IDrawing {
 
 	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableComponent> chatMessages) {
 		if (Config.getClient().getTextToSpeechAnnouncements() && !narrateMessage.isEmpty()) {
+//? if >= 26.1 {
+			/*Narrator.getNarrator().say(narrateMessage, true, Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.VOICE));
+*///? } else {
 			Narrator.getNarrator().say(narrateMessage, true);
+//? }
 		}
 		if (Config.getClient().getChatAnnouncements() && !chatMessages.isEmpty()) {
 			final LocalPlayer player = Minecraft.getInstance().player;

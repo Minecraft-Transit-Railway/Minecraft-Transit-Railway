@@ -1,6 +1,9 @@
 package org.mtr.data;
 
 import net.minecraft.client.gui.components.Checkbox;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.InputWithModifiers;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -277,7 +280,24 @@ public interface IGui {
 
 	static void setChecked(Checkbox checkboxWidget, boolean value) {
 		if (checkboxWidget.selected() != value) {
+//? if >= 26.1 {
+			/*// Pressing now carries the input that caused it. Nothing did here: this toggles the box
+			// to match a value the code already holds, so the input is reported as empty rather than
+			// a mouse click being invented for it.
+			checkboxWidget.onPress(new InputWithModifiers() {
+				@Override
+				public int input() {
+					return 0;
+				}
+
+				@Override
+				public int modifiers() {
+					return 0;
+				}
+			});
+*///? } else {
 			checkboxWidget.onPress();
+//? }
 		}
 	}
 
