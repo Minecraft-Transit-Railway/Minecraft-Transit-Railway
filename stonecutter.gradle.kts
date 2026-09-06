@@ -91,6 +91,10 @@ stonecutter parameters {
 			// Command permissions moved from a numeric level to a named check.
 			string(true) { replace("serverCommandSource -> serverCommandSource.hasPermission(4)", "Commands.hasPermission(Commands.LEVEL_OWNERS)") }
 			string(true) { replace("serverCommandSource -> serverCommandSource.hasPermission(2)", "Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)") }
+
+			// ResourceKey follows ResourceLocation: its accessor is identifier() now. Anchored to the
+			// dimension key, because other types in this codebase still have a location() of their own.
+			string(true) { replace("dimension().location()", "dimension().identifier()") }
 		}
 	}
 }

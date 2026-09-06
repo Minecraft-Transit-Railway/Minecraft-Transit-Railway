@@ -173,6 +173,10 @@ public final class NewOptimizedModel {
 	}
 *///? }
 
+//? if >= 26.1 {
+	/*// Unused from 26.1: meshes are uploaded straight into a GpuBuffer by their owner.
+*///? }
+//? if < 26.1 {
 	public static VertexBuffer createVertexBuffer(VertexFormat.Mode drawMode, VertexFormat vertexFormat, Consumer<VertexConsumer> callback) {
 //? if >= 1.21.4 {
 		return VertexBuffer.uploadStatic(drawMode, vertexFormat, callback);
@@ -186,6 +190,7 @@ public final class NewOptimizedModel {
 		return vertexBuffer;
 *///? }
 	}
+//? }
 
 	private static float[] colorModulatorFor(float lightMultiplier) {
 		// Map [0, 1] → 16-step quantised table when possible; otherwise allocate.

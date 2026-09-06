@@ -225,6 +225,11 @@ public interface IDrawing {
 		return Config.getClient().getUseMTRFont() ? text.setStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, "mtr"))) : text;
 	}
 
+//? if >= 26.1 {
+	/*// Unused from 26.1: there is no global shader colour to push and restore any more, so callers
+	// pass their colour with each draw instead.
+*///? }
+//? if < 26.1 {
 	static void changeShaderColor(Color color, Runnable callback) {
 		final float[] oldColor = RenderSystem.getShaderColor();
 		final float r = oldColor[0];
@@ -235,6 +240,7 @@ public interface IDrawing {
 		callback.run();
 		RenderSystem.setShaderColor(r, g, b, a);
 	}
+//? }
 
 	@FunctionalInterface
 	interface DrawingCallback {
