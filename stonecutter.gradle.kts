@@ -20,6 +20,20 @@ stonecutter parameters {
 		replacements {
 			// The direction is fixed forwards; the guard above already restricts this to 26.1 and newer.
 			string(true) { replace("ResourceLocation", "Identifier") }
+
+			// Pure package moves. The type names are unchanged, so only the import lines differ and the
+			// call sites throughout the code need no attention at all.
+			string(true) { replace("net.minecraft.Util", "net.minecraft.util.Util") }
+			string(true) { replace("net.minecraft.world.level.GameRules", "net.minecraft.world.level.gamerules.GameRules") }
+			string(true) { replace("net.minecraft.client.renderer.RenderType", "net.minecraft.client.renderer.rendertype.RenderType") }
+			string(true) { replace("net.minecraft.client.renderer.block.model.BakedQuad", "net.minecraft.client.resources.model.geometry.BakedQuad") }
+
+			// LightTexture both moved package and was renamed, but LightCoordsUtil kept pack(...) and
+			// block(...) with identical signatures. The import and the call sites are therefore rewritten
+			// by two rules: the first matches only the import, which ends in a semicolon, and the second
+			// only the static calls, which are followed by a dot.
+			string(true) { replace("net.minecraft.client.renderer.LightTexture", "net.minecraft.util.LightCoordsUtil") }
+			string(true) { replace("LightTexture.", "LightCoordsUtil.") }
 		}
 	}
 }
