@@ -13,10 +13,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class BlockStationNameBase extends Block implements EntityBlock {
 
@@ -27,8 +31,13 @@ public abstract class BlockStationNameBase extends Block implements EntityBlock 
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
-		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR_NAME.getMutableText().withStyle(ChatFormatting.GRAY));
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
+		tooltip.accept(TranslationProvider.TOOLTIP_MTR_STATION_COLOR_NAME.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
 
 	public abstract static class BlockEntityBase extends BlockEntity implements IGui {

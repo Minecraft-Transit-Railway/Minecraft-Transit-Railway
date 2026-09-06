@@ -22,6 +22,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.mtr.MTR;
 import org.mtr.client.MinecraftClientData;
 import org.mtr.core.data.Rail;
@@ -34,6 +37,7 @@ import org.mtr.packet.PacketDeleteData;
 import org.mtr.registry.Items;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BlockNode extends BlockWaterloggable implements SimpleWaterloggedBlock {
 
@@ -145,10 +149,15 @@ public class BlockNode extends BlockWaterloggable implements SimpleWaterloggedBl
 		}
 
 		@Override
-		public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+//? if >= 26.1 {
+/*		public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
+*///? } else {
+		public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
+			final Consumer<Component> tooltip = tooltipList::add;
+//? }
 			final String[] strings = (isStation ? TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE_STATION : TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE).getString().split("\n");
 			for (final String string : strings) {
-				tooltip.add(Component.literal(string).withStyle(ChatFormatting.GRAY));
+				tooltip.accept(Component.literal(string).withStyle(ChatFormatting.GRAY));
 			}
 		}
 

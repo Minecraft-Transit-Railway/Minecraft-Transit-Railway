@@ -11,6 +11,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
 import org.mtr.block.BlockNode;
@@ -28,6 +31,7 @@ import org.mtr.packet.PacketUpdateLastRailStyles;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class ItemRailModifier extends ItemNodeModifierBase {
 
@@ -48,11 +52,20 @@ public class ItemRailModifier extends ItemNodeModifierBase {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag type) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipList, TooltipFlag type) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
 		if (isConnector && railType != null && railType.canAccelerate) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_RAIL_SPEED_LIMIT.getMutableText(railType.speedLimit).withStyle(ChatFormatting.GRAY));
+			tooltip.accept(TranslationProvider.TOOLTIP_MTR_RAIL_SPEED_LIMIT.getMutableText(railType.speedLimit).withStyle(ChatFormatting.GRAY));
 		}
-		super.appendHoverText(stack, context, tooltip, type);
+//? if >= 26.1 {
+/*		super.appendHoverText(stack, context, tooltipDisplay, tooltip, type);
+*///? } else {
+		super.appendHoverText(stack, context, tooltipList, type);
+//? }
 	}
 
 	@Override

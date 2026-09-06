@@ -10,10 +10,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.generated.lang.TranslationProvider;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class BlockPoleCheckBase extends Block {
 
@@ -33,10 +37,15 @@ public abstract class BlockPoleCheckBase extends Block {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag options) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipList, TooltipFlag options) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
 		final String[] strings = TranslationProvider.TOOLTIP_MTR_POLE_PLACEMENT.getString(getTooltipBlockText()).split("\n");
 		for (final String string : strings) {
-			tooltip.add(Component.literal(string).withStyle(ChatFormatting.GRAY));
+			tooltip.accept(Component.literal(string).withStyle(ChatFormatting.GRAY));
 		}
 	}
 
