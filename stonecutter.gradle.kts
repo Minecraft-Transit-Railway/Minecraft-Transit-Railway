@@ -71,6 +71,15 @@ stonecutter parameters {
 			// parse a condition nested inside a commented-out region.
 			string(true) { replace("RegisterColorHandlersEvent.Block", "RegisterColorHandlersEvent.BlockTintSources") }
 			string(true) { replace("event.getBlockColors().register(createTintSource(blockColorProvider), ", "event.register(List.of(createTintSource(blockColorProvider)), ") }
+
+			// The render type factories moved from RenderType to RenderTypes, keeping their argument
+			// lists. Only itemEntityTranslucentCull was also renamed, to entityTranslucentCullItemTarget.
+			// The RenderType type itself is unaffected beyond its package, handled further above.
+			string(true) { replace("RenderType.beaconBeam(", "RenderTypes.beaconBeam(") }
+			string(true) { replace("RenderType.entityCutout(", "RenderTypes.entityCutout(") }
+			string(true) { replace("RenderType.text(", "RenderTypes.text(") }
+			string(true) { replace("RenderType.lines(", "RenderTypes.lines(") }
+			string(true) { replace("RenderType.itemEntityTranslucentCull(", "RenderTypes.entityTranslucentCullItemTarget(") }
 		}
 	}
 }

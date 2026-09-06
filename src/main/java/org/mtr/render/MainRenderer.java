@@ -13,6 +13,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+//? if >= 26.1 {
+/*import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.client.DynamicTextureCache;

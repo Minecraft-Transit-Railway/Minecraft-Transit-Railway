@@ -2,6 +2,9 @@ package org.mtr.render;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+//? if >= 26.1 {
+/*import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///? }
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.function.Supplier;
