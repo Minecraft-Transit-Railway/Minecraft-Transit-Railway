@@ -193,6 +193,15 @@ stonecutter parameters {
 			string(true) { replace("PayloadTypeRegistry.playS2C()", "PayloadTypeRegistry.clientboundPlay()") }
 			string(true) { replace("PayloadTypeRegistry.playC2S()", "PayloadTypeRegistry.serverboundPlay()") }
 
+			// Scissoring now has to name what it applies to, because the immediate scissor state no
+			// longer follows every draw. Both call sites bracket render type draws.
+			string(true) { replace("RenderSystem.enableScissor(", "RenderSystem.enableScissorForRenderTypeDraws(") }
+			string(true) { replace("RenderSystem.disableScissor()", "RenderSystem.disableScissorForRenderTypeDraws()") }
+
+			// The renderer is asked whether it draws off screen at all, rather than being asked about one
+			// block entity. All three overrides here answered true unconditionally, so nothing is lost.
+			string(true) { replace("shouldRenderOffScreen(T blockEntity)", "shouldRenderOffScreen()") }
+
 			// Screens extract render state instead of drawing, so their entry points were renamed. The
 			// three argument render(context, mouseX, mouseY) that the widgets in this mod declare is
 			// their own and keeps its name, which is why the parameter list is spelled out in full here.
@@ -208,6 +217,14 @@ stonecutter parameters {
 			// blitSprite selects the pipeline directly now instead of being handed a factory that built a
 			// render type from the texture.
 			string(true) { replace("context.blitSprite(RenderType::guiTextured, ", "context.blitSprite(RenderPipelines.GUI_TEXTURED, ") }
+
+			// A player entity answers for the level it is in directly; the command sender wording went
+			// with the command source abstraction that no longer sits on the entity.
+			string(true) { replace("serverPlayerEntity.getCommandSenderWorld()", "serverPlayerEntity.level()") }
+
+			// The dye an item carries is a data component rather than a property of the item class, so
+			// the colour is read from the stack that was clicked with instead of from the item.
+			string(true) { replace("convertPIDSColor(dyeItem.getDyeColor())", "convertPIDSColor(itemStack.get(DataComponents.DYE))") }
 
 			// The second texture site, matching the one already rewritten above.
 			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }

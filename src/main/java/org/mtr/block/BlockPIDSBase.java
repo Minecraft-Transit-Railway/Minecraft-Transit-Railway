@@ -3,6 +3,9 @@ package org.mtr.block;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+//? if >= 26.1 {
+/*import net.minecraft.core.component.DataComponents;
+*///? }
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;

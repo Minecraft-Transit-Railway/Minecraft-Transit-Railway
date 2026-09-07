@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 //? if >= 26.1 {
 /*import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 *///? } else {
 import net.minecraft.client.color.block.BlockColor;
