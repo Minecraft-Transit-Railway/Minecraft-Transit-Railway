@@ -226,6 +226,51 @@ stonecutter parameters {
 			// the colour is read from the stack that was clicked with instead of from the item.
 			string(true) { replace("convertPIDSColor(dyeItem.getDyeColor())", "convertPIDSColor(itemStack.get(DataComponents.DYE))") }
 
+			// Two NeoForge names went in 26.1, and each is named only inside a block that belongs to one
+			// loader, where a version guard would have to sit inside a comment. They are rewritten here
+			// for the same reason the event bus attribute above is.
+			//
+			// A block declares its own render layer in its model now, and the call that used to set one
+			// is already compiled out on 26.1, so only its import is left to take away. It is spent on
+			// the client packet distributor, which is where sending towards the server moved to. The two
+			// import lines are matched together because the second one on its own also names the server
+			// side registry, which still sends towards players and keeps what it has.
+			string(true) { replace("import net.minecraft.client.renderer.ItemBlockRenderTypes;\nimport net.neoforged.neoforge.network.PacketDistributor;", "import net.neoforged.neoforge.client.network.ClientPacketDistributor;") }
+			string(true) { replace("PacketDistributor.sendToServer(", "ClientPacketDistributor.sendToServer(") }
+
+			// GuiGraphics kept its name in the accessor NeoForge offers for it, so this one reader has to
+			// be claimed before the blanket rename above reaches into the middle of the method name. A
+			// rule that matches earlier in the line wins the span, and this one starts three characters
+			// sooner.
+			string(true) { replace("event.getGuiGraphics()", "event.getGuiGraphics()") }
+
+			// The level render stages are separate event types now rather than one event carrying a stage,
+			// and the camera travels in the render state. The stage chosen is the one the Fabric side of
+			// this mod already listens to, so both loaders draw at the same point.
+			string(true) { replace("public static void worldRendering(RenderLevelStageEvent event) {\n\t\tif (worldRenderCallback != null && event.getStage() == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {", "public static void worldRendering(RenderLevelStageEvent.AfterOpaqueFeatures event) {\n\t\tif (worldRenderCallback != null) {") }
+			string(true) { replace("event.getCamera().getPosition()", "event.getLevelRenderState().cameraRenderState.pos") }
+
+			// The remaining reads of a player's own server field, which is private now.
+			string(true) { replace(".accept(serverPlayerEntity.server, serverPlayerEntity)", ".accept(serverPlayerEntity.level().getServer(), serverPlayerEntity)") }
+
+			// A payload handler is no longer told which side it is on by being wrapped in a pair of
+			// handlers. The context says which side it is, so each registration takes one handler and
+			// asks. The import that named the pair is spent on the answer instead.
+			string(true) { replace("import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;", "import net.minecraft.network.protocol.PacketFlow;") }
+
+			// The serverbound handler already refuses anything that is not a server player, so dropping
+			// the pair leaves its guard doing the same work.
+			string(true) { replace("new DirectionalPayloadHandler<>((customPacketC2S, context) -> {\n\t\t}, (customPacketC2S, context) -> {", "(customPacketC2S, context) -> {") }
+			string(true) { replace("}, ((ServerPlayer) player).server::execute);\n\t\t\t}\n\t\t})));", "}, ((ServerPlayer) player).level().getServer()::execute);\n\t\t\t}\n\t\t}));") }
+
+			// The clientbound handler had nothing guarding it but the pair, so the direction is asked for
+			// directly. The flow is used rather than the context type, because naming the client context
+			// would load a client only class on a dedicated server.
+			string(true) { replace("new DirectionalPayloadHandler<>(s2cClientHandler::accept, (customPacketS2C, context) -> {\n\t\t})));", "(customPacketS2C, context) -> {\n\t\t\tif (context.flow() == PacketFlow.CLIENTBOUND) {\n\t\t\t\ts2cClientHandler.accept(customPacketS2C, context);\n\t\t\t}\n\t\t}));") }
+
+			// A player no longer reaches its server through a field of its own.
+			string(true) { replace("runServer(((ServerPlayer) player).server, (ServerPlayer) player)", "runServer(((ServerPlayer) player).level().getServer(), (ServerPlayer) player)") }
+
 			// The second texture site, matching the one already rewritten above.
 			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }
 		}
