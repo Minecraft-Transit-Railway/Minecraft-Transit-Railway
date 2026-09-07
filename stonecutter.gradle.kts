@@ -253,20 +253,19 @@ stonecutter parameters {
 			// The remaining reads of a player's own server field, which is private now.
 			string(true) { replace(".accept(serverPlayerEntity.server, serverPlayerEntity)", ".accept(serverPlayerEntity.level().getServer(), serverPlayerEntity)") }
 
-			// A payload handler is no longer told which side it is on by being wrapped in a pair of
-			// handlers. The context says which side it is, so each registration takes one handler and
-			// asks. The import that named the pair is spent on the answer instead.
-			string(true) { replace("import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;", "import net.minecraft.network.protocol.PacketFlow;") }
+			// A payload handler is no longer wrapped in a pair that picks a side. The registration takes
+			// the two handlers itself, so the pair and its import go away.
+			//
+			// The order is reversed on the way across: the pair was written client first, and the
+			// registration takes the serverbound handler first. Registering a payload as bidirectional
+			// without a handler for a direction is refused outright from 26.1, with the payload named in
+			// the error, so a side left empty has to stay an empty handler rather than become nothing.
+			string(true) { replace("import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;\n", "") }
 
-			// The serverbound handler already refuses anything that is not a server player, so dropping
-			// the pair leaves its guard doing the same work.
 			string(true) { replace("new DirectionalPayloadHandler<>((customPacketC2S, context) -> {\n\t\t}, (customPacketC2S, context) -> {", "(customPacketC2S, context) -> {") }
-			string(true) { replace("}, ((ServerPlayer) player).server::execute);\n\t\t\t}\n\t\t})));", "}, ((ServerPlayer) player).level().getServer()::execute);\n\t\t\t}\n\t\t}));") }
+			string(true) { replace("}, ((ServerPlayer) player).server::execute);\n\t\t\t}\n\t\t})));", "}, ((ServerPlayer) player).level().getServer()::execute);\n\t\t\t}\n\t\t}, (customPacketC2S, context) -> {\n\t\t}));") }
 
-			// The clientbound handler had nothing guarding it but the pair, so the direction is asked for
-			// directly. The flow is used rather than the context type, because naming the client context
-			// would load a client only class on a dedicated server.
-			string(true) { replace("new DirectionalPayloadHandler<>(s2cClientHandler::accept, (customPacketS2C, context) -> {\n\t\t})));", "(customPacketS2C, context) -> {\n\t\t\tif (context.flow() == PacketFlow.CLIENTBOUND) {\n\t\t\t\ts2cClientHandler.accept(customPacketS2C, context);\n\t\t\t}\n\t\t}));") }
+			string(true) { replace("new DirectionalPayloadHandler<>(s2cClientHandler::accept, (customPacketS2C, context) -> {\n\t\t})));", "(customPacketS2C, context) -> {\n\t\t}, s2cClientHandler::accept));") }
 
 			// A player no longer reaches its server through a field of its own.
 			string(true) { replace("runServer(((ServerPlayer) player).server, (ServerPlayer) player)", "runServer(((ServerPlayer) player).level().getServer(), (ServerPlayer) player)") }
