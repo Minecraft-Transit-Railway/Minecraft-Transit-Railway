@@ -178,6 +178,21 @@ stonecutter parameters {
 			string(true) { replace("getPackVersion(PackType.CLIENT_RESOURCES)", "packVersion(PackType.CLIENT_RESOURCES).major()") }
 			string(true) { replace("getPackVersion(PackType.SERVER_DATA)", "packVersion(PackType.SERVER_DATA).major()") }
 
+			// The modifier key helpers moved off Screen and onto the Minecraft instance, which is where
+			// the keyboard handler they read has always lived.
+			string(true) { replace("Screen.hasShiftDown()", "Minecraft.getInstance().hasShiftDown()") }
+
+			// Fabric renamed the world tick events to level, matching the type they have always carried.
+			// The callback interfaces are otherwise unchanged, so the method references still bind.
+			string(true) { replace("ClientTickEvents.START_WORLD_TICK", "ClientTickEvents.START_LEVEL_TICK") }
+			string(true) { replace("ClientTickEvents.END_WORLD_TICK", "ClientTickEvents.END_LEVEL_TICK") }
+			string(true) { replace("ServerTickEvents.START_WORLD_TICK", "ServerTickEvents.START_LEVEL_TICK") }
+			string(true) { replace("ServerTickEvents.END_WORLD_TICK", "ServerTickEvents.END_LEVEL_TICK") }
+
+			// The payload registries are named after the direction they serve rather than abbreviated.
+			string(true) { replace("PayloadTypeRegistry.playS2C()", "PayloadTypeRegistry.clientboundPlay()") }
+			string(true) { replace("PayloadTypeRegistry.playC2S()", "PayloadTypeRegistry.serverboundPlay()") }
+
 			// The second texture site, matching the one already rewritten above.
 			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }
 		}

@@ -3,6 +3,9 @@ package org.mtr.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//? if >= 26.1 {
+/*import net.minecraft.client.Minecraft;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
