@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -64,7 +67,11 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
+//? }
 		onPress.run();
 	}
 

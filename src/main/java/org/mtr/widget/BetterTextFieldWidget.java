@@ -4,6 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
@@ -139,11 +144,19 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public boolean keyPressed(KeyEvent keyEvent) {
+*///? } else {
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+//? }
 		if (visible) {
 			final String oldText = getText();
 			refreshTextFieldWidget();
+//? if >= 26.1 {
+			/*final boolean result = textFieldWidget.keyPressed(keyEvent);
+*///? } else {
 			final boolean result = textFieldWidget.keyPressed(keyCode, scanCode, modifiers);
+//? }
 			setText(oldText, getText(), true);
 			return result;
 		} else {
@@ -152,11 +165,19 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public boolean charTyped(CharacterEvent characterEvent) {
+*///? } else {
 	public boolean charTyped(char chr, int modifiers) {
+//? }
 		if (visible) {
 			final String oldText = getText();
 			refreshTextFieldWidget();
+//? if >= 26.1 {
+			/*final boolean result = textFieldWidget.charTyped(characterEvent);
+*///? } else {
 			final boolean result = textFieldWidget.charTyped(chr, modifiers);
+//? }
 			setText(oldText, getText(), true);
 			return result;
 		} else {
@@ -165,9 +186,15 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		refreshTextFieldWidget();
+		textFieldWidget.onClick(mouseButtonEvent, doubleClick);
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
 		refreshTextFieldWidget();
 		textFieldWidget.onClick(mouseX, mouseY);
+//? }
 	}
 
 //? if >= 26.1 {

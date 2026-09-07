@@ -7,12 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 //? if >= 26.1 {
 /*import net.minecraft.client.input.MouseButtonEvent;
-*///? }
-//? if >= 26.1 {
-/*import net.minecraft.client.input.MouseButtonInfo;
-*///? }
-//? if >= 26.1 {
-/*import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 *///? }
 import org.mtr.core.tool.Utilities;
 import org.mtr.tool.GuiHelper;
@@ -75,7 +70,11 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 			}
 			if (isMouseOver(mouseX, mouseY)) {
 				playDownSound(Minecraft.getInstance().getSoundManager());
+//? if >= 26.1 {
+				/*onClick(mouseButtonEvent, doubleClick);
+*///? } else {
 				onClick(mouseX, mouseY);
+//? }
 				return true;
 			}
 		}

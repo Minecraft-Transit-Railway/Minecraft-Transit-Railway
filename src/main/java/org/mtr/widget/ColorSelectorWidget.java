@@ -1,6 +1,9 @@
 package org.mtr.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
@@ -146,12 +149,20 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
+//? }
 		draggingMouseZone = hoverMouseZone;
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onRelease(MouseButtonEvent mouseButtonEvent) {
+*///? } else {
 	public void onRelease(double mouseX, double mouseY) {
+//? }
 		draggingMouseZone = MouseZone.NONE;
 	}
 
