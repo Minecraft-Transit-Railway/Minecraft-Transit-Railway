@@ -193,6 +193,22 @@ stonecutter parameters {
 			string(true) { replace("PayloadTypeRegistry.playS2C()", "PayloadTypeRegistry.clientboundPlay()") }
 			string(true) { replace("PayloadTypeRegistry.playC2S()", "PayloadTypeRegistry.serverboundPlay()") }
 
+			// Screens extract render state instead of drawing, so their entry points were renamed. The
+			// three argument render(context, mouseX, mouseY) that the widgets in this mod declare is
+			// their own and keeps its name, which is why the parameter list is spelled out in full here.
+			//
+			// The two declarations carry the parameter type through themselves. Patterns are matched
+			// against the original text and replacements are not looked at again, so the rule that
+			// renames GuiGraphics on its own never sees a span another rule has already claimed.
+			string(true) { replace("void render(GuiGraphics context, int mouseX, int mouseY, float delta)", "void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)") }
+			string(true) { replace("super.render(context, mouseX, mouseY, delta)", "super.extractRenderState(context, mouseX, mouseY, delta)") }
+			string(true) { replace("void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta)", "void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)") }
+			string(true) { replace("renderBackground(context, mouseX, mouseY, delta)", "extractBackground(context, mouseX, mouseY, delta)") }
+
+			// blitSprite selects the pipeline directly now instead of being handed a factory that built a
+			// render type from the texture.
+			string(true) { replace("context.blitSprite(RenderType::guiTextured, ", "context.blitSprite(RenderPipelines.GUI_TEXTURED, ") }
+
 			// The second texture site, matching the one already rewritten above.
 			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }
 		}
