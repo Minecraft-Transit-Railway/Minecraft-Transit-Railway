@@ -134,6 +134,21 @@ tasks {
 		relocate("gg.essential", "org.mtr.libraries.gg.essential")
 		relocate("kotlin.", "org.mtr.libraries.kotlin")
 		relocate("org.jetbrains", "org.mtr.libraries.org.jetbrains")
+
+		// Transport Simulation Core ships its own relocated copy of log4j and slf4j, minimised down to
+		// what it actually calls, but the service files that register the implementations travel with
+		// it and still name classes that the minimisation took out. Seven of the nine registrations in
+		// the jar point at nothing.
+		//
+		// That was harmless until 26.1: NeoForge now builds a module descriptor from the mod jar and
+		// refuses one whose declared services it cannot resolve, so the game does not reach the main
+		// menu. The registrations are dropped here rather than the classes put back, because they could
+		// never have worked, and because this mod logs through the game's own log4j, which it reaches
+		// under the unrelocated name. The one registration that does resolve, Jetty's field encoder, is
+		// left alone.
+		exclude("META-INF/services/javax.annotation.processing.Processor")
+		exclude("META-INF/services/org.mtr.libraries.org.apache.logging.*")
+		exclude("META-INF/services/org.mtr.libraries.org.slf4j.*")
 	}
 
 	withType<JavaCompile>().configureEach {
