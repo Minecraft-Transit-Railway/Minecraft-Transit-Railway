@@ -152,6 +152,32 @@ stonecutter parameters {
 			string(true) { replace("super.isValidClickButton(button)", "super.isValidClickButton(mouseButtonInfo)") }
 			string(true) { replace("if (isValidClickButton(button)) {", "if (isValidClickButton(mouseButtonEvent.buttonInfo())) {") }
 
+			// Several value carriers became records, or were tidied to match the ones that did, and
+			// dropped the get prefix from their accessors. Each rule is anchored to its receiver rather
+			// than rewritten as a bare token, because the old names all survive on other types this code
+			// calls in the very same expressions: Entity kept getYRot, which the vehicle rendering reads
+			// off the player one argument away from reading it off the camera.
+			string(true) { replace("getMainCamera().getPosition()", "getMainCamera().position()") }
+			string(true) { replace("getMainCamera().getBlockPosition()", "getMainCamera().blockPosition()") }
+			string(true) { replace("getMainCamera().getYRot()", "getMainCamera().yRot()") }
+			string(true) { replace("camera.getPosition()", "camera.position()") }
+			string(true) { replace("camera.getYRot()", "camera.yRot()") }
+			string(true) { replace("biomeEffects.getGrassColorOverride()", "biomeEffects.grassColorOverride()") }
+			string(true) { replace("biomeEffects.getFoliageColorOverride()", "biomeEffects.foliageColorOverride()") }
+			string(true) { replace("biomeEffects.getWaterColor()", "biomeEffects.waterColor()") }
+			string(true) { replace("getGameProfile().getName()", "getGameProfile().name()") }
+
+			// The world clock is read through the overworld now, so that the value a client shows and the
+			// value the server schedules against cannot drift apart per dimension. Both call sites here
+			// already meant the overworld: one asks the server for it directly, and the other renders the
+			// clock block, which has always shown overworld time.
+			string(true) { replace(".getDayTime()", ".getOverworldClockTime()") }
+
+			// Pack versions carry a major and a minor part now. Only the major is compared against the
+			// versions recorded in the custom resource packs, which is what this code read before.
+			string(true) { replace("getPackVersion(PackType.CLIENT_RESOURCES)", "packVersion(PackType.CLIENT_RESOURCES).major()") }
+			string(true) { replace("getPackVersion(PackType.SERVER_DATA)", "packVersion(PackType.SERVER_DATA).major()") }
+
 			// The second texture site, matching the one already rewritten above.
 			string(true) { replace("new DynamicTexture(NativeImage.read(byteBuffer))", "new DynamicTexture(() -> \"MTR resource pack preview\", NativeImage.read(byteBuffer))") }
 		}
