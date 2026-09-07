@@ -101,7 +101,7 @@ stonecutter parameters {
 			string(true) { replace("FabricItemGroup.builder()", "FabricCreativeModeTab.builder()") }
 
 			// A style now names its font through a description rather than an identifier directly.
-			string(true) { replace("withFont(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\"))", "withFont(new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\")))") }
+			string(true) { replace("withFont(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\"))", "withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath(MTR.MOD_ID, \"mtr\")))") }
 
 			// The level exposes this through a method now; the field itself is private.
 			string(true) { replace("world.isClientSide &&", "world.isClientSide() &&") }
