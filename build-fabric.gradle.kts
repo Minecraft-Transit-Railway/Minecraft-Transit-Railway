@@ -166,8 +166,17 @@ tasks {
 		description = "Builds the mod and collects the JAR and sources JAR into the build/libs directory with versioned naming."
 		group = "build"
 		outputs.upToDateWhen { false }
-		from(loomx.modJar.map { it.archiveFile }, loomx.modSourcesJar.map { it.archiveFile })
+		// The remapping variant folds the shaded jar into the mod jar as it remaps it, so there the mod
+		// jar is the one to ship. Unobfuscated versions have no remap step, and the plain jar task that
+		// stands in for it carries none of the shaded libraries, which would leave the mod unable to
+		// load. The shaded jar is shipped directly on those, which is what the NeoForge build does on
+		// every version; the first rename below is its rule, taking the classifier off that jar.
+		from(
+			if (loomx.isUnobfuscated) shadowJar.map { it.archiveFile } else loomx.modJar.map { it.archiveFile },
+			loomx.modSourcesJar.map { it.archiveFile }
+		)
 		into(rootProject.layout.buildDirectory.file("release"))
+		rename("${project.property("mod.id")}-([^-]+)-([^-]+)-([a-z]+)-all\\.jar", "${project.property("mod.id").toString().uppercase()}-$3-$1-$2.jar")
 		rename("${project.property("mod.id")}-([^-]+)-([^-]+)-([a-z]+)(-sources|)\\.jar", "${project.property("mod.id").toString().uppercase()}-$3-$1-$2$4.jar")
 		dependsOn("build")
 	}
