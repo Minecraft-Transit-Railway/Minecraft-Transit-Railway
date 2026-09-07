@@ -24,6 +24,7 @@ import org.mtr.packet.PacketBufferReceiver;
 import org.mtr.packet.PacketBufferSender;
 import org.mtr.packet.PacketHandler;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
@@ -36,6 +37,7 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 //? }
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 //? if >= 26.1 {
 /*import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 *///? } else {
@@ -49,6 +51,7 @@ import org.mtr.fabric.MTRFabric;
 //? if neoforge {
 /*import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.fml.loading.FMLPaths;
 import org.mtr.neoforge.ModEventBus;
 import org.mtr.neoforge.ModEventBusClient;
 *///? }
@@ -103,6 +106,25 @@ public final class RegistryClient {
 //
 *///? }
 //? }
+	}
+
+	/**
+	 * The directory the game is running in.
+	 *
+	 * <p>Asked of the loader rather than of Minecraft, because the mod is constructed before
+	 * Minecraft is. On 26.1 client mod loading begins several hundred instructions ahead of the
+	 * client itself being built, so reading the directory off the client instance during
+	 * construction reads a field off null. Both loaders know the directory from the start.</p>
+	 */
+	public static Path getGameDirectory() {
+//? if fabric {
+		return FabricLoader.getInstance().getGameDir();
+//? }
+
+//? if neoforge {
+		/*return FMLPaths.GAMEDIR.get();
+//
+*///? }
 	}
 
 	public static void registerKeyBinding(KeyMapping keyBinding) {

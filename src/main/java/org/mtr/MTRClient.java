@@ -382,7 +382,7 @@ public final class MTRClient {
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
 		EventRegistryClient.registerHudLayerRenderEvent(context -> DrivingGuiRenderer.render(context));
 
-		Config.init(Minecraft.getInstance().gameDirectory.toPath());
+		Config.init(RegistryClient.getGameDirectory());
 
 		BlockTactileMap.TactileMapBlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TactileMapBlockEntity.onUse = blockPos -> {
