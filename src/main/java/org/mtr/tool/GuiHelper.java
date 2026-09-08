@@ -21,6 +21,9 @@ import java.awt.*;
 
 //? if >= 26.1 {
 /*import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import org.joml.Matrix3x2f;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.util.Util;
@@ -107,6 +110,87 @@ public final class GuiHelper {
 	/*private static final RenderStateShard.ShaderStateShard POSITION_TEXTURE_COLOR_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader);
 	private static final Function<ResourceLocation, RenderType> GUI_TEXTURED = Util.memoize((resourceLocation) -> RenderType.create("gui_textured", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 786432, RenderType.CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false)).setShaderState(POSITION_TEXTURE_COLOR_SHADER).setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY).setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST).createCompositeState(false)));
 *///? }
+
+//? if >= 26.1 {
+	/*// The area the interface is currently clipped to, remembered so that the quads recorded below
+	// can carry it. The renderer applies a clip per recorded element rather than to whatever is
+	// drawn between two calls, so the state the widgets set has to travel with each quad.
+	@Nullable
+	private static ScreenRectangle guiScissor;
+*///? }
+
+	/**
+	 * Clips the interface to the given rectangle, in the same coordinates the widgets work in.
+	 *
+	 * <p>Paired with {@link #disableGuiScissor}, and paired calls do not nest.</p>
+	 */
+	public static void enableGuiScissor(GuiGraphics context, int x1, int y1, int x2, int y2) {
+		context.enableScissor(x1, y1, x2, y2);
+//? if >= 26.1 {
+		/*guiScissor = new ScreenRectangle(x1, y1, x2 - x1, y2 - y1);
+*///? }
+	}
+
+	/**
+	 * Removes the clip set by {@link #enableGuiScissor}.
+	 */
+	public static void disableGuiScissor(GuiGraphics context) {
+		context.disableScissor();
+//? if >= 26.1 {
+		/*guiScissor = null;
+*///? }
+	}
+
+//? if >= 26.1 {
+	/*@Nullable
+	public static ScreenRectangle getGuiScissor() {
+		return guiScissor;
+	}
+*///? }
+
+	/**
+	 * The matrix a screen's widgets draw with.
+	 *
+	 * <p>From 26.1 the interface matrix is two dimensional, so it is widened into the form the
+	 * drawing code works in. Kept here so the call sites read the same on every version.</p>
+	 */
+	public static PoseStack guiPoseStack(GuiGraphics context) {
+//? if >= 26.1 {
+		/*return asPoseStack(context.pose());
+*///? } else {
+		return context.pose();
+//? }
+	}
+
+	/**
+	 * Starts drawing a flat coloured shape into a screen.
+	 *
+	 * <p>From 26.1 a screen records what it wants drawn instead of drawing it, so the vertices go to
+	 * a recorder that hands each finished quad to the interface renderer. Before that they go
+	 * straight into the buffer source, which is drawn as part of the screen. The difference is kept
+	 * here so that the call sites read the same on every version.</p>
+	 */
+	public static Drawing guiDrawing(GuiGraphics context, PoseStack matrixStack) {
+//? if >= 26.1 {
+		/*return new Drawing(matrixStack, new GuiQuadRecorder(context, RenderPipelines.GUI, TextureSetup.noTexture(), false));
+*///? } else {
+		return new Drawing(matrixStack, getGuiRenderType());
+//? }
+	}
+
+	/**
+	 * Starts drawing a textured shape into a screen, as {@link #guiDrawing} does for a flat one.
+	 */
+	public static Drawing guiTexturedDrawing(GuiGraphics context, PoseStack matrixStack, ResourceLocation identifier) {
+//? if >= 26.1 {
+		/*// Asked for here rather than inside the recorder, because this loads the texture the first
+		// time it is wanted and that has to happen before anything starts drawing.
+		final AbstractTexture abstractTexture = Minecraft.getInstance().getTextureManager().getTexture(identifier);
+		return new Drawing(matrixStack, new GuiQuadRecorder(context, RenderPipelines.GUI_TEXTURED, TextureSetup.singleTexture(abstractTexture.getTextureView(), abstractTexture.getSampler()), true));
+*///? } else {
+		return new Drawing(matrixStack, getGuiTexturedRenderType(identifier));
+//? }
+	}
 
 	/**
 	 * Creates a constraint for a fixed aspect ratio of an inside rectangle with a border.

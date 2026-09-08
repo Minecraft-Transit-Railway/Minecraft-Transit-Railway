@@ -42,21 +42,17 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 	@Override
 	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		setDimensions();
-//? if >= 26.1 {
-		/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
-*///? } else {
-		final PoseStack matrixStack = context.pose();
-//? }
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
 
 		// Draw background
-		new Drawing(matrixStack, GuiHelper.getGuiRenderType())
+		GuiHelper.guiDrawing(context, matrixStack)
 			.setVerticesWH(getX(), getY(), width, height)
 			.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
 			.draw();
 
 		// Draw icon
 		if (icon != null) {
-			new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(icon))
+			GuiHelper.guiTexturedDrawing(context, matrixStack, icon)
 				.setVerticesWH(getX() + (width - getContentWidth()) / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 				.setUv()
 				.draw();

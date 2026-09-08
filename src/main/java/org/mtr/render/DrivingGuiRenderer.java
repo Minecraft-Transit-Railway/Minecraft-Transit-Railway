@@ -59,14 +59,10 @@ public final class DrivingGuiRenderer {
 			final int speedometerY = window.getGuiScaledHeight() - TOOL_SIZE - EDGE_PADDING;
 			final int radius = TOOL_SIZE / 2;
 
-//? if >= 26.1 {
-			/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
-*///? } else {
-			final PoseStack matrixStack = context.pose();
-//? }
+			final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
 			matrixStack.pushPose();
 			matrixStack.translate(speedometerX + radius, speedometerY + radius, 0);
-			final Drawing drawing1 = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
+			final Drawing drawing1 = GuiHelper.guiDrawing(context, matrixStack);
 
 			// Render speedometer background
 			matrixStack.pushPose();
@@ -193,7 +189,7 @@ public final class DrivingGuiRenderer {
 			// Draw speedometer needle
 			matrixStack.pushPose();
 			Drawing.rotateZDegrees(matrixStack, SPEEDOMETER_START_ANGLE + (float) speedKilometersPerHour * SPEEDOMETER_SPAN / maxSpeedKilometersPerHour);
-			new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setVertices(
+			GuiHelper.guiDrawing(context, matrixStack).setVertices(
 				-radius + 4, -0.5F,
 				0, 0.5F
 			).setColor(0xFFFF0000).draw();
@@ -212,7 +208,7 @@ public final class DrivingGuiRenderer {
 				final double positionY = (vehicleLength + platformStoppingDetails.leftDouble()) / (platformLength + vehicleLength) * (TOOL_SIZE - 1);
 				final Font textRenderer = minecraftClient.font;
 
-				final Drawing drawing2 = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
+				final Drawing drawing2 = GuiHelper.guiDrawing(context, matrixStack);
 				drawing2.setVertices(platformIndicatorX, platformIndicatorY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + TOOL_SIZE).setColor(BLUE_COLOR).draw();
 				drawing2.setVertices(platformIndicatorX, platformIndicatorY + (float) targetY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) targetY + 1).setColor(0xFF001F4D).draw();
 				drawing2.setVertices(platformIndicatorX, platformIndicatorY + (float) positionY, platformIndicatorX + PLATFORM_BAR_SIZE, platformIndicatorY + (float) positionY + 1).setColor(0xFFFF0000).draw();

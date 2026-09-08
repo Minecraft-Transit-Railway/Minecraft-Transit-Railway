@@ -69,12 +69,8 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		setDimensions();
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Font textRenderer = minecraftClient.font;
-//? if >= 26.1 {
-		/*final PoseStack matrixStack = GuiHelper.asPoseStack(context.pose());
-*///? } else {
-		final PoseStack matrixStack = context.pose();
-//? }
-		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
+		final Drawing drawing = GuiHelper.guiDrawing(context, matrixStack);
 
 		// Draw background
 		drawing.setVerticesWH(getX(), getY(), width, height).setColor(GuiHelper.BLACK_COLOR).draw();

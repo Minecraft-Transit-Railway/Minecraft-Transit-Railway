@@ -36,11 +36,7 @@ public abstract class PopupWidgetBase extends ClickableWidgetBase {
 			buttonGroup.renderWidget(context, mouseX, mouseY, delta);
 
 			// Draw background
-//? if >= 26.1 {
-			/*final Drawing drawing = new Drawing(GuiHelper.asPoseStack(context.pose()), GuiHelper.getGuiRenderType());
-*///? } else {
-			final Drawing drawing = new Drawing(context.pose(), GuiHelper.getGuiRenderType());
-//? }
+			final Drawing drawing = GuiHelper.guiDrawing(context, GuiHelper.guiPoseStack(context));
 			GuiHelper.drawShadow(drawing, getX(), getY(), getX() + width, getY() + height, 0, 8, -1);
 			drawing.setVerticesWH(getX(), getY(), width, height - GuiHelper.DEFAULT_LINE_SIZE).setColor(GuiHelper.BACKGROUND_COLOR).draw();
 			drawing.setVerticesWH(getX(), getY() + height - GuiHelper.DEFAULT_LINE_SIZE, width, 1).setColor(GuiHelper.BACKGROUND_ACCENT_COLOR).draw();

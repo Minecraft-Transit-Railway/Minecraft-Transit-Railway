@@ -118,6 +118,17 @@ tasks {
 			expand(properties)
 		}
 
+
+		// The accessor that opens a screen's render state compiles only on 26.1, and Mixin refuses to
+		// start if a configuration names a class it cannot find, so the entry is added only for those
+		// versions. Stonecutter rewrites sources and not resources, which is why this sits here rather
+		// than beside the rest of the version rewrites.
+		if (sc.current.parsed >= "26.1") {
+			filesMatching("mtr.mixins.json") {
+				filter { line -> line.replace("\"TextFieldSelectionEndAccessor\"", "\"TextFieldSelectionEndAccessor\", \"GuiRenderStateAccessor\"") }
+			}
+		}
+
 		exclude("**/neoforge.mods.toml")
 	}
 

@@ -40,9 +40,9 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	protected final void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		final int h = height;
 		scrollAmount = Math.clamp(scrollAmount, 0, Math.max(0, contentHeight() - h));
-		context.enableScissor(getX(), getY(), getX() + width, getY() + h);
+		GuiHelper.enableGuiScissor(context, getX(), getY(), getX() + width, getY() + h);
 		render(context, active ? mouseX : -1, active ? mouseY : -1);
-		context.disableScissor();
+		GuiHelper.disableGuiScissor(context);
 		drawScrollbar(context, active ? mouseX : -1, active ? mouseY : -1);
 	}
 
