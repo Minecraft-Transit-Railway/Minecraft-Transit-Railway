@@ -13,9 +13,8 @@ import java.util.function.Consumer;
 
 //? if >= 26.1 {
 /*import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.RenderPass;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 *///? } else {
 import com.mojang.blaze3d.vertex.VertexBuffer;
 //? }
@@ -82,15 +81,17 @@ public final class StoredMesh {
 	}
 
 //? if >= 26.1 {
-	/*// Bind this mesh into a pass that already has its pipeline set, then draw it once with the
-	// supplied transform and colour. The colour is passed per draw rather than set globally,
-	// because the global shader colour the older code used no longer exists.
-	public void draw(RenderPass renderPass, Matrix4f matrix4f, Vector4f colorModulator) {
+	/*// Bind this mesh into a pass that already has its pipeline set, then draw it once with a
+	// transform that has already been written. The transform arrives as a slice rather than as
+	// matrices, because writing one maps a buffer and that cannot be done while a pass is open;
+	// the caller writes the whole batch beforehand. The colour travels inside it, the global shader
+	// colour the older code set no longer existing.
+	public void draw(RenderPass renderPass, GpuBufferSlice transform) {
 		if (buffer != null) {
 			renderPass.setVertexBuffer(0, buffer);
 			final RenderSystem.AutoStorageIndexBuffer autoStorageIndexBuffer = RenderSystem.getSequentialBuffer(drawMode);
 			renderPass.setIndexBuffer(autoStorageIndexBuffer.getBuffer(indexCount), autoStorageIndexBuffer.type());
-			renderPass.setUniform("DynamicTransforms", RenderSystem.getDynamicUniforms().writeTransform(matrix4f, colorModulator, new Vector3f(), new Matrix4f()));
+			renderPass.setUniform("DynamicTransforms", transform);
 			renderPass.drawIndexed(0, 0, indexCount, 1);
 		}
 	}

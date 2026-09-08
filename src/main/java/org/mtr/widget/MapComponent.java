@@ -20,11 +20,15 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 //? if >= 26.1 {
-/*import com.mojang.blaze3d.pipeline.RenderTarget;
+/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.mtr.model.StoredMesh;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 *///? }
@@ -113,6 +117,12 @@ public final class MapComponent extends UIComponent {
 	private static final int SAVED_RAIL_SHADOW_RADIUS = 1;
 	private static final int HOVER_WINDOW_SHADOW_RADIUS = 8;
 	private static final float DARKEN_MAP = 0.8F;
+//? if >= 26.1 {
+	/*// Neither varies per tile and neither is written to, so one of each is shared by every
+	// transform in the batch rather than allocated alongside it.
+	private static final Vector3f MAP_TILE_MODEL_OFFSET = new Vector3f();
+	private static final Matrix4f MAP_TILE_TEXTURE_MATRIX = new Matrix4f();
+*///? }
 	private static final int ANIMATION_DURATION = 1000;
 	private static final int ANIMATION_DURATION_FAST = 200;
 	private static final int DRAG_TIMEOUT_MILLIS = 2000;
@@ -306,17 +316,12 @@ public final class MapComponent extends UIComponent {
 			final float offsetX = clampTileSize(topLeftWorldCoords.leftDouble()) - (float) topLeftWorldCoords.leftDouble();
 			final float offsetY = clampTileSize(topLeftWorldCoords.rightDouble()) - (float) topLeftWorldCoords.rightDouble();
 //? if >= 26.1 {
-			/*// One pass covers every tile: the pipeline is bound once and each tile supplies its own
-			// transform and colour. The fade that used to be a global shader colour is now part of
-			// that per-tile uniform, since the global one no longer exists.
-			final RenderType mapRenderLayer = GuiHelper.getGuiRenderType();
-			final RenderTarget mapRenderTarget = mapRenderLayer.outputTarget().getRenderTarget();
-			final GpuTextureView mapColorTexture = RenderSystem.outputColorTextureOverride == null ? mapRenderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
-			final GpuTextureView mapDepthTexture = mapRenderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? mapRenderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
-
-			try (final RenderPass mapRenderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR map tiles", mapColorTexture, OptionalInt.empty(), mapDepthTexture, OptionalDouble.empty())) {
-			mapRenderPass.setPipeline(mapRenderLayer.pipeline());
-			RenderSystem.bindDefaultUniforms(mapRenderPass);
+			/*// Nothing is drawn while the tiles are walked. Each tile needs its own transform uniform,
+			// writing one maps a buffer, and mapping cannot be done while a render pass is open, so the
+			// tiles are collected here and the pass is opened below once they have all been written.
+			// Fetching a tile can also build its mesh, which is another reason to do it out here.
+			final ObjectArrayList<StoredMesh> mapTileMeshes = new ObjectArrayList<>();
+			final ObjectArrayList<DynamicUniforms.Transform> mapTileTransforms = new ObjectArrayList<>();
 *///? } else {
 			GuiHelper.getGuiRenderType().setupRenderState();
 //? }
@@ -341,11 +346,13 @@ public final class MapComponent extends UIComponent {
 						final float newX = (float) x + left;
 						final float newY = (float) y + top;
 //? if >= 26.1 {
-						/*vertexBuffer.draw(
-							mapRenderPass,
+						/*mapTileMeshes.add(vertexBuffer);
+						mapTileTransforms.add(new DynamicUniforms.Transform(
 							new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
-							new Vector4f(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1)
-						);
+							new Vector4f(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1),
+							MAP_TILE_MODEL_OFFSET,
+							MAP_TILE_TEXTURE_MATRIX
+						));
 *///? } else {
 						IDrawing.changeShaderColor(new Color(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1), () -> {
 							vertexBuffer.getVertexBuffer().bind();
@@ -361,7 +368,23 @@ public final class MapComponent extends UIComponent {
 			}
 
 //? if >= 26.1 {
-			/*}
+			/*if (!mapTileMeshes.isEmpty()) {
+				final GpuBufferSlice[] mapTileSlices = RenderSystem.getDynamicUniforms().writeTransforms(mapTileTransforms.toArray(new DynamicUniforms.Transform[0]));
+				final RenderType mapRenderLayer = GuiHelper.getGuiRenderType();
+				final RenderTarget mapRenderTarget = mapRenderLayer.outputTarget().getRenderTarget();
+				final GpuTextureView mapColorTexture = RenderSystem.outputColorTextureOverride == null ? mapRenderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
+				final GpuTextureView mapDepthTexture = mapRenderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? mapRenderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
+
+				// One pass covers every tile: the pipeline is bound once and each tile draws with the
+				// slice written for it above.
+				try (final RenderPass mapRenderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR map tiles", mapColorTexture, OptionalInt.empty(), mapDepthTexture, OptionalDouble.empty())) {
+					mapRenderPass.setPipeline(mapRenderLayer.pipeline());
+					RenderSystem.bindDefaultUniforms(mapRenderPass);
+					for (int mapTileIndex = 0; mapTileIndex < mapTileMeshes.size(); mapTileIndex++) {
+						mapTileMeshes.get(mapTileIndex).draw(mapRenderPass, mapTileSlices[mapTileIndex]);
+					}
+				}
+			}
 *///? } else {
 			GuiHelper.getGuiRenderType().clearRenderState();
 //? }
