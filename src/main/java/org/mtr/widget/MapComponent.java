@@ -346,9 +346,14 @@ public final class MapComponent extends UIComponent {
 						final float newX = (float) x + left;
 						final float newY = (float) y + top;
 //? if >= 26.1 {
-						/*mapTileMeshes.add(vertexBuffer);
+						/*// Positioned from the interface matrix rather than the render system's model view.
+						// UniversalCraft's compatibility shim used to leave the model view holding the
+						// transform the legacy drawing code expected, and on 26.1 it keeps that on a stack
+						// of its own instead, so the model view no longer says anything about where this
+						// component is. The background drawn above already goes through this matrix.
+						mapTileMeshes.add(vertexBuffer);
 						mapTileTransforms.add(new DynamicUniforms.Transform(
-							new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
+							new Matrix4f(matrixStack.last().pose()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
 							new Vector4f(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1),
 							MAP_TILE_MODEL_OFFSET,
 							MAP_TILE_TEXTURE_MATRIX
