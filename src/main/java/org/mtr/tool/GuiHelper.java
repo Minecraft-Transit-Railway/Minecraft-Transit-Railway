@@ -20,7 +20,8 @@ import org.mtr.widget.SlotBackgroundComponent;
 import java.awt.*;
 
 //? if >= 26.1 {
-/*import net.minecraft.client.renderer.RenderPipelines;
+/*import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -145,6 +146,28 @@ public final class GuiHelper {
 	/*@Nullable
 	public static ScreenRectangle getGuiScissor() {
 		return guiScissor;
+	}
+*///? }
+
+//? if >= 26.1 {
+	/*// An input naming no key and no modifiers, for a press the mod raises itself rather than one
+	// the player made.
+	//
+	// It lives on this side of the mod deliberately: its only caller is IGui, an interface that a
+	// dedicated server loads, and a server cannot resolve the client interface implemented here.
+	// See IGui.setChecked.
+	public static InputWithModifiers emptyInput() {
+		return new InputWithModifiers() {
+			@Override
+			public int input() {
+				return 0;
+			}
+
+			@Override
+			public int modifiers() {
+				return 0;
+			}
+		};
 	}
 *///? }
 
