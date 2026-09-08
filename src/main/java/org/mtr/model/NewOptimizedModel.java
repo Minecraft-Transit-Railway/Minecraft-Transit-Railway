@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
+import org.mtr.resource.RenderStage;
 
 import java.util.function.Consumer;
 
@@ -17,6 +18,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import org.mtr.render.MoreRenderLayers;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -92,14 +94,15 @@ public final class NewOptimizedModel {
 	}
 
 	/**
-	 * @param texture  the texture this mesh draws with
-	 * @param drawMode the GL primitive type ({@code TRIANGLES} for OBJ, {@code QUADS} for
-	 *                 Blockbench)
-	 * @param callback the vertex-emitter callback invoked exactly once to populate the
-	 *                 buffer, or {@code null} to skip buffer creation entirely
+	 * @param texture     the texture this mesh draws with
+	 * @param drawMode    the GL primitive type ({@code TRIANGLES} for OBJ, {@code QUADS} for
+	 *                    Blockbench)
+	 * @param renderStage the stage this mesh is drawn in, which decides the render layer
+	 * @param callback    the vertex-emitter callback invoked exactly once to populate the
+	 *                    buffer, or {@code null} to skip buffer creation entirely
 	 */
 //? if >= 26.1 {
-	/*public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, @Nullable Consumer<VertexConsumer> callback) {
+	/*public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, RenderStage renderStage, @Nullable Consumer<VertexConsumer> callback) {
 		// The mesh is built once and handed straight to the GPU. From 26.1 the vertex data lives in a
 		// GpuBuffer rather than a VertexBuffer, and the index count has to be kept because the draw
 		// call needs it; the old VertexBuffer carried that itself.
@@ -115,8 +118,17 @@ public final class NewOptimizedModel {
 			//
 			// The upload happens while the allocator is still open, because the mesh points into memory
 			// the allocator owns until then.
+			//
+			// Packed in the format of the layer that will draw it, rather than one fixed format. Up to
+			// 26.1 the buffer carried its own format and set the attribute pointers from it, so a mesh
+			// whose layout was merely a superset of what the shader read still drew correctly. From
+			// 26.1 the layout comes from the pipeline instead: the light stages draw through the beacon
+			// beam pipeline, which reads a 32 byte vertex, so a 36 byte entity vertex was walked at the
+			// wrong stride and every position after the first was read out of the middle of the
+			// previous vertex. The result was the lit parts of a model streaming off to infinity while
+			// everything drawn through an entity layer looked right.
 			try (final ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(1536)) {
-				final BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, drawMode, DefaultVertexFormat.ENTITY);
+				final BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, drawMode, MoreRenderLayers.get(renderStage, texture).format());
 				callback.accept(bufferBuilder);
 				try (final MeshData meshData = bufferBuilder.build()) {
 					if (meshData != null) {
@@ -133,7 +145,9 @@ public final class NewOptimizedModel {
 		this.drawMode = drawMode;
 	}
 *///? } else {
-	public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, @Nullable Consumer<VertexConsumer> callback) {
+	public NewOptimizedModel(ResourceLocation texture, VertexFormat.Mode drawMode, RenderStage renderStage, @Nullable Consumer<VertexConsumer> callback) {
+		// One format for every stage here. The buffer carries it and sets the attribute pointers from
+		// it, so a layer that reads fewer elements than this holds still draws correctly.
 		this.vertexBuffer = callback == null ? null : createVertexBuffer(drawMode, DefaultVertexFormat.NEW_ENTITY, callback);
 		this.texture = texture;
 		this.drawMode = drawMode;

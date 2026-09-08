@@ -320,13 +320,7 @@ public class MainRenderer {
 	private static void renderModel(PoseStack matrixStack, Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> modelRenders, Vec3 offset) {
 		modelRenders.forEach((newOptimizedModel, modelsForRenderStage) -> modelsForRenderStage.forEach((renderStage, renderDetails) -> {
 			final ResourceLocation texture = newOptimizedModel.texture;
-			final RenderType renderLayer = switch (renderStage) {
-				case LIGHT -> MoreRenderLayers.getLight(texture, false);
-				case ALWAYS_ON_LIGHT -> MoreRenderLayers.getLight(texture, true);
-				case INTERIOR -> MoreRenderLayers.getInterior(texture);
-				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
-				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
-			};
+			final RenderType renderLayer = MoreRenderLayers.get(renderStage, texture);
 //? if >= 26.1 {
 			/*// The render pass replaces the old setup and clear pair, and owns the batch: the pipeline,
 			// vertex buffer and textures are bound once, then every instance writes its own transform

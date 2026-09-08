@@ -42,7 +42,7 @@ public final class NewOptimizedModelGroup {
 			if (renderStage != null) {
 				storedVertexConsumerForTexture.forEach((texture, storedVertexDataList) -> newOptimizedModels
 					.computeIfAbsent(renderStage, key -> new ObjectArrayList<>())
-					.add(new NewOptimizedModel(texture, drawMode, storedVertexDataList.isEmpty() ? null : vertexConsumer -> StoredVertexData.apply(storedVertexDataList, vertexConsumer)))
+					.add(new NewOptimizedModel(texture, drawMode, renderStage, storedVertexDataList.isEmpty() ? null : vertexConsumer -> StoredVertexData.apply(storedVertexDataList, vertexConsumer)))
 				);
 			}
 		});
