@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 /*import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.ScissorState;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -384,6 +385,16 @@ public final class MapComponent extends UIComponent {
 				// slice written for it above.
 				try (final RenderPass mapRenderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR map tiles", mapColorTexture, OptionalInt.empty(), mapDepthTexture, OptionalDouble.empty())) {
 					mapRenderPass.setPipeline(mapRenderLayer.pipeline());
+
+					// The scissor has to be put on the pass by hand. The one applied above reaches draws
+					// made through a render type, which is how these tiles used to be drawn, but a pass
+					// opened directly carries its own and starts with none, so the tiles spilled out over
+					// the rest of the dashboard. This is the same state a render type would forward.
+					final ScissorState mapScissorState = RenderSystem.getScissorStateForRenderTypeDraws();
+					if (mapScissorState.enabled()) {
+						mapRenderPass.enableScissor(mapScissorState.x(), mapScissorState.y(), mapScissorState.width(), mapScissorState.height());
+					}
+
 					RenderSystem.bindDefaultUniforms(mapRenderPass);
 					for (int mapTileIndex = 0; mapTileIndex < mapTileMeshes.size(); mapTileIndex++) {
 						mapTileMeshes.get(mapTileIndex).draw(mapRenderPass, mapTileSlices[mapTileIndex]);
