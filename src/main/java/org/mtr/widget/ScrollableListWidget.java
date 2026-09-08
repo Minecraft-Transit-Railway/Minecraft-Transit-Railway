@@ -110,7 +110,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 				}
 
 				// Draw text
-				deferredRenders.add(() -> FontRenderHelper.render(matrixStack, listItem.text, fontRenderOptionsBuilder
+				deferredRenders.add(() -> FontRenderHelper.render(context, matrixStack, listItem.text, fontRenderOptionsBuilder
 					.horizontalSpace(endX - startX - listItem.iconWidth - GuiHelper.DEFAULT_PADDING * 2 - (isMouseOver ? GuiHelper.DEFAULT_LINE_SIZE * listItem.actionCount() : 0))
 					.offsetX(startX + listItem.iconWidth + GuiHelper.DEFAULT_PADDING)
 					.offsetY((float) startY)
