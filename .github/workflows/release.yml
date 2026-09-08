@@ -64,4 +64,12 @@ jobs:
             *alpha*|*beta*|*rc*|*pre*) prerelease="--prerelease" ;;
             *) prerelease="" ;;
           esac
-          gh release create "$TAG" build/release/*.jar --title "$TAG" --generate-notes $prerelease
+          # Generated notes run back to the previous release. There isn't one for the first
+          # release, and the fallback is the whole repository history, which on a fork of a
+          # long-lived project is thousands of unrelated commits. So generate them only once
+          # there is an earlier release to measure against.
+          if [ -n "$(gh release list --limit 1)" ]; then
+            gh release create "$TAG" build/release/*.jar --title "$TAG" --generate-notes $prerelease
+          else
+            gh release create "$TAG" build/release/*.jar --title "$TAG" $prerelease --notes "Built from \`$TAG\`. See the readme for the subset of the mod confirmed to work on Minecraft 26.1.2, and the gaps behind it."
+          fi
