@@ -14,9 +14,11 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 //? if >= 26.1 {
-/*import com.mojang.blaze3d.pipeline.RenderTarget;
+/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import java.util.OptionalDouble;
@@ -340,13 +342,24 @@ public class MainRenderer {
 			final GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride == null ? renderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
 			final GpuTextureView depthTexture = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? renderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
 
+			// Every instance's transform is written in one batch before the pass opens. Writing a
+			// uniform maps a buffer, and mapping is another command that cannot be issued during a
+			// pass, so walking the matrix stack has to happen out here too and the pass is left holding
+			// nothing but the binds and the draws.
+			final DynamicUniforms.Transform[] transforms = new DynamicUniforms.Transform[renderDetails.size()];
+			for (int i = 0; i < renderDetails.size(); i++) {
+				final ObjectIntImmutablePair<StoredMatrixTransformations> renderDetailsEntry = renderDetails.get(i);
+				renderDetailsEntry.left().transform(matrixStack, offset);
+				transforms[i] = NewOptimizedModel.transformFor(i, matrixStack.last().pose(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF);
+				matrixStack.popPose();
+			}
+			final GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms().writeTransforms(transforms);
+
 			try (final RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR models", colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
 				newOptimizedModel.begin(renderPass, renderLayer, abstractTexture);
-				renderDetails.forEach(renderDetailsEntry -> {
-					renderDetailsEntry.left().transform(matrixStack, offset);
-					newOptimizedModel.render(renderPass, matrixStack.last().pose(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF);
-					matrixStack.popPose();
-				});
+				for (final GpuBufferSlice transformSlice : transformSlices) {
+					newOptimizedModel.render(renderPass, transformSlice);
+				}
 			}
 *///? } else {
 			renderLayer.setupRenderState();

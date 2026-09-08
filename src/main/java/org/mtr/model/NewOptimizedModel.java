@@ -11,10 +11,13 @@ import java.util.function.Consumer;
 
 //? if >= 26.1 {
 /*import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.systems.RenderPass;
+import net.minecraft.client.renderer.DynamicUniforms;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 *///? } else if >= 1.21.4 {
@@ -57,9 +60,16 @@ public final class NewOptimizedModel {
 	 */
 	private static final Matrix4f MODEL_VIEW_SCRATCH = new Matrix4f();
 //? if >= 26.1 {
-	/*private static final Vector4f COLOR_MODULATOR_SCRATCH = new Vector4f();
-	private static final Vector3f MODEL_OFFSET_SCRATCH = new Vector3f();
+	/*private static final Vector3f MODEL_OFFSET_SCRATCH = new Vector3f();
 	private static final Matrix4f TEXTURE_MATRIX_SCRATCH = new Matrix4f();
+
+	// Every instance's uniform values have to exist at once, because they are written in one batch
+	// before the pass opens, so the single scratch matrix the older versions reuse is not enough.
+	// These pools grow to the largest batch seen and are then reused, which keeps the property that
+	// scratch object was there for: nothing is allocated per instance once the frames settle. Both
+	// are only read again by writeTransforms, which happens before the next batch touches them.
+	private static final ObjectArrayList<Matrix4f> MODEL_VIEW_POOL = new ObjectArrayList<>();
+	private static final ObjectArrayList<Vector4f> COLOR_MODULATOR_POOL = new ObjectArrayList<>();
 *///? }
 	/**
 	 * Pre-built {@code colorModulator} arrays for every value of {@code lightMultiplier}
@@ -128,15 +138,23 @@ public final class NewOptimizedModel {
 	 * @param shaderProgram   the active shader, may be {@code null} during reload
 	 */
 //? if >= 26.1 {
-	/*public void render(RenderPass renderPass, Matrix4f matrix4f, float lightMultiplier) {
+	/*public static DynamicUniforms.Transform transformFor(int index, Matrix4f matrix4f, float lightMultiplier) {
+		while (MODEL_VIEW_POOL.size() <= index) {
+			MODEL_VIEW_POOL.add(new Matrix4f());
+			COLOR_MODULATOR_POOL.add(new Vector4f());
+		}
+		final float[] colorModulator = colorModulatorFor(lightMultiplier);
+		return new DynamicUniforms.Transform(
+			MODEL_VIEW_POOL.get(index).set(RenderSystem.getModelViewMatrix()).mul(matrix4f),
+			COLOR_MODULATOR_POOL.get(index).set(colorModulator[0], colorModulator[1], colorModulator[2], colorModulator[3]),
+			MODEL_OFFSET_SCRATCH,
+			TEXTURE_MATRIX_SCRATCH
+		);
+	}
+
+	public void render(RenderPass renderPass, GpuBufferSlice transform) {
 		if (vertexBuffer != null) {
-			// The two uniforms the older code set by hand are now written together into one buffer
-			// slice. Scratch objects are reused for the same reason the matrix always was: this runs
-			// once per instance per frame and allocating here shows up in the frame time.
-			MODEL_VIEW_SCRATCH.set(RenderSystem.getModelViewMatrix()).mul(matrix4f);
-			final float[] colorModulator = colorModulatorFor(lightMultiplier);
-			COLOR_MODULATOR_SCRATCH.set(colorModulator[0], colorModulator[1], colorModulator[2], colorModulator[3]);
-			renderPass.setUniform("DynamicTransforms", RenderSystem.getDynamicUniforms().writeTransform(MODEL_VIEW_SCRATCH, COLOR_MODULATOR_SCRATCH, MODEL_OFFSET_SCRATCH, TEXTURE_MATRIX_SCRATCH));
+			renderPass.setUniform("DynamicTransforms", transform);
 			renderPass.drawIndexed(0, 0, indexCount, 1);
 		}
 	}
