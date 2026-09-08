@@ -217,7 +217,7 @@ public final class NewOptimizedModel {
 	 * calls per frame, then the next mesh's {@code begin(...)}.
 	 */
 //? if >= 26.1 {
-	/*public void begin(RenderPass renderPass, RenderType renderLayer) {
+	/*public void begin(RenderPass renderPass, RenderType renderLayer, AbstractTexture abstractTexture) {
 		if (vertexBuffer != null) {
 			renderPass.setPipeline(renderLayer.pipeline());
 			RenderSystem.bindDefaultUniforms(renderPass);
@@ -227,7 +227,11 @@ public final class NewOptimizedModel {
 			// keeps its texture map private, and the entity vertex format carries overlay and lightmap
 			// coordinates, so binding only the model's own texture would light every model wrongly
 			// without any error to show for it.
-			final AbstractTexture abstractTexture = Minecraft.getInstance().getTextureManager().getTexture(texture);
+			//
+			// The model's own texture is passed in rather than looked up here: asking the texture
+			// manager for one loads and uploads it the first time, and an upload cannot be issued while
+			// a render pass is open. The overlay and the lightmap are already resident by this point in
+			// the frame, so those two are still read directly.
 			renderPass.bindTexture("Sampler0", abstractTexture.getTextureView(), abstractTexture.getSampler());
 			renderPass.bindTexture("Sampler1", Minecraft.getInstance().gameRenderer.overlayTexture().getTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 			renderPass.bindTexture("Sampler2", Minecraft.getInstance().gameRenderer.lightmap(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));

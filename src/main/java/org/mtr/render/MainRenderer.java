@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 *///? }
@@ -329,12 +330,18 @@ public class MainRenderer {
 			// vertex buffer and textures are bound once, then every instance writes its own transform
 			// uniform and draws. The target is taken from the render layer rather than the main one so
 			// that layers drawing elsewhere still land in the right place.
+			// Resolved before the pass is opened. The texture manager loads and uploads a texture the
+			// first time it is asked for one, and an upload is a command that cannot be issued during a
+			// pass: doing it inside took the game down the moment a model with a texture it had not
+			// drawn yet came into view, which is what laying the first rail does.
+			final AbstractTexture abstractTexture = Minecraft.getInstance().getTextureManager().getTexture(texture);
+
 			final RenderTarget renderTarget = renderLayer.outputTarget().getRenderTarget();
 			final GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride == null ? renderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
 			final GpuTextureView depthTexture = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? renderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
 
 			try (final RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR models", colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
-				newOptimizedModel.begin(renderPass, renderLayer);
+				newOptimizedModel.begin(renderPass, renderLayer, abstractTexture);
 				renderDetails.forEach(renderDetailsEntry -> {
 					renderDetailsEntry.left().transform(matrixStack, offset);
 					newOptimizedModel.render(renderPass, matrixStack.last().pose(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF);
