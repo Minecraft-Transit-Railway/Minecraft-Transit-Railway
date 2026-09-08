@@ -107,12 +107,22 @@ public final class NewOptimizedModel {
 		int builtIndexCount = 0;
 
 		if (callback != null) {
-			final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(drawMode, DefaultVertexFormat.ENTITY);
-			callback.accept(bufferBuilder);
-			try (final MeshData meshData = bufferBuilder.build()) {
-				if (meshData != null) {
-					builtIndexCount = meshData.drawState().indexCount();
-					builtBuffer = RenderSystem.getDevice().createBuffer(() -> "MTR model " + texture, GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
+			// Built through an allocator of its own rather than the shared tesselator. Beginning on the
+			// shared one hands out a builder over a single buffer, so a mesh built while another is part
+			// way through overwrites it, and the result is a model with some of its corners belonging to
+			// something else. The versions before this one avoided it too, by way of uploadStatic, which
+			// allocates privately for the same reason.
+			//
+			// The upload happens while the allocator is still open, because the mesh points into memory
+			// the allocator owns until then.
+			try (final ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(1536)) {
+				final BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, drawMode, DefaultVertexFormat.ENTITY);
+				callback.accept(bufferBuilder);
+				try (final MeshData meshData = bufferBuilder.build()) {
+					if (meshData != null) {
+						builtIndexCount = meshData.drawState().indexCount();
+						builtBuffer = RenderSystem.getDevice().createBuffer(() -> "MTR model " + texture, GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
+					}
 				}
 			}
 		}

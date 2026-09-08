@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 /*import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 *///? } else {
 import com.mojang.blaze3d.vertex.VertexBuffer;
 //? }
@@ -43,13 +44,19 @@ public final class StoredMesh {
 //? if >= 26.1 {
 		/*GpuBuffer builtBuffer = null;
 		int builtIndexCount = 0;
-		final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(drawMode, vertexFormat);
-		callback.accept(bufferBuilder);
 
-		try (final MeshData meshData = bufferBuilder.build()) {
-			if (meshData != null) {
-				builtIndexCount = meshData.drawState().indexCount();
-				builtBuffer = RenderSystem.getDevice().createBuffer(() -> "MTR stored mesh", GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
+		// An allocator of its own rather than the shared tesselator, for the reason given where the
+		// models are built: the shared one hands out a builder over a single buffer, so meshes built
+		// while another is part way through corrupt each other.
+		try (final ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(1536)) {
+			final BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, drawMode, vertexFormat);
+			callback.accept(bufferBuilder);
+
+			try (final MeshData meshData = bufferBuilder.build()) {
+				if (meshData != null) {
+					builtIndexCount = meshData.drawState().indexCount();
+					builtBuffer = RenderSystem.getDevice().createBuffer(() -> "MTR stored mesh", GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
+				}
 			}
 		}
 
