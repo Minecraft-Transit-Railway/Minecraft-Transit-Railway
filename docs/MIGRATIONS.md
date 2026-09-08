@@ -387,15 +387,27 @@ A `// TODO` without follow-up over a year old is a bug. Audit this list each rel
 
 **State**
 
-Both 26.1.2 nodes compile, and so do the four older ones. The mod loads on NeoForge 26.1.2,
-reaches the main menu, opens its own configuration screen, loads a world, and renders track and
-station geometry while rails are being laid. Its web server starts and serves the system map.
+All six nodes compile. On NeoForge 26.1.2 the whole core loop has been run and confirmed: laying
+every type of rail, the Rail Dashboard including its world map, creating stations, depots and
+routes, recalculating them, choosing vehicles and cars in a depot, and trains generating and
+running a route with their models rendering correctly. The web server starts and serves the
+system map.
 
-Not yet exercised at runtime: the block entity save and load path described under *Persistence*
-below, vehicles actually running a route, and anything on Fabric, which has only ever been
-compiled.
+Not yet exercised at runtime:
 
-Known to be broken, and not yet started: every crafting recipe, described under *Recipes* below.
+- Anything on Fabric, which has only ever been compiled.
+- The block entity save and load path described under *Persistence* below; no setting has been
+  checked across a world reload.
+- Boats, cable cars, planes, lifts, and signalling beyond what a single line exercises.
+
+Known to be broken:
+
+- Every crafting recipe, described under *Recipes* below.
+- Two text sites still draw into the world buffer rather than the screen, so they are invisible:
+  the platform number badge on list rows (`ScrollableListWidget.drawPlatformNumber` and the same
+  method in `ListComponent`) and the warning marker in `VehicleSelectorScreen.drawVehicleIcon`.
+  Both are reached through `ListItem.DeferredDrawIcon`, which carries a `PoseStack` but no
+  `GuiGraphics`, so fixing them means threading the screen through that interface.
 
 Two techniques are in use, and the choice between them is deliberate:
 
@@ -410,26 +422,18 @@ Two techniques are in use, and the choice between them is deliberate:
 
 What remains, largest first:
 
-| Item | Errors | Needs a client? | Notes |
-|---|---|---|---|
-| `GuiGraphics` to `GuiGraphicsExtractor` | 88 | yes | Retained-mode rendering; see below |
-| Override signatures no longer matching | 34 | no | `loadAdditional`, `saveAdditional`, `entityInside`, `updateShape` |
-| `VertexBuffer` and `CompiledShaderProgram` | 22 | yes | Removed; needs the GPU buffer and pipeline model |
-| `blockUpdated`, `displayClientMessage`, `getInstance` | 18 | no | Individual signature changes |
-| Deleted Fabric API modules | 6 | partly | See the table below |
-| `BlockColor` | 4 | no | Replaced by `BlockTintSource` |
-| Assorted inference and generics failures | 12 | no | Follows from the changes above |
+| Item | Needs a client? | Notes |
+|---|---|---|
+| Recipes | no | 295 files in the old ingredient form; see *Recipes* below |
+| A Fabric launch | yes | Compiled on every node, never started |
+| Block entity persistence | yes | The `ValueInput` and `ValueOutput` bridge is written but unexercised |
+| The two `DeferredDrawIcon` text sites | yes | Listed under *State* above |
+| Everything past a single train line | yes | Boats, cable cars, planes, lifts, wider signalling |
 
-`appendHoverText` is done: Minecraft swapped its tooltip list for a consumer and added a
-display parameter, which broke the override in twenty-one blocks and items. Both branches
-now write through a `Consumer<Component>`, which the older signature obtains by adapting its
-list parameter, so only the signature line and three super calls are guarded and the tooltip
-bodies are shared.
-
-The "needs a client" column is the important one. Everything marked no can be finished
-against the compiler. Everything marked yes compiles just as happily when it is wrong, and
-shows up only as incorrect drawing, wrong draw order, or a collapsed frame rate, so it wants
-someone watching the game rather than the build log.
+The "needs a client" column is the important one. Everything marked no can be finished against
+the compiler. Everything marked yes compiles just as happily when it is wrong, and shows up only
+as incorrect drawing, wrong draw order, or a collapsed frame rate, so it wants someone watching
+the game rather than the build log. Every rendering defect found so far was of that kind.
 
 The `GuiGraphics` work is the substantial one. Minecraft 26.1 replaced immediate-mode
 drawing with retained-mode extraction: `Screen.render(GuiGraphics, ...)` became
@@ -609,6 +613,37 @@ The failure is badly signposted. It throws inside vanilla with a message about r
 no hint of which mod opened one, and if the pass is left open the next frame dies somewhere else
 entirely, often in the renderer's own clear. None of it appears at compile time, and the mod's
 own interface code hit it as readily as the world renderer did.
+
+**The pipeline declares the vertex layout**
+
+The sibling of the rule above, and the second thing to check when geometry misbehaves rather than
+crashes. Up to 26.1 a `VertexBuffer` carried its own `VertexFormat` and set the attribute pointers
+from it, so a mesh packed in a layout that was merely a **superset** of what the shader read still
+drew correctly. From 26.1 the layout comes from `RenderPipeline.getVertexFormat()` and the mesh's
+own format is never consulted, so the two have to agree exactly.
+
+Layers that look interchangeable are not:
+
+| Layer | Format | Vertex |
+|---|---|---|
+| `entityCutout`, `entityTranslucent*` | `DefaultVertexFormat.ENTITY` | 36 bytes |
+| `beaconBeam` | `DefaultVertexFormat.BLOCK` | 32 bytes, no overlay element |
+
+`NewOptimizedModel` packed every mesh as `ENTITY` while `MoreRenderLayers` drew the light stages
+through `beaconBeam`. Read at 32 bytes instead of 36, every position after the first came out of
+the middle of the vertex before it — packed colour and texture bits reinterpreted as floats — which
+put a spike through the sky at every car of a train while the car bodies, drawn through entity
+layers, were perfect. The mesh is now packed in `renderLayer.format()`, and the stage to layer
+mapping lives in `MoreRenderLayers.get` so that the build and the draw ask the same question.
+
+Note that `DefaultVertexFormat.NEW_ENTITY` was renamed to `ENTITY`; there is no separate `ENTITY`
+of the older kind to confuse it with. Writing an element the format does not have — `setOverlay`
+into a `BLOCK` buffer — is silently skipped by `BufferBuilder` rather than failing, so packing for
+the narrower format is safe.
+
+The way to tell this apart from bad geometry is to rule the geometry out. Log the source
+coordinates at the call site and scan the built `MeshData` vertex buffer for out-of-range floats;
+if both are clean and the picture is not, the mesh and the pipeline disagree about the layout.
 
 **Recipes**
 
