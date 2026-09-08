@@ -387,9 +387,15 @@ A `// TODO` without follow-up over a year old is a bug. Audit this list each rel
 
 **State**
 
-Both 26.1.2 nodes configure and resolve completely. Neither compiles yet. Roughly 160
-errors remain across 42 files, down from about 200 when the nodes were added, and the
-count moves unevenly because `javac` stops early and reveals more as earlier errors clear.
+Both 26.1.2 nodes compile, and so do the four older ones. The mod loads on NeoForge 26.1.2,
+reaches the main menu, opens its own configuration screen, loads a world, and renders track and
+station geometry while rails are being laid. Its web server starts and serves the system map.
+
+Not yet exercised at runtime: the block entity save and load path described under *Persistence*
+below, vehicles actually running a route, and anything on Fabric, which has only ever been
+compiled.
+
+Known to be broken, and not yet started: every crafting recipe, described under *Recipes* below.
 
 Two techniques are in use, and the choice between them is deliberate:
 
@@ -577,10 +583,50 @@ mistake does not fail to compile and does not misdraw; it silently loses a playe
 on the next world reload. Verify by placing configured blocks, restarting the world, and
 confirming their settings survived.
 
+**Render passes own the frame**
+
+The single rule behind four separate failures here, and the one to check first when a new screen
+or renderer misbehaves. From 26.1 a render pass is exclusive: while one is open the command
+encoder refuses everything that is not a bind or a draw. Uploading a texture, mapping a buffer
+and clearing a target are all commands, and all of them throw.
+
+It caught the interface image drawing, the model texture binding, the per model transform
+uniform and the per map tile transform uniform, in that order, each one only once the previous
+was fixed and the next code path could run.
+
+That matters because the calls which trigger them do not look like commands at the call site:
+
+- `TextureManager.getTexture(id)` loads and uploads the texture the first time it is asked.
+- `DynamicUniforms.writeTransform(...)` maps a buffer to write into.
+- `ReleasedDynamicTexture.getDynamicGlId()` uploads before returning the identifier.
+
+So resolve every texture, write every uniform and finish every upload **before** opening the
+pass, and leave the pass holding nothing but binds and draws. Where a batch needs one uniform
+per instance, `DynamicUniforms.writeTransforms(...)` writes them all at once and hands back one
+slice per instance; that is what it exists for.
+
+The failure is badly signposted. It throws inside vanilla with a message about render passes and
+no hint of which mod opened one, and if the pass is left open the next frame dies somewhere else
+entirely, often in the renderer's own clear. None of it appears at compile time, and the mod's
+own interface code hit it as readily as the world renderer did.
+
+**Recipes**
+
+Every crafting recipe fails to parse. MTR writes ingredients in the object form that 1.21.x
+used, `{"item": "minecraft:glass_pane"}` and `{"tag": "c:redstone_dusts"}`, while 26.1 expects a
+plain string and a `#` prefix for tags: `"minecraft:glass_pane"`, `"#c:redstone_dusts"`. Every
+object-form ingredient is dropped, which empties the list, and the recipe is rejected with
+`List is too short: 0, expected range [1-9]`.
+
+295 of the 340 files under `data/mtr/recipe` are affected, 174 of them also using tags. Nothing
+can be crafted, which is invisible in creative and total in survival. Verify the target form
+against the game's own data rather than from memory: `data/minecraft/recipe/glass_pane.json`
+inside the client jar shows it.
+
 **Finish line**
 
-Both 26.1.2 nodes compile, the mod loads on each loader, and the packaging gap below is
-closed. At that point this section can be deleted.
+The mod builds and runs on both loaders, a train completes a route, block entity settings
+survive a world reload, and recipes work. At that point this section can be deleted.
 
 **Pitfall**
 
@@ -596,12 +642,24 @@ directly stops the build script compiling on unobfuscated versions, because the 
 accessor is generated only while the remapping Loom variant is applied. Resolve such tasks
 by name with an explicit type instead.
 
-**Known gap**
+**Packaging, now closed**
 
-The Fabric 26.1.2 jar will not contain its shaded libraries. With no remap step the plain
-`jar` task becomes the mod jar, and the Shadow output is not wired into it. This does not
-affect compilation, so it does not block the port, but it will produce a broken artefact if
-a release is built before it is fixed.
+The Fabric 26.1.2 jar used to ship without its shaded libraries. With no remap step the plain
+`jar` task becomes the mod jar, and the Shadow output was not wired into it, so the release jar
+held the mod and its assets and none of the four and a half thousand library classes it needs.
+`buildAndCollect` now ships the shaded jar directly on unobfuscated versions, which is what the
+NeoForge build already did on every version.
+
+Two further packaging traps, both found by running the artefact rather than building it:
+
+- The shaded jar carried seven `META-INF/services` entries naming classes that Transport
+  Simulation Core's own minimisation had removed. NeoForge builds a module descriptor from the
+  mod jar on 26.1 and refuses one whose services it cannot resolve, so the game stopped during
+  mod scanning. Those registrations are now excluded.
+- A single bad write during a parallel build corrupted one shipped font, which was fatal only
+  because 26.1 rasterises every glyph a provider declares at reload time rather than lazily.
+  Compare the built jar against `src/main/resources` before installing it; all 4889 mod-owned
+  resources should match byte for byte.
 
 ---
 
