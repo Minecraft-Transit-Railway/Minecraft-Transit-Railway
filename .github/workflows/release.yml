@@ -64,6 +64,11 @@ jobs:
             *alpha*|*beta*|*rc*|*pre*) prerelease="--prerelease" ;;
             *) prerelease="" ;;
           esac
+          # A tag pushed again replaces its release instead of failing on it, so a release can
+          # be recut under the same version once a fix has landed. The tag itself is left alone.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes
+          fi
           # Generated notes run back to the previous release. There isn't one for the first
           # release, and the fallback is the whole repository history, which on a fork of a
           # long-lived project is thousands of unrelated commits. So generate them only once
