@@ -54,6 +54,13 @@ configurations {
 		isCanBeResolved = true
 		isCanBeConsumed = false
 	}
+
+	// The game's own libraries reach the runtime classpath through ModDev's bucket rather than
+	// through runtimeOnly, so the tests never saw them and anything touching Netty could not run.
+	// Wired as the bucket appears, because the plugin creates it after this script has run.
+	matching { it.name == "modDevRuntimeDependencies" }.configureEach {
+		getByName("testRuntimeClasspath").extendsFrom(this)
+	}
 }
 
 java {
