@@ -701,8 +701,7 @@ Note that Gradle did not consider the new filter an input change and reported
 
 The mod builds and runs on both loaders, a train completes a route, block entity settings
 survive a world reload, and recipes work. All four now hold. What keeps the section open is the
-list under *State*: a Fabric dedicated server, the two text sites, and the breadth of the mod
-past a single line.
+list under *State*: the two text sites, and the breadth of the mod past a single line.
 
 **Pitfall**
 
