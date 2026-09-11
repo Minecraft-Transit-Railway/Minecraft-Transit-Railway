@@ -148,13 +148,17 @@ tasks {
 			filesMatching("mtr.mixins.json") {
 				filter { line -> line.replace("\"TextFieldSelectionEndAccessor\"", "\"TextFieldSelectionEndAccessor\", \"GuiRenderStateAccessor\"") }
 			}
+		}
 
-			// 26.1 reads an ingredient as a plain identifier, with # for a tag, and silently drops the
-			// object form the source is written in: the list comes out empty and the recipe is rejected,
-			// which left nothing craftable. The source keeps the object form because 1.21.1 accepts
-			// nothing else, and 1.21.4 reads both, so only these versions are rewritten, on the way in.
+		// From 1.21.4 an ingredient is a plain identifier, with # for a tag, and the object form the
+		// source is written in is rejected; on 26.1 it is dropped without complaint, the list comes
+		// out empty and the recipe is refused as too short. Every recipe was lost on both, and nothing
+		// was craftable. The source keeps the object form because 1.21.1 accepts nothing else, so the
+		// newer versions are rewritten on the way in. One item was renamed on 26.1 as well, and the
+		// filter is told when to apply that.
+		if (sc.current.parsed >= "1.21.4") {
 			filesMatching("data/mtr/recipe/*.json") {
-				filter(org.mtr.RecipeIngredientFilter::class.java)
+				filter(mapOf("renameItems" to (sc.current.parsed >= "26.1")), org.mtr.RecipeIngredientFilter::class.java)
 			}
 		}
 
