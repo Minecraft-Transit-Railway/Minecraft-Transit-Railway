@@ -62,18 +62,25 @@ java {
 	sourceCompatibility = requiredJava
 }
 
-sourceSets.main {
-	// Resources are read from the shared source tree rather than from Stonecutter's generated copy
-	// of it. Nothing under src/main/resources carries a Stonecutter marker, so that copy is only a
-	// copy, and it is not a reliable one: on roughly one run in three it writes a single 8 KiB block
-	// of some large file from 4 KiB further on, and which file varies from run to run. The fonts, at
-	// up to 18 MiB, are hit most often, and from 26.1 every glyph is rasterised at reload, so one
-	// damaged font stops the game before the title screen. It was traced by comparing the generated
-	// tree against the source after repeated regeneration, serial and parallel alike. Reading the
-	// originals leaves nothing for that copy to damage; the rewrites resources do need for a version
-	// are applied by processResources below.
-	val generatedResources = layout.buildDirectory.dir("generated/stonecutter/main/resources").get().asFile
-	resources.setSrcDirs(resources.srcDirs.filterNot { it == generatedResources } + rootProject.file("src/main/resources"))
+// The active version reads the source tree directly and gets none of this; only the other
+// versions are built from a generated copy.
+if (!sc.current.isActive) {
+	sourceSets.main {
+		// Resources are read from the shared source tree rather than from Stonecutter's generated copy
+		// of it. Nothing under src/main/resources carries a Stonecutter marker, so that copy is only a
+		// copy, and it is not a reliable one: on roughly one run in three it writes a single 8 KiB block
+		// of some large file from 4 KiB further on, and which file varies from run to run. The fonts, at
+		// up to 18 MiB, are hit most often, and from 26.1 every glyph is rasterised at reload, so one
+		// damaged font stops the game before the title screen. It was traced by comparing the generated
+		// tree against the source after repeated regeneration, serial and parallel alike. Reading the
+		// originals leaves nothing for that copy to damage; the rewrites resources do need for a version
+		// are applied by processResources below.
+		//
+		// The generated directory is matched on its path segment rather than by equality with a File,
+		// so that it holds however the plugin happens to spell it.
+		val generatedMarker = listOf("build", "generated", "stonecutter").joinToString(File.separator)
+		resources.setSrcDirs(resources.srcDirs.filterNot { it.path.contains(generatedMarker) } + rootProject.file("src/main/resources"))
+	}
 }
 
 fun DependencyHandlerScope.modImplementationAndInclude(notation: Any) {
