@@ -141,6 +141,14 @@ tasks {
 			filesMatching("mtr.mixins.json") {
 				filter { line -> line.replace("\"TextFieldSelectionEndAccessor\"", "\"TextFieldSelectionEndAccessor\", \"GuiRenderStateAccessor\"") }
 			}
+
+			// 26.1 reads an ingredient as a plain identifier, with # for a tag, and silently drops the
+			// object form the source is written in: the list comes out empty and the recipe is rejected,
+			// which left nothing craftable. The source keeps the object form because 1.21.1 accepts
+			// nothing else, and 1.21.4 reads both, so only these versions are rewritten, on the way in.
+			filesMatching("data/mtr/recipe/*.json") {
+				filter(org.mtr.RecipeIngredientFilter::class.java)
+			}
 		}
 
 		exclude("**/neoforge.mods.toml")
