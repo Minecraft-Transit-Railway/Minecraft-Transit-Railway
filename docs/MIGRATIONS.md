@@ -431,7 +431,6 @@ What remains, largest first:
 | Item | Needs a client? | Notes |
 |---|---|---|
 | A Fabric launch | yes | Compiled on every node, never started |
-| Block entity persistence | yes | The `ValueInput` and `ValueOutput` bridge is written but unexercised |
 | The two `DeferredDrawIcon` text sites | yes | Listed under *State* above |
 | Everything past a single train line | yes | Boats, cable cars, planes, lifts, wider signalling |
 
@@ -633,6 +632,7 @@ Layers that look interchangeable are not:
 |---|---|---|
 | `entityCutout`, `entityTranslucent*` | `DefaultVertexFormat.ENTITY` | 36 bytes |
 | `beaconBeam` | `DefaultVertexFormat.BLOCK` | 32 bytes, no overlay element |
+| `lines` | `DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH` | carries the width per vertex |
 
 `NewOptimizedModel` packed every mesh as `ENTITY` while `MoreRenderLayers` drew the light stages
 through `beaconBeam`. Read at 32 bytes instead of 36, every position after the first came out of
@@ -640,6 +640,11 @@ the middle of the vertex before it — packed colour and texture bits reinterpre
 put a spike through the sky at every car of a train while the car bodies, drawn through entity
 layers, were perfect. The mesh is now packed in `renderLayer.format()`, and the stage to layer
 mapping lives in `MoreRenderLayers.get` so that the build and the draw ask the same question.
+
+The same rule cuts the other way for a buffered draw: a vertex missing an element the format
+declares is refused outright rather than defaulted. The line layer's new width element took the
+client down the first time the mod drew a line, which needs only a brush, a lift tool or a rail
+item in hand; `IDrawing.drawLineInWorld` writes the width now.
 
 Note that `DefaultVertexFormat.NEW_ENTITY` was renamed to `ENTITY`; there is no separate `ENTITY`
 of the older kind to confuse it with. Writing an element the format does not have — `setOverlay`
@@ -695,8 +700,9 @@ Note that Gradle did not consider the new filter an input change and reported
 **Finish line**
 
 The mod builds and runs on both loaders, a train completes a route, block entity settings
-survive a world reload, and recipes work. Only the reload check remains open. At that point
-this section can be deleted.
+survive a world reload, and recipes work. All four now hold. What keeps the section open is the
+list under *State*: a Fabric dedicated server, the two text sites, and the breadth of the mod
+past a single line.
 
 **Pitfall**
 
