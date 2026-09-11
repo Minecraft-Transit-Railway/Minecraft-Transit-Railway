@@ -394,12 +394,12 @@ variety of biomes, creating stations, depots and routes, recalculating them, cho
 and cars in a depot, and trains generating and running a route with their models rendering
 correctly. The web server starts and serves the system map.
 
-Fabric 26.1.2 has been launched once, on 2026-09-11: it loads the world, renders rails and
-trains, and opens the dashboard with its map. Nothing on Fabric has been exercised past that.
+Fabric 26.1.2 has been played in singleplayer since 2026-09-11 with the same railway: the world
+loads, rails and the dashboard work, and trains run their routes.
 
 Not yet exercised at runtime:
 
-- Fabric beyond that smoke test: no dedicated server, no building, no line.
+- A Fabric dedicated server.
 - The block entity save and load path described under *Persistence* below; no setting has been
   checked across a world reload.
 - Boats, cable cars, planes, lifts, and signalling beyond what a single line exercises.

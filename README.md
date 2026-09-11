@@ -3,9 +3,9 @@
 >
 > This is a fork that ports Minecraft Transit Railway to Minecraft 26.1.2 on Fabric and NeoForge.
 > **It is unfinished.** Only the subset listed below has been confirmed to work, and only on
-> **26.1.2**: on NeoForge, on the client and on a dedicated server, and on Fabric to the narrower
-> extent noted. Everything else in this README describes the upstream mod and has not been tested
-> against 26.1.2. Treat it as a testing build and back up any world you open with it.
+> **26.1.2**: in singleplayer on both NeoForge and Fabric, and on a NeoForge dedicated server.
+> Everything else in this README describes the upstream mod and has not been tested against
+> 26.1.2. Treat it as a testing build and back up any world you open with it.
 >
 > **Confirmed working**
 >
@@ -15,14 +15,13 @@
 > - Creating stations, depots and routes, and recalculating them
 > - Browsing and selecting vehicles and cars in a depot
 > - Trains generating and running a route, rendering correctly while they move
-> - Running the mod on a dedicated server
-> - Fabric: launching, loading a world, rails and trains rendering, and opening the Rail Dashboard
->   with its map; nothing on Fabric has been exercised beyond that
+> - Running the mod on a NeoForge dedicated server
+> - The same singleplayer gameplay on Fabric: the world loads, rails and the dashboard work, and
+>   trains run their routes
 >
 > **Known gaps**
 >
-> - Fabric has had only the smoke test above; no dedicated server, no building, no train line
->   has been run on it
+> - Fabric has not been run as a dedicated server
 > - Most crafting recipes fail to load, so the mod's blocks and items cannot be crafted in survival
 > - Block entity data has not been checked across a world restart
 > - Platform number badges in list rows, and the warning marker in the vehicle selector, are not drawn
