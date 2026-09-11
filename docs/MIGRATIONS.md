@@ -394,9 +394,12 @@ variety of biomes, creating stations, depots and routes, recalculating them, cho
 and cars in a depot, and trains generating and running a route with their models rendering
 correctly. The web server starts and serves the system map.
 
+Fabric 26.1.2 has been launched once, on 2026-09-11: it loads the world, renders rails and
+trains, and opens the dashboard with its map. Nothing on Fabric has been exercised past that.
+
 Not yet exercised at runtime:
 
-- Anything on Fabric, which has only ever been compiled.
+- Fabric beyond that smoke test: no dedicated server, no building, no line.
 - The block entity save and load path described under *Persistence* below; no setting has been
   checked across a world reload.
 - Boats, cable cars, planes, lifts, and signalling beyond what a single line exercises.
@@ -708,7 +711,19 @@ held the mod and its assets and none of the four and a half thousand library cla
 `buildAndCollect` now ships the shaded jar directly on unobfuscated versions, which is what the
 NeoForge build already did on every version.
 
-Two further packaging traps, both found by running the artefact rather than building it:
+The first Fabric launch found the other half of that same problem. Loom nests the `include`d
+jars — UniversalCraft, Elementa, the Kotlin standard library — into *its* mod jar and writes the
+`jars` entry into `fabric.mod.json` as it does so. On the remapping variant that jar is `remapJar`,
+which is fed the shaded jar and therefore ends up complete. On unobfuscated versions the plain
+`jar` task is the mod jar, and it knew nothing of the shaded libraries while the shaded jar knew
+nothing of the nesting; shipping the shaded half meant no UniversalCraft, and the first screen
+failed. The plain jar now takes the shaded jar's contents in place of the compiled output — the
+whole of it, because shading relocates the occlusion culling library and rewrites the callers to
+match, so the compiled classes alone would name it where it no longer is — and Loom nests into
+that. Note that Loom resets the jar task's duplicate strategy after configuration, so the
+compiled output is excluded by path rather than deduplicated.
+
+Three further packaging traps, all found by running the artefact rather than building it:
 
 - The shaded jar carried seven `META-INF/services` entries naming classes that Transport
   Simulation Core's own minimisation had removed. NeoForge builds a module descriptor from the
