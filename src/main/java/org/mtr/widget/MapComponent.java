@@ -303,6 +303,17 @@ public final class MapComponent extends UIComponent {
 
 		// Background
 		new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setVerticesWH(left, top, width, height).setColor(Color.BLACK).draw();
+//? if >= 26.1 {
+		/*// Drawn now rather than left waiting in the buffer. The tiles below go straight through a
+		// render pass, but everything drawn through a render type sits in the shared buffer until a
+		// different type is asked for, so the background, and every element drawn after the tiles
+		// into the same batch, would be flushed on top of them the moment a label asked for the text
+		// type. That is what left the map black whenever anything was on it. Before 26.1 the depth
+		// test hid this: the tiles sit at z = 1 and the interface pipeline compared depth, so a
+		// background flushed late still lost. That pipeline no longer carries a depth test at all,
+		// which leaves draw order as the only thing deciding what is on top.
+		Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+*///? }
 
 		guiAnimationX.tick();
 		guiAnimationY.tick();
@@ -474,6 +485,11 @@ public final class MapComponent extends UIComponent {
 		}
 
 		deferredRenders.forEach(deferredRender -> deferredRender.accept(matrixStack));
+//? if >= 26.1 {
+		/*// The clip is read when a batch is drawn, not when it is written, so whatever is still
+		// buffered has to go out before the clip is lifted or it lands outside the map.
+		Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+*///? }
 		RenderSystem.disableScissor();
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
