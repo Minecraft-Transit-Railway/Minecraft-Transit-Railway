@@ -406,7 +406,6 @@ Not yet exercised at runtime:
 
 Known to be broken:
 
-- Every crafting recipe, described under *Recipes* below.
 - Two text sites still draw into the world buffer rather than the screen, so they are invisible:
   the platform number badge on list rows (`ScrollableListWidget.drawPlatformNumber` and the same
   method in `ListComponent`) and the warning marker in `VehicleSelectorScreen.drawVehicleIcon`.
@@ -428,7 +427,6 @@ What remains, largest first:
 
 | Item | Needs a client? | Notes |
 |---|---|---|
-| Recipes | no | 295 files in the old ingredient form; see *Recipes* below |
 | A Fabric launch | yes | Compiled on every node, never started |
 | Block entity persistence | yes | The `ValueInput` and `ValueOutput` bridge is written but unexercised |
 | The two `DeferredDrawIcon` text sites | yes | Listed under *State* above |
@@ -671,23 +669,31 @@ a scissor, because the clip is read when a batch is drawn rather than when it is
 tell is a picture that is right when some element is absent and clobbered when it is present:
 the element's presence is what triggers the flush.
 
-**Recipes**
+**Recipes, now closed**
 
-Every crafting recipe fails to parse. MTR writes ingredients in the object form that 1.21.x
-used, `{"item": "minecraft:glass_pane"}` and `{"tag": "c:redstone_dusts"}`, while 26.1 expects a
-plain string and a `#` prefix for tags: `"minecraft:glass_pane"`, `"#c:redstone_dusts"`. Every
-object-form ingredient is dropped, which empties the list, and the recipe is rejected with
-`List is too short: 0, expected range [1-9]`.
+All 340 recipes failed to parse on 26.1. MTR writes ingredients in the object form 1.21.1 reads,
+`{"item": "minecraft:glass_pane"}` and `{"tag": "c:redstone_dusts"}`, while 26.1 reads only the
+string form, `"minecraft:glass_pane"` and `"#c:redstone_dusts"`. An object-form ingredient is
+dropped without complaint, the list comes out empty, and the recipe is rejected with
+`List is too short: 0, expected range [1-9]` — so the error names the symptom, not the cause.
+1.21.4 reads both forms, which is why it never showed.
 
-295 of the 340 files under `data/mtr/recipe` are affected, 174 of them also using tags. Nothing
-can be crafted, which is invisible in creative and total in survival. Verify the target form
-against the game's own data rather than from memory: `data/minecraft/recipe/glass_pane.json`
-inside the client jar shows it.
+The source keeps the object form, because 1.21.1 accepts nothing else, and the 26.1 nodes
+rewrite the files as `processResources` copies them, through `RecipeIngredientFilter` in
+`buildSrc`, which parses the JSON rather than matching text. One ingredient also changed name:
+`minecraft:chain` became `minecraft:iron_chain` when copper chains arrived, and it is mapped in
+the same filter. Confirm the target form against the game's own data, not memory —
+`data/minecraft/recipe/glass_pane.json` in each version's client jar shows it, and
+`iron_chain.json` shows the rename.
+
+Note that Gradle did not consider the new filter an input change and reported
+`processResources` up to date on the first run; a clean build applies it.
 
 **Finish line**
 
 The mod builds and runs on both loaders, a train completes a route, block entity settings
-survive a world reload, and recipes work. At that point this section can be deleted.
+survive a world reload, and recipes work. Only the reload check remains open. At that point
+this section can be deleted.
 
 **Pitfall**
 
@@ -729,10 +735,15 @@ Three further packaging traps, all found by running the artefact rather than bui
   Simulation Core's own minimisation had removed. NeoForge builds a module descriptor from the
   mod jar on 26.1 and refuses one whose services it cannot resolve, so the game stopped during
   mod scanning. Those registrations are now excluded.
-- A single bad write during a parallel build corrupted one shipped font, which was fatal only
-  because 26.1 rasterises every glyph a provider declares at reload time rather than lazily.
-  Compare the built jar against `src/main/resources` before installing it; all 4889 mod-owned
-  resources should match byte for byte.
+- Stonecutter's generated copy of the resources was not a faithful one. On roughly one run in
+  three it wrote a single 8 KiB block of some large file from 4 KiB further on — a different file
+  each time, the fonts most often at up to 18 MiB — and serial runs were no better than parallel
+  ones, so it is the plugin's own copy and not Gradle's scheduling. It was fatal only because
+  26.1 rasterises every glyph a provider declares at reload time rather than lazily, so one
+  damaged font stops the game before the title screen. Nothing under the resources carries a
+  Stonecutter marker, so the source set now reads `src/main/resources` directly and the
+  generated copy is left unused. Still compare the built jar against the source before shipping
+  it; all 4889 resources should match byte for byte apart from the rewritten recipes.
 
 ---
 

@@ -15,6 +15,7 @@
 > - Creating stations, depots and routes, and recalculating them
 > - Browsing and selecting vehicles and cars in a depot
 > - Trains generating and running a route, rendering correctly while they move
+> - Crafting: every recipe loads, so the mod's blocks and items can be crafted in survival
 > - Running the mod on a NeoForge dedicated server
 > - The same singleplayer gameplay on Fabric: the world loads, rails and the dashboard work, and
 >   trains run their routes
@@ -22,7 +23,6 @@
 > **Known gaps**
 >
 > - Fabric has not been run as a dedicated server
-> - Most crafting recipes fail to load, so the mod's blocks and items cannot be crafted in survival
 > - Block entity data has not been checked across a world restart
 > - Platform number badges in list rows, and the warning marker in the vehicle selector, are not drawn
 > - Boats, cable cars, planes, lifts, signalling beyond the basics, and everything else not listed
