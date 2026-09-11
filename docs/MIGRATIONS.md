@@ -387,11 +387,12 @@ A `// TODO` without follow-up over a year old is a bug. Audit this list each rel
 
 **State**
 
-All six nodes compile. On NeoForge 26.1.2 the whole core loop has been run and confirmed: laying
-every type of rail, the Rail Dashboard including its world map, creating stations, depots and
-routes, recalculating them, choosing vehicles and cars in a depot, and trains generating and
-running a route with their models rendering correctly. The web server starts and serves the
-system map.
+All six nodes compile. On NeoForge 26.1.2 the whole core loop has been run and confirmed, on the
+client and on a dedicated server: laying every type of rail, building tunnels, tunnel walls and
+bridges with their material selection, the Rail Dashboard including its world map across a
+variety of biomes, creating stations, depots and routes, recalculating them, choosing vehicles
+and cars in a depot, and trains generating and running a route with their models rendering
+correctly. The web server starts and serves the system map.
 
 Not yet exercised at runtime:
 

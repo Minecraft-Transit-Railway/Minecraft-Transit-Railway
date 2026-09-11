@@ -3,16 +3,19 @@
 >
 > This is a fork that ports Minecraft Transit Railway to Minecraft 26.1.2 on Fabric and NeoForge.
 > **It is unfinished.** Only the subset listed below has been confirmed to work, and only on
-> **26.1.2 with NeoForge**. Everything else in this README describes the upstream mod and has not
-> been tested against 26.1.2. Treat it as a testing build and back up any world you open with it.
+> **26.1.2 with NeoForge**, on the client and on a dedicated server. Everything else in this
+> README describes the upstream mod and has not been tested against 26.1.2. Treat it as a testing
+> build and back up any world you open with it.
 >
 > **Confirmed working**
 >
 > - Loading a world, and laying every type of rail
-> - The Rail Dashboard, including the world map
+> - Building tunnels, tunnel walls and bridges, including choosing their materials
+> - The Rail Dashboard, including the world map, across a variety of biomes
 > - Creating stations, depots and routes, and recalculating them
 > - Browsing and selecting vehicles and cars in a depot
 > - Trains generating and running a route, rendering correctly while they move
+> - Running the mod on a dedicated server
 >
 > **Known gaps**
 >
