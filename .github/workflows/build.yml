@@ -1,5 +1,10 @@
 name: Build
-on: [ push, workflow_dispatch ]
+# Branches only. A tag is built and published by release.yml, and listing every push here as well
+# ran the full build twice for each one.
+on:
+  push:
+    branches: [ '**' ]
+  workflow_dispatch:
 
 jobs:
   build:
