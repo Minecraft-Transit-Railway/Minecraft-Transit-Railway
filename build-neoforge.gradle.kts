@@ -62,6 +62,20 @@ java {
 	sourceCompatibility = requiredJava
 }
 
+sourceSets.main {
+	// Resources are read from the shared source tree rather than from Stonecutter's generated copy
+	// of it. Nothing under src/main/resources carries a Stonecutter marker, so that copy is only a
+	// copy, and it is not a reliable one: on roughly one run in three it writes a single 8 KiB block
+	// of some large file from 4 KiB further on, and which file varies from run to run. The fonts, at
+	// up to 18 MiB, are hit most often, and from 26.1 every glyph is rasterised at reload, so one
+	// damaged font stops the game before the title screen. It was traced by comparing the generated
+	// tree against the source after repeated regeneration, serial and parallel alike. Reading the
+	// originals leaves nothing for that copy to damage; the rewrites resources do need for a version
+	// are applied by processResources below.
+	val generatedResources = layout.buildDirectory.dir("generated/stonecutter/main/resources").get().asFile
+	resources.setSrcDirs(resources.srcDirs.filterNot { it == generatedResources } + rootProject.file("src/main/resources"))
+}
+
 fun DependencyHandlerScope.implementationAndShadow(notation: Any) {
 	implementation(notation)
 	add("shadowBundle", notation)
