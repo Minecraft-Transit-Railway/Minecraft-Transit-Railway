@@ -175,6 +175,28 @@ tasks {
 		named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
 			inputFile.set(shadowJar.get().archiveFile)
 		}
+	} else {
+		// On unobfuscated versions the plain jar task is Loom's mod jar: it is where Loom nests the
+		// included jars and writes them into fabric.mod.json. It knows nothing of the shaded
+		// libraries, and the shaded jar knows nothing of the nesting, so each half on its own was
+		// missing the other. Shipping the shaded half left the Fabric jar without UniversalCraft or
+		// Elementa, and the first screen it opened failed. Giving the plain jar the shaded jar's
+		// contents lets Loom nest into the complete jar, which is what remapJar achieves above by
+		// being fed the shaded jar directly.
+		//
+		// The whole of the shaded jar is taken, this project's own classes included, and the
+		// compiled output the task would have packed is dropped. Shading relocates the occlusion
+		// culling library and rewrites the classes that call it to match, so the compiled output
+		// still names the library where it no longer is. The manifest is left to the jar task,
+		// which writes its own.
+		named<Jar>("jar") {
+			dependsOn(shadowJar)
+			val compiledOutput = sourceSets.main.get().output.files
+			exclude { element -> compiledOutput.any { element.file.toPath().startsWith(it.toPath()) } }
+			from(zipTree(shadowJar.flatMap { it.archiveFile })) {
+				exclude("META-INF/MANIFEST.MF")
+			}
+		}
 	}
 
 	withType<JavaCompile>().configureEach {
@@ -192,17 +214,11 @@ tasks {
 		description = "Builds the mod and collects the JAR and sources JAR into the build/libs directory with versioned naming."
 		group = "build"
 		outputs.upToDateWhen { false }
-		// The remapping variant folds the shaded jar into the mod jar as it remaps it, so there the mod
-		// jar is the one to ship. Unobfuscated versions have no remap step, and the plain jar task that
-		// stands in for it carries none of the shaded libraries, which would leave the mod unable to
-		// load. The shaded jar is shipped directly on those, which is what the NeoForge build does on
-		// every version; the first rename below is its rule, taking the classifier off that jar.
-		from(
-			if (loomx.isUnobfuscated) shadowJar.map { it.archiveFile } else loomx.modJar.map { it.archiveFile },
-			loomx.modSourcesJar.map { it.archiveFile }
-		)
+		// Loom's mod jar is the one to ship on every version. The remapping variant folds the shaded
+		// jar into it as it remaps, and the unobfuscated one has the shaded jar folded into the plain
+		// jar task above, so either way it carries both the shaded libraries and the nested ones.
+		from(loomx.modJar.map { it.archiveFile }, loomx.modSourcesJar.map { it.archiveFile })
 		into(rootProject.layout.buildDirectory.file("release"))
-		rename("${project.property("mod.id")}-([^-]+)-([^-]+)-([a-z]+)-all\\.jar", "${project.property("mod.id").toString().uppercase()}-$3-$1-$2.jar")
 		rename("${project.property("mod.id")}-([^-]+)-([^-]+)-([a-z]+)(-sources|)\\.jar", "${project.property("mod.id").toString().uppercase()}-$3-$1-$2$4.jar")
 		dependsOn("build")
 	}
