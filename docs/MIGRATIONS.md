@@ -400,8 +400,11 @@ loads, rails and the dashboard work, and trains run their routes.
 Not yet exercised at runtime:
 
 - A Fabric dedicated server.
-- The block entity save and load path described under *Persistence* below; no setting has been
-  checked across a world reload.
+- Block entity data on 1.21.4-format worlds is confirmed: the baseline world's three PIDS with
+  populated `platform_ids` loaded, displayed their platforms, and were written back by 26.1.2 as
+  `LongArray` with identical values; `LastUpdate` on those chunks moved, so the write went
+  through the mod's own save path rather than the upgrade's NBT copy. Data first written by
+  26.1.2 in a fresh world has been through many reloads in play.
 - Boats, cable cars, planes, lifts, and signalling beyond what a single line exercises.
 
 Known to be broken:
