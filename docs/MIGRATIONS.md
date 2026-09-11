@@ -645,6 +645,28 @@ The way to tell this apart from bad geometry is to rule the geometry out. Log th
 coordinates at the call site and scan the built `MeshData` vertex buffer for out-of-range floats;
 if both are clean and the picture is not, the mesh and the pipeline disagree about the layout.
 
+**The interface pipeline has no depth test, and the buffer flushes late**
+
+The third rule of the family, and the one behind a map that was black only when something was
+on it. `RenderPipeline.Builder.build()` resolves an unset depth-stencil state to none, and the
+interface snippet never sets one, so `RenderPipelines.GUI` and `GUI_TEXTURED` neither test nor
+write depth. A z offset between two interface draws, which the old `RenderType.gui()` honoured,
+now means nothing.
+
+That matters because `Drawing`, and anything else writing through the shared buffer source, does
+not draw: the batch waits until a different render type is requested or `endBatch()` is called.
+Anything drawn immediately in between — a render pass, a stored mesh — ends up underneath the
+batch when it finally flushes. The dashboard map drew its background into the buffer, its tiles
+through a pass, and its stations into the same batch as the background, so the first label
+flushed background and stations together on top of the tiles. Before 26.1 the tiles sat at z = 1
+and won the depth test against the late background, which is why upstream never saw it.
+
+Where an immediate draw has to sit above buffered work, flush the buffer first:
+`Minecraft.getInstance().renderBuffers().bufferSource().endBatch()`. Flush again before lifting
+a scissor, because the clip is read when a batch is drawn rather than when it is written. The
+tell is a picture that is right when some element is absent and clobbered when it is present:
+the element's presence is what triggers the flush.
+
 **Recipes**
 
 Every crafting recipe fails to parse. MTR writes ingredients in the object form that 1.21.x
