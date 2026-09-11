@@ -120,6 +120,23 @@ dependencies {
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.4")
 }
 
+// One remap at a time across the whole build. Loom's remap runs as asynchronous work, so with
+// several versions building at once two remaps ran alongside each other and alongside every
+// other version's archive tasks, and roughly one clean build in three then failed with the remap
+// reading a corrupt zip: an invalid local header in one run, invalid stored block lengths in the
+// next, a different version each time. Which file was being contended for was not pinned down;
+// giving the remaps the archive stage to themselves took the failure from two in six clean builds
+// to none in eight, at the cost of about a minute, and they are a small tail of the build.
+abstract class RemapLock : BuildService<BuildServiceParameters.None>
+
+val remapLock = gradle.sharedServices.registerIfAbsent("remapLock", RemapLock::class) {
+	maxParallelUsages.set(1)
+}
+
+tasks.withType<net.fabricmc.loom.task.AbstractRemapJarTask>().configureEach {
+	usesService(remapLock)
+}
+
 tasks {
 	processResources {
 		val properties = mapOf(
