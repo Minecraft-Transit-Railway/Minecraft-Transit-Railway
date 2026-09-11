@@ -166,8 +166,18 @@ public interface IDrawing {
 			final PoseStack.Pose entry = matrixStack.last();
 			final Matrix4f matrix4f = entry.pose();
 
+//? if >= 26.1 {
+			/*// The line layer's vertex carries its width from 26.1, and a vertex missing an element is
+			// refused outright rather than defaulted, so the game went down the moment a line was drawn:
+			// holding a brush, a lift tool or a rail item was enough. Nothing here ever set a width, so
+			// the lines were drawn at whatever the render system held, which is one pixel by default,
+			// and that is what is written.
+			vertexConsumer.addVertex(matrix4f, x1, y1, z1).setColor(color).setNormal(entry, 0, 1, 0).setLineWidth(1);
+			vertexConsumer.addVertex(matrix4f, x2, y2, z2).setColor(color).setNormal(entry, 0, 1, 0).setLineWidth(1);
+*///? } else {
 			vertexConsumer.addVertex(matrix4f, x1, y1, z1).setColor(color).setNormal(entry, 0, 1, 0);
 			vertexConsumer.addVertex(matrix4f, x2, y2, z2).setColor(color).setNormal(entry, 0, 1, 0);
+//? }
 		}
 	}
 
