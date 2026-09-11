@@ -430,7 +430,6 @@ What remains, largest first:
 
 | Item | Needs a client? | Notes |
 |---|---|---|
-| A Fabric launch | yes | Compiled on every node, never started |
 | The two `DeferredDrawIcon` text sites | yes | Listed under *State* above |
 | Everything past a single train line | yes | Boats, cable cars, planes, lifts, wider signalling |
 
