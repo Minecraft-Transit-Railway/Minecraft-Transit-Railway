@@ -395,11 +395,11 @@ and cars in a depot, and trains generating and running a route with their models
 correctly. The web server starts and serves the system map.
 
 Fabric 26.1.2 has been played in singleplayer since 2026-09-11 with the same railway: the world
-loads, rails and the dashboard work, and trains run their routes.
+loads, rails and the dashboard work, and trains run their routes. Both loaders have also been
+run as dedicated servers with a copy of that world: the mod registers, the data pack loads with
+every recipe, the railway data is read and written back, and `stop` shuts down cleanly.
 
 Not yet exercised at runtime:
-
-- A Fabric dedicated server.
 - Block entity data on 1.21.4-format worlds is confirmed: the baseline world's three PIDS with
   populated `platform_ids` loaded, displayed their platforms, and were written back by 26.1.2 as
   `LongArray` with identical values; `LastUpdate` on those chunks moved, so the write went
