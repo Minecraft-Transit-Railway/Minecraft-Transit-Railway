@@ -18,6 +18,8 @@
 > - Crafting: every recipe loads, so the mod's blocks and items can be crafted in survival
 > - Upgrading a 1.21.4 world: block entity data such as PIDS platform links survives the
 >   upgrade and is written back correctly by 26.1.2
+> - Cable cars, end to end on a NeoForge server and client: stations, depot and route
+>   configuration, and the cars running
 > - Running the mod on a dedicated server, NeoForge and Fabric alike
 > - The same singleplayer gameplay on Fabric: the world loads, rails and the dashboard work, and
 >   trains run their routes
@@ -25,8 +27,8 @@
 > **Known gaps**
 >
 > - Platform number badges in list rows, and the warning marker in the vehicle selector, are not drawn
-> - Boats, cable cars, planes, lifts, signalling beyond the basics, and everything else not listed
->   above are untested
+> - Boats, planes, lifts, signalling beyond the basics, and everything else not listed above are
+>   untested
 >
 > For the current state of the port in detail, see [Migrations](docs/MIGRATIONS.md).
 
