@@ -29,10 +29,12 @@ public class BlockLiftTrackVertical extends BlockLiftTrackBase {
 		return IBlock.getVoxelShapeByDirection(6, 0, 0, 10, 16, 1, IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING));
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_VERTICAL.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {

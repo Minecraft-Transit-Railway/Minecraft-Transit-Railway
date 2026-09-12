@@ -5,6 +5,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+*///? }
 import org.mtr.core.tool.Utilities;
 import org.mtr.tool.GuiHelper;
 
@@ -20,7 +24,13 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public final void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+*///? } else {
 	public final void onClick(double mouseX, double mouseY) {
+//? }
 		if (!clickedScrollbar(mouseX, mouseY)) {
 			onClickNew(mouseX, mouseY);
 		}
@@ -30,9 +40,9 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	protected final void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		final int h = height;
 		scrollAmount = Math.clamp(scrollAmount, 0, Math.max(0, contentHeight() - h));
-		context.enableScissor(getX(), getY(), getX() + width, getY() + h);
+		GuiHelper.enableGuiScissor(context, getX(), getY(), getX() + width, getY() + h);
 		render(context, active ? mouseX : -1, active ? mouseY : -1);
-		context.disableScissor();
+		GuiHelper.disableGuiScissor(context);
 		drawScrollbar(context, active ? mouseX : -1, active ? mouseY : -1);
 	}
 
@@ -41,8 +51,18 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 		return active && visible && super.isValidClickButton(button);
 	}
 
+//? if >= 26.1 {
+	/*// The handlers take the event itself now. It is unpacked here so the body below reads the same
+	// on both versions.
+	@Override
+	public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+//? }
 		if (isValidClickButton(button)) {
 			if (clickedScrollbar(mouseX, mouseY)) {
 				scrolling = true;
@@ -50,15 +70,26 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 			}
 			if (isMouseOver(mouseX, mouseY)) {
 				playDownSound(Minecraft.getInstance().getSoundManager());
+//? if >= 26.1 {
+				/*onClick(mouseButtonEvent, doubleClick);
+*///? } else {
 				onClick(mouseX, mouseY);
+//? }
 				return true;
 			}
 		}
 		return false;
 	}
 
+//? if >= 26.1 {
+	/*@Override
+	public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double deltaX, double deltaY) {
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+//? }
 		if (scrolling && button == 0) {
 			final int h = height - scrollerHeight();
 			if (h > 0) {
@@ -66,7 +97,11 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 			}
 			return true;
 		}
+//? if >= 26.1 {
+		/*return super.mouseDragged(mouseButtonEvent, deltaX, deltaY);
+*///? } else {
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+//? }
 	}
 
 	@Override
@@ -83,7 +118,12 @@ public abstract class ScrollablePanelWidget extends AbstractWidget {
 	}
 
 	protected void onClickNew(double mouseX, double mouseY) {
+//? if >= 26.1 {
+		/*// The widget's own click hook takes the event now and has an empty body, so there is nothing
+		// to pass up to from here, where only the coordinates are known.
+*///? } else {
 		super.onClick(mouseX, mouseY);
+//? }
 	}
 
 	protected final int getScrollbarWidth() {

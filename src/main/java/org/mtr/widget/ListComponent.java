@@ -65,7 +65,7 @@ public final class ListComponent<T> extends UIComponent {
 			.verticalTextAlignment(FontRenderOptions.Alignment.CENTER);
 
 		final PoseStack matrixStack = UConverters.convert(uMatrixStack);
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 		final float left = getLeft();
 		final float right = getRight();

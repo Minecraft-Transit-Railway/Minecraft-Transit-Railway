@@ -1,3 +1,42 @@
+> [!IMPORTANT]
+> ## Work in progress: Minecraft 26.1.2
+>
+> This is a fork that ports Minecraft Transit Railway to Minecraft 26.1.2 on Fabric and NeoForge.
+> **It is unfinished.** Only the subset listed below has been confirmed to work, and only on
+> **26.1.2**: in singleplayer and on a dedicated server, on both NeoForge and Fabric.
+> Everything else in this README describes the upstream mod and has not been tested against
+> 26.1.2. Treat it as a testing build and back up any world you open with it.
+>
+> **Confirmed working**
+>
+> - Loading a world, and laying every type of rail
+> - Building tunnels, tunnel walls and bridges, including choosing their materials
+> - The Rail Dashboard, including the world map, across a variety of biomes
+> - Creating stations, depots and routes, and recalculating them
+> - Browsing and selecting vehicles and cars in a depot
+> - Trains generating and running a route, rendering correctly while they move
+> - Crafting: every recipe loads, so the mod's blocks and items can be crafted in survival
+> - Upgrading a 1.21.4 world: block entity data such as PIDS platform links survives the
+>   upgrade and is written back correctly by 26.1.2
+> - Signalling: signals and decorative signal lights, with trains holding for an occupied section
+>   until it clears
+> - PIDS: a variety of them configured and showing arrivals, though not yet every kind
+> - Cable cars, end to end on a NeoForge server and client: stations, depot and route
+>   configuration, and the cars running
+> - Multiplayer: two players on a NeoForge server, both building the same elements and riding the
+>   trains, with nothing out of place
+> - Running the mod on a dedicated server, NeoForge and Fabric alike
+> - The same singleplayer gameplay on Fabric: the world loads, rails and the dashboard work, and
+>   trains run their routes
+>
+> **Known gaps**
+>
+> - Platform number badges in list rows, and the warning marker in the vehicle selector, are not drawn
+> - Boats, planes, lifts, the remaining PIDS kinds, and everything else not listed above are
+>   untested
+>
+> For the current state of the port in detail, see [Migrations](docs/MIGRATIONS.md).
+
 # Minecraft Transit Railway 4.0.0
 
 _Minecraft Transit Railway_ is a [Minecraft mod](https://minecraft.wiki/w/Mods) that lets you build your own transport network with automated trains, boats, cable cars, and planes.

@@ -30,12 +30,14 @@ public class BlockStationColorPole extends Block {
 		return getStationPoleShape();
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		if (showTooltip) {
 			tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().withStyle(ChatFormatting.GRAY));
 		}
 	}
+//? }
 
 	public static VoxelShape getStationPoleShape() {
 		return Block.box(6, 0, 6, 10, 16, 10);

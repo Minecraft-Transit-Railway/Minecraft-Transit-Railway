@@ -376,6 +376,389 @@ A `// TODO` without follow-up over a year old is a bug. Audit this list each rel
 
 ---
 
+## 12. Minecraft 26.1 port
+
+**What's old / what's new**
+
+- **Old**: 1.21.1 and 1.21.4, obfuscated, built through Loom's remapping variant.
+- **New**: 26.1.2, unobfuscated, built through Loom's non-remapping variant. Minecraft has
+  used year-based versions since 2026, and everything from 26.1 onwards ships without
+  obfuscation, so mappings no longer exist and Yarn is discontinued.
+
+**State**
+
+All six nodes compile. On NeoForge 26.1.2 the whole core loop has been run and confirmed, on the
+client and on a dedicated server: laying every type of rail, building tunnels, tunnel walls and
+bridges with their material selection, the Rail Dashboard including its world map across a
+variety of biomes, creating stations, depots and routes, recalculating them, choosing vehicles
+and cars in a depot, and trains generating and running a route with their models rendering
+correctly. The web server starts and serves the system map.
+
+Fabric 26.1.2 has been played in singleplayer since 2026-09-11 with the same railway: the world
+loads, rails and the dashboard work, and trains run their routes. Both loaders have also been
+run as dedicated servers with a copy of that world: the mod registers, the data pack loads with
+every recipe, the railway data is read and written back, and `stop` shuts down cleanly.
+
+Not yet exercised at runtime:
+- Block entity data on 1.21.4-format worlds is confirmed: the baseline world's three PIDS with
+  populated `platform_ids` loaded, displayed their platforms, and were written back by 26.1.2 as
+  `LongArray` with identical values; `LastUpdate` on those chunks moved, so the write went
+  through the mod's own save path rather than the upgrade's NBT copy. Data first written by
+  26.1.2 in a fresh world has been through many reloads in play.
+- Boats, planes, lifts, and the PIDS kinds not yet placed. Cable cars are done: stations, depot
+  and route configuration and the cars running, on a NeoForge server with a client attached.
+  Signalling is done: signals and decorative lights, trains holding for an occupied section.
+  A variety of PIDS have been configured and show arrivals. Two players have played the whole
+  of the above together on a NeoForge server, building the same elements and riding the trains,
+  with nothing out of place.
+
+Known to be broken:
+
+- Two text sites still draw into the world buffer rather than the screen, so they are invisible:
+  the platform number badge on list rows (`ScrollableListWidget.drawPlatformNumber` and the same
+  method in `ListComponent`) and the warning marker in `VehicleSelectorScreen.drawVehicleIcon`.
+  Both are reached through `ListItem.DeferredDrawIcon`, which carries a `PoseStack` but no
+  `GuiGraphics`, so fixing them means threading the screen through that interface.
+
+Two techniques are in use, and the choice between them is deliberate:
+
+- **Rewritten while building**, declared in `stonecutter.gradle.kts` under
+  `replacements`. Used only where a name changed and behaviour did not, such as
+  `ResourceLocation` becoming `Identifier`, the packages that moved, and the
+  `EventBusSubscriber` attribute that was deleted. This keeps roughly 220 sites free of
+  guards and leaves the shared source untouched.
+- **Guarded in the source** with `//? if >= 26.1 {`. Used where behaviour differs, such as
+  the NBT getters that now return `Optional`. A reader of those methods needs to see that
+  two forms exist, which a rewrite would hide.
+
+What remains, largest first:
+
+| Item | Needs a client? | Notes |
+|---|---|---|
+| The two `DeferredDrawIcon` text sites | yes | Listed under *State* above |
+| Everything past a single train line | yes | Boats, planes, lifts, the remaining PIDS kinds |
+
+The "needs a client" column is the important one. Everything marked no can be finished against
+the compiler. Everything marked yes compiles just as happily when it is wrong, and shows up only
+as incorrect drawing, wrong draw order, or a collapsed frame rate, so it wants someone watching
+the game rather than the build log. Every rendering defect found so far was of that kind.
+
+The `GuiGraphics` work is the substantial one. Minecraft 26.1 replaced immediate-mode
+drawing with retained-mode extraction: `Screen.render(GuiGraphics, ...)` became
+`Screen.extractRenderState(GuiGraphicsExtractor, ...)`. The drawing vocabulary largely
+survives, but `blit` and `fill` take a `RenderPipeline` first, `drawString` became `text`
+and `centeredText`, and `pose()` returns a two-dimensional `Matrix3x2fStack` rather than a
+`PoseStack`. That last one is the only part needing real thought.
+
+**Fabric API replacements**
+
+Verified against Fabric API 0.155.2+26.1.2 by reading the shipped module jars, since several
+of these modules were deleted outright rather than renamed:
+
+| Old | New |
+|---|---|
+| `client.rendering.v1.ColorProviderRegistry` | `client.rendering.v1.BlockColorRegistry` |
+| `client.rendering.v1.HudRenderCallback` | `client.rendering.v1.hud.HudElementRegistry` |
+| `client.rendering.v1.HudLayerRegistrationCallback` | `client.rendering.v1.hud.HudElementRegistry` |
+| `client.rendering.v1.IdentifiedLayer` | `client.rendering.v1.hud.VanillaHudElements` |
+| `client.rendering.v1.WorldRenderEvents` | `client.rendering.v1.level.LevelRenderEvents` |
+| `client.keybinding.v1.KeyBindingHelper` | `client.keymapping.v1.KeyMappingHelper` |
+| `itemgroup.v1.FabricItemGroup` | `creativetab.v1.FabricCreativeModeTab` |
+| `blockrenderlayer.v1.BlockRenderLayerMap` | **no replacement** — see below |
+
+Two of these are not mechanical and want a running client before they are settled.
+
+`WorldRenderEvents.AFTER_ENTITIES` has no exact counterpart. `LevelRenderEvents` splits the
+frame far more finely, into `AFTER_OPAQUE_TERRAIN`, `AFTER_SOLID_FEATURES`,
+`BEFORE_TRANSLUCENT_TERRAIN`, `AFTER_TRANSLUCENT_FEATURES`, `COLLECT_SUBMITS` and others.
+`AFTER_SOLID_FEATURES` is the closest reading of the old behaviour, but this is where every
+vehicle, rail and sign is drawn, so the wrong choice changes draw order and depth sorting
+rather than failing to compile.
+
+`BlockRenderLayerMap` is gone with nothing to replace it. Assigning a render layer to a
+block moved out of code and into the block model JSON, so the fix is a resource change
+across the affected models rather than a source change. `ChunkSectionLayerHelper` is not a
+substitute; it only converts between layer and render type.
+
+**Block tooltips are gone on 26.1**
+
+Minecraft keeps `appendHoverText` on `Item`, adding a display parameter and swapping the list
+for a consumer, and removes it from `Block` entirely. Nothing in the game, NeoForge or Fabric
+offers a block-side replacement, so the fifteen block classes that had tooltips now compile
+that method only below 26.1 and contribute nothing on newer versions.
+
+Restoring them means moving the text onto the matching `BlockItem`, which changes how those
+blocks are registered. That is deliberate outstanding work, not an oversight.
+
+**The GuiGraphics rework, broken down**
+
+`GuiGraphics` became `GuiGraphicsExtractor` and `Screen.render` became
+`Screen.extractRenderState`. The eighty-eight errors are less daunting than they look, because
+most of the drawing vocabulary survived. Across seventeen files:
+
+| Call | 26.1 | Risk |
+|---|---|---|
+| `drawString(Font, …, x, y, colour)` | `text(…)` | none, identical arguments |
+| `drawCenteredString(…)` | `centeredText(…)` | none, identical arguments |
+| `enableScissor` / `disableScissor` | unchanged | none |
+| `fill(x1, y1, x2, y2, colour)` | unchanged | none |
+| `pose().pushPose()` / `popPose()` | `pushMatrix()` / `popMatrix()` | none |
+| `pose().translate(x, y, 0)` | `translate(x, y)` | none, every call passes zero |
+| `pose().scale(x, y, 1)` | `scale(x, y)` | none, every call passes one |
+| `blitSprite(…)` | takes a `RenderPipeline` first | pick the right pipeline |
+| `pose()` held as a `PoseStack` | now a two-dimensional `Matrix3x2fStack` | see below |
+
+The renames are done. `GuiGraphics` to `GuiGraphicsExtractor`, `drawString` to `text` and
+`drawCenteredString` to `centeredText` are rewritten while building, which cleared every
+GuiGraphics symbol error. The text renames are anchored to their receiver because this
+codebase also draws with `java.awt.Graphics2D`, whose own `drawString` must not be touched.
+
+The scissor and fill calls needed nothing. The transform calls in
+`BetaWarningScreen` and `FakePauseScreen` are safe too, because they all pass zero for the
+translation's third axis and one for the scale's, so flattening to two dimensions loses
+nothing.
+
+Three places do need a decision:
+
+- `GuiHelper.drawText` translates by a **variable** z to layer text. Two dimensions have no
+  third axis, and 26.1 orders the interface by draw order rather than depth, so this needs
+  re-expressing rather than translating.
+- `Drawing` has a `Drawing(PoseStack, RenderType)` constructor that two widgets feed
+  `context.pose()` into. It needs a two-dimensional counterpart.
+- Four widgets hold `context.pose()` in a `PoseStack` local and pass it around.
+
+Note that `DrivingGuiRenderer` and `BlockEntityRendererExtension` also use a `PoseStack`, but
+theirs comes from world rendering rather than from `GuiGraphics`, and is unaffected.
+
+The `Drawing` case is worse than a missing constructor, and it joins the two GUI widgets to the
+same problem the world renderer has. `Drawing(PoseStack, RenderType)` resolves its buffer with
+`RenderType.gui()`, and 26.1 has neither piece: `RenderType` no longer offers a GUI variant at
+all, and interface drawing goes through `RenderPipelines.GUI`, `GUI_TEXTURED` and `GUI_TEXT`
+instead. JOML offers no conversion from `Matrix3x2f` to `Matrix4f` either, so the matrix cannot
+simply be widened.
+
+So the custom drawing path is not portable by adaptation. It has to move onto the pipeline
+model, which is the same change the world renderer needs. Treating them as one piece of work
+rather than two is likely to be less effort, not more, because they end up sharing the same
+approach to buffers, pipelines and uniforms.
+
+**Block colour handlers**
+
+`BlockColor` became `BlockTintSource`, and the registration changed on both loaders at once.
+The whole mapping, verified against the jars:
+
+| Old | New |
+|---|---|
+| `BlockColor.getColor(BlockState, BlockAndTintGetter, BlockPos, int)` | `BlockTintSource.colorInWorld(BlockState, BlockAndTintGetter, BlockPos)` |
+| Fabric `ColorProviderRegistry.BLOCK.register(handler, blocks)` | `BlockColorRegistry.register(List<BlockTintSource>, Block...)` |
+| NeoForge `RegisterColorHandlersEvent.Block` | `RegisterColorHandlersEvent.BlockTintSources` |
+
+Both loaders now take the same `register(List<BlockTintSource>, Block...)` shape, so the two
+registration paths converge rather than diverging further.
+
+Two things are not mechanical. The tint index is gone, which costs this mod nothing because
+the existing handler ignored it. More importantly `BlockTintSource` has an abstract
+`color(BlockState)` alongside the position-aware default, so the current lambda has to become
+a real implementation, and something has to be decided for the case with no position, which is
+what inventory and particle rendering use. Station colouring is derived from the position, so
+that fallback is a genuine choice rather than a transcription, and it is visible in the game
+rather than in the build.
+
+**Block entity persistence moves to ValueInput and ValueOutput**
+
+`loadAdditional` and `saveAdditional` no longer take a `CompoundTag` and a
+`HolderLookup.Provider`; they take `ValueInput` and `ValueOutput`. This affects the twenty-six
+`readNbt` and `writeNbt` implementations across thirteen classes.
+
+`ValueInput` exposes the same accessor shape the new `CompoundTag` does, `getStringOr`,
+`getIntOr`, `getBooleanOr` and the rest, so the bodies already converted for the `Optional`
+change carry over nearly unaltered. Only the signatures need guarding.
+
+Long arrays are the trap. `ValueOutput` has `putIntArray` but no `putLongArray`, and
+`ValueInput` has `getIntArray` but no `getLongArray`, while this mod stores its identifiers as
+longs: platform ids, route ids, railway sign selections and lift track floor positions. Those
+have to move to `store(key, codec, value)` and `read(key, codec)`.
+
+**Use `Codec.LONG_STREAM`, not `Codec.LONG.listOf()`.** Both compile and both round-trip within
+a single version, but they do not write the same NBT. `NbtOps` implements the `createLongList`
+and `getLongStream` hooks, so a `LONG_STREAM` codec produces a `LongArrayTag`, which is exactly
+what `putLongArray` wrote before. A list codec produces a `ListTag` of `LongTag` instead, and
+every world saved by an older version silently loses those values on load: a passenger
+information display forgets its platforms, a train sensor forgets its routes, a railway sign
+forgets its selections.
+
+Nothing in the build catches this. It appears only as data quietly missing after an upgrade,
+so verify it by loading a world saved on 1.21.4 rather than a freshly created one.
+
+Treat this as needing a client despite looking mechanical. It is the save and load path, so a
+mistake does not fail to compile and does not misdraw; it silently loses a player's block data
+on the next world reload. Verify by placing configured blocks, restarting the world, and
+confirming their settings survived.
+
+**Render passes own the frame**
+
+The single rule behind four separate failures here, and the one to check first when a new screen
+or renderer misbehaves. From 26.1 a render pass is exclusive: while one is open the command
+encoder refuses everything that is not a bind or a draw. Uploading a texture, mapping a buffer
+and clearing a target are all commands, and all of them throw.
+
+It caught the interface image drawing, the model texture binding, the per model transform
+uniform and the per map tile transform uniform, in that order, each one only once the previous
+was fixed and the next code path could run.
+
+That matters because the calls which trigger them do not look like commands at the call site:
+
+- `TextureManager.getTexture(id)` loads and uploads the texture the first time it is asked.
+- `DynamicUniforms.writeTransform(...)` maps a buffer to write into.
+- `ReleasedDynamicTexture.getDynamicGlId()` uploads before returning the identifier.
+
+So resolve every texture, write every uniform and finish every upload **before** opening the
+pass, and leave the pass holding nothing but binds and draws. Where a batch needs one uniform
+per instance, `DynamicUniforms.writeTransforms(...)` writes them all at once and hands back one
+slice per instance; that is what it exists for.
+
+The failure is badly signposted. It throws inside vanilla with a message about render passes and
+no hint of which mod opened one, and if the pass is left open the next frame dies somewhere else
+entirely, often in the renderer's own clear. None of it appears at compile time, and the mod's
+own interface code hit it as readily as the world renderer did.
+
+**The pipeline declares the vertex layout**
+
+The sibling of the rule above, and the second thing to check when geometry misbehaves rather than
+crashes. Up to 26.1 a `VertexBuffer` carried its own `VertexFormat` and set the attribute pointers
+from it, so a mesh packed in a layout that was merely a **superset** of what the shader read still
+drew correctly. From 26.1 the layout comes from `RenderPipeline.getVertexFormat()` and the mesh's
+own format is never consulted, so the two have to agree exactly.
+
+Layers that look interchangeable are not:
+
+| Layer | Format | Vertex |
+|---|---|---|
+| `entityCutout`, `entityTranslucent*` | `DefaultVertexFormat.ENTITY` | 36 bytes |
+| `beaconBeam` | `DefaultVertexFormat.BLOCK` | 32 bytes, no overlay element |
+| `lines` | `DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH` | carries the width per vertex |
+
+`NewOptimizedModel` packed every mesh as `ENTITY` while `MoreRenderLayers` drew the light stages
+through `beaconBeam`. Read at 32 bytes instead of 36, every position after the first came out of
+the middle of the vertex before it — packed colour and texture bits reinterpreted as floats — which
+put a spike through the sky at every car of a train while the car bodies, drawn through entity
+layers, were perfect. The mesh is now packed in `renderLayer.format()`, and the stage to layer
+mapping lives in `MoreRenderLayers.get` so that the build and the draw ask the same question.
+
+The same rule cuts the other way for a buffered draw: a vertex missing an element the format
+declares is refused outright rather than defaulted. The line layer's new width element took the
+client down the first time the mod drew a line, which needs only a brush, a lift tool or a rail
+item in hand; `IDrawing.drawLineInWorld` writes the width now.
+
+Note that `DefaultVertexFormat.NEW_ENTITY` was renamed to `ENTITY`; there is no separate `ENTITY`
+of the older kind to confuse it with. Writing an element the format does not have — `setOverlay`
+into a `BLOCK` buffer — is silently skipped by `BufferBuilder` rather than failing, so packing for
+the narrower format is safe.
+
+The way to tell this apart from bad geometry is to rule the geometry out. Log the source
+coordinates at the call site and scan the built `MeshData` vertex buffer for out-of-range floats;
+if both are clean and the picture is not, the mesh and the pipeline disagree about the layout.
+
+**The interface pipeline has no depth test, and the buffer flushes late**
+
+The third rule of the family, and the one behind a map that was black only when something was
+on it. `RenderPipeline.Builder.build()` resolves an unset depth-stencil state to none, and the
+interface snippet never sets one, so `RenderPipelines.GUI` and `GUI_TEXTURED` neither test nor
+write depth. A z offset between two interface draws, which the old `RenderType.gui()` honoured,
+now means nothing.
+
+That matters because `Drawing`, and anything else writing through the shared buffer source, does
+not draw: the batch waits until a different render type is requested or `endBatch()` is called.
+Anything drawn immediately in between — a render pass, a stored mesh — ends up underneath the
+batch when it finally flushes. The dashboard map drew its background into the buffer, its tiles
+through a pass, and its stations into the same batch as the background, so the first label
+flushed background and stations together on top of the tiles. Before 26.1 the tiles sat at z = 1
+and won the depth test against the late background, which is why upstream never saw it.
+
+Where an immediate draw has to sit above buffered work, flush the buffer first:
+`Minecraft.getInstance().renderBuffers().bufferSource().endBatch()`. Flush again before lifting
+a scissor, because the clip is read when a batch is drawn rather than when it is written. The
+tell is a picture that is right when some element is absent and clobbered when it is present:
+the element's presence is what triggers the flush.
+
+**Recipes, now closed**
+
+All 340 recipes failed to parse on 26.1. MTR writes ingredients in the object form 1.21.1 reads,
+`{"item": "minecraft:glass_pane"}` and `{"tag": "c:redstone_dusts"}`, while 26.1 reads only the
+string form, `"minecraft:glass_pane"` and `"#c:redstone_dusts"`. An object-form ingredient is
+dropped without complaint, the list comes out empty, and the recipe is rejected with
+`List is too short: 0, expected range [1-9]` — so the error names the symptom, not the cause.
+1.21.4 reads both forms, which is why it never showed.
+
+The source keeps the object form, because 1.21.1 accepts nothing else, and the 26.1 nodes
+rewrite the files as `processResources` copies them, through `RecipeIngredientFilter` in
+`buildSrc`, which parses the JSON rather than matching text. One ingredient also changed name:
+`minecraft:chain` became `minecraft:iron_chain` when copper chains arrived, and it is mapped in
+the same filter. Confirm the target form against the game's own data, not memory —
+`data/minecraft/recipe/glass_pane.json` in each version's client jar shows it, and
+`iron_chain.json` shows the rename.
+
+Note that Gradle did not consider the new filter an input change and reported
+`processResources` up to date on the first run; a clean build applies it.
+
+**Finish line**
+
+The mod builds and runs on both loaders, a train completes a route, block entity settings
+survive a world reload, and recipes work. All four now hold. What keeps the section open is the
+list under *State*: the two text sites, and the breadth of the mod past a single line.
+
+**Pitfall**
+
+Do **not** reach for a build-time replacement to fix a compile error without first checking
+who else calls the method. Of roughly two hundred `getString` callers here, only eight read
+NBT; the rest are translation holders and the schema reader. A blanket rewrite would have
+silently corrupted them. The same applies to any token short enough to appear inside an
+unrelated name: rewriting `Identifier` in reverse would have mangled `formatIdentifier` and
+a log message that mentions the word in prose.
+
+Note also that a runtime check cannot guard a Gradle task accessor. Referring to `remapJar`
+directly stops the build script compiling on unobfuscated versions, because the type-safe
+accessor is generated only while the remapping Loom variant is applied. Resolve such tasks
+by name with an explicit type instead.
+
+**Packaging, now closed**
+
+The Fabric 26.1.2 jar used to ship without its shaded libraries. With no remap step the plain
+`jar` task becomes the mod jar, and the Shadow output was not wired into it, so the release jar
+held the mod and its assets and none of the four and a half thousand library classes it needs.
+`buildAndCollect` now ships the shaded jar directly on unobfuscated versions, which is what the
+NeoForge build already did on every version.
+
+The first Fabric launch found the other half of that same problem. Loom nests the `include`d
+jars — UniversalCraft, Elementa, the Kotlin standard library — into *its* mod jar and writes the
+`jars` entry into `fabric.mod.json` as it does so. On the remapping variant that jar is `remapJar`,
+which is fed the shaded jar and therefore ends up complete. On unobfuscated versions the plain
+`jar` task is the mod jar, and it knew nothing of the shaded libraries while the shaded jar knew
+nothing of the nesting; shipping the shaded half meant no UniversalCraft, and the first screen
+failed. The plain jar now takes the shaded jar's contents in place of the compiled output — the
+whole of it, because shading relocates the occlusion culling library and rewrites the callers to
+match, so the compiled classes alone would name it where it no longer is — and Loom nests into
+that. Note that Loom resets the jar task's duplicate strategy after configuration, so the
+compiled output is excluded by path rather than deduplicated.
+
+Three further packaging traps, all found by running the artefact rather than building it:
+
+- The shaded jar carried seven `META-INF/services` entries naming classes that Transport
+  Simulation Core's own minimisation had removed. NeoForge builds a module descriptor from the
+  mod jar on 26.1 and refuses one whose services it cannot resolve, so the game stopped during
+  mod scanning. Those registrations are now excluded.
+- Stonecutter's generated copy of the resources was not a faithful one. On roughly one run in
+  three it wrote a single 8 KiB block of some large file from 4 KiB further on — a different file
+  each time, the fonts most often at up to 18 MiB — and serial runs were no better than parallel
+  ones, so it is the plugin's own copy and not Gradle's scheduling. It was fatal only because
+  26.1 rasterises every glyph a provider declares at reload time rather than lazily, so one
+  damaged font stops the game before the title screen. Nothing under the resources carries a
+  Stonecutter marker, so the source set now reads `src/main/resources` directly and the
+  generated copy is left unused. Still compare the built jar against the source before shipping
+  it; all 4889 resources should match byte for byte apart from the rewritten recipes.
+
+---
+
 ## How to use this document
 
 - Before starting a refactor on any code that touches the files referenced above, read the

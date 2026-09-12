@@ -6,15 +6,44 @@
 
 | Tool        | Version / notes                                                                                                                     |
 |-------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| JDK         | **21** required to run the Gradle build in this repository. Running Gradle on Java 17 fails because `buildSrc` requires JVM 21.     |
+| JDK         | **25** required to run the Gradle build. Stonecutter raised its floor to JVM 25, so Gradle itself refuses to start on Java 21.      |
 | Node.js     | Current LTS recommended for `website/` development tasks.                                                                           |
 | npm         | Bundled with Node.js.                                                                                                               |
 | Gradle      | Use the wrapper scripts in this repo (`gradlew` / `gradlew.bat`).                                                                   |
 | Stonecutter | Integrated into Gradle build; no separate installation required. Manages multi-platform (Fabric/NeoForge) and multi-version builds. |
 
-### GitHub Packages access
+### Transport Simulation Core
 
-The build resolves `org.mtr:transport-simulation-core:+` from GitHub Packages. For local development, create a GitHub [personal access token (classic)](https://github.com/settings/tokens) with at least the `read:packages` scope, then add your credentials to your Gradle user-home properties file:
+The build resolves two artefacts from the [Transport Simulation Core](https://github.com/Minecraft-Transit-Railway/Transport-Simulation-Core)
+project: `org.mtr:transport-simulation-core` for the mod itself, and
+`org.mtr:transport-simulation-core-build-tools` for the schema generator used by `buildSrc`.
+
+Both are published to GitHub Packages, which requires an access token for reads **even though the
+repository is public**. Continuous integration is unaffected, because GitHub Actions injects
+`GITHUB_TOKEN` automatically. Local development has two options.
+
+#### Option 1: build it from source (no credentials)
+
+Clone the project and publish both artefacts to your local Maven repository. The project name has to
+be lowercased first, because the published artefact ids are lowercase while the Gradle project name
+is not:
+
+```powershell
+git clone https://github.com/Minecraft-Transit-Railway/Transport-Simulation-Core.git
+cd Transport-Simulation-Core
+echo 'rootProject.name = "transport-simulation-core"' > settings.gradle.kts
+echo 'rootProject.name = "transport-simulation-core-build-tools"' > buildSrc/settings.gradle.kts
+.\gradlew.bat publishToMavenLocal -x test
+cd buildSrc; ..\gradlew.bat publishToMavenLocal
+```
+
+The build prefers these local copies. The lookup is restricted to those two modules, so every other
+dependency still resolves from its canonical remote rather than a stale local artefact.
+
+#### Option 2: use a personal access token
+
+Create a GitHub [personal access token (classic)](https://github.com/settings/tokens) with at least
+the `read:packages` scope, then add it to your Gradle user-home properties file:
 
 `C:\Users\<you>\.gradle\gradle.properties`
 
@@ -23,7 +52,9 @@ gpr.user=<your-github-username>
 gpr.key=<your-personal-access-token>
 ```
 
-As an alternative, Gradle will also use the `GITHUB_TOKEN` environment variable when it is set.
+Gradle also accepts the `GITHUB_TOKEN` environment variable. The GitHub Packages repository is only
+declared when one of these is present, so a checkout without credentials falls back to Option 1
+instead of failing during configuration.
 
 ## First-time setup
 
@@ -32,18 +63,18 @@ This project uses **Stonecutter** to manage multi-platform (Fabric/NeoForge) and
 From the repository root:
 
 ```powershell
-.\gradlew.bat :common:setupFiles
-.\gradlew.bat :common:setupWebsiteFiles
+.\gradlew.bat setupFiles
+.\gradlew.bat setupWebsiteFiles
 ```
 
 What these tasks do:
 
-- `:common:setupFiles`
+- `setupFiles`
 	- Creates tokenised source/resource files from templates.
 	- Pulls translation and supporting build assets where configured.
 	- Generates Java schema classes and updates relocated imports.
 	- Runs webserver setup support used by the mod.
-- `:common:setupWebsiteFiles`
+- `setupWebsiteFiles`
 	- Generates TypeScript entities into `website/src/app/entity/generated/`.
 
 ## Build outputs
@@ -57,6 +88,11 @@ All supported version/loader combinations are listed in `settings.gradle.kts`:
 | 1.21.1            | NeoForge | `1.21.1-neoforge`      |
 | 1.21.4            | Fabric   | `1.21.4-fabric`        |
 | 1.21.4            | NeoForge | `1.21.4-neoforge`      |
+| 26.1.2            | Fabric   | `26.1.2-fabric`        |
+| 26.1.2            | NeoForge | `26.1.2-neoforge`      |
+
+The 26.1.2 nodes are a port in progress and do not compile yet. See
+[`MIGRATIONS.md`](MIGRATIONS.md) for what remains.
 
 Active versions are configured in the `versions/` directory.
 
@@ -135,9 +171,9 @@ If you only changed docs or comments, a full build is optional, but a quick `:co
 - **`Dependency requires at least JVM runtime version 21`**
 	- Gradle is running on Java 17 (or older). Point `JAVA_HOME` to a JDK 21 installation.
 - **Generated files missing after checkout**
-	- Re-run `:common:setupFiles` and `:common:setupWebsiteFiles`.
+	- Re-run `setupFiles` and `setupWebsiteFiles`.
 - **Website model type errors after schema edits**
-	- Re-run `:common:setupWebsiteFiles` and rebuild the website.
+	- Re-run `setupWebsiteFiles` and rebuild the website.
 - **Build fails with platform/version mismatch**
 	- Ensure you've set the active project before running build tasks (e.g., `"Set active project to 1.21.4-fabric"`).
 	- Verify the version directory exists in `versions/` matching your target.

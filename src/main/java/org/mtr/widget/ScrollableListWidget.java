@@ -3,6 +3,9 @@ package org.mtr.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//? if >= 26.1 {
+/*import net.minecraft.client.Minecraft;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -44,8 +47,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		clickAction = null;
 		hoverItem = null;
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = initDimensions();
-		final PoseStack matrixStack = context.pose();
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
+		final Drawing drawing = GuiHelper.guiDrawing(context, matrixStack);
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
 		ListItem.iterateData(dataList, filter, (index, indexList, listItem) -> {
@@ -67,7 +70,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						clickAction = listItem::toggle;
 
 						// Draw the action button
-						deferredRenders.add(() -> new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID))
+						deferredRenders.add(() -> GuiHelper.guiTexturedDrawing(context, matrixStack, listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID)
 							.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 							.setUv()
 							.draw()
@@ -87,7 +90,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 							}
 
 							// Draw the action button
-							deferredRenders.add(() -> new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(identifier))
+							deferredRenders.add(() -> GuiHelper.guiTexturedDrawing(context, matrixStack, identifier)
 								.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 								.setUv()
 								.draw()
@@ -107,7 +110,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 				}
 
 				// Draw text
-				deferredRenders.add(() -> FontRenderHelper.render(matrixStack, listItem.text, fontRenderOptionsBuilder
+				deferredRenders.add(() -> FontRenderHelper.render(context, matrixStack, listItem.text, fontRenderOptionsBuilder
 					.horizontalSpace(endX - startX - listItem.iconWidth - GuiHelper.DEFAULT_PADDING * 2 - (isMouseOver ? GuiHelper.DEFAULT_LINE_SIZE * listItem.actionCount() : 0))
 					.offsetX(startX + listItem.iconWidth + GuiHelper.DEFAULT_PADDING)
 					.offsetY((float) startY)

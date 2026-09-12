@@ -49,10 +49,12 @@ public class BlockGlassFence extends BlockDirectionalDoubleBlockBase {
 		return Shapes.empty();
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(Component.translatable("tooltip." + stack.getItem().getDescriptionId()).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

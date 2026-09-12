@@ -61,10 +61,12 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements EntityBlo
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING));
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_FLOOR.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	public ObjectArrayList<Direction> getConnectingDirections(BlockState blockState) {
@@ -90,9 +92,15 @@ public class BlockLiftTrackFloor extends BlockLiftTrackBase implements EntityBlo
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			floorNumber = nbtCompound.getStringOr(KEY_FLOOR_NUMBER, "");
+			floorDescription = nbtCompound.getStringOr(KEY_FLOOR_DESCRIPTION, "");
+			shouldDing = nbtCompound.getBooleanOr(KEY_SHOULD_DING, false);
+*///? } else {
 			floorNumber = nbtCompound.getString(KEY_FLOOR_NUMBER);
 			floorDescription = nbtCompound.getString(KEY_FLOOR_DESCRIPTION);
 			shouldDing = nbtCompound.getBoolean(KEY_SHOULD_DING);
+//? }
 		}
 
 		@Override

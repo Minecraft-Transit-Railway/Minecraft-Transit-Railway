@@ -8,10 +8,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.DataComponentTypes;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ItemBlockClickingBase extends Item {
 
@@ -43,10 +47,15 @@ public abstract class ItemBlockClickingBase extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag type) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipList, TooltipFlag type) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
 		final BlockPos blockPos = stack.get(DataComponentTypes.START_POS.get());
 		if (blockPos != null) {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(blockPos.toShortString()).withStyle(ChatFormatting.GOLD));
+			tooltip.accept(TranslationProvider.TOOLTIP_MTR_SELECTED_BLOCK.getMutableText(blockPos.toShortString()).withStyle(ChatFormatting.GOLD));
 		}
 	}
 

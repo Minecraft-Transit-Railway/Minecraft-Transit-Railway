@@ -13,6 +13,17 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+//? if >= 26.1 {
+/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.DynamicUniforms;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTRClient;
 import org.mtr.client.DynamicTextureCache;
@@ -150,7 +161,11 @@ public class MainRenderer {
 		MinecraftClientData.getInstance().lifts.forEach(lift -> {
 			lift.tick(millisElapsed);
 			if (VehicleRidingMovement.isRiding(lift.getId()) && VehicleRidingMovement.showShiftProgressBar()) {
+//? if >= 26.1 {
+/*				clientPlayerEntity.sendOverlayMessage(TranslationProvider.GUI_MTR_PRESS_TO_SELECT_FLOOR.getText(KeyBindings.LIFT_MENU.getTranslatedKeyMessage().getString()));
+*///? } else {
 				clientPlayerEntity.displayClientMessage(TranslationProvider.GUI_MTR_PRESS_TO_SELECT_FLOOR.getText(KeyBindings.LIFT_MENU.getTranslatedKeyMessage().getString()), true);
+//? }
 			}
 		});
 		lastRenderedMillis = MTRClient.getGameMillis();
@@ -305,13 +320,42 @@ public class MainRenderer {
 	private static void renderModel(PoseStack matrixStack, Object2ObjectOpenHashMap<NewOptimizedModel, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<ObjectIntImmutablePair<StoredMatrixTransformations>>>> modelRenders, Vec3 offset) {
 		modelRenders.forEach((newOptimizedModel, modelsForRenderStage) -> modelsForRenderStage.forEach((renderStage, renderDetails) -> {
 			final ResourceLocation texture = newOptimizedModel.texture;
-			final RenderType renderLayer = switch (renderStage) {
-				case LIGHT -> MoreRenderLayers.getLight(texture, false);
-				case ALWAYS_ON_LIGHT -> MoreRenderLayers.getLight(texture, true);
-				case INTERIOR -> MoreRenderLayers.getInterior(texture);
-				case INTERIOR_TRANSLUCENT -> MoreRenderLayers.getInteriorTranslucent(texture);
-				case EXTERIOR -> MoreRenderLayers.getExterior(texture);
-			};
+			final RenderType renderLayer = MoreRenderLayers.get(renderStage, texture);
+//? if >= 26.1 {
+			/*// The render pass replaces the old setup and clear pair, and owns the batch: the pipeline,
+			// vertex buffer and textures are bound once, then every instance writes its own transform
+			// uniform and draws. The target is taken from the render layer rather than the main one so
+			// that layers drawing elsewhere still land in the right place.
+			// Resolved before the pass is opened. The texture manager loads and uploads a texture the
+			// first time it is asked for one, and an upload is a command that cannot be issued during a
+			// pass: doing it inside took the game down the moment a model with a texture it had not
+			// drawn yet came into view, which is what laying the first rail does.
+			final AbstractTexture abstractTexture = Minecraft.getInstance().getTextureManager().getTexture(texture);
+
+			final RenderTarget renderTarget = renderLayer.outputTarget().getRenderTarget();
+			final GpuTextureView colorTexture = RenderSystem.outputColorTextureOverride == null ? renderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
+			final GpuTextureView depthTexture = renderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? renderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
+
+			// Every instance's transform is written in one batch before the pass opens. Writing a
+			// uniform maps a buffer, and mapping is another command that cannot be issued during a
+			// pass, so walking the matrix stack has to happen out here too and the pass is left holding
+			// nothing but the binds and the draws.
+			final DynamicUniforms.Transform[] transforms = new DynamicUniforms.Transform[renderDetails.size()];
+			for (int i = 0; i < renderDetails.size(); i++) {
+				final ObjectIntImmutablePair<StoredMatrixTransformations> renderDetailsEntry = renderDetails.get(i);
+				renderDetailsEntry.left().transform(matrixStack, offset);
+				transforms[i] = NewOptimizedModel.transformFor(i, matrixStack.last().pose(), renderStage.isFullBrightness ? 1 : (float) renderDetailsEntry.rightInt() / 0xF);
+				matrixStack.popPose();
+			}
+			final GpuBufferSlice[] transformSlices = RenderSystem.getDynamicUniforms().writeTransforms(transforms);
+
+			try (final RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR models", colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
+				newOptimizedModel.begin(renderPass, renderLayer, abstractTexture);
+				for (final GpuBufferSlice transformSlice : transformSlices) {
+					newOptimizedModel.render(renderPass, transformSlice);
+				}
+			}
+*///? } else {
 			renderLayer.setupRenderState();
 			newOptimizedModel.begin(RenderSystem.getShader());
 			renderDetails.forEach(renderDetailsEntry -> {
@@ -320,6 +364,7 @@ public class MainRenderer {
 				matrixStack.popPose();
 			});
 			renderLayer.clearRenderState();
+//? }
 		}));
 	}
 

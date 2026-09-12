@@ -54,10 +54,12 @@ public class BlockLiftTrackDiagonal extends BlockLiftTrackBase implements IBlock
 		builder.add(SIDE);
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_LIFT_TRACK_DIAGONAL.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	public Vector getCenterPoint(BlockPos blockPos, BlockState blockState) {

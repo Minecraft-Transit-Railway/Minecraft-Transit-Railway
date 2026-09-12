@@ -33,6 +33,9 @@ import org.mtr.render.RenderVehicleHelper;
 
 //? if >= 1.21.4 {
 import net.minecraft.world.level.ScheduledTickAccess;
+//? if >= 26.1 {
+/*import net.minecraft.world.entity.InsideBlockEffectApplier;
+*///? }
 //? } else {
 /*import net.minecraft.world.level.LevelAccessor;
  *///? }
@@ -94,12 +97,20 @@ public abstract class BlockPSDAPGDoorBase extends BlockPSDAPGBase implements Ent
 					lockDoor(world, pos.above(y), scanState, !unlocked);
 				}
 			}
+//? if >= 26.1 {
+/*			player.sendOverlayMessage((unlocked ? TranslationProvider.GUI_MTR_PSD_APG_DOOR_LOCKED : TranslationProvider.GUI_MTR_PSD_APG_DOOR_UNLOCKED).getText());
+*///? } else {
 			player.displayClientMessage((unlocked ? TranslationProvider.GUI_MTR_PSD_APG_DOOR_LOCKED : TranslationProvider.GUI_MTR_PSD_APG_DOOR_UNLOCKED).getText(), true);
+//? }
 		});
 	}
 
 	@Override
+//? if >= 26.1 {
+/*	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+*///? } else {
 	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
+//? }
 		if (world.isClientSide() && entity instanceof Player) {
 			final Direction facing = IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING);
 			// TODO don't hard code these bounds

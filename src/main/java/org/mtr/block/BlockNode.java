@@ -144,13 +144,15 @@ public class BlockNode extends BlockWaterloggable implements SimpleWaterloggedBl
 				.setValue(IS_CONNECTED, false);
 		}
 
-		@Override
+//? if <26.1 {
+	@Override
 		public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 			final String[] strings = (isStation ? TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE_STATION : TranslationProvider.TOOLTIP_MTR_CABLE_CAR_NODE).getString().split("\n");
 			for (final String string : strings) {
 				tooltip.add(Component.literal(string).withStyle(ChatFormatting.GRAY));
 			}
 		}
+//? }
 
 		@Override
 		double getShapeY1() {

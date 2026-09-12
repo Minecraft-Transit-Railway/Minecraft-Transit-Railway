@@ -2,7 +2,11 @@ package org.mtr.render;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+//? if >= 26.1 {
+/*import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///? }
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.mtr.resource.RenderStage;
 
 import java.util.function.Supplier;
 
@@ -24,6 +28,24 @@ public class MoreRenderLayers {
 		INTERIOR_TRANSLUCENT_CACHE.remove(identifier);
 		EXTERIOR_CACHE.remove(identifier);
 		EXTERIOR_TRANSLUCENT_CACHE.remove(identifier);
+	}
+
+	/**
+	 * The render layer a model of the given stage is drawn with.
+	 *
+	 * <p>Kept here rather than at the draw site because the answer is also needed while the model is
+	 * being built: from 26.1 the layer's pipeline declares the vertex layout, so a mesh has to be
+	 * packed in the format of the layer that will draw it. Both callers have to agree, so they ask
+	 * the same question.</p>
+	 */
+	public static RenderType get(RenderStage renderStage, ResourceLocation texture) {
+		return switch (renderStage) {
+			case LIGHT -> getLight(texture, false);
+			case ALWAYS_ON_LIGHT -> getLight(texture, true);
+			case INTERIOR -> getInterior(texture);
+			case INTERIOR_TRANSLUCENT -> getInteriorTranslucent(texture);
+			case EXTERIOR -> getExterior(texture);
+		};
 	}
 
 	public static RenderType getLight(ResourceLocation texture, boolean isTranslucent) {

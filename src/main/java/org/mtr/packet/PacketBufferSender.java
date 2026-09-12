@@ -1,6 +1,7 @@
 package org.mtr.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -64,11 +65,19 @@ public final class PacketBufferSender {
 		final ObjectArrayList<Runnable> queue = new ObjectArrayList<>();
 		for (int i = 0; i < byteBufObjects.size(); i++) {
 			final ByteBuf byteBuf = byteBufObjects.get(i);
+			// Only the written bytes go out. The buffer's backing array is sized in powers of two, so
+			// sending it whole appended up to a few dozen zero bytes to every chunk. The receiver moves
+			// to the next chunk only once the current one is fully read, so on a packet large enough to
+			// span chunks it read on into that padding instead: a value made of zeros where the sender
+			// had put none, or an overrun where a long began four bytes from the end, which is how a
+			// fetch of arrivals took the client down on joining a world. The length is taken before
+			// the header is written back over the start, since that resets the writer index.
+			final int length = byteBuf.writerIndex();
 			byteBuf.writerIndex(0);
 			byteBuf.writeLong(id);
 			byteBuf.writeInt(i);
 			byteBuf.writeInt(byteBufObjects.size());
-			final byte[] bytes = byteBuf.array();
+			final byte[] bytes = ByteBufUtil.getBytes(byteBuf, 0, length);
 			queue.add(() -> consumer.accept(bytes));
 		}
 		schedule(queue, scheduler);
