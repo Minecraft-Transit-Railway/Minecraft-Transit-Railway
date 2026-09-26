@@ -134,7 +134,11 @@ public final class EventRegistryServer {
 
 	public static void registerChunkLoad(BiConsumer<ServerLevel, ChunkAccess> consumer) {
 //? if fabric {
+//? if >= 26.1 {
+		/*ServerChunkEvents.CHUNK_LOAD.register((serverLevel, levelChunk, newChunk) -> consumer.accept(serverLevel, levelChunk));
+*///? } else {
 		ServerChunkEvents.CHUNK_LOAD.register(consumer::accept);
+//? }
 //? }
 
 //? if neoforge {

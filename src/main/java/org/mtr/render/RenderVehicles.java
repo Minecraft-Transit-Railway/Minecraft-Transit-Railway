@@ -34,6 +34,7 @@ import org.mtr.resource.VehicleResourceCache;
 import org.mtr.servlet.ResourcePackCreatorOperationServlet;
 import org.mtr.tool.CullingHelper;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.EntityRendererHelper;
 import org.mtr.tool.GuiHelper;
 import org.mtr.tool.Interpolation;
 
@@ -481,12 +482,7 @@ public final class RenderVehicles {
 				storedMatrixTransformations.transform(matrixStack, offset);
 				Drawing.rotateXDegrees(matrixStack, 180);
 				Drawing.rotateYRadians(matrixStack, (float) (Math.PI + additionalRotation));
-//? if >= 1.21.4 {
-				minecraftClient.getEntityRenderDispatcher().render(playerEntity, 0, 0, 0, 0, matrixStack, minecraftClient.renderBuffers().bufferSource(), IGui.DEFAULT_LIGHT);
-//? } else {
-				/*minecraftClient.getEntityRenderDispatcher().render(playerEntity, 0, 0, 0, 0, 0, matrixStack, minecraftClient.renderBuffers().bufferSource(), IGui.DEFAULT_LIGHT);
-//
-*///? }
+				EntityRendererHelper.render(playerEntity, matrixStack, IGui.DEFAULT_LIGHT);
 				matrixStack.popPose();
 			});
 		}

@@ -4,9 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.mixin.TextFieldSelectionEndAccessor;
 import org.mtr.screen.TextCase;
@@ -61,8 +69,8 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 		setDimensions();
 		final Minecraft minecraftClient = Minecraft.getInstance();
 		final Font textRenderer = minecraftClient.font;
-		final PoseStack matrixStack = context.pose();
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
+		final Drawing drawing = GuiHelper.guiDrawing(context, matrixStack);
 
 		// Draw background
 		drawing.setVerticesWH(getX(), getY(), width, height).setColor(GuiHelper.BLACK_COLOR).draw();
@@ -132,11 +140,19 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public boolean keyPressed(KeyEvent keyEvent) {
+*///? } else {
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+//? }
 		if (visible) {
 			final String oldText = getText();
 			refreshTextFieldWidget();
+//? if >= 26.1 {
+			/*final boolean result = textFieldWidget.keyPressed(keyEvent);
+*///? } else {
 			final boolean result = textFieldWidget.keyPressed(keyCode, scanCode, modifiers);
+//? }
 			setText(oldText, getText(), true);
 			return result;
 		} else {
@@ -145,11 +161,19 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public boolean charTyped(CharacterEvent characterEvent) {
+*///? } else {
 	public boolean charTyped(char chr, int modifiers) {
+//? }
 		if (visible) {
 			final String oldText = getText();
 			refreshTextFieldWidget();
+//? if >= 26.1 {
+			/*final boolean result = textFieldWidget.charTyped(characterEvent);
+*///? } else {
 			final boolean result = textFieldWidget.charTyped(chr, modifiers);
+//? }
 			setText(oldText, getText(), true);
 			return result;
 		} else {
@@ -158,13 +182,29 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		refreshTextFieldWidget();
+		textFieldWidget.onClick(mouseButtonEvent, doubleClick);
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
 		refreshTextFieldWidget();
 		textFieldWidget.onClick(mouseX, mouseY);
+//? }
 	}
 
+//? if >= 26.1 {
+	/*// The handlers take the event itself now. It is unpacked here so the body below reads the same
+	// on both versions.
+	@Override
+	public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+//? }
 		if (visible) {
 			if (isMouseOver(mouseX, mouseY)) {
 				setFocused(true);
@@ -172,7 +212,11 @@ public final class BetterTextFieldWidget extends ClickableWidgetBase {
 					setText(getText(), "", true);
 					return true;
 				} else {
+//? if >= 26.1 {
+					/*return super.mouseClicked(mouseButtonEvent, doubleClick);
+*///? } else {
 					return super.mouseClicked(mouseX, mouseY, button);
+//? }
 				}
 			} else {
 				setFocused(false);

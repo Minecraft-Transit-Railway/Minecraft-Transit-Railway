@@ -127,10 +127,12 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 		}
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	public abstract static class BlockEntityBase extends BlockEntityExtension {
 
@@ -145,7 +147,11 @@ public abstract class BlockLiftPanelBase extends Block implements IBlock, Triple
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			final long data = nbtCompound.getLongOr(KEY_TRACK_FLOOR_POS, 0);
+*///? } else {
 			final long data = nbtCompound.getLong(KEY_TRACK_FLOOR_POS);
+//? }
 			trackPosition = data == 0 ? null : BlockPos.of(data);
 		}
 

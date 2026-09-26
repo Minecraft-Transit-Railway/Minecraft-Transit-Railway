@@ -3,6 +3,9 @@ package org.mtr.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//? if >= 26.1 {
+/*import net.minecraft.client.Minecraft;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -44,8 +47,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		clickAction = null;
 		hoverItem = null;
 		final FontRenderOptions.FontRenderOptionsBuilder fontRenderOptionsBuilder = initDimensions();
-		final PoseStack matrixStack = context.pose();
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
+		final Drawing drawing = GuiHelper.guiDrawing(context, matrixStack);
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 
 		ListItem.iterateData(dataList, filter, (index, indexList, listItem) -> {
@@ -67,7 +70,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 						clickAction = listItem::toggle;
 
 						// Draw the action button
-						deferredRenders.add(() -> new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID))
+						deferredRenders.add(() -> GuiHelper.guiTexturedDrawing(context, matrixStack, listItem.isExpanded() ? GuiHelper.CHEVRON_UP_TEXTURE_ID : GuiHelper.CHEVRON_DOWN_TEXTURE_ID)
 							.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 							.setUv()
 							.draw()
@@ -87,7 +90,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 							}
 
 							// Draw the action button
-							deferredRenders.add(() -> new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(identifier))
+							deferredRenders.add(() -> GuiHelper.guiTexturedDrawing(context, matrixStack, identifier)
 								.setVerticesWH(leftBound + GuiHelper.DEFAULT_PADDING / 2F, startY + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 								.setUv()
 								.draw()
@@ -103,11 +106,11 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 					listItem.drawIcon.draw(drawing, (float) startX, (float) startY);
 				}
 				if (listItem.deferredDrawIcon != null) {
-					deferredRenders.add(() -> listItem.deferredDrawIcon.draw(matrixStack, (float) startX, (float) startY));
+					deferredRenders.add(() -> listItem.deferredDrawIcon.draw(context, matrixStack, (float) startX, (float) startY));
 				}
 
 				// Draw text
-				deferredRenders.add(() -> FontRenderHelper.render(matrixStack, listItem.text, fontRenderOptionsBuilder
+				deferredRenders.add(() -> FontRenderHelper.render(context, matrixStack, listItem.text, fontRenderOptionsBuilder
 					.horizontalSpace(endX - startX - listItem.iconWidth - GuiHelper.DEFAULT_PADDING * 2 - (isMouseOver ? GuiHelper.DEFAULT_LINE_SIZE * listItem.actionCount() : 0))
 					.offsetX(startX + listItem.iconWidth + GuiHelper.DEFAULT_PADDING)
 					.offsetY((float) startY)
@@ -259,7 +262,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 			dataList.add(ListItem.createChild(
 				(drawing, x, y) -> GuiHelper.drawCircle(drawing, x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, 32, colors),
-				(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, savedRail.getName()),
+				(context, matrixStack, x, y) -> drawPlatformNumber(context, matrixStack, x, y, savedRail.getName()),
 				GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING / 2,
 				savedRail,
 				text,
@@ -319,7 +322,7 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 
 			dataList.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(stationColor).draw(),
-				(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, platform.getName()),
+				(context, matrixStack, x, y) -> drawPlatformNumber(context, matrixStack, x, y, platform.getName()),
 				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 				routePlatformData,
 				customDestinationPrefix + stationName,
@@ -357,8 +360,8 @@ public final class ScrollableListWidget<T> extends ScrollablePanelWidget {
 		}
 	}
 
-	private static void drawPlatformNumber(PoseStack matrixStack, double x, double y, String name) {
-		FontRenderHelper.render(matrixStack, Utilities.formatName(name), FontRenderOptions.builder()
+	private static void drawPlatformNumber(@Nullable GuiGraphics context, PoseStack matrixStack, double x, double y, String name) {
+		FontRenderHelper.render(context, matrixStack, Utilities.formatName(name), FontRenderOptions.builder()
 			.horizontalPositioning(FontRenderOptions.Alignment.CENTER)
 			.verticalPositioning(FontRenderOptions.Alignment.CENTER)
 			.horizontalSpace(GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT)

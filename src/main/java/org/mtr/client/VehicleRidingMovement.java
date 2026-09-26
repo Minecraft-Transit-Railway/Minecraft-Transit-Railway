@@ -351,7 +351,11 @@ public class VehicleRidingMovement {
 		if (shiftHoldingTicks > 0 && clientPlayerEntity != null) {
 			final int progressFilled = Math.clamp((int) (shiftHoldingTicks * DISMOUNT_PROGRESS_BAR_LENGTH / SHIFT_ACTIVATE_TICKS), 0, DISMOUNT_PROGRESS_BAR_LENGTH);
 			final String progressBar = String.format("§6%s§7%s", StringUtils.repeat('|', progressFilled), StringUtils.repeat('|', DISMOUNT_PROGRESS_BAR_LENGTH - progressFilled));
+//? if >= 26.1 {
+/*			clientPlayerEntity.sendOverlayMessage(TranslationProvider.GUI_MTR_DISMOUNT_HOLD.getText(MTRClient.getShiftText(), progressBar));
+*///? } else {
 			clientPlayerEntity.displayClientMessage(TranslationProvider.GUI_MTR_DISMOUNT_HOLD.getText(MTRClient.getShiftText(), progressBar), true);
+//? }
 			return false;
 		} else {
 			return true;

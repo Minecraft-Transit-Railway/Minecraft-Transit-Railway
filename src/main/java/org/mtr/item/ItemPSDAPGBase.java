@@ -14,6 +14,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.jspecify.annotations.Nullable;
 import org.mtr.block.BlockPSDTop;
 import org.mtr.block.IBlock;
@@ -22,6 +25,7 @@ import org.mtr.generated.lang.TranslationProvider;
 import org.mtr.registry.Blocks;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ItemPSDAPGBase extends Item implements IBlock {
 
@@ -71,8 +75,13 @@ public class ItemPSDAPGBase extends Item implements IBlock {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
-		tooltip.add((this.type.isLift ? this.type.isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN : item.translationKey).getMutableText().withStyle(ChatFormatting.GRAY));
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag type) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipList, TooltipFlag type) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
+		tooltip.accept((this.type.isLift ? this.type.isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN : item.translationKey).getMutableText().withStyle(ChatFormatting.GRAY));
 	}
 
 	private BlockState getBlockStateFromItem() {

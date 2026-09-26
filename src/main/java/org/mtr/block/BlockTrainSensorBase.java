@@ -50,12 +50,21 @@ public abstract class BlockTrainSensorBase extends Block implements EntityBlock 
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS).orElse(new long[0]);
+*///? } else {
 			final long[] routeIdsArray = nbtCompound.getLongArray(KEY_ROUTE_IDS);
+//? }
 			for (final long routeId : routeIdsArray) {
 				filterRouteIds.add(routeId);
 			}
+//? if >= 26.1 {
+/*			stoppedOnly = nbtCompound.getBooleanOr(KEY_STOPPED_ONLY, false);
+			movingOnly = nbtCompound.getBooleanOr(KEY_MOVING_ONLY, false);
+*///? } else {
 			stoppedOnly = nbtCompound.getBoolean(KEY_STOPPED_ONLY);
 			movingOnly = nbtCompound.getBoolean(KEY_MOVING_ONLY);
+//? }
 		}
 
 		@Override

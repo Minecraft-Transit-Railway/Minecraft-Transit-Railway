@@ -99,7 +99,11 @@ public abstract class ItemNodeModifierBase extends ItemBlockClickingBase {
 				final ObjectImmutableList<Rail> rails = railsResponse.getRails();
 				if (rails.isEmpty()) {
 					if (serverPlayerEntity != null) {
+//? if >= 26.1 {
+/*						serverPlayerEntity.sendOverlayMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText());
+*///? } else {
 						serverPlayerEntity.displayClientMessage(TranslationProvider.GUI_MTR_RAIL_NOT_FOUND_ACTION.getText(), true);
+//? }
 					}
 				} else {
 					consumer.accept(rails.getFirst());

@@ -3,7 +3,7 @@ package org.mtr.widget;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import org.mtr.model.StoredMesh;
 import gg.essential.elementa.UIComponent;
 import gg.essential.elementa.components.UIBlock;
 import gg.essential.elementa.constraints.CoerceAtMostConstraint;
@@ -19,6 +19,20 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+//? if >= 26.1 {
+/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.ScissorState;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.DynamicUniforms;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.mtr.model.StoredMesh;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+*///? }
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
@@ -104,6 +118,12 @@ public final class MapComponent extends UIComponent {
 	private static final int SAVED_RAIL_SHADOW_RADIUS = 1;
 	private static final int HOVER_WINDOW_SHADOW_RADIUS = 8;
 	private static final float DARKEN_MAP = 0.8F;
+//? if >= 26.1 {
+	/*// Neither varies per tile and neither is written to, so one of each is shared by every
+	// transform in the batch rather than allocated alongside it.
+	private static final Vector3f MAP_TILE_MODEL_OFFSET = new Vector3f();
+	private static final Matrix4f MAP_TILE_TEXTURE_MATRIX = new Matrix4f();
+*///? }
 	private static final int ANIMATION_DURATION = 1000;
 	private static final int ANIMATION_DURATION_FAST = 200;
 	private static final int DRAG_TIMEOUT_MILLIS = 2000;
@@ -282,7 +302,18 @@ public final class MapComponent extends UIComponent {
 		final float delta = MTRClient.getGameTimeDeltaTicks();
 
 		// Background
-		new Drawing(matrixStack, RenderType.gui()).setVerticesWH(left, top, width, height).setColor(Color.BLACK).draw();
+		new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setVerticesWH(left, top, width, height).setColor(Color.BLACK).draw();
+//? if >= 26.1 {
+		/*// Drawn now rather than left waiting in the buffer. The tiles below go straight through a
+		// render pass, but everything drawn through a render type sits in the shared buffer until a
+		// different type is asked for, so the background, and every element drawn after the tiles
+		// into the same batch, would be flushed on top of them the moment a label asked for the text
+		// type. That is what left the map black whenever anything was on it. Before 26.1 the depth
+		// test hid this: the tiles sit at z = 1 and the interface pipeline compared depth, so a
+		// background flushed late still lost. That pipeline no longer carries a depth test at all,
+		// which leaves draw order as the only thing deciding what is on top.
+		Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+*///? }
 
 		guiAnimationX.tick();
 		guiAnimationY.tick();
@@ -296,14 +327,23 @@ public final class MapComponent extends UIComponent {
 			final DoubleDoubleImmutablePair topLeftWorldCoords = coordsToWorldPos(0D, 0D);
 			final float offsetX = clampTileSize(topLeftWorldCoords.leftDouble()) - (float) topLeftWorldCoords.leftDouble();
 			final float offsetY = clampTileSize(topLeftWorldCoords.rightDouble()) - (float) topLeftWorldCoords.rightDouble();
-			RenderType.gui().setupRenderState();
+//? if >= 26.1 {
+			/*// Nothing is drawn while the tiles are walked. Each tile needs its own transform uniform,
+			// writing one maps a buffer, and mapping cannot be done while a render pass is open, so the
+			// tiles are collected here and the pass is opened below once they have all been written.
+			// Fetching a tile can also build its mesh, which is another reason to do it out here.
+			final ObjectArrayList<StoredMesh> mapTileMeshes = new ObjectArrayList<>();
+			final ObjectArrayList<DynamicUniforms.Transform> mapTileTransforms = new ObjectArrayList<>();
+*///? } else {
+			GuiHelper.getGuiRenderType().setupRenderState();
+//? }
 
 			for (double x = 0; x < width + tileSize; x += tileSize) {
 				for (double y = 0; y < height + tileSize; y += tileSize) {
 					final DoubleDoubleImmutablePair worldCoords = coordsToWorldPos(x, y);
 					final BlockPos tilePos = new BlockPos(clampTileSize(worldCoords.leftDouble()), player == null ? 0 : player.blockPosition().getY(), clampTileSize(worldCoords.rightDouble()));
 					final long key = tilePos.asLong();
-					final VertexBuffer vertexBuffer = mapTileProvider.getTile(tilePos);
+					final StoredMesh vertexBuffer = mapTileProvider.getTile(tilePos);
 
 					if (vertexBuffer == null) {
 						tileOpacityValues.remove(key);
@@ -317,19 +357,64 @@ public final class MapComponent extends UIComponent {
 
 						final float newX = (float) x + left;
 						final float newY = (float) y + top;
+//? if >= 26.1 {
+						/*// Positioned from the interface matrix rather than the render system's model view.
+						// UniversalCraft's compatibility shim used to leave the model view holding the
+						// transform the legacy drawing code expected, and on 26.1 it keeps that on a stack
+						// of its own instead, so the model view no longer says anything about where this
+						// component is. The background drawn above already goes through this matrix.
+						mapTileMeshes.add(vertexBuffer);
+						mapTileTransforms.add(new DynamicUniforms.Transform(
+							new Matrix4f(matrixStack.last().pose()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
+							new Vector4f(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1),
+							MAP_TILE_MODEL_OFFSET,
+							MAP_TILE_TEXTURE_MATRIX
+						));
+*///? } else {
 						IDrawing.changeShaderColor(new Color(newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, newOpacity * DARKEN_MAP, 1), () -> {
-							vertexBuffer.bind();
-							vertexBuffer.drawWithShader(
+							vertexBuffer.getVertexBuffer().bind();
+							vertexBuffer.getVertexBuffer().drawWithShader(
 								new Matrix4f(RenderSystem.getModelViewMatrix()).translate(newX, newY, 0).scale((float) guiAnimationScale.getCurrentValue(), (float) guiAnimationScale.getCurrentValue(), 1).translate(offsetX, offsetY, 1),
 								RenderSystem.getProjectionMatrix(),
 								RenderSystem.getShader()
 							);
 						});
+//? }
 					}
 				}
 			}
 
-			RenderType.gui().clearRenderState();
+//? if >= 26.1 {
+			/*if (!mapTileMeshes.isEmpty()) {
+				final GpuBufferSlice[] mapTileSlices = RenderSystem.getDynamicUniforms().writeTransforms(mapTileTransforms.toArray(new DynamicUniforms.Transform[0]));
+				final RenderType mapRenderLayer = GuiHelper.getGuiRenderType();
+				final RenderTarget mapRenderTarget = mapRenderLayer.outputTarget().getRenderTarget();
+				final GpuTextureView mapColorTexture = RenderSystem.outputColorTextureOverride == null ? mapRenderTarget.getColorTextureView() : RenderSystem.outputColorTextureOverride;
+				final GpuTextureView mapDepthTexture = mapRenderTarget.useDepth ? (RenderSystem.outputDepthTextureOverride == null ? mapRenderTarget.getDepthTextureView() : RenderSystem.outputDepthTextureOverride) : null;
+
+				// One pass covers every tile: the pipeline is bound once and each tile draws with the
+				// slice written for it above.
+				try (final RenderPass mapRenderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "MTR map tiles", mapColorTexture, OptionalInt.empty(), mapDepthTexture, OptionalDouble.empty())) {
+					mapRenderPass.setPipeline(mapRenderLayer.pipeline());
+
+					// The scissor has to be put on the pass by hand. The one applied above reaches draws
+					// made through a render type, which is how these tiles used to be drawn, but a pass
+					// opened directly carries its own and starts with none, so the tiles spilled out over
+					// the rest of the dashboard. This is the same state a render type would forward.
+					final ScissorState mapScissorState = RenderSystem.getScissorStateForRenderTypeDraws();
+					if (mapScissorState.enabled()) {
+						mapRenderPass.enableScissor(mapScissorState.x(), mapScissorState.y(), mapScissorState.width(), mapScissorState.height());
+					}
+
+					RenderSystem.bindDefaultUniforms(mapRenderPass);
+					for (int mapTileIndex = 0; mapTileIndex < mapTileMeshes.size(); mapTileIndex++) {
+						mapTileMeshes.get(mapTileIndex).draw(mapRenderPass, mapTileSlices[mapTileIndex]);
+					}
+				}
+			}
+*///? } else {
+			GuiHelper.getGuiRenderType().clearRenderState();
+//? }
 		}
 
 		final ObjectArrayList<Consumer<PoseStack>> deferredRenders = new ObjectArrayList<>();
@@ -348,7 +433,7 @@ public final class MapComponent extends UIComponent {
 			});
 		}
 
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui()).setGuiBoundsWH(left, top, width, height);
+		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType()).setGuiBoundsWH(left, top, width, height);
 		hoverStationsHomesLandmarks.clear();
 		hoverPlatforms.clear();
 		hoverDepots.clear();
@@ -400,6 +485,11 @@ public final class MapComponent extends UIComponent {
 		}
 
 		deferredRenders.forEach(deferredRender -> deferredRender.accept(matrixStack));
+//? if >= 26.1 {
+		/*// The clip is read when a batch is drawn, not when it is written, so whatever is still
+		// buffered has to go out before the clip is lifted or it lands outside the map.
+		Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+*///? }
 		RenderSystem.disableScissor();
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;

@@ -26,10 +26,12 @@ public abstract class BlockStationNameBase extends Block implements EntityBlock 
 		super(blockSettings.noOcclusion());
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR_NAME.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	public abstract static class BlockEntityBase extends BlockEntity implements IGui {
 

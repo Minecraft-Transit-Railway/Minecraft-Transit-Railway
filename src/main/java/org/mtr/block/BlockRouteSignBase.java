@@ -65,7 +65,11 @@ public abstract class BlockRouteSignBase extends BlockDirectionalDoubleBlockBase
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			platformId = nbtCompound.getLongOr(KEY_PLATFORM_ID, 0);
+*///? } else {
 			platformId = nbtCompound.getLong(KEY_PLATFORM_ID);
+//? }
 		}
 
 		@Override

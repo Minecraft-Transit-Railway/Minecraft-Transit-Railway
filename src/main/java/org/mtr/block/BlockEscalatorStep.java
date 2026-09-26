@@ -24,6 +24,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 //? if >= 1.21.4 {
 import net.minecraft.world.level.ScheduledTickAccess;
+//? if >= 26.1 {
+/*import net.minecraft.world.entity.InsideBlockEffectApplier;
+*///? }
 //? } else {
 /*import net.minecraft.world.level.LevelAccessor;
  *///? }
@@ -75,8 +78,16 @@ public class BlockEscalatorStep extends BlockEscalatorBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+/*	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+*///? } else {
 	protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
+//? }
+//? if >= 26.1 {
+/*		super.entityInside(state, world, pos, entity, effectApplier, isPrecise);
+*///? } else {
 		super.entityInside(state, world, pos, entity);
+//? }
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING);
 		final boolean direction = IBlock.getStatePropertySafe(state, DIRECTION);
 		final float speed = 0.1F;

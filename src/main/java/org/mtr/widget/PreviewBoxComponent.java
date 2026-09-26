@@ -22,6 +22,13 @@ import com.mojang.blaze3d.ProjectionType;
 /*import com.mojang.blaze3d.vertex.VertexSorting;
  *///? }
 
+//? if >= 26.1 {
+/*import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.opengl.GlTexture;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.ProjectionMatrixBuffer;
+*///? }
+
 public final class PreviewBoxComponent extends SlotBackgroundComponent {
 
 	@Nullable
@@ -47,6 +54,14 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 
 	private static final int PAN_MULTIPLIER = 32;
 	private static final int ROTATION_MULTIPLIER = 1;
+
+//? if >= 26.1 {
+	/*// A projection is handed to the renderer as a slice of a uniform buffer now rather than as a
+	// matrix, and that buffer has to be held somewhere. One is shared by every preview box: the
+	// matrix is written afresh on each pass and consumed by the draws that same pass, and previews
+	// are drawn one after another on the render thread, so none of them can see another's.
+	private static final ProjectionMatrixBuffer PROJECTION_MATRIX_BUFFER = new ProjectionMatrixBuffer("MTR preview");
+*///? }
 
 	public PreviewBoxComponent(boolean allowPan, boolean allowRotation, boolean allowZoom, Consumer<PoseStack> onDraw) {
 		setBackgroundColor(Color.BLACK);
@@ -95,7 +110,14 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 		super.draw(matrixStack);
 		drawFrameBuffer();
 		if (framebuffer != null) {
+//? if >= 26.1 {
+			/*// A render target carries a GPU texture rather than a name. The drawing below wants the
+			// OpenGL name, which the OpenGL backend's texture still answers with, and this file already
+			// speaks to that backend directly for its buffer bits.
+			ImageComponentBase.drawTexture(() -> ((GlTexture) framebuffer.getColorTexture()).glId(), vertexConsumer -> drawTexturedQuad(matrixStack, vertexConsumer, getLeft() + 1, getTop() + 1, getRight() - 1, getBottom() - 1, 0, 1, 1, 0));
+*///? } else {
 			ImageComponentBase.drawTexture(framebuffer::getColorTextureId, vertexConsumer -> drawTexturedQuad(matrixStack, vertexConsumer, getLeft() + 1, getTop() + 1, getRight() - 1, getBottom() - 1, 0, 1, 1, 0));
+//? }
 		}
 	}
 
@@ -108,14 +130,21 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 	}
 
 	private void drawFrameBuffer() {
+//? if >= 26.1 {
+		/*// Nothing is bound any more. Which target is drawn into is stated by overriding the output
+		// textures, so that is what has to be saved and put back rather than the main target.
+		final GpuBufferSlice oldProjectionMatrix = RenderSystem.getProjectionMatrixBuffer();
+		final ProjectionType oldProjectionType = RenderSystem.getProjectionType();
+		final GpuTextureView oldColorTextureOverride = RenderSystem.outputColorTextureOverride;
+		final GpuTextureView oldDepthTextureOverride = RenderSystem.outputDepthTextureOverride;
+*///? } else if >= 1.21.4 {
 		final RenderTarget oldFrameBuffer = Minecraft.getInstance().getMainRenderTarget();
 		final Matrix4f oldMatrix4f = RenderSystem.getProjectionMatrix();
-
-//? if >= 1.21.4 {
 		final ProjectionType oldProjectionType = RenderSystem.getProjectionType();
 //? } else {
-		/*final VertexSorting oldVertexSorting = RenderSystem.getVertexSorting();
-//
+		/*final RenderTarget oldFrameBuffer = Minecraft.getInstance().getMainRenderTarget();
+		final Matrix4f oldMatrix4f = RenderSystem.getProjectionMatrix();
+		final VertexSorting oldVertexSorting = RenderSystem.getVertexSorting();
 *///? }
 
 		final double scaleFactor = Minecraft.getInstance().getWindow().getGuiScale();
@@ -127,35 +156,45 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 				framebuffer.destroyBuffers();
 			}
 
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+			/*// The clear colour is given to the clear itself now instead of being held on the target.
 			framebuffer = new TextureTarget(width, height, true);
+*///? } else if >= 1.21.4 {
+			framebuffer = new TextureTarget(width, height, true);
+			framebuffer.setClearColor(0, 0, 0, 1);
 //? } else {
 			/*framebuffer = new TextureTarget(width, height, true, false);
-//
-*///? }
-
 			framebuffer.setClearColor(0, 0, 0, 1);
+*///? }
 		}
 
+//? if >= 26.1 {
+		/*// The clear names the textures it applies to instead of following whatever is bound, and the
+		// viewport comes from the size of those textures. Depth testing and depth writing are decided
+		// by the pipeline each draw declares, so there is nothing left to switch on around the draw.
+		//
+		// The perspective is unchanged; only the way it is handed over is. It is written into the
+		// shared uniform buffer, and the slice that comes back names where it landed.
+		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(framebuffer.getColorTexture(), 0xFF000000, framebuffer.getDepthTexture(), 1);
+		RenderSystem.setProjectionMatrix(PROJECTION_MATRIX_BUFFER.getBuffer(new Matrix4f().perspective((float) Math.toRadians(60), (float) framebuffer.width / framebuffer.height, 0.01F, 1000)), ProjectionType.PERSPECTIVE);
+		RenderSystem.outputColorTextureOverride = framebuffer.getColorTextureView();
+		RenderSystem.outputDepthTextureOverride = framebuffer.getDepthTextureView();
+*///? } else if >= 1.21.4 {
 		RenderSystem.viewport(0, 0, framebuffer.width, framebuffer.height);
 		framebuffer.bindWrite(true);
 		RenderSystem.clearColor(0, 0, 0, 1);
-
-//? if >= 1.21.4 {
 		RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-//? } else {
-		/*RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, false);
-//
-*///? }
-
 		RenderSystem.enableDepthTest();
 		RenderSystem.depthMask(true);
-
-//? if >= 1.21.4 {
 		RenderSystem.setProjectionMatrix(new Matrix4f().perspective((float) Math.toRadians(60), (float) framebuffer.width / framebuffer.height, 0.01F, 1000), ProjectionType.PERSPECTIVE);
 //? } else {
-		/*RenderSystem.setProjectionMatrix(new Matrix4f().perspective((float) Math.toRadians(60), (float) framebuffer.width / framebuffer.height, 0.01F, 1000), VertexSorting.DISTANCE_TO_ORIGIN);
-//
+		/*RenderSystem.viewport(0, 0, framebuffer.width, framebuffer.height);
+		framebuffer.bindWrite(true);
+		RenderSystem.clearColor(0, 0, 0, 1);
+		RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, false);
+		RenderSystem.enableDepthTest();
+		RenderSystem.depthMask(true);
+		RenderSystem.setProjectionMatrix(new Matrix4f().perspective((float) Math.toRadians(60), (float) framebuffer.width / framebuffer.height, 0.01F, 1000), VertexSorting.DISTANCE_TO_ORIGIN);
 *///? }
 
 		final PoseStack matrixStack = new PoseStack();
@@ -164,18 +203,23 @@ public final class PreviewBoxComponent extends SlotBackgroundComponent {
 		Drawing.rotateYDegrees(matrixStack, rotationX);
 		onDraw.accept(matrixStack);
 
+//? if >= 26.1 {
+		/*RenderSystem.outputColorTextureOverride = oldColorTextureOverride;
+		RenderSystem.outputDepthTextureOverride = oldDepthTextureOverride;
+		RenderSystem.setProjectionMatrix(oldProjectionMatrix, oldProjectionType);
+*///? } else if >= 1.21.4 {
 		RenderSystem.disableDepthTest();
 		framebuffer.unbindWrite();
 		RenderSystem.viewport(0, 0, oldFrameBuffer.width, oldFrameBuffer.height);
 		oldFrameBuffer.bindWrite(true);
-
-//? if >= 1.21.4 {
 		RenderSystem.setProjectionMatrix(oldMatrix4f, oldProjectionType);
 //? } else {
-		/*RenderSystem.setProjectionMatrix(oldMatrix4f, oldVertexSorting);
-//
+		/*RenderSystem.disableDepthTest();
+		framebuffer.unbindWrite();
+		RenderSystem.viewport(0, 0, oldFrameBuffer.width, oldFrameBuffer.height);
+		oldFrameBuffer.bindWrite(true);
+		RenderSystem.setProjectionMatrix(oldMatrix4f, oldVertexSorting);
 *///? }
-
 	}
 
 	private static float getPlayerYaw() {

@@ -20,13 +20,19 @@ import java.util.function.Consumer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+//? if >= 26.1 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+*///? } else {
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 //? if >= 1.21.4 {
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+//? }
 //? }
 //? }
 
@@ -149,6 +155,15 @@ public final class EventRegistryClient {
 
 	public static void registerWorldRenderEvent(MTRClient.WorldRenderCallback worldRenderCallback) {
 //? if fabric {
+//? if >= 26.1 {
+/*		LevelRenderEvents.AFTER_SOLID_FEATURES.register(levelRenderContext -> {
+			final PoseStack matrixStack = levelRenderContext.poseStack();
+			final MultiBufferSource vertexConsumerProvider = levelRenderContext.bufferSource();
+			if (matrixStack != null && vertexConsumerProvider != null) {
+				worldRenderCallback.accept(matrixStack, vertexConsumerProvider, levelRenderContext.levelState().cameraRenderState.pos);
+			}
+		});
+*///? } else {
 		WorldRenderEvents.AFTER_ENTITIES.register(worldRenderContext -> {
 			final PoseStack matrixStack = worldRenderContext.matrixStack();
 			final MultiBufferSource vertexConsumerProvider = worldRenderContext.consumers();
@@ -156,6 +171,7 @@ public final class EventRegistryClient {
 				worldRenderCallback.accept(matrixStack, vertexConsumerProvider, worldRenderContext.camera().getPosition());
 			}
 		});
+//? }
 //? }
 
 //? if neoforge {
@@ -166,7 +182,9 @@ public final class EventRegistryClient {
 
 	public static void registerHudLayerRenderEvent(Consumer<GuiGraphics> hudLayerRenderCallback) {
 //? if fabric {
-//? if >= 1.21.4 {
+//? if >= 26.1 {
+/*		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, "gui"), (guiGraphics, deltaTracker) -> hudLayerRenderCallback.accept(guiGraphics));
+*///? } else if >= 1.21.4 {
 		HudLayerRegistrationCallback.EVENT.register(layeredDrawerWrapper -> layeredDrawerWrapper.attachLayerBefore(IdentifiedLayer.CHAT, ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, "gui"), (guiGraphics, delta) -> hudLayerRenderCallback.accept(guiGraphics)));
 //? } else {
 		/*HudRenderCallback.EVENT.register((guiGraphics, delta) -> hudLayerRenderCallback.accept(guiGraphics));

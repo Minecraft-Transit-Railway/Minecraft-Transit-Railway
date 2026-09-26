@@ -112,14 +112,27 @@ public abstract class BlockSignalBase extends Block implements EntityBlock {
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			acceptRedstone = nbtCompound.getBooleanOr(KEY_ACCEPT_REDSTONE, false);
+			outputRedstone = nbtCompound.getBooleanOr(KEY_OUTPUT_REDSTONE, false);
+*///? } else {
 			acceptRedstone = nbtCompound.getBoolean(KEY_ACCEPT_REDSTONE);
 			outputRedstone = nbtCompound.getBoolean(KEY_OUTPUT_REDSTONE);
+//? }
 			signalColors1.clear();
+//? if >= 26.1 {
+/*			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_1).orElse(new int[0])) {
+*///? } else {
 			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_1)) {
+//? }
 				signalColors1.add(color);
 			}
 			signalColors2.clear();
+//? if >= 26.1 {
+/*			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_2).orElse(new int[0])) {
+*///? } else {
 			for (final int color : nbtCompound.getIntArray(KEY_SIGNAL_COLORS_2)) {
+//? }
 				signalColors2.add(color);
 			}
 		}

@@ -68,6 +68,15 @@ public record StoredVertexData(
 		private final ObjectArrayList<Vector2f> textureEntries = new ObjectArrayList<>();
 		private final ObjectArrayList<Vector3f> normalEntries = new ObjectArrayList<>();
 
+//? if >= 26.1 {
+		/*// Added to the interface in 26.1. This consumer only records geometry for later replay,
+		// so line width is nothing it can act on.
+		@Override
+		public VertexConsumer setLineWidth(float lineWidth) {
+			return this;
+		}
+*///? }
+
 		@Override
 		public VertexConsumer addVertex(float x, float y, float z) {
 			vertexEntries.add(new Vector3f(x, y, z));
@@ -78,6 +87,15 @@ public record StoredVertexData(
 		public VertexConsumer setColor(int red, int green, int blue, int alpha) {
 			return this;
 		}
+
+//? if >= 26.1 {
+		/*// A packed form was added alongside the four-channel one. This consumer ignores colour
+		// either way, so both are accepted and discarded.
+		@Override
+		public VertexConsumer setColor(int color) {
+			return this;
+		}
+*///? }
 
 		@Override
 		public VertexConsumer setUv(float u, float v) {

@@ -59,8 +59,13 @@ public class BlockTrainScheduleSensor extends BlockTrainPoweredSensorBase {
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			seconds = nbtCompound.getIntOr(KEY_SECONDS, 0);
+			realtimeOnly = nbtCompound.getBooleanOr(KEY_REALTIME_ONLY, false);
+*///? } else {
 			seconds = nbtCompound.getInt(KEY_SECONDS);
 			realtimeOnly = nbtCompound.getBoolean(KEY_REALTIME_ONLY);
+//? }
 		}
 
 		@Override

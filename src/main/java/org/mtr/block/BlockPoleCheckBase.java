@@ -32,6 +32,7 @@ public abstract class BlockPoleCheckBase extends Block {
 		}
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		final String[] strings = TranslationProvider.TOOLTIP_MTR_POLE_PLACEMENT.getString(getTooltipBlockText()).split("\n");
@@ -39,6 +40,7 @@ public abstract class BlockPoleCheckBase extends Block {
 			tooltip.add(Component.literal(string).withStyle(ChatFormatting.GRAY));
 		}
 	}
+//? }
 
 	protected BlockState placeWithState(BlockState stateBelow) {
 		return defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, IBlock.getStatePropertySafe(stateBelow, BlockStateProperties.HORIZONTAL_FACING));

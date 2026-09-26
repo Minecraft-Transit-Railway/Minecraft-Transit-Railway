@@ -121,7 +121,7 @@ public final class SignResource extends SignResourceSchema {
 
 		// Draw background
 		if (renderBackground) {
-			new Drawing(matrixStack, vertexConsumerProvider.getBuffer(RenderType.gui())).setVerticesWH(x, y, signResources.length * signSize, signSize).setColor(GuiHelper.BLACK_COLOR | backgroundColor).draw();
+			new Drawing(matrixStack, vertexConsumerProvider.getBuffer(GuiHelper.getGuiRenderType())).setVerticesWH(x, y, signResources.length * signSize, signSize).setColor(GuiHelper.BLACK_COLOR | backgroundColor).draw();
 		}
 
 		final ObjectArrayList<Consumer<PoseStack>> deferredRenders = new ObjectArrayList<>();

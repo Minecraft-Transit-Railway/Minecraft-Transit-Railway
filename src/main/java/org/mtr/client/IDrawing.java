@@ -18,6 +18,12 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.phys.Vec3;
+//? if >= 26.1 {
+/*import net.minecraft.sounds.SoundSource;
+*///? }
+//? if >= 26.1 {
+/*import net.minecraft.network.chat.FontDescription;
+*///? }
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.mtr.MTR;
@@ -160,8 +166,18 @@ public interface IDrawing {
 			final PoseStack.Pose entry = matrixStack.last();
 			final Matrix4f matrix4f = entry.pose();
 
+//? if >= 26.1 {
+			/*// The line layer's vertex carries its width from 26.1, and a vertex missing an element is
+			// refused outright rather than defaulted, so the game went down the moment a line was drawn:
+			// holding a brush, a lift tool or a rail item was enough. Nothing here ever set a width, so
+			// the lines were drawn at whatever the render system held, which is one pixel by default,
+			// and that is what is written.
+			vertexConsumer.addVertex(matrix4f, x1, y1, z1).setColor(color).setNormal(entry, 0, 1, 0).setLineWidth(1);
+			vertexConsumer.addVertex(matrix4f, x2, y2, z2).setColor(color).setNormal(entry, 0, 1, 0).setLineWidth(1);
+*///? } else {
 			vertexConsumer.addVertex(matrix4f, x1, y1, z1).setColor(color).setNormal(entry, 0, 1, 0);
 			vertexConsumer.addVertex(matrix4f, x2, y2, z2).setColor(color).setNormal(entry, 0, 1, 0);
+//? }
 		}
 	}
 
@@ -203,14 +219,22 @@ public interface IDrawing {
 
 	static void narrateOrAnnounce(String narrateMessage, ObjectArrayList<MutableComponent> chatMessages) {
 		if (Config.getClient().getTextToSpeechAnnouncements() && !narrateMessage.isEmpty()) {
+//? if >= 26.1 {
+			/*Narrator.getNarrator().say(narrateMessage, true, Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.VOICE));
+*///? } else {
 			Narrator.getNarrator().say(narrateMessage, true);
+//? }
 		}
 		if (Config.getClient().getChatAnnouncements() && !chatMessages.isEmpty()) {
 			final LocalPlayer player = Minecraft.getInstance().player;
 			if (player != null) {
 				chatMessages.forEach(chatMessage -> {
 					if (!chatMessage.getString().isEmpty()) {
+//? if >= 26.1 {
+/*						player.sendSystemMessage(chatMessage);
+*///? } else {
 						player.displayClientMessage(chatMessage, false);
+//? }
 					}
 				});
 			}
@@ -221,6 +245,11 @@ public interface IDrawing {
 		return Config.getClient().getUseMTRFont() ? text.setStyle(Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath(MTR.MOD_ID, "mtr"))) : text;
 	}
 
+//? if >= 26.1 {
+	/*// Unused from 26.1: there is no global shader colour to push and restore any more, so callers
+	// pass their colour with each draw instead.
+*///? }
+//? if < 26.1 {
 	static void changeShaderColor(Color color, Runnable callback) {
 		final float[] oldColor = RenderSystem.getShaderColor();
 		final float r = oldColor[0];
@@ -231,6 +260,7 @@ public interface IDrawing {
 		callback.run();
 		RenderSystem.setShaderColor(r, g, b, a);
 	}
+//? }
 
 	@FunctionalInterface
 	interface DrawingCallback {

@@ -1,6 +1,9 @@
 package org.mtr.widget;
 
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +68,7 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 		greenTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 3 + GuiHelper.DEFAULT_LINE_SIZE * 2);
 		blueTextField.setPosition(controlsX, getY() + GuiHelper.DEFAULT_PADDING * 4 + GuiHelper.DEFAULT_LINE_SIZE * 3);
 
-		final Drawing drawing = new Drawing(context.pose(), RenderType.gui());
+		final Drawing drawing = GuiHelper.guiDrawing(context, GuiHelper.guiPoseStack(context));
 		final int mainHeight = height - GuiHelper.DEFAULT_PADDING * 2 - GuiHelper.DEFAULT_LINE_SIZE;
 		final int mainWidth = width - GuiHelper.DEFAULT_PADDING * 4 - GuiHelper.DEFAULT_LINE_SIZE - CONTROLS_SIZE;
 		hoverMouseZone = MouseZone.NONE;
@@ -142,12 +145,20 @@ public final class ColorSelectorWidget extends PopupWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
+//? }
 		draggingMouseZone = hoverMouseZone;
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onRelease(MouseButtonEvent mouseButtonEvent) {
+*///? } else {
 	public void onRelease(double mouseX, double mouseY) {
+//? }
 		draggingMouseZone = MouseZone.NONE;
 	}
 

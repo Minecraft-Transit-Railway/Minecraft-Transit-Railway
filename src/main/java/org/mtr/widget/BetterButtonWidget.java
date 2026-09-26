@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -39,17 +42,17 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 	@Override
 	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		setDimensions();
-		final PoseStack matrixStack = context.pose();
+		final PoseStack matrixStack = GuiHelper.guiPoseStack(context);
 
 		// Draw background
-		new Drawing(matrixStack, RenderType.gui())
+		GuiHelper.guiDrawing(context, matrixStack)
 			.setVerticesWH(getX(), getY(), width, height)
 			.setColor(isMouseOver(mouseX, mouseY) ? hoverColor : backgroundColor)
 			.draw();
 
 		// Draw icon
 		if (icon != null) {
-			new Drawing(matrixStack, GuiHelper.getGuiTexturedRenderType(icon))
+			GuiHelper.guiTexturedDrawing(context, matrixStack, icon)
 				.setVerticesWH(getX() + (width - getContentWidth()) / 2F, getY() + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_ICON_SIZE, GuiHelper.DEFAULT_ICON_SIZE)
 				.setUv()
 				.draw();
@@ -60,7 +63,11 @@ public final class BetterButtonWidget extends ClickableWidgetBase {
 	}
 
 	@Override
+//? if >= 26.1 {
+	/*public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+*///? } else {
 	public void onClick(double mouseX, double mouseY) {
+//? }
 		onPress.run();
 	}
 
