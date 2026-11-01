@@ -136,6 +136,7 @@ tasks {
 			"mod_issues" to project.property("mod.issues"),
 			"minecraft_version" to sc.current.version,
 		)
+		inputs.properties(properties)
 
 		filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml")) {
 			expand(properties)

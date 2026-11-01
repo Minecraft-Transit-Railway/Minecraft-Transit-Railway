@@ -25,6 +25,9 @@ Angular dependencies only. Rebuilding the same version can still change bundled 
 libraries because upstream uses dynamic dependency versions; validate a replacement
 artifact separately rather than assuming the version number guarantees identical contents.
 
+Both loader builds register expanded mod metadata as resource-task inputs, so changing
+`mod.version` regenerates the embedded version even in an incremental build.
+
 Both are published to GitHub Packages, which requires an access token for reads **even though the
 repository is public**. Continuous integration is unaffected, because GitHub Actions injects
 `GITHUB_TOKEN` automatically. Local development has two options.
