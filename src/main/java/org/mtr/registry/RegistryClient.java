@@ -129,7 +129,11 @@ public final class RegistryClient {
 
 	public static void registerKeyBinding(KeyMapping keyBinding) {
 //? if fabric {
+//? if >= 26.1 {
+		/*KeyMappingHelper.registerKeyMapping(keyBinding);
+*///? } else {
 		KeyBindingHelper.registerKeyBinding(keyBinding);
+//? }
 //? }
 
 //? if neoforge {
