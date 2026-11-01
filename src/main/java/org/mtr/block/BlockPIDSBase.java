@@ -3,6 +3,9 @@ package org.mtr.block;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+//? if >= 26.1 {
+/*import net.minecraft.core.component.DataComponents;
+*///? }
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -100,10 +103,12 @@ public abstract class BlockPIDSBase extends Block implements EntityBlock {
 		return InteractionResult.PASS;
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(maxArrivals).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	public static abstract class BlockEntityBase extends BlockEntityExtension {
 
@@ -142,18 +147,32 @@ public abstract class BlockPIDSBase extends Block implements EntityBlock {
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
 			for (int i = 0; i < maxArrivals; i++) {
+//? if >= 26.1 {
+/*				messages[i] = nbtCompound.getStringOr(KEY_MESSAGE + i, "");
+				hideArrivalArray[i] = nbtCompound.getBooleanOr(KEY_HIDE_ARRIVAL + i, false);
+*///? } else {
 				messages[i] = nbtCompound.getString(KEY_MESSAGE + i);
 				hideArrivalArray[i] = nbtCompound.getBoolean(KEY_HIDE_ARRIVAL + i);
+//? }
 			}
 
 			platformIds.clear();
+//? if >= 26.1 {
+/*			final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS).orElse(new long[0]);
+*///? } else {
 			final long[] platformIdsArray = nbtCompound.getLongArray(KEY_PLATFORM_IDS);
+//? }
 			for (final long platformId : platformIdsArray) {
 				platformIds.add(platformId);
 			}
 
+//? if >= 26.1 {
+/*			displayPage = nbtCompound.getIntOr(KEY_DISPLAY_PAGE, 0);
+			final int tempCustomColor = nbtCompound.getIntOr(KEY_CUSTOM_COLOR, 0);
+*///? } else {
 			displayPage = nbtCompound.getInt(KEY_DISPLAY_PAGE);
 			final int tempCustomColor = nbtCompound.getInt(KEY_CUSTOM_COLOR);
+//? }
 			customColor = tempCustomColor == 0 ? null : tempCustomColor;
 		}
 

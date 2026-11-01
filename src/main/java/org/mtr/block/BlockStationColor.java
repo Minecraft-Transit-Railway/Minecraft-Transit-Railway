@@ -17,8 +17,10 @@ public class BlockStationColor extends Block {
 		super(settings);
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 }

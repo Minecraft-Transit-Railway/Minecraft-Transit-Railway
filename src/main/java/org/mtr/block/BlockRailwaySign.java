@@ -141,11 +141,13 @@ public class BlockRailwaySign extends Block implements IBlock, EntityBlock {
 		}
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_LENGTH.getMutableText(length).withStyle(ChatFormatting.GRAY));
 		tooltip.add((isOdd ? TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_ODD : TranslationProvider.TOOLTIP_MTR_RAILWAY_SIGN_EVEN).getMutableText().withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Nullable
 	@Override
@@ -224,14 +226,26 @@ public class BlockRailwaySign extends Block implements IBlock, EntityBlock {
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
 			final LongAVLTreeSet legacySelectedIds = new LongAVLTreeSet();
+//? if >= 26.1 {
+/*			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS).orElse(new long[0])).forEach(legacySelectedIds::add);
+*///? } else {
 			Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS)).forEach(legacySelectedIds::add);
+//? }
 
 			for (int i = 0; i < signIds.length; i++) {
 				selectedIds[i].clear();
 				selectedIds[i].addAll(legacySelectedIds);
+//? if >= 26.1 {
+/*				Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS + i).orElse(new long[0])).forEach(selectedIds[i]::add);
+*///? } else {
 				Arrays.stream(nbtCompound.getLongArray(KEY_SELECTED_IDS + i)).forEach(selectedIds[i]::add);
+//? }
 
+//? if >= 26.1 {
+/*				final String signId = nbtCompound.getStringOr(KEY_SIGN_LENGTH + i, "");
+*///? } else {
 				final String signId = nbtCompound.getString(KEY_SIGN_LENGTH + i);
+//? }
 				signIds[i] = signId.isEmpty() ? null : (Arrays.asList(LEGACY_SIGNS).contains(signId) ? signId.toLowerCase(Locale.ENGLISH) : signId);
 			}
 		}

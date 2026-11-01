@@ -2,6 +2,9 @@ package org.mtr.screen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >= 26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///? }
 import org.mtr.data.IGui;
 import org.mtr.generated.lang.TranslationProvider;
 
@@ -26,10 +29,24 @@ public class FakePauseScreen extends ScreenBase implements IGui {
 		super.render(context, mouseX, mouseY, delta);
 	}
 
+//? if >= 26.1 {
+	/*// The handlers take the event itself now. It is unpacked here so the body below reads the same
+	// on both versions.
+	@Override
+	public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		final double mouseX = mouseButtonEvent.x();
+		final double mouseY = mouseButtonEvent.y();
+		final int button = mouseButtonEvent.button();
+*///? } else {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+//? }
 		Minecraft.getInstance().setScreen(null);
+//? if >= 26.1 {
+		/*return super.mouseClicked(mouseButtonEvent, doubleClick);
+*///? } else {
 		return super.mouseClicked(mouseX, mouseY, button);
+//? }
 	}
 
 	@Override

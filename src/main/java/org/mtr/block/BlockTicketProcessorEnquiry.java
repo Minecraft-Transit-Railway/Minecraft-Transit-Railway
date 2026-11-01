@@ -22,7 +22,11 @@ public class BlockTicketProcessorEnquiry extends BlockTicketProcessor {
 	public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos blockPos, Player player, BlockHitResult hit) {
 		if (!world.isClientSide()) {
 			final int playerScore = TicketSystem.getBalance(world, player);
+//? if >= 26.1 {
+/*			player.sendOverlayMessage(TranslationProvider.GUI_MTR_BALANCE.getText(String.valueOf(playerScore)));
+*///? } else {
 			player.displayClientMessage(TranslationProvider.GUI_MTR_BALANCE.getText(String.valueOf(playerScore)), true);
+//? }
 			world.playSound(null, blockPos, SoundEvents.TICKET_PROCESSOR_ENTRY.get(), SoundSource.BLOCKS, 1, 1);
 		}
 		return InteractionResult.SUCCESS;

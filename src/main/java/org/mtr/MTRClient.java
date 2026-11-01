@@ -92,68 +92,68 @@ public final class MTRClient {
 		MTR.writeFromClient();
 		KeyBindings.init();
 
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_DOOR);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.APG_GLASS_END);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CABLE_CAR_NODE_LOWER);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CABLE_CAR_NODE_UPPER);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.CLOCK);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_CIO);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_CKT);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_HEO);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_MOS);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_PLAIN);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_SHM);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_STAINED);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_STW);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_TSH);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.GLASS_FENCE_WKS);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LOGO);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_INDENTED);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_SLAB);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_1_INDENTED);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_1_SLAB);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_2_INDENTED);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_NA_2_SLAB);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_UK_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_UK_1_INDENTED);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PLATFORM_UK_1_SLAB);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_DOOR_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_DOOR_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.PSD_GLASS_END_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.RUBBISH_BIN_1);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS);
-		RegistryClient.registerBlockRenderType(RenderType.translucent(), Blocks.STATION_COLOR_STAINED_GLASS_SLAB);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_WALL);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.STATION_NAME_TALL_STANDING);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_BARRIER_EXIT_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_MACHINE);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_PROCESSOR);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_PROCESSOR_ENTRANCE);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_PROCESSOR_EXIT);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TICKET_PROCESSOR_ENQUIRY);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_ANNOUNCER);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_CARGO_LOADER);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_CARGO_UNLOADER);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_REDSTONE_SENSOR);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.TRAIN_SCHEDULE_SENSOR);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_EVEN_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_DOOR_ODD_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_EVEN_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_1);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_EVEN_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.LIFT_PANEL_ODD_2);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_STEP);
-		RegistryClient.registerBlockRenderType(RenderType.cutout(), Blocks.ESCALATOR_SIDE);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.APG_DOOR);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.APG_GLASS);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.APG_GLASS_END);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.CABLE_CAR_NODE_LOWER);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.CABLE_CAR_NODE_UPPER);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.CLOCK);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_CIO);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_CKT);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_HEO);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_MOS);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_PLAIN);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_SHM);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_STAINED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_STW);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_TSH);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.GLASS_FENCE_WKS);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LOGO);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_INDENTED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_SLAB);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_1_INDENTED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_1_SLAB);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_2_INDENTED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_NA_2_SLAB);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_UK_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_UK_1_INDENTED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PLATFORM_UK_1_SLAB);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_DOOR_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_GLASS_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_GLASS_END_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_DOOR_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_GLASS_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.PSD_GLASS_END_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.RUBBISH_BIN_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.STATION_COLOR_STAINED_GLASS);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.TRANSLUCENT, Blocks.STATION_COLOR_STAINED_GLASS_SLAB);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.STATION_NAME_TALL_BLOCK);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.STATION_NAME_TALL_BLOCK_DOUBLE_SIDED);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.STATION_NAME_TALL_WALL);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.STATION_NAME_TALL_STANDING);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_BARRIER_ENTRANCE_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_BARRIER_EXIT_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_MACHINE);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_PROCESSOR);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_PROCESSOR_ENTRANCE);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_PROCESSOR_EXIT);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TICKET_PROCESSOR_ENQUIRY);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TRAIN_ANNOUNCER);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TRAIN_CARGO_LOADER);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TRAIN_CARGO_UNLOADER);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TRAIN_REDSTONE_SENSOR);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.TRAIN_SCHEDULE_SENSOR);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_DOOR_EVEN_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_DOOR_ODD_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_PANEL_EVEN_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_PANEL_ODD_1);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_PANEL_EVEN_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.LIFT_PANEL_ODD_2);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.ESCALATOR_STEP);
+		RegistryClient.registerBlockRenderType(RegistryClient.BlockRenderLayer.CUTOUT, Blocks.ESCALATOR_SIDE);
 
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.LIFT_BUTTONS_1, context -> new RenderLiftButtons());
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.LIFT_PANEL_EVEN_1, dispatcher -> new RenderLiftPanel<>(false, false));
@@ -213,7 +213,7 @@ public final class MTRClient {
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.STATION_NAME_WALL_BLACK, dispatcher -> new RenderStationNameTiled<>(false));
 		RegistryClient.registerBlockEntityRenderer(BlockEntityTypes.EYE_CANDY, context -> new RenderEyeCandy());
 
-		RegistryClient.registerBlockColors((blockState, blockRenderView, blockPos, tintIndex) -> getStationColor(blockPos),
+		RegistryClient.registerBlockColors(MTRClient::getStationColor,
 			Blocks.STATION_COLOR_ANDESITE,
 			Blocks.STATION_COLOR_BEDROCK,
 			Blocks.STATION_COLOR_BIRCH_WOOD,
@@ -382,7 +382,7 @@ public final class MTRClient {
 		EventRegistryClient.registerWorldRenderEvent(MainRenderer::render);
 		EventRegistryClient.registerHudLayerRenderEvent(context -> DrivingGuiRenderer.render(context));
 
-		Config.init(Minecraft.getInstance().gameDirectory.toPath());
+		Config.init(RegistryClient.getGameDirectory());
 
 		BlockTactileMap.TactileMapBlockEntity.updateSoundSource = TACTILE_MAP_SOUND_INSTANCE::setPos;
 		BlockTactileMap.TactileMapBlockEntity.onUse = blockPos -> {

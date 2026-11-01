@@ -101,8 +101,14 @@ public abstract class ImageComponentBase extends UIComponent {
 
 		try (final UBuiltBuffer builtBuffer = bufferBuilder.build()) {
 			if (builtBuffer != null) {
+				// The identifier is resolved before the draw rather than inside it. These suppliers
+				// upload the texture the first time they are asked for it, and from 26.1 an upload is a
+				// command that cannot be issued while a render pass is open, which is exactly where the
+				// draw call builder runs. Asking here keeps the upload outside the pass, and still only
+				// happens when there is something to draw.
+				final int glId = glIdSupplier.getAsInt();
 				builtBuffer.drawAndClose(TEXTURE_COLOR_QUAD_PIPELINE, drawCallBuilder -> {
-					drawCallBuilder.texture(0, glIdSupplier.getAsInt());
+					drawCallBuilder.texture(0, glId);
 					return Unit.INSTANCE;
 				});
 			}

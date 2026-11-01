@@ -65,7 +65,7 @@ public final class ListComponent<T> extends UIComponent {
 			.verticalTextAlignment(FontRenderOptions.Alignment.CENTER);
 
 		final PoseStack matrixStack = UConverters.convert(uMatrixStack);
-		final Drawing drawing = new Drawing(matrixStack, RenderType.gui());
+		final Drawing drawing = new Drawing(matrixStack, GuiHelper.getGuiRenderType());
 		final ObjectArrayList<Runnable> deferredRenders = new ObjectArrayList<>();
 		final float left = getLeft();
 		final float right = getRight();
@@ -127,7 +127,7 @@ public final class ListComponent<T> extends UIComponent {
 				listItem.drawIcon.draw(drawing, left, startY);
 			}
 			if (listItem.deferredDrawIcon != null) {
-				deferredRenders.add(() -> listItem.deferredDrawIcon.draw(matrixStack, left, startY));
+				deferredRenders.add(() -> listItem.deferredDrawIcon.draw(null, matrixStack, left, startY));
 			}
 
 			// Draw text
@@ -242,7 +242,7 @@ public final class ListComponent<T> extends UIComponent {
 
 			dataList.add(ListItem.createChild(
 				(drawing, x, y) -> GuiHelper.drawCircle(drawing, x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, 32, colors),
-				(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, savedRail.getName()),
+				(context, matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, savedRail.getName()),
 				GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING / 2,
 				savedRail,
 				text,
@@ -336,7 +336,7 @@ public final class ListComponent<T> extends UIComponent {
 
 			dataList.add(ListItem.createChild(
 				(drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(stationColor).draw(),
-				(matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, platform.getName()),
+				(context, matrixStack, x, y) -> drawPlatformNumber(matrixStack, x, y, platform.getName()),
 				GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 				routePlatformData,
 				customDestinationPrefix + stationName,
@@ -361,7 +361,7 @@ public final class ListComponent<T> extends UIComponent {
 			}
 
 			final ListItem.DrawIcon drawIcon = (drawing, x, y) -> drawing.setVerticesWH(x + GuiHelper.DEFAULT_PADDING / 2F, y + GuiHelper.DEFAULT_PADDING / 2F, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING, GuiHelper.DEFAULT_LINE_SIZE - GuiHelper.DEFAULT_PADDING).setColor(GuiHelper.DARK_GRAY_COLOR).draw();
-			final ListItem.DeferredDrawIcon deferredDrawIcon = (drawing, x, y) -> SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), FontRenderHelper.MTR_FONT, x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT);
+			final ListItem.DeferredDrawIcon deferredDrawIcon = (context, drawing, x, y) -> SpecialSignStationExitRenderer.renderText(drawing, stationExit.getName(), FontRenderHelper.MTR_FONT, x + GuiHelper.DEFAULT_LINE_SIZE / 2F, y + GuiHelper.DEFAULT_LINE_SIZE / 2F, 0, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT, GuiHelper.MINECRAFT_TEXT_LINE_HEIGHT);
 
 			if (flatten) {
 				dataList.add(ListItem.createChild(

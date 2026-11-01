@@ -31,7 +31,11 @@ import java.util.function.*;
 
 //? if fabric {
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+//? if >= 26.1 {
+/*import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
+*///? } else {
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+//? }
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;

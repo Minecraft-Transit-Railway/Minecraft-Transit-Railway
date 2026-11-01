@@ -107,6 +107,16 @@ public class BlockEyeCandy extends BlockWaterloggable implements EntityBlock {
 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
+//? if >= 26.1 {
+/*			modelId = nbtCompound.getStringOr(KEY_MODEL_ID, "");
+			translateX = nbtCompound.getFloatOr(KEY_TRANSLATE_X, 0);
+			translateY = nbtCompound.getFloatOr(KEY_TRANSLATE_Y, 0);
+			translateZ = nbtCompound.getFloatOr(KEY_TRANSLATE_Z, 0);
+			rotateX = nbtCompound.getFloatOr(KEY_ROTATE_X, 0);
+			rotateY = nbtCompound.getFloatOr(KEY_ROTATE_Y, 0);
+			rotateZ = nbtCompound.getFloatOr(KEY_ROTATE_Z, 0);
+			fullBrightness = nbtCompound.getBooleanOr(KEY_FULL_BRIGHTNESS, false);
+*///? } else {
 			modelId = nbtCompound.getString(KEY_MODEL_ID);
 			translateX = nbtCompound.getFloat(KEY_TRANSLATE_X);
 			translateY = nbtCompound.getFloat(KEY_TRANSLATE_Y);
@@ -115,6 +125,7 @@ public class BlockEyeCandy extends BlockWaterloggable implements EntityBlock {
 			rotateY = nbtCompound.getFloat(KEY_ROTATE_Y);
 			rotateZ = nbtCompound.getFloat(KEY_ROTATE_Z);
 			fullBrightness = nbtCompound.getBoolean(KEY_FULL_BRIGHTNESS);
+//? }
 		}
 
 		@Override

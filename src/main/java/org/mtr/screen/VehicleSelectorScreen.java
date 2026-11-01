@@ -219,7 +219,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				// Build the child list item
 				final ListItem<VehicleResource> childListItem = ListItem.createChild(
 					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, true, vehicleResource.getColor()),
-					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					(context, matrixStack, x, y) -> drawVehicleIcon(context, matrixStack, (int) x, y, canAddCar),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					vehicleResource,
 					vehicleResource.getName().getString(),
@@ -258,7 +258,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				final boolean canAddCar = availableVehicleFamily.children.stream().anyMatch(ObjectBooleanImmutablePair::rightBoolean);
 				return ListItem.createParent(
 					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, availableVehicleFamily.color),
-					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					(context, matrixStack, x, y) -> drawVehicleIcon(context, matrixStack, (int) x, y, canAddCar),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					availableVehicleFamily.family,
 					availableVehicleFamily.family,
@@ -278,7 +278,7 @@ public final class VehicleSelectorScreen extends ScreenBase {
 				final boolean canAddCar = canAddCar(currentVehicleCars, vehicleResourceDetails.left());
 				selectedVehicleListItems.add(ListItem.createChild(
 					(drawing, x, y) -> drawVehicleIcon(drawing, (int) x, y, canAddCar, false, vehicleResourceDetails.left().getColor()),
-					(matrixStack, x, y) -> drawVehicleIcon(matrixStack, (int) x, y, canAddCar),
+					(context, matrixStack, x, y) -> drawVehicleIcon(context, matrixStack, (int) x, y, canAddCar),
 					GuiHelper.DEFAULT_PADDING + GuiHelper.MINECRAFT_FONT_SIZE,
 					vehicleResourceDetails.left(),
 					vehicleResourceDetails.left().getName().getString(),
@@ -329,9 +329,9 @@ public final class VehicleSelectorScreen extends ScreenBase {
 		}
 	}
 
-	private static void drawVehicleIcon(PoseStack matrixStack, int x, double y, boolean canAddCar) {
+	private static void drawVehicleIcon(@Nullable GuiGraphics context, PoseStack matrixStack, int x, double y, boolean canAddCar) {
 		if (!canAddCar) {
-			FontRenderHelper.render(matrixStack, "!", FontRenderOptions.builder()
+			FontRenderHelper.render(context, matrixStack, "!", FontRenderOptions.builder()
 				.color(Color.WHITE)
 				.offsetX(x)
 				.offsetY((float) y)

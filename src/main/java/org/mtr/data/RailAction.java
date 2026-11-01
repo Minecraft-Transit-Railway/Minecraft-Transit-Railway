@@ -168,7 +168,11 @@ public class RailAction {
 	private void sendProgressMessage(float percentage) {
 		final Player playerEntity = serverWorld.getPlayerByUUID(uuid);
 		if (playerEntity != null) {
+//? if >= 26.1 {
+/*			playerEntity.sendOverlayMessage(railActionType.progressTranslation.getText(percentage));
+*///? } else {
 			playerEntity.displayClientMessage(railActionType.progressTranslation.getText(percentage), true);
+//? }
 		}
 	}
 

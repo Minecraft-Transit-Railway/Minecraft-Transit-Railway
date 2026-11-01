@@ -1,6 +1,7 @@
 package org.mtr.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -198,9 +199,15 @@ public final class ListItem<T> {
 		void draw(Drawing drawing, float x, float y);
 	}
 
+	/**
+	 * An icon drawn after the row, typically text. The screen is the one the list is part of,
+	 * or {@code null} when the list is an Elementa component and draws immediately: from 26.1 a
+	 * screen records its text rather than drawing it, so text bound for a screen has to be handed
+	 * to that screen, while an immediate draw still goes through the buffer source.
+	 */
 	@FunctionalInterface
 	public interface DeferredDrawIcon {
-		void draw(PoseStack matrixStack, float x, float y);
+		void draw(@Nullable GuiGraphics context, PoseStack matrixStack, float x, float y);
 	}
 
 	@FunctionalInterface

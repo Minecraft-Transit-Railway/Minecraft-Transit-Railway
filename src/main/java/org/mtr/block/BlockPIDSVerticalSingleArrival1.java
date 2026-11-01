@@ -31,10 +31,12 @@ public class BlockPIDSVerticalSingleArrival1 extends BlockPIDSVerticalBase {
 		return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 16, 1, IBlock.getStatePropertySafe(state, BlockStateProperties.HORIZONTAL_FACING));
 	}
 
+//? if <26.1 {
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
 		tooltip.add(TranslationProvider.TOOLTIP_MTR_ARRIVALS.getMutableText(1).withStyle(ChatFormatting.GRAY));
 	}
+//? }
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {

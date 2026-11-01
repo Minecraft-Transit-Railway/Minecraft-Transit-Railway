@@ -49,7 +49,11 @@ public class ItemLiftRefresher extends Item {
 
 			final ObjectArrayList<LiftFloor> liftFloors1 = new ObjectArrayList<>();
 			if (!findPath(world, blockPos, null, liftFloors1, new ObjectArrayList<>(), blacklistedBlockPos, true, false)) {
+//? if >= 26.1 {
+/*				playerEntity.sendOverlayMessage(TranslationProvider.GUI_MTR_LIFT_TRACK_REQUIRED.getText());
+*///? } else {
 				playerEntity.displayClientMessage(TranslationProvider.GUI_MTR_LIFT_TRACK_REQUIRED.getText(), true);
+//? }
 				return InteractionResult.FAIL;
 			}
 

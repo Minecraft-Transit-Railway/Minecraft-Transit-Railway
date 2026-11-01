@@ -15,6 +15,7 @@ import org.mtr.core.tool.Vector;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.tool.CullingHelper;
 import org.mtr.tool.Drawing;
+import org.mtr.tool.EntityRendererHelper;
 
 import java.util.UUID;
 
@@ -179,12 +180,7 @@ public class RenderPassengers {
 				final RemotePlayer remotePlayer = new RemotePlayer(clientWorld, new GameProfile(new UUID(passenger.getId(), 0), passenger.getName()));
 				final BlockPos blockPos = BlockPos.containing(positionAndYaw.x, positionAndYaw.y, positionAndYaw.z);
 				final int light = LightTexture.pack(clientWorld.getBrightness(LightLayer.BLOCK, blockPos), clientWorld.getBrightness(LightLayer.SKY, blockPos));
-//? if >= 1.21.4 {
-				minecraftClient.getEntityRenderDispatcher().render(remotePlayer, 0, 0, 0, 0, matrixStack, minecraftClient.renderBuffers().bufferSource(), light);
-//? } else {
-				/*minecraftClient.getEntityRenderDispatcher().render(remotePlayer, 0, 0, 0, 0, 0, matrixStack, minecraftClient.renderBuffers().bufferSource(), light);
-//
-*///? }
+				EntityRendererHelper.render(remotePlayer, matrixStack, light);
 				matrixStack.popPose();
 			});
 		}

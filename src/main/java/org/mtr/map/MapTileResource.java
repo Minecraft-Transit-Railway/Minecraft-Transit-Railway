@@ -1,7 +1,7 @@
 package org.mtr.map;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import org.mtr.model.StoredMesh;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -26,7 +26,7 @@ import java.nio.file.Path;
 public final class MapTileResource extends CachedFileResource {
 
 	@Nullable
-	private VertexBuffer vertexBuffer;
+	private StoredMesh vertexBuffer;
 
 	private final Level world;
 	private final MapTileProvider.MapType mapType;
@@ -143,7 +143,7 @@ public final class MapTileResource extends CachedFileResource {
 		} else {
 			final boolean[] noVertices = {true};
 
-			final VertexBuffer vertexBuffer = NewOptimizedModel.createVertexBuffer(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR, vertexConsumer -> {
+			final StoredMesh vertexBuffer = StoredMesh.create(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR, vertexConsumer -> {
 				final Drawing drawing = new Drawing(vertexConsumer);
 				int pixelOffsetX = 0;
 				int pixelOffsetY = 0;
@@ -190,7 +190,7 @@ public final class MapTileResource extends CachedFileResource {
 	}
 
 	@Nullable
-	public VertexBuffer getVertexBuffer() {
+	public StoredMesh getVertexBuffer() {
 		return vertexBuffer;
 	}
 

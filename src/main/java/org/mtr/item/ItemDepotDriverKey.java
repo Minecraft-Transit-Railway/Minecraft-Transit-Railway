@@ -5,6 +5,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+//? if >= 26.1 {
+/*import net.minecraft.world.item.component.TooltipDisplay;
+*///? }
 import org.mtr.core.data.Depot;
 import org.mtr.core.tool.Utilities;
 import org.mtr.generated.lang.TranslationProvider;
@@ -12,6 +15,7 @@ import org.mtr.registry.DataComponentTypes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public final class ItemDepotDriverKey extends ItemDriverKey {
 
@@ -20,17 +24,26 @@ public final class ItemDepotDriverKey extends ItemDriverKey {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
+//? if >= 26.1 {
+/*	public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltip, TooltipFlag type) {
+*///? } else {
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipList, TooltipFlag type) {
+		final Consumer<Component> tooltip = tooltipList::add;
+//? }
 		if (isUsable(stack)) {
 			final long timeout = (getExpiryTime(stack) - System.currentTimeMillis()) / Utilities.MILLIS_PER_SECOND;
 			final long hours = timeout / 3600;
 			final long minutes = (timeout % 3600) / 60;
 			final long seconds = timeout % 60;
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_EXPIRES_IN.getMutableText(hours == 0 ? String.format("%02d:%02d", minutes, seconds) : String.format("%d:%02d:%02d", hours, minutes, seconds)).withStyle(ChatFormatting.GOLD));
+			tooltip.accept(TranslationProvider.TOOLTIP_MTR_EXPIRES_IN.getMutableText(hours == 0 ? String.format("%02d:%02d", minutes, seconds) : String.format("%d:%02d:%02d", hours, minutes, seconds)).withStyle(ChatFormatting.GOLD));
 		} else {
-			tooltip.add(TranslationProvider.TOOLTIP_MTR_EXPIRED.getMutableText().withStyle(ChatFormatting.RED));
+			tooltip.accept(TranslationProvider.TOOLTIP_MTR_EXPIRED.getMutableText().withStyle(ChatFormatting.RED));
 		}
-		super.appendHoverText(stack, context, tooltip, type);
+//? if >= 26.1 {
+/*		super.appendHoverText(stack, context, tooltipDisplay, tooltip, type);
+*///? } else {
+		super.appendHoverText(stack, context, tooltipList, type);
+//? }
 	}
 
 	public static void setData(ItemStack itemStack, Depot depot, long timeout) {

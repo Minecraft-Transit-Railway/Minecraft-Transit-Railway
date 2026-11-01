@@ -49,7 +49,11 @@ public class BlockLiftButtons extends BlockWaterloggable implements EntityBlock 
 		final InteractionResult result = IBlock.checkHoldingBrush(world, player, () -> {
 			final boolean unlocked = !IBlock.getStatePropertySafe(state, UNLOCKED);
 			world.setBlockAndUpdate(pos, state.setValue(UNLOCKED, unlocked));
+//? if >= 26.1 {
+/*			player.sendOverlayMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText());
+*///? } else {
 			player.displayClientMessage((unlocked ? TranslationProvider.GUI_MTR_LIFT_BUTTONS_UNLOCKED : TranslationProvider.GUI_MTR_LIFT_BUTTONS_LOCKED).getText(), true);
+//? }
 		});
 
 		if (result == InteractionResult.SUCCESS) {
@@ -152,7 +156,11 @@ public class BlockLiftButtons extends BlockWaterloggable implements EntityBlock 
 		@Override
 		protected void readNbt(CompoundTag nbtCompound) {
 			trackPositions.clear();
+//? if >= 26.1 {
+/*			for (final long position : nbtCompound.getLongArray(KEY_TRACK_FLOOR_POS).orElse(new long[0])) {
+*///? } else {
 			for (final long position : nbtCompound.getLongArray(KEY_TRACK_FLOOR_POS)) {
+//? }
 				trackPositions.add(BlockPos.of(position));
 			}
 		}
