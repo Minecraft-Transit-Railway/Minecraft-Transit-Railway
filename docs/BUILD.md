@@ -18,6 +18,13 @@ The build resolves two artefacts from the [Transport Simulation Core](https://gi
 project: `org.mtr:transport-simulation-core` for the mod itself, and
 `org.mtr:transport-simulation-core-build-tools` for the schema generator used by `buildSrc`.
 
+Both dependencies remain pinned to `1.0.2`. On 2026-11-01, comparison against upstream
+commit `c3847cbd571143ae684233a2b37f6df07839afec` found no changes to the installed
+hand-written core sources, build tools, or schemas. The newer commits update Gradle and
+Angular dependencies only. Rebuilding the same version can still change bundled Java
+libraries because upstream uses dynamic dependency versions; validate a replacement
+artifact separately rather than assuming the version number guarantees identical contents.
+
 Both are published to GitHub Packages, which requires an access token for reads **even though the
 repository is public**. Continuous integration is unaffected, because GitHub Actions injects
 `GITHUB_TOKEN` automatically. Local development has two options.
