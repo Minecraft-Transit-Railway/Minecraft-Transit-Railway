@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 public final class PersistentVehicleData {
 
-	private double smoothedRailProgress;
+	public double smoothedRailProgress;
 	private double railProgressSmoothingAdjustment;
 	private double doorValue;
 	private double oldDoorValue;
@@ -136,8 +136,8 @@ public final class PersistentVehicleData {
 		return oldRailProgress < nextAnnouncementRailProgress && railProgress >= nextAnnouncementRailProgress;
 	}
 
-	public void playMotorSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute) {
-		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute);
+	public void playMotorSound(VehicleResource vehicleResource, int carNumber, BlockPos bogiePosition, float speed, float speedChange, float acceleration, boolean isOnRoute, VehicleExtraData vehicleExtraData) {
+		getVehicleSoundBase(vehicleResource, carNumber).playMotorSound(bogiePosition, speed, speedChange, acceleration, isOnRoute, vehicleResource, this, vehicleExtraData, carNumber);
 	}
 
 	public void playDoorSound(VehicleResource vehicleResource, int carNumber, BlockPos vehiclePosition) {

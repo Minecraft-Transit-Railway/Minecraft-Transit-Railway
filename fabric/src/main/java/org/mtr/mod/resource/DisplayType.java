@@ -7,6 +7,8 @@ import org.mtr.mod.render.MainRenderer;
 import org.mtr.core.data.Vehicle;
 import org.mtr.mod.resource.ModelPropertiesPart;
 import org.mtr.mapping.mapper.WorldHelper;
+import org.mtr.mapping.holder.World;
+import org.mtr.mapping.holder.MinecraftClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +52,10 @@ public enum DisplayType {
 		return IGui.formatStationName(IGui.mergeStations(messages, "", " "));
 	}
 
-	public static String getTemplateText(String templateText, Vehicle vehicle) {
+	public static String getTemplateText(String templateText, Vehicle vehicle, String displayDefaultText) {
         final String destination = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
 		final String routeNumber = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
-		final String routeName = ModelPropertiesPart.getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("\|\|")[0];
+		final String routeName = ModelPropertiesPart.getOrDefault(routeNumber + " ", routeNumber, "") + ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("||")[0];
 		final String thisStation = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final String clock12hr = getClockText(false);
@@ -75,7 +77,9 @@ public enum DisplayType {
 	}
 
 	public static String getClockText(boolean is24hr) {
-		long time = WorldHelper.getTimeOfDay(context.world) + 6000;
+		final World world = World.cast(MinecraftClient.getInstance().getWorldMapped());
+
+		long time = WorldHelper.getTimeOfDay(world) + 6000;
         long hours = time / 1000;
         long minutes = (long)Math.floor((time - (hours * 1000)) / 16.8);
         
@@ -95,7 +99,9 @@ public enum DisplayType {
 	}
 
 	public static String getClockAMPM() {
-		long time = WorldHelper.getTimeOfDay(context.world) + 6000;
+		final World world = World.cast(MinecraftClient.getInstance().getWorldMapped());
+
+		long time = WorldHelper.getTimeOfDay(world) + 6000;
         long hours = time / 1000;
 		return (hours % 24 >= 12) ? "PM" : "AM";
 	}

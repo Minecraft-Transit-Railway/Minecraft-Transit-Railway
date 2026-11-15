@@ -18,7 +18,10 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
 	public static final EnumProperty<EnumTicketBarrierDirection> TICKET_BARRIER_DIRECTION =
             EnumProperty.of("ticket_barrier_direction", EnumTicketBarrierDirection.class);
 
-	public BlockTicketBarrier(EnumTicketBarrierMode isEntrance) {
+        private final java.util.Map<Entity, Long> twoWayCooldowns =
+            new java.util.HashMap<>();
+
+	public BlockTicketBarrier(EnumTicketBarrierMode mode) {
 		super(Blocks.createDefaultBlockSettings(true, blockState -> 5));
 		this.mode = mode;
 	}
@@ -50,10 +53,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                     (TicketSystem.EnumTicketBarrierOpen)
                             IBlock.getStatePropertySafe(
                                     state,
-                                    new Property(
-                                            (net.minecraft.world.level.block.state.properties.Property)
-                                                    OPEN.data
-                                    )
+                                    new Property<>(OPEN.data)
                             );
 
             double z = playerPosRotated.getZMapped();
@@ -64,13 +64,13 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
             if (mode == EnumTicketBarrierMode.ENTRANCE
                     || mode == EnumTicketBarrierMode.EXIT) {
 
-                if ((open == EnumTicketBarrierOpen.OPEN
-                        || open == EnumTicketBarrierOpen.OPEN_CONCESSIONARY)
+                if ((open == TicketSystem.EnumTicketBarrierOpen.OPEN
+                        || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY)
                         && z > 0.0) {
 
                     closeGate(world, state, blockPos);
 
-                } else if (open == EnumTicketBarrierOpen.CLOSED
+                } else if (open == TicketSystem.EnumTicketBarrierOpen.CLOSED
                         && z < 0.0) {
 
                     passThrough(
@@ -106,17 +106,14 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 * While the gate is open, only the direction that
                 * originally opened it can close it.
                 */
-                if (open == EnumTicketBarrierOpen.OPEN
-                        || open == EnumTicketBarrierOpen.OPEN_CONCESSIONARY) {
+                if (open == TicketSystem.EnumTicketBarrierOpen.OPEN
+                        || open == TicketSystem.EnumTicketBarrierOpen.OPEN_CONCESSIONARY) {
 
                     EnumTicketBarrierDirection direction =
                             (EnumTicketBarrierDirection)
                                     IBlock.getStatePropertySafe(
                                             state,
-                                            new Property(
-                                                    (net.minecraft.world.level.block.state.properties.Property)
-                                                            TICKET_BARRIER_DIRECTION.data
-                                            )
+                                            new Property<>(TICKET_BARRIER_DIRECTION.data)
                                     );
 
                     if (direction == EnumTicketBarrierDirection.ENTRANCE
@@ -141,7 +138,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 * Do not start another passage while the ticket system
                 * is processing the previous one.
                 */
-                if (open != EnumTicketBarrierOpen.CLOSED) {
+                if (open != TicketSystem.EnumTicketBarrierOpen.CLOSED) {
                     return;
                 }
 
@@ -201,17 +198,11 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 pos,
                 state
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                OPEN.data
-                                ),
-                                EnumTicketBarrierOpen.CLOSED
+                                new Property<>(OPEN.data),
+                                TicketSystem.EnumTicketBarrierOpen.CLOSED
                         )
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                TICKET_BARRIER_DIRECTION.data
-                                ),
+                                new Property<>(TICKET_BARRIER_DIRECTION.data),
                                 EnumTicketBarrierDirection.CLOSED
                         )
         );
@@ -221,24 +212,15 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
     public BlockState getPlacementState2(ItemPlacementContext ctx) {
         return this.getDefaultState2()
                 .with(
-                        new Property(
-                                (net.minecraft.world.level.block.state.properties.Property)
-                                        FACING.data
-                        ),
+                        new Property<>(FACING.data),
                         ctx.getPlayerFacing().data
                 )
                 .with(
-                        new Property(
-                                (net.minecraft.world.level.block.state.properties.Property)
-                                        OPEN.data
-                        ),
-                        EnumTicketBarrierOpen.CLOSED
+                        new Property<>(OPEN.data),
+                        TicketSystem.EnumTicketBarrierOpen.CLOSED
                 )
                 .with(
-                        new Property(
-                                (net.minecraft.world.level.block.state.properties.Property)
-                                        TICKET_BARRIER_DIRECTION.data
-                        ),
+                        new Property<>(TICKET_BARRIER_DIRECTION.data),
                         EnumTicketBarrierDirection.CLOSED
                 );
     }
@@ -284,17 +266,11 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 blockPosCopy,
                 state
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                OPEN.data
-                                ),
-                                EnumTicketBarrierOpen.PENDING
+                                new Property<>(OPEN.data),
+                                TicketSystem.EnumTicketBarrierOpen.PENDING
                         )
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                TICKET_BARRIER_DIRECTION.data
-                                ),
+                                new Property<>(TICKET_BARRIER_DIRECTION.data),
                                 direction
                         )
         );
@@ -316,7 +292,7 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 newOpen -> {
 
                     EnumTicketBarrierDirection newDirection =
-                            newOpen == EnumTicketBarrierOpen.CLOSED
+                            newOpen == TicketSystem.EnumTicketBarrierOpen.CLOSED
                                     ? EnumTicketBarrierDirection.CLOSED
                                     : direction;
 
@@ -324,22 +300,16 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                             blockPosCopy,
                             state
                                     .with(
-                                            new Property(
-                                                    (net.minecraft.world.level.block.state.properties.Property)
-                                                            OPEN.data
-                                            ),
+                                            new Property<>(OPEN.data),
                                             newOpen
                                     )
                                     .with(
-                                            new Property(
-                                                    (net.minecraft.world.level.block.state.properties.Property)
-                                                            TICKET_BARRIER_DIRECTION.data
-                                            ),
+                                            new Property<>(TICKET_BARRIER_DIRECTION.data),
                                             newDirection
                                     )
                     );
 
-                    if (newOpen != EnumTicketBarrierOpen.CLOSED
+                    if (newOpen != TicketSystem.EnumTicketBarrierOpen.CLOSED
                             && !hasScheduledBlockTick(
                                     world,
                                     blockPosCopy,
@@ -366,17 +336,11 @@ public class BlockTicketBarrier extends BlockExtension implements DirectionHelpe
                 blockPos,
                 state
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                OPEN.data
-                                ),
-                                EnumTicketBarrierOpen.CLOSED
+                                new Property<>(OPEN.data),
+                                TicketSystem.EnumTicketBarrierOpen.CLOSED
                         )
                         .with(
-                                new Property(
-                                        (net.minecraft.world.level.block.state.properties.Property)
-                                                TICKET_BARRIER_DIRECTION.data
-                                ),
+                                new Property<>(TICKET_BARRIER_DIRECTION.data),
                                 EnumTicketBarrierDirection.CLOSED
                         )
         );

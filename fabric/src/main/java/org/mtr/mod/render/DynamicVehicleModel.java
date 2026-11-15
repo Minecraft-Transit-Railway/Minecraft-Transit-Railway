@@ -24,12 +24,6 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	public final ModelProperties modelProperties;
 	private final Identifier texture;
 
-	@Nullable
-	private final OptimizedModel.ObjModel gangwayModel;
-
-	@Nullable
-	private final OptimizedModel.ObjModel barrierModel;
-
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
@@ -42,13 +36,9 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			Identifier texture,
 			ModelProperties modelProperties,
 			PositionDefinitions positionDefinitions,
-			String id,
-			@Nullable OptimizedModel.ObjModel gangwayModel,
-			@Nullable OptimizedModel.ObjModel barrierModel
+			String id
 	) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
-		this.gangwayModel = gangwayModel;
-		this.barrierModel = barrierModel;
 
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
 		blockbenchModel.getElements().forEach(blockbenchElement -> uuidToBlockbenchElement.put(blockbenchElement.getUuid(), blockbenchElement));
@@ -91,13 +81,9 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 			Identifier texture,
 			ModelProperties modelProperties,
 			PositionDefinitions positionDefinitions,
-			String id,
-			@Nullable OptimizedModel.ObjModel gangwayModel,
-			@Nullable OptimizedModel.ObjModel barrierModel
+			String id
 	) {
 		super(0, 0);
-		this.gangwayModel = gangwayModel;
-		this.barrierModel = barrierModel;
 		buildModel();
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
 		this.texture = texture;
@@ -105,17 +91,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
 		testDoors(id);
 	}
-
-	@Nullable
-	public OptimizedModel.ObjModel getGangwayModel() {
-		return gangwayModel;
-	}
-
-	@Nullable
-	public OptimizedModel.ObjModel getBarrierModel() {
-		return barrierModel;
-	}
-
+	
 	@Override
 	public void setAngles2(EntityAbstractMapping entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}

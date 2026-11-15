@@ -303,7 +303,7 @@ public class VehicleExtension extends Vehicle implements Utilities {
 	}
 
 	public void playMotorSound(VehicleResource vehicleResource, int carNumber, Vector bogiePosition) {
-		persistentVehicleData.playMotorSound(vehicleResource, carNumber, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute());
+		persistentVehicleData.playMotorSound(vehicleResource, carNumber, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), (float) speed, (float) (speed - oldSpeed), (float) vehicleExtraData.getAcceleration(), getIsOnRoute(), vehicleExtraData);
 	}
 
 	public void playDoorSound(VehicleResource vehicleResource, int carNumber, Vector vehiclePosition) {

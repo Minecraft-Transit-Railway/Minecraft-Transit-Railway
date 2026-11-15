@@ -198,7 +198,6 @@ public final class Items {
 	public static final ItemRegistryObject RAIL_CONNECTOR_80;
 	public static final ItemRegistryObject RAIL_CONNECTOR_80_ONE_WAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_CABLE_CAR;
-	public static final ItemRegistryObject RAIL_CONNECTOR_HELICOPTER;
 	public static final ItemRegistryObject RAIL_CONNECTOR_PLATFORM;
 	public static final ItemRegistryObject RAIL_CONNECTOR_RUNWAY;
 	public static final ItemRegistryObject RAIL_CONNECTOR_SIDING;

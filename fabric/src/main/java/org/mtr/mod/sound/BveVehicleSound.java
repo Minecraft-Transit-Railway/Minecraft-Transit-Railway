@@ -3,6 +3,12 @@ package org.mtr.mod.sound;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.SoundEvent;
+import org.mtr.mod.data.PersistentVehicleData;
+import org.mtr.mod.resource.VehicleResource;
+import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.data.VehicleCar;
+import org.mtr.core.tool.Utilities;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -20,6 +26,8 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
+
+	private final int[] bogieRailId = new int[2];
 
 	private final VehicleLoopingSoundHolder vehicleLoopingSoundHolder;
 
@@ -47,7 +55,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
-	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute, @Nullable VehicleResource vehicleResource, @Nullable PersistentVehicleData persistentVehicleData, @Nullable VehicleExtraData vehicleExtraData, @Nullable Integer carNumber) {
 		final float secondsElapsed = MinecraftClient.getInstance().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
@@ -162,42 +170,54 @@ public class BveVehicleSound extends VehicleSoundBase {
 		oldOnRoute = isOnRoute;
 		isCompressorActiveLastElapsed = isCompressorActive;
 
+		if (vehicleResource != null && persistentVehicleData != null) {
+			double railProgress = persistentVehicleData.smoothedRailProgress;
 
-		// Joint / bogie crossing sounds
-        if (vehicleResource.getBogie1Position() != 0 || vehicleResource.getBogie2Position() != 0) {
-            final double carCenter = railProgress - vehicleExtraData.getTotalVehicleLength() / 2
-                + vehicleExtraData.immutableVehicleCars.stream()
-                .limit(carNumber)
-                .mapToDouble(VehicleCar::getLength)
-                .sum()
-                + vehicleResource.getLength() / 2;
+			// Joint / bogie crossing sounds
+			final double bogie1Position = vehicleResource.getBogie1Position();
+			final double bogie2Position = vehicleResource.getBogie2Position();
 
-            final double bogie1Progress = carCenter - vehicleResource.getBogie1Position();
-            final double bogie2Progress = carCenter - vehicleResource.getBogie2Position();
+			if (bogie1Position != 0 || bogie2Position != 0) {
+				final double carCenter = railProgress - vehicleExtraData.getTotalVehicleLength() / 2
+					+ vehicleExtraData.immutableVehicleCars.stream()
+					.limit(carNumber)
+					.mapToDouble(VehicleCar::getLength)
+					.sum()
+					+ vehicleResource.getLength() / 2;
 
-            final int bogie1RailId = Utilities.getIndexFromConditionalList(
-                vehicleExtraData.immutablePath,
-                bogie1Progress
-            );
-            final int bogie2RailId = Utilities.getIndexFromConditionalList(
-                vehicleExtraData.immutablePath,
-                bogie2Progress
-            );
+				final double bogie1Progress = carCenter - bogie1Position;
+				final double bogie2Progress = carCenter - bogie2Position;
 
-            final float speedKilometersPerHour = (float) (speed * 3600);
-            final float pitch = speedKilometersPerHour * 20 / 12.5F;
-            final float gain = pitch < 0.5F ? 2 * pitch : 1;
+				final int bogie1RailId = Utilities.getIndexFromConditionalList(
+					vehicleExtraData.immutablePath,
+					bogie1Progress
+				);
+				final int bogie2RailId = Utilities.getIndexFromConditionalList(
+					vehicleExtraData.immutablePath,
+					bogie2Progress
+				);
 
-            if (bogie1RailId != persistentVehicleData.bogieRailIds[carNumber][0]) {
-                persistentVehicleData.bogieRailIds[carNumber][0] = bogie1RailId;
-                persistentVehicleData.playJointSound(vehicleResource, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), gain, pitch);
-            }
+				final float pitch = speedKilometersPerHour * 20 / 12.5F;
+				final float gain = pitch < 0.5F ? 2 * pitch : 1;
 
-            if (bogie2RailId != persistentVehicleData.bogieRailIds[carNumber][1]) {
-                persistentVehicleData.bogieRailIds[carNumber][1] = bogie2RailId;
-                persistentVehicleData.playJointSound(vehicleResource, Init.newBlockPos(bogiePosition.x, bogiePosition.y, bogiePosition.z), gain, pitch);
-            }
-        }
+				playSoundInWorld(config.config.joint[0], blockPos);
+			}
+
+			if (bogie1Position <= 0) {
+				final int indexFront = (int) (railProgress + bogie1Position);
+				if (indexFront != bogieRailId[0]) {
+					bogieRailId[0] = indexFront;
+					playSoundInWorld(config.config.joint[0], blockPos);
+				}
+			}
+			if (bogie2Position >= 0) {
+				final int indexRear = (int) (railProgress + bogie2Position);
+				if (indexRear != bogieRailId[1]) {
+					bogieRailId[1] = indexRear;
+					playSoundInWorld(config.config.joint[0], blockPos);
+				}
+			}
+		}
 	}
 
 	@Override

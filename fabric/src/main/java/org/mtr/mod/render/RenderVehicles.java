@@ -10,10 +10,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
 import org.mtr.mod.config.Config;
@@ -23,6 +25,10 @@ import org.mtr.mod.resource.Interpolation;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
 import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
+import org.mtr.mod.resource.OptimizedModelWrapper;
+import org.mtr.mod.resource.ResourceProvider;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.resource.ModelResourceLoader;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -30,6 +36,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
+	private static final ResourceProvider RESOURCE_PROVIDER = new ResourceProvider() {
+		@Override
+		public String get(Identifier identifier) {
+			return CustomResourceLoader.readResource(identifier);
+		}
+
+		@Override
+		public byte[] getBytes(Identifier identifier) {
+			return CustomResourceLoader.readResourceBytes(identifier);
+		}
+	};
 
 	public static final ObjectArrayList<RidingPlayerInterpolation> RIDING_PLAYER_INTERPOLATIONS = new ObjectArrayList<>();
 
@@ -231,94 +248,50 @@ public class RenderVehicles implements IGui {
 							}
 
 							// Render gangway
-							if (model.modelProperties.gangwayModel == null) {
-							    renderConnection(
-									vehicleResource.hasGangway1(),
-									vehicleResource.hasGangway2(),
-									true,
-									previousGangwayPositionsList.get(modelIndex),
-									model.modelProperties.gangwayInnerSideTexture,
-									model.modelProperties.gangwayInnerTopTexture,
-									model.modelProperties.gangwayInnerBottomTexture,
-									model.modelProperties.gangwayOuterSideTexture,
-									model.modelProperties.gangwayOuterTopTexture,
-									model.modelProperties.gangwayOuterBottomTexture,
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getGangwayWidth(),
-									model.modelProperties.getGangwayHeight(),
-									model.modelProperties.getGangwayYOffset(),
-									model.modelProperties.getGangwayZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
-							    );
-							} else {
-                                renderOBJConnection(
-									vehicleResource.hasGangway1(),
-									vehicleResource.hasGangway2(),
-									true,
-									previousGangwayPositionsList.get(modelIndex),
-									model.modelProperties.gangwayModel,
-									model.modelProperties.getGangwayModelWidth(),
-									model.modelProperties.getGangwayModelHeight(),
-									model.modelProperties.getGangwayModelDepth(),
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getGangwayWidth(),
-									model.modelProperties.getGangwayHeight(),
-									model.modelProperties.getGangwayYOffset(),
-									model.modelProperties.getGangwayZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
-							    );
-							}
+							renderConnection(
+								vehicleResource.hasGangway1(),
+								vehicleResource.hasGangway2(),
+								true,
+								previousGangwayPositionsList.get(modelIndex),
+								model.modelProperties.gangwayInnerSideTexture,
+								model.modelProperties.gangwayInnerTopTexture,
+								model.modelProperties.gangwayInnerBottomTexture,
+								model.modelProperties.gangwayOuterSideTexture,
+								model.modelProperties.gangwayOuterTopTexture,
+								model.modelProperties.gangwayOuterBottomTexture,
+								vehicleCarRenderingPositionAndRotation,
+								offsetVector == null,
+								vehicleCarDetails.left().getLength(),
+								model.modelProperties.getGangwayWidth(),
+								model.modelProperties.getGangwayHeight(),
+								model.modelProperties.getGangwayYOffset(),
+								model.modelProperties.getGangwayZOffset(),
+								oscillationAmount,
+								vehicle.getIsOnRoute()
+							);
 
 							// Render barrier
-                            if (model.modelProperties.barrierModel == null) {
-							    renderConnection(
-									vehicleResource.hasBarrier1(),
-									vehicleResource.hasBarrier2(),
-									false,
-									previousBarrierPositionsList.get(modelIndex),
-									model.modelProperties.barrierInnerSideTexture,
-									model.modelProperties.barrierInnerTopTexture,
-									model.modelProperties.barrierInnerBottomTexture,
-									model.modelProperties.barrierOuterSideTexture,
-									model.modelProperties.barrierOuterTopTexture,
-									model.modelProperties.barrierOuterBottomTexture,
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getBarrierWidth(),
-									model.modelProperties.getBarrierHeight(),
-									model.modelProperties.getBarrierYOffset(),
-									model.modelProperties.getBarrierZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
-							    );
-							} else {
-                                renderOBJConnection(
-									vehicleResource.hasBarrier1(),
-									vehicleResource.hasBarrier2(),
-									false,
-									previousBarrierPositionsList.get(modelIndex),
-									model.modelProperties.barrierModel,
-									model.modelProperties.getBarrierModelWidth(),
-									model.modelProperties.getBarrierModelHeight(),
-									model.modelProperties.getBarrierModelDepth(),
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getBarrierWidth(),
-									model.modelProperties.getBarrierHeight(),
-									model.modelProperties.getBarrierYOffset(),
-									model.modelProperties.getBarrierZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
-							    );
-							}
+							renderConnection(
+								vehicleResource.hasBarrier1(),
+								vehicleResource.hasBarrier2(),
+								false,
+								previousBarrierPositionsList.get(modelIndex),
+								model.modelProperties.barrierInnerSideTexture,
+								model.modelProperties.barrierInnerTopTexture,
+								model.modelProperties.barrierInnerBottomTexture,
+								model.modelProperties.barrierOuterSideTexture,
+								model.modelProperties.barrierOuterTopTexture,
+								model.modelProperties.barrierOuterBottomTexture,
+								vehicleCarRenderingPositionAndRotation,
+								offsetVector == null,
+								vehicleCarDetails.left().getLength(),
+								model.modelProperties.getBarrierWidth(),
+								model.modelProperties.getBarrierHeight(),
+								model.modelProperties.getBarrierYOffset(),
+								model.modelProperties.getBarrierZOffset(),
+								oscillationAmount,
+								vehicle.getIsOnRoute()
+							);
 						});
 
 						// If the vehicle has gangways, add extra floors to define where the gangways are
@@ -616,103 +589,6 @@ public class RenderVehicles implements IGui {
 			previousConnectionPositions.position3 = null;
 			previousConnectionPositions.position4 = null;
 		}
-	}
-
-	private static void renderOBJConnection(
-			boolean shouldRender1,
-			boolean shouldRender2,
-			boolean canHaveLight,
-			PreviousConnectionPositions previousConnectionPositions,
-			@Nullable OptimizedModel.ObjModel model,
-			double modelWidth,
-			double modelHeight,
-			double modelDepth,
-			PositionAndRotation positionAndRotation,
-			boolean useOffset,
-			double vehicleLength,
-			double width,
-			double height,
-			double yOffset,
-			double zOffset,
-			double oscillationAmount,
-			boolean isOnRoute
-	) {
-		if (model == null || !previousConnectionPositions.isValid()) {
-			return;
-		}
-
-		final double halfLength = vehicleLength / 2;
-		final double newOscillationAmount = -Math.toRadians(oscillationAmount);
-
-		final Vector position1 = positionAndRotation.transformForwards(
-				new Vector(
-						-width / 2,
-						yOffset + SMALL_OFFSET,
-						zOffset - halfLength
-				).rotateZ(newOscillationAmount),
-				Vector::rotateX,
-				Vector::rotateY,
-				Vector::add
-		);
-
-		final Vector position4 = positionAndRotation.transformForwards(
-				new Vector(
-						width / 2,
-						yOffset + SMALL_OFFSET,
-						zOffset - halfLength
-				).rotateZ(newOscillationAmount),
-				Vector::rotateX,
-				Vector::rotateY,
-				Vector::add
-		);
-
-		final double leftDistance =
-				position1.distance(previousConnectionPositions.position4);
-
-		final double rightDistance =
-				position4.distance(previousConnectionPositions.position1);
-
-		final double deformation =
-				modelDepth != 0
-						? (rightDistance - leftDistance) / (2 * modelDepth)
-						: 0;
-
-		/*
-		* The OBJ's native dimensions are used by createConnectionModel()
-		* to determine its center and width.
-		*
-		* The connection model is centered between the two vehicles.
-		*/
-
-		final Vector leftCenter = position1;
-		final Vector rightCenter = position4;
-
-		final double centerX =
-				(leftCenter.getX() + rightCenter.getX()) / 2;
-
-		final double centerY =
-				(leftCenter.getY() + rightCenter.getY()) / 2;
-
-		final double centerZ =
-				(leftCenter.getZ() + rightCenter.getZ()) / 2;
-
-		final OptimizedModel connectionModel =
-				model.createConnectionModel(
-						OptimizedModel.ShaderType.EXTERIOR,
-						centerX,
-						centerY,
-						centerZ,
-						false,
-						deformation
-				);
-
-		final OptimizedModelWrapper connectionModelWrapper =
-				OptimizedModelWrapper.fromConnectionModel(connectionModel);
-
-		/*
-		* Queue connectionModelWrapper here using the same optimized-renderer
-		* path used by the normal OBJ vehicle models.
-		*/
 	}
 
 	private static void drawTexture(GraphicsHolder graphicsHolder, Vector position1, Vector position2, Vector position3, Vector position4, Vector3d offset, int light) {

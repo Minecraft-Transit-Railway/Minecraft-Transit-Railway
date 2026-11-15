@@ -32,21 +32,6 @@
 		"gangwayOuterBottomResource": {
 			"type": "string"
 		},
-		"gangwayModelResource": {
-			"type": "string"
-		},
-		"gangwayModelWidth": {
-			"type": "number",
-			"minimum": 0
-		},
-		"gangwayModelHeight": {
-			"type": "number",
-			"minimum": 0
-		},
-		"gangwayModelDepth": {
-			"type": "number",
-			"minimum": 0
-		},
 		"gangwayWidth": {
 			"type": "number",
 			"minimum": 0
@@ -79,21 +64,6 @@
 		"barrierOuterBottomResource": {
 			"type": "string"
 		},
-		"barrierModelResource": {
-			"type": "string"
-		},
-		"barrierModelWidth": {
-			"type": "number",
-			"minimum": 0
-		},
-		"barrierModelHeight": {
-			"type": "number",
-			"minimum": 0
-		},
-		"barrierModelDepth": {
-			"type": "number",
-			"minimum": 0
-		},
 		"barrierWidth": {
 			"type": "number",
 			"minimum": 0
@@ -117,10 +87,6 @@
 		"gangwayOuterSideResource",
 		"gangwayOuterTopResource",
 		"gangwayOuterBottomResource",
-		"gangwayModelResource",
-		"gangwayModelWidth",
-		"gangwayModelHeight",
-		"gangwayModelDepth",
 		"gangwayWidth",
 		"gangwayHeight",
 		"gangwayYOffset",
@@ -131,10 +97,6 @@
 		"barrierOuterSideResource",
 		"barrierOuterTopResource",
 		"barrierOuterBottomResource",
-		"barrierModelResource",
-		"barrierModelWidth",
-		"barrierModelHeight",
-		"barrierModelDepth",
 		"barrierWidth",
 		"barrierHeight",
 		"barrierYOffset",

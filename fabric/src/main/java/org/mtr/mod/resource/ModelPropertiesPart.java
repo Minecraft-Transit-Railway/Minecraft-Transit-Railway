@@ -30,8 +30,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 
 	private final ObjectArrayList<PartDetails> partDetailsList = new ObjectArrayList<>();
 	private final ObjectArrayList<DisplayPartDetails> displayPartDetailsList = new ObjectArrayList<>();
-	private final int displayColorCjkInt;
-	private final int displayColorInt;
+	private int displayColorCjkInt;
+	private int displayColorInt;
 
 	private static final int LINE_PADDING = 2;
 
@@ -44,7 +44,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	ModelPropertiesPart(ObjectSet<String> names) {
-		super(PartCondition.NORMAL, RenderStage.EXTERIOR, PartType.NORMAL, 0, 0, "", "", 0, 0, 0, DisplayType.DESTINATION, "", 0, 0, DoorAnimationType.STANDARD, 0, 0, 0, 0, 0, 0);
+		super(PartCondition.NORMAL, RenderStage.EXTERIOR, PartType.NORMAL, 0, 0, "", "", 0, 0, 0, DisplayType.DESTINATION, "", "", RenderStage.LIGHT, 0, 0, DoorAnimationType.STANDARD, 0, 0, 0, 0, 0, 0);
 		this.names.addAll(names);
 		positionDefinitions.add("");
 		displayColorInt = 0;
@@ -122,8 +122,8 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return brightness >= 180 ? 0x000000 : 0xFFFFFF;
 	}
 
-	public void setupDisplayColor() {
-		final int routeColor;
+	public void setupDisplayColor(@Nullable VehicleExtension vehicle, boolean fromResourcePackCreator) {
+		int routeColor;
 		if (fromResourcePackCreator) {
 			routeColor = ARGB_BLACK | rainbowColor();
 		} else {
@@ -247,7 +247,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways, boolean fromResourcePackCreator) {
-		setupDisplayColor(vehicle);
+		setupDisplayColor(vehicle, fromResourcePackCreator);
 
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
@@ -261,19 +261,20 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					break;
 				case DISPLAY:
 					if (vehicle != null) {
-						if (displayRenderStage == null) {
-                            displayRenderStage = RenderStage.LIGHT;
+						RenderStage displayRenderStageToUse = displayRenderStage;
+						if (displayRenderStageToUse == null) {
+                            displayRenderStageToUse = RenderStage.LIGHT;
 						}
-						final ObjectIntImmutablePair<QueuedRenderLayer> renderProperties = getRenderProperties(displayRenderStage, light, vehicle);
+						final ObjectIntImmutablePair<QueuedRenderLayer> renderPropertiesDisplay = getRenderProperties(displayRenderStageToUse, light, vehicle);
 						if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
-							renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator, renderProperties, light);
+							renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator, renderPropertiesDisplay, light);
 						} else {
 							if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle, renderProperties, light);
+								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light);
 							} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
-								renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderProperties, light);
+								renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderPropertiesDisplay, light);
 							} else {
-								renderDisplay(storedMatrixTransformations, vehicle, renderProperties, light);
+								renderDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light);
 							}
 						}
 					}
@@ -591,7 +592,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private String formatText(Vehicle vehicle) {
 		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
 		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
-		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("\|\|")[0];
+		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("||")[0];
 		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
@@ -632,7 +633,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 				text = vehicle.getIsOnRoute() ? DisplayType.getLondonNextStationString(routeName, thisStation, nextStation, vehicle.vehicleExtraData::iterateInterchanges, destination, doorsOpen, vehicle.vehicleExtraData.getIsTerminating()) : displayDefaultText;
 				break;
 			case TEMPLATE:
-				text = vehicle.getIsOnRoute() ? DisplayType.getTemplateText(displayTemplateText, vehicle) : displayDefaultText;
+				text = vehicle.getIsOnRoute() ? DisplayType.getTemplateText(displayTemplateText, vehicle, displayDefaultText) : displayDefaultText;
 				break;
 			default:
 				text = "";
@@ -733,15 +734,15 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return (r << 16) + (g << 8) + b;
 	}
 
-	private static String getOrDefault(String checkText, String defaultText) {
+	public static String getOrDefault(String checkText, String defaultText) {
 		return getOrDefault(checkText, checkText, defaultText);
 	}
 
-	private static <T> T getOrDefault(T outputValue, String checkText, T defaultValue) {
+	public static <T> T getOrDefault(T outputValue, String checkText, T defaultValue) {
 		return checkText.isEmpty() ? defaultValue : outputValue;
 	}
 
-	private static <T> T getOrDefault(T thisRouteData, T nextRouteData, T previousRouteData, T defaultValue, Vehicle vehicle) {
+	public static <T> T getOrDefault(T thisRouteData, T nextRouteData, T previousRouteData, T defaultValue, Vehicle vehicle) {
 		if (vehicle.vehicleExtraData.getThisRouteId() != 0) {
 			return thisRouteData;
 		} else if (vehicle.vehicleExtraData.getNextRouteId() != 0) {

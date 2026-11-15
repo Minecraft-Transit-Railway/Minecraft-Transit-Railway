@@ -88,23 +88,5 @@ public final class OptimizedModelWrapper {
 		public void addTransformation(OptimizedModel.ShaderType shaderType, double x, double y, double z, boolean flipped) {
 			objModel.addTransformation(shaderType, x, y, z, flipped);
 		}
-
-		public OptimizedModel createConnectionModel(
-				OptimizedModel.ShaderType shaderType,
-				double x,
-				double y,
-				double z,
-				boolean flipped,
-				double deformation
-		) {
-			return objModel.createConnectionModel(
-					shaderType,
-					x,
-					y,
-					z,
-					flipped,
-					deformation
-			);
-		}
 	}
 }

@@ -60,6 +60,13 @@
 		"displayDefaultText": {
 			"type": "string"
 		},
+		"displayTemplateText": {
+			"type": "string"
+		},
+		"displayRenderStage": {
+			"$ref": "RenderStage",
+			"typeScriptEnum": "LIGHT|ALWAYS_ON_LIGHT|INTERIOR|INTERIOR_TRANSLUCENT|EXTERIOR"
+		},
 		"doorXMultiplier": {
 			"type": "number"
 		},
@@ -106,9 +113,12 @@
 		"displayColor",
 		"displayMaxLineHeight",
 		"displayCjkSizeRatio",
+		"displayOptions",
 		"displayPadZeros",
 		"displayType",
 		"displayDefaultText",
+		"displayTemplateText",
+		"displayRenderStage",
 		"doorXMultiplier",
 		"doorZMultiplier",
 		"doorAnimationType",

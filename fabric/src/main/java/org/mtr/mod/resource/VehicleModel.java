@@ -117,69 +117,18 @@ public final class VehicleModel extends VehicleModelSchema {
 	private DynamicVehicleModel createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
 
-		@Nullable OptimizedModel.ObjModel gangwayModel = null;
-		@Nullable OptimizedModel.ObjModel barrierModel = null;
-
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 		try {
-			if (modelProperties.gangwayModel != null) {
-				try {
-					final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> gangwayModels =
-							ModelResourceLoader.loadModel(
-									modelProperties.gangwayModel.data.toString(),
-									textureId,
-									flipTextureV,
-									resourceProvider
-							);
-
-					if (!gangwayModels.isEmpty()) {
-						gangwayModel = gangwayModels.values().iterator().next();
-					}
-				} catch (Exception e) {
-					Init.LOGGER.warn(
-							"[{}] Failed to load gangway model [{}]",
-							id,
-							modelProperties.gangwayModel,
-							e
-					);
-				}
-			}
-
-			if (modelProperties.barrierModel != null) {
-				try {
-					final Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> barrierModels =
-							ModelResourceLoader.loadModel(
-									modelProperties.barrierModel.data.toString(),
-									textureId,
-									flipTextureV,
-									resourceProvider
-							);
-
-					if (!barrierModels.isEmpty()) {
-						barrierModel = barrierModels.values().iterator().next();
-					}
-				} catch (Exception e) {
-					Init.LOGGER.warn(
-							"[{}] Failed to load barrier model [{}]",
-							id,
-							modelProperties.barrierModel,
-							e
-					);
-				}
-			}
-
 			if (modelResource.endsWith(".bbmodel")) {
 				return new DynamicVehicleModel(
 						new BlockbenchModel(new JsonReader(Utilities.parseJson(resourceProvider.get(CustomResourceTools.formatIdentifierWithDefault(modelResource, "bbmodel"))))),
 						textureId,
 						modelProperties,
 						positionDefinitions,
-						id,
-						gangwayModel,
-						barrierModel
+						id
 				);
 			} else if (ModelResourceLoader.isSupportedModelResource(modelResource)) {
-				return new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id, gangwayModel, barrierModel);
+				return new DynamicVehicleModel(ModelResourceLoader.loadModel(modelResource, textureId, flipTextureV, resourceProvider), textureId, modelProperties, positionDefinitions, id);
 			} else {
 				Init.LOGGER.error("[{}] Invalid model!", modelResource);
 				return new DynamicVehicleModel(
@@ -187,9 +136,7 @@ public final class VehicleModel extends VehicleModelSchema {
 						textureId,
 						modelProperties,
 						positionDefinitions,
-						id,
-						gangwayModel,
-						barrierModel
+						id
 				);
 			}
 		} catch (Exception e) {
@@ -199,9 +146,7 @@ public final class VehicleModel extends VehicleModelSchema {
 					textureId,
 					modelProperties,
 					positionDefinitions,
-					id,
-					gangwayModel,
-					barrierModel
+					id
 			);
 		} finally {
 			CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.finishReload();
