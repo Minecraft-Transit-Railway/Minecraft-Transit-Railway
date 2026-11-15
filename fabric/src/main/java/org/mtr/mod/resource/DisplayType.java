@@ -56,7 +56,6 @@ public enum DisplayType {
         final String destination = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
 		final String routeNumber = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
 		final String routeName = ModelPropertiesPart.getOrDefault(routeNumber + " ", routeNumber, "") + ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("||")[0];
-		final String thisStation = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final String clock12hr = getClockText(false);
 		final String clock24hr = getClockText(true);
@@ -66,7 +65,6 @@ public enum DisplayType {
 		text = text.replaceAll("%DESTINATION%", destination);
 		text = text.replaceAll("%ROUTE_NUMBER%", routeNumber);
 		text = text.replaceAll("%ROUTE_NAME%", routeName);
-		text = text.replaceAll("%THIS_STATION%", thisStation);
 		text = text.replaceAll("%NEXT_STATION%", nextStation);
 		text = text.replaceAll("%CLOCK_12HR%", clock12hr);
 		text = text.replaceAll("%CLOCK_24HR%", clock24hr);
