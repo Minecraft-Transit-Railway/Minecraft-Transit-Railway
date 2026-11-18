@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 public final class ModelPropertiesPart extends ModelPropertiesPartSchema implements IGui {
 
@@ -592,7 +593,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private String formatText(Vehicle vehicle) {
 		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
 		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
-		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split("||")[0];
+		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split(Pattern.quote("||"))[0];
 		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;

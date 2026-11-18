@@ -40,7 +40,7 @@
 	"vehicles": [
 		{
 			"id": "london_underground_@type@@definition@_trailer",
-			"name": "London Underground @name1@ Trailer (@name2@)",
+			"name": "London Underground @name1@ Stock Trailer (@name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -82,7 +82,7 @@
 		},
 		{
 			"id": "london_underground_@type@@definition@_cab_1",
-			"name": "London Underground @name1@ Cab (Forwards, @name2@)",
+			"name": "London Underground @name1@ Stock Cab (Forwards, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -124,7 +124,7 @@
 		},
 		{
 			"id": "london_underground_@type@@definition@_cab_2",
-			"name": "London Underground @name1@ Cab (Backwards, @name2@)",
+			"name": "London Underground @name1@ Stock Cab (Backwards, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -166,7 +166,7 @@
 		},
 		{
 			"id": "london_underground_@type@@definition@_cab_3",
-			"name": "London Underground @name1@ Cab (Double, @name2@)",
+			"name": "London Underground @name1@ Stock Cab (Double, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,

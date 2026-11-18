@@ -218,7 +218,18 @@
 			"positionDefinitions": [
 				"interior_display"
 			],
-			"renderStage": "LIGHT"
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_FORWARDS"
+		},
+		{
+			"names": [
+				"interior_display_light"
+			],
+			"positionDefinitions": [
+				"interior_display"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_BACKWARDS"
 		},
 		{
 			"names": [
@@ -233,7 +244,8 @@
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"ALIGN_LEFT"
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK"
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"

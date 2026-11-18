@@ -315,6 +315,7 @@
 			"displayYPadding": 0,
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayColor": "FFFFFF",
@@ -333,6 +334,7 @@
 			"displayYPadding": 0,
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayColor": "FFFFFF",
@@ -350,6 +352,7 @@
 			"displayYPadding": 0.375,
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayColor": "FF9900",
@@ -367,6 +370,7 @@
 			"displayYPadding": 0.375,
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayColor": "FF9900",

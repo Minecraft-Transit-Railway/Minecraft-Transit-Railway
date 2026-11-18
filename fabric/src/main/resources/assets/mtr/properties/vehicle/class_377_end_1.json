@@ -119,7 +119,8 @@
 			"displayXPadding": 0.5,
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"SCROLL_NORMAL",
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"SINGLE_LINE"
 			],
 			"displayType": "DESTINATION",
@@ -136,11 +137,46 @@
 			"displayXPadding": 0.5,
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"SCROLL_NORMAL",
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"SINGLE_LINE"
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"route_name_display_1"
+			],
+			"positionDefinitions": [
+				"window2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"SINGLE_LINE"
+			],
+			"displayType": "ROUTE_NAME"
+		},
+		{
+			"names": [
+				"route_name_display_2"
+			],
+			"positionDefinitions": [
+				"window3Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.5,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"SINGLE_LINE"
+			],
+			"displayType": "ROUTE_NAME"
 		},
 		{
 			"names": [

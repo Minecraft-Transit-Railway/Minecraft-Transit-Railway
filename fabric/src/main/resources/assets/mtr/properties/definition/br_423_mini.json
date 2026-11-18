@@ -33,6 +33,14 @@
 			]
 		},
 		{
+			"name": "window3Flipped",
+			"positionsFlipped": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
 			"name": "window4Flipped",
 			"positionsFlipped": [
 				{
@@ -234,6 +242,14 @@
 				{
 					"x": 16,
 					"z": 59.5
+				}
+			]
+		},
+		{
+			"name": "lcd",
+			"positions": [
+				{
+					"z": 0
 				}
 			]
 		}

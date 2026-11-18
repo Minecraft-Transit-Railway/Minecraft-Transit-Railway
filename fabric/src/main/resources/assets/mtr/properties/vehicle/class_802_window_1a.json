@@ -38,7 +38,10 @@
 			"displayXPadding": 0.125,
 			"displayYPadding": 0,
 			"displayColor": "FF9900",
-			"displayOptions": [],
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"SINGLE_LINE"
+			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
 		},
@@ -69,7 +72,8 @@
 			"displayYPadding": 0,
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"SCROLL_NORMAL"
+				"SCROLL_NORMAL",
+				"SINGLE_LINE"
 			],
 			"displayType": "NEXT_STATION_UK",
 			"displayDefaultText": "Not In Service"

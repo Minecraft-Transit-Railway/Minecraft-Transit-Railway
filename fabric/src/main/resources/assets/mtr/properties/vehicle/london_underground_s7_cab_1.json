@@ -363,7 +363,7 @@
 				"head_ushiro"
 			],
 			"positionDefinitions": [
-				"head"
+				"head_ushiro"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",

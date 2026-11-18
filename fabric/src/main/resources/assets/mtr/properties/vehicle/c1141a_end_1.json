@@ -66,7 +66,7 @@
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.15,
-			"displayYPadding": 0.15,
+			"displayYPadding": 0.4,
 			"displayColor": "000000",
 			"displayOptions": [],
 			"displayCjkSizeRatio": 999999,
@@ -82,10 +82,10 @@
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.15,
-			"displayYPadding": 0.15,
+			"displayYPadding": 0.4,
 			"displayColor": "000000",
 			"displayOptions": [],
-			"displayCjkSizeRatio": 0,
+			"displayCjkSizeRatio": 0.000001,
 			"displayType": "NEXT_STATION",
 			"displayDefaultText": "Depot"
 		}

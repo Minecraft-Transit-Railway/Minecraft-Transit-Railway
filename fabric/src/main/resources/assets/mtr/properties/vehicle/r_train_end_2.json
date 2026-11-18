@@ -95,7 +95,7 @@
 			"displayYPadding": 0.15,
 			"displayColor": "000000",
 			"displayOptions": [],
-			"displayCjkSizeRatio": 0,
+			"displayCjkSizeRatio": 0.000001,
 			"displayType": "NEXT_STATION",
 			"displayDefaultText": "Depot"
 		}

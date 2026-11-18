@@ -134,16 +134,12 @@ public class RailAction {
 	private boolean create(boolean includeMiddle, Consumer<Vector> consumer) {
 		final long startTime = System.currentTimeMillis();
 		while (System.currentTimeMillis() - startTime < 2) {
-			final int distanceIndex = (int) Math.round(distance * 10);
-
-			final Vector pos1 = rail.railMath.getPosition(distanceIndex / 10.0, false);
-			final Vector pos2 = rail.railMath.getPosition((distanceIndex + 1) / 10.0, false);
-
-			distance = (distanceIndex + 1) / 10.0;
+			final Vector pos1 = rail.railMath.getPosition(distance, false);
+			distance += INCREMENT;
+			final Vector pos2 = rail.railMath.getPosition(distance, false);
 			final Vector vec3 = new Vector(pos2.x - pos1.x, 0, pos2.z - pos1.z).normalize().rotateY((float) Math.PI / 2);
 
-			for (int i = -radius * 10; i <= radius * 10; i++) {
-    			final double x = i / 10.0;
+			for (double x = -radius; x <= radius; x += INCREMENT) {
 				final Vector editPos = pos1.add(vec3.multiply(x, 0, x));
 				final boolean wholeNumber = Math.floor(editPos.y) == Math.ceil(editPos.y);
 				if (includeMiddle || Math.abs(x) > radius - INCREMENT || radius == 0) {

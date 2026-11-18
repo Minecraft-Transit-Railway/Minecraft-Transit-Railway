@@ -112,6 +112,7 @@ public final class InitClient {
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.STATION_NAME_TALL_STANDING);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_ENTRANCE_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_EXIT_1);
+		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_BARRIER_TWOWAY_1);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_MACHINE);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_PROCESSOR);
 		REGISTRY_CLIENT.registerBlockRenderType(RenderLayer.getCutout(), Blocks.TICKET_PROCESSOR_ENTRANCE);

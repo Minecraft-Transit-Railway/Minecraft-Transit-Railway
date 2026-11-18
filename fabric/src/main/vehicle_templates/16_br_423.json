@@ -19,7 +19,7 @@
 	},
 	"vehicles": [
 		{
-			"id": "br_423_trailer",
+			"id": "br_423@definition@_trailer",
 			"name": "DB BR 423 Trailer (@name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
@@ -74,7 +74,7 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_1",
+			"id": "br_423@definition@_cab_1",
 			"name": "DB BR 423 Cab (Forwards, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
@@ -129,7 +129,7 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_2",
+			"id": "br_423@definition@_cab_2",
 			"name": "DB BR 423 Cab (Backwards, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
@@ -184,7 +184,7 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_3",
+			"id": "br_423@definition@_cab_3",
 			"name": "DB BR 423 Cab (Double, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",

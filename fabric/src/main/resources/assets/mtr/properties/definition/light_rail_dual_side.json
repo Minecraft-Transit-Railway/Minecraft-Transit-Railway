@@ -186,7 +186,9 @@
 			"positions": [
 				{
 					"z": -128
-				},
+				}
+			],
+			"positionsFlipped": [
 				{
 					"z": 128
 				}
@@ -194,12 +196,14 @@
 		},
 		{
 			"name": "end1Flipped",
+			"positions": [
+				{
+					"z": 128
+				}
+			],
 			"positionsFlipped": [
 				{
 					"z": -128
-				},
-				{
-					"z": 128
 				}
 			]
 		},

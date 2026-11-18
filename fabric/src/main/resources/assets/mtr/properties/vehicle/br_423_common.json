@@ -364,6 +364,7 @@
 			"displayColor": "ROUTE_COLOR",
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
@@ -399,6 +400,7 @@
 			"displayColor": "ROUTE_COLOR",
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
@@ -434,6 +436,7 @@
 			"displayColor": "000000",
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "NEXT_STATION",
@@ -479,6 +482,7 @@
 			"displayColor": "FFFFFF",
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "DESTINATION",

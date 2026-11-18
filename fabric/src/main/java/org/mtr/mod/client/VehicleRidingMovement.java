@@ -170,10 +170,10 @@ public class VehicleRidingMovement {
 				// If the player is currently standing on a gangway, ridingVehicleX and Z will indicate percentages along the gangway (rather than a relative coordinate inside the vehicle car)
 				if (thisCarGangwayMovementPositions1 == null || previousCarGangwayMovementPositions == null) {
 					// Dismount player
-					/*sendUpdate(true);
+					sendUpdate(true);
 					ridingDepotId = 0;
 					ridingSidingId = 0;
-					ridingVehicleId = 0;*/
+					ridingVehicleId = 0;
 				} else {
 					if (ridingVehicleZ + movementZ > 1) {
 						// If player has left the gangway (in the +Z direction), convert back to non-gangway positioning for ridingVehicleX and Z
@@ -241,10 +241,10 @@ public class VehicleRidingMovement {
 
 					if (offsets.isEmpty()) {
 						// Player is not standing on any floor, dismount player
-						/*sendUpdate(true);
+						sendUpdate(true);
 						ridingDepotId = 0;
 						ridingSidingId = 0;
-						ridingVehicleId = 0;*/
+						ridingVehicleId = 0;
 					} else {
 						// Find the highest amounts to clamp the player movement in both the X and Z direction and apply the clamps
 						double clampX = 0;

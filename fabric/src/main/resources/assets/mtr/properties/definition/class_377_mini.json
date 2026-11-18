@@ -277,12 +277,12 @@
 			"name": "doorLight",
 			"positions": [
 				{
-					"z": 0
+					"z": -32
 				}
 			],
 			"positionsFlipped": [
 				{
-					"z": 0
+					"z": 32
 				}
 			]
 		}

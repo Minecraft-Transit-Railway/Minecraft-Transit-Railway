@@ -92,7 +92,9 @@
 			"positions": [
 				{
 					"z": -32
-				},
+				}
+			],
+			"positionsFlipped": [
 				{
 					"z": 32
 				}
@@ -100,12 +102,14 @@
 		},
 		{
 			"name": "end1Flipped",
+			"positions": [
+				{
+					"z": 32
+				}
+			],
 			"positionsFlipped": [
 				{
 					"z": -32
-				},
-				{
-					"z": 32
 				}
 			]
 		},
@@ -245,6 +249,22 @@
 				{
 					"x": 15,
 					"z": 24
+				}
+			]
+		},
+		{
+			"name": "headlights1",
+			"positions": [
+				{
+					"z": -32
+				}
+			]
+		},
+		{
+			"name": "headlights2",
+			"positionsFlipped": [
+				{
+					"z": 32
 				}
 			]
 		}

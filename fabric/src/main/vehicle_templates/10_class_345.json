@@ -2,7 +2,7 @@
 	"replacements": {
 		"lengths": [
 			21,
-			10
+			10.75
 		],
 		"name": [
 			"Normal",
@@ -11,6 +11,14 @@
 		"definition": [
 			"",
 			"_mini"
+		],
+		"bogie1Position": [
+			-7.5,
+			-2.375
+		],
+		"bogie2Position": [
+			7.5,
+			2.375
 		]
 	},
 	"vehicles": [
@@ -20,8 +28,6 @@
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -68,8 +74,6 @@
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -112,12 +116,10 @@
 		},
 		{
 			"id": "class_345@definition@_cab_1",
-			"name": "Class 345 (@name@, Forwards)",
+			"name": "Class 345 Cab (Forwards, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 1,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -160,12 +162,10 @@
 		},
 		{
 			"id": "class_345@definition@_cab_2",
-			"name": "Class 345 (@name@, Backwards)",
+			"name": "Class 345 Cab (Backwards, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -208,12 +208,10 @@
 		},
 		{
 			"id": "class_345@definition@_cab_3",
-			"name": "Class 345 (@name@, Double)",
+			"name": "Class 345 Cab (Double, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 1,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",

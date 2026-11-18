@@ -383,7 +383,8 @@
 			],
 			"type": "DISPLAY",
 			"displayYPadding": 0.2,
-			"displayColor": "CCCCCC",
+			"displayColor": "FFFFFF",
+			"displayRenderStage": "EXTERIOR",
 			"displayOptions": [
 				"ALIGN_CENTER"
 			],
@@ -496,9 +497,19 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"end1"
+				"headlights1"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"headlights2"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
 		},
 		{

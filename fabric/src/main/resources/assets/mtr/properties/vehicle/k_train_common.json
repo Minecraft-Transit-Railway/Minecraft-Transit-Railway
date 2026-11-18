@@ -58,9 +58,9 @@
 				"roof_window"
 			],
 			"positionDefinitions": [
-				"window",
-				"windowFlipped",
-				"windowEnd1",
+				"window2",
+				"window1Flipped",
+				"windowEnd2",
 				"windowEnd1Flipped"
 			],
 			"renderStage": "INTERIOR"
@@ -70,9 +70,9 @@
 				"roof_window_2"
 			],
 			"positionDefinitions": [
-				"window2",
+				"window1",
 				"window2Flipped",
-				"windowEnd2",
+				"windowEnd1",
 				"windowEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
@@ -82,14 +82,14 @@
 				"interior_display"
 			],
 			"positionDefinitions": [
-				"window2",
+				"window1",
 				"window2Flipped",
-				"windowEnd2",
+				"windowEnd1",
 				"windowEnd2Flipped"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0,
-			"displayYPadding": 0.25,
+			"displayXPadding": 0.25,
+			"displayYPadding": 0,
 			"displayColor": "FF9900",
 			"displayOptions": [
 				"SINGLE_LINE",
