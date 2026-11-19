@@ -12,12 +12,14 @@ public final class CreativeModeTabs {
 		RAILWAY_FACILITIES = Init.REGISTRY.createCreativeModeTabHolder(new Identifier(Init.MOD_ID, "railway_facilities"), () -> new ItemStack(new ItemConvertible(Blocks.TICKET_PROCESSOR.get().data)));
 		STATION_BUILDING_BLOCKS = Init.REGISTRY.createCreativeModeTabHolder(new Identifier(Init.MOD_ID, "station_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.LOGO.get().data)));
 		ESCALATORS_LIFTS = Init.REGISTRY.createCreativeModeTabHolder(new Identifier(Init.MOD_ID, "escalators_lifts"), () -> new ItemStack(new ItemConvertible(Items.ESCALATOR.get().data)));
+		BUSES = Init.REGISTRY.createCreativeModeTabHolder(new Identifier(Init.MOD_ID, "buses"), () -> new ItemStack(new ItemConvertible(Items.BUS_CONNECTOR.get().data)));
 	}
 
 	public static final CreativeModeTabHolder CORE;
 	public static final CreativeModeTabHolder RAILWAY_FACILITIES;
 	public static final CreativeModeTabHolder STATION_BUILDING_BLOCKS;
 	public static final CreativeModeTabHolder ESCALATORS_LIFTS;
+	public static final CreativeModeTabHolder BUSES;
 
 	public static void init() {
 		Init.LOGGER.info("Registering Minecraft Transit Railway creative mode tabs");
