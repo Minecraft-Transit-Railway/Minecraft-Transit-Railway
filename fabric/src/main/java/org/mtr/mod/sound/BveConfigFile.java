@@ -32,6 +32,13 @@ public class BveConfigFile {
 	public final SoundEvent noise;
 	public final SoundEvent shoe;
 
+	// Bus-specific sound events
+	public final SoundEvent horn;
+	public final SoundEvent engineIdle;
+	public final SoundEvent gearShift;
+	public final SoundEvent stopRequestBell;
+	public final SoundEvent kneeling;
+
 	public final int motorNoiseDataType;
 
 	public final float motorVolumeMultiply;
@@ -69,6 +76,13 @@ public class BveConfigFile {
 
 		SoundEvent noise = null;
 		SoundEvent shoe = null;
+
+		// Bus-specific local variables
+		SoundEvent horn = null;
+		SoundEvent engineIdle = null;
+		SoundEvent gearShift = null;
+		SoundEvent stopRequestBell = null;
+		SoundEvent kneeling = null;
 
 		int motorNoiseDataType = 5; // 4 or 5
 		float motorVolumeMultiply = 1;
@@ -174,6 +188,7 @@ public class BveConfigFile {
 								doorClose = valueAsSoundEvent;
 								break;
 						}
+						break;
 					case "brakehandle":
 						switch (key) {
 							case "apply":
@@ -196,6 +211,7 @@ public class BveConfigFile {
 								compressorRelease = valueAsSoundEvent;
 								break;
 						}
+						break;
 					case "others":
 						switch (key) {
 							case "noise":
@@ -205,6 +221,30 @@ public class BveConfigFile {
 								shoe = valueAsSoundEvent;
 								break;
 						}
+						break;
+					case "bus":
+						switch (key) {
+							case "horn":
+								horn = valueAsSoundEvent;
+								break;
+							case "engineidle":
+							case "idle":
+								engineIdle = valueAsSoundEvent;
+								break;
+							case "gearshift":
+							case "shift":
+								gearShift = valueAsSoundEvent;
+								break;
+							case "stoprequest":
+							case "bell":
+								stopRequestBell = valueAsSoundEvent;
+								break;
+							case "kneeling":
+							case "suspension":
+								kneeling = valueAsSoundEvent;
+								break;
+						}
+						break;
 				}
 			} else if (trimLine.startsWith("[") && trimLine.endsWith("]")) {
 				section = trimLine.substring(1, trimLine.length() - 1).trim().replace(" ", "").toLowerCase(Locale.ENGLISH);
@@ -232,6 +272,11 @@ public class BveConfigFile {
 		this.compressorRelease = compressorRelease;
 		this.noise = noise;
 		this.shoe = shoe;
+		this.horn = horn;
+		this.engineIdle = engineIdle;
+		this.gearShift = gearShift;
+		this.stopRequestBell = stopRequestBell;
+		this.kneeling = kneeling;
 		this.motorNoiseDataType = motorNoiseDataType;
 		this.motorVolumeMultiply = motorVolumeMultiply;
 		this.breakerDelay = breakerDelay;
