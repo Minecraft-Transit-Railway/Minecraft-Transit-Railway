@@ -126,18 +126,18 @@
 			"name": "seat1",
 			"positions": [
 				{
-					"z": -82
-				},
-				{
-					"z": 14
-				}
-			],
-			"positionsFlipped": [
-				{
 					"z": 82
 				},
 				{
 					"z": -14
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -82
+				},
+				{
+					"z": 14
 				}
 			]
 		},
@@ -145,18 +145,18 @@
 			"name": "seat2",
 			"positions": [
 				{
-					"z": 82
-				},
-				{
-					"z": -14
-				}
-			],
-			"positionsFlipped": [
-				{
 					"z": -82
 				},
 				{
 					"z": 14
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 82
+				},
+				{
+					"z": -14
 				}
 			]
 		},

@@ -34,7 +34,7 @@
 				"window_3b"
 			],
 			"positionDefinitions": [
-				"window3b"
+				"windowDisplay"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -43,7 +43,7 @@
 				"window_3b_exterior"
 			],
 			"positionDefinitions": [
-				"window3b"
+				"windowDisplay"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -282,7 +282,11 @@
 				"find_display_route_color"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.125,
@@ -295,7 +299,11 @@
 				"find_display_route_number"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.175,
@@ -309,7 +317,11 @@
 				"find_display_route_name"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.375,
@@ -320,19 +332,22 @@
 				"CYCLE_LANGUAGES"
 			],
 			"displayColor": "FFFFFF",
-			"displayType": "ROUTE_NAME",
-			"displayDefaultText": "Not In Service"
+			"displayType": "ROUTE_NAME"
 		},
 		{
 			"names": [
 				"find_display_destination"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.35,
+			"displayXPadding": 0.375,
+			"displayYPadding": 0.15,
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
@@ -346,7 +361,11 @@
 				"find_display_next_station"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.25,
@@ -356,7 +375,7 @@
 				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
-			"displayColor": "FF9900",
+			"displayColor": "CONTRAST_COLOR",
 			"displayType": "NEXT_STATION"
 		},
 		{
@@ -364,7 +383,11 @@
 				"find_display_destination_2"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.25,
@@ -374,7 +397,7 @@
 				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
-			"displayColor": "FF9900",
+			"displayColor": "CONTRAST_COLOR",
 			"displayType": "DESTINATION"
 		},
 		{
@@ -382,7 +405,11 @@
 				"find_display_route_color_2"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0,
@@ -395,7 +422,11 @@
 				"find_display_route_color_3"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.25,
@@ -408,7 +439,11 @@
 				"find_display_next_this_text"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_OPENED",
 			"type": "DISPLAY",
@@ -426,7 +461,11 @@
 				"find_display_next_this_text"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_CLOSED",
 			"type": "DISPLAY",
@@ -444,7 +483,11 @@
 				"find_display_last_stop_text"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.25,
@@ -461,7 +504,11 @@
 				"door_idle_indicator_left"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -470,7 +517,11 @@
 				"door_idle_indicator_right"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -479,7 +530,11 @@
 				"door_closing_indicator_left"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -498,7 +553,11 @@
 				"door_closing_indicator_right"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -517,7 +576,11 @@
 				"door_opening_indicator_left"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -536,7 +599,11 @@
 				"door_opening_indicator_right"
 			],
 			"positionDefinitions": [
-				"door"
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",

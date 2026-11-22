@@ -11,19 +11,6 @@
 			]
 		},
 		{
-			"name": "window3b",
-			"positions": [
-				{
-					"z": 0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"z": 0
-				}
-			]
-		},
-		{
 			"name": "windowDisplay",
 			"positions": [
 				{

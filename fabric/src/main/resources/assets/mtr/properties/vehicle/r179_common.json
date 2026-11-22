@@ -311,8 +311,8 @@
 				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.2,
-			"displayYPadding": 0,
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.1,
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
@@ -330,8 +330,8 @@
 				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.2,
-			"displayYPadding": 0,
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.1,
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
@@ -348,8 +348,8 @@
 				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.375,
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
@@ -366,8 +366,8 @@
 				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.375,
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
@@ -385,8 +385,8 @@
 			],
 			"condition": "DOORS_OPENED",
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.375,
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
 			"displayOptions": [
 				"ALIGN_LEFT"
 			],
@@ -403,8 +403,8 @@
 			],
 			"condition": "DOORS_CLOSED",
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.375,
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
 			"displayOptions": [
 				"ALIGN_LEFT"
 			],
@@ -420,8 +420,8 @@
 				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
-			"displayYPadding": 0.375,
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
 			"displayOptions": [
 				"ALIGN_LEFT"
 			],

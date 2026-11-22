@@ -361,13 +361,27 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.8,
-			"displayColor": "ROUTE_COLOR",
+			"displayColor": "FFFFFF",
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"side_route_color_display_1"
+			],
+			"positionDefinitions": [
+				"window3"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayYPadding": 0.2,
+			"displayColor": "ROUTE_COLOR",
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR_ROUNDED"
 		},
 		{
 			"names": [
@@ -397,13 +411,27 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.8,
-			"displayColor": "ROUTE_COLOR",
+			"displayColor": "FFFFFF",
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"side_route_color_display_2"
+			],
+			"positionDefinitions": [
+				"window4"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.2,
+			"displayYPadding": 0.2,
+			"displayColor": "ROUTE_COLOR",
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR_ROUNDED"
 		},
 		{
 			"names": [

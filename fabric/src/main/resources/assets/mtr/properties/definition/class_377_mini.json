@@ -73,22 +73,6 @@
 			]
 		},
 		{
-			"name": "door1Flipped",
-			"positionsFlipped": [
-				{
-					"z": 0
-				}
-			]
-		},
-		{
-			"name": "door2",
-			"positions": [
-				{
-					"z": 0
-				}
-			]
-		},
-		{
 			"name": "door2Flipped",
 			"positionsFlipped": [
 				{

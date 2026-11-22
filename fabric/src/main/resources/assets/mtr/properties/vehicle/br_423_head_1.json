@@ -84,7 +84,7 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.8,
-			"displayColor": "ROUTE_COLOR",
+			"displayColor": "FFFFFF",
 			"displayOptions": [
 				"ALIGN_LEFT",
 				"ALIGN_LEFT_CJK",

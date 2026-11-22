@@ -49,20 +49,12 @@
 			"name": "windowDisplay",
 			"positions": [
 				{
-					"z": -80
+					"z": 80
 				}
 			],
 			"positionsFlipped": [
 				{
-					"z": 80
-				}
-			]
-		},
-		{
-			"name": "window3b",
-			"positionsFlipped": [
-				{
-					"z": 80
+					"z": -80
 				}
 			]
 		},

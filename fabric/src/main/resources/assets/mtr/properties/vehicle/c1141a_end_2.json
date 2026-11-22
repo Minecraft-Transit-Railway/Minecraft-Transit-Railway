@@ -55,7 +55,18 @@
 			"positionDefinitions": [
 				"end2"
 			],
-			"renderStage": "LIGHT"
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_FORWARDS"
+		},
+		{
+			"names": [
+				"lcd_end_light"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_BACKWARDS"
 		},
 		{
 			"names": [

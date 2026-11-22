@@ -131,17 +131,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 			routeColor = getOrDefault(ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
 		}
 
-		if (displayColor == "ROUTE_COLOR") {
+		if (displayColor.equals("ROUTE_COLOR")) {
 			displayColorInt = routeColor;
-		} else if (displayColor == "CONTRAST_COLOR") {
+		} else if (displayColor.equals("CONTRAST_COLOR")) {
 			displayColorInt = getContrastColor(routeColor);
 		} else {
 			displayColorInt = parseColor(displayColor, 0xFF9900);
 		}
 
-		if (displayColorCjk == "ROUTE_COLOR") {
+		if (displayColorCjk.equals("ROUTE_COLOR")) {
 			displayColorCjkInt = routeColor;
-		} else if (displayColorCjk == "CONTRAST_COLOR") {
+		} else if (displayColorCjk.equals("CONTRAST_COLOR")) {
 			displayColorCjkInt = getContrastColor(routeColor);
 		} else {
 			displayColorCjkInt = parseColor(displayColorCjk, displayColorInt);
@@ -248,8 +248,6 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	}
 
 	public void render(Identifier texture, StoredMatrixTransformations storedMatrixTransformations, @Nullable VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, int light, ObjectArrayList<ObjectDoubleImmutablePair<Box>> openDoorways, boolean fromResourcePackCreator) {
-		setupDisplayColor(vehicle, fromResourcePackCreator);
-
 		if (vehicle == null || VehicleResource.matchesCondition(vehicle, condition, openDoorways.isEmpty())) {
 			switch (type) {
 				case NORMAL:
@@ -270,6 +268,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
 							renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator, renderPropertiesDisplay, light);
 						} else {
+							setupDisplayColor(vehicle, fromResourcePackCreator);
 							if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
 								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light);
 							} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
@@ -593,8 +592,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 	private String formatText(Vehicle vehicle) {
 		final String destination = getOrDefault(vehicle.vehicleExtraData.getThisRouteDestination(), vehicle.vehicleExtraData.getNextRouteDestination(), vehicle.vehicleExtraData.getPreviousRouteDestination(), displayDefaultText, vehicle);
 		final String routeNumber = getOrDefault(vehicle.vehicleExtraData.getThisRouteNumber(), vehicle.vehicleExtraData.getNextRouteNumber(), vehicle.vehicleExtraData.getPreviousRouteNumber(), displayDefaultText, vehicle);
-		final String routeName = getOrDefault(routeNumber + " ", routeNumber, "") + getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split(Pattern.quote("||"))[0];
-		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
+		final String routeName = ModelPropertiesPart.getOrDefault(vehicle.vehicleExtraData.getThisRouteName(), vehicle.vehicleExtraData.getNextRouteName(), vehicle.vehicleExtraData.getPreviousRouteName(), displayDefaultText, vehicle).split(Pattern.quote("||"))[0];		final String thisStation = getOrDefault(vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getPreviousStationName());
 		final String nextStation = getOrDefault(vehicle.vehicleExtraData.getNextStationName(), vehicle.vehicleExtraData.getThisStationName(), vehicle.vehicleExtraData.getThisStationName());
 		final boolean doorsOpen = vehicle.vehicleExtraData.getDoorMultiplier() > 0;
 

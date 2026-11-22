@@ -305,7 +305,7 @@
 		},
 		{
 			"names": [
-				"lcd_light"
+				"lcd_at_station_light"
 			],
 			"positionDefinitions": [
 				"door",
@@ -315,11 +315,27 @@
 				"doorEnd1Flipped",
 				"doorEnd2Flipped"
 			],
-			"renderStage": "LIGHT"
+			"renderStage": "LIGHT",
+			"condition": "DOORS_OPENED"
 		},
 		{
 			"names": [
-				"lcd_next_station"
+				"lcd_en_route_light"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "LIGHT",
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_at_station_text_english"
 			],
 			"positionDefinitions": [
 				"door",
@@ -331,12 +347,192 @@
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0,
-			"displayYPadding": 0.375,
+			"displayYPadding": 0,
 			"displayColor": "000000",
-			"displayOptions": [],
+			"displayCjkSizeRatio": 0.000001,
+			"displayType": "NEXT_STATION",
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"condition": "DOORS_OPENED"
+		},
+		{
+			"names": [
+				"lcd_at_station_text_cjk"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "000000",
+			"displayCjkSizeRatio": 999999,
+			"displayType": "NEXT_STATION",
+			"displayOptions": [
+				"ALIGN_RIGHT_CJK"
+			],
+			"condition": "DOORS_OPENED"
+		},
+		{
+			"names": [
+				"lcd_at_station_mind_the_gap"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.225,
+			"displayColor": "000000",
+			"displayType": "TEMPLATE",
+			"displayOptions": [
+				"SINGLE_LINE"
+			],
+			"displayTemplateText": "請小心空隙|Please mind the gap",
+			"condition": "DOORS_OPENED"
+		},
+		{
+			"names": [
+				"lcd_at_station_flash"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "LIGHT",
+			"condition": "DOORS_OPENED",
+			"doorZMultiplier": 0.01,
+			"flashOnTime": 750,
+			"flashOffTime": 750
+		},
+		{
+			"names": [
+				"lcd_en_route_color_1"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.25,
+			"displayType": "ROUTE_COLOR",
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_en_route_next_station"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "000000",
 			"displayCjkSizeRatio": 2,
 			"displayType": "NEXT_STATION",
-			"displayDefaultText": "回廠|Depot"
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_en_route_destination"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "000000",
+			"displayCjkSizeRatio": 2,
+			"displayType": "DESTINATION",
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_en_route_line_name"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.125,
+			"displayYPadding": 0.275,
+			"displayColor": "000000",
+			"displayType": "ROUTE_NAME",
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK"
+			],
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_en_route_color_2"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.125,
+			"displayYPadding": 0.375,
+			"displayType": "ROUTE_COLOR",
+			"condition": "DOORS_CLOSED"
+		},
+		{
+			"names": [
+				"lcd_off"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorFlipped",
+				"doorEnd1",
+				"doorEnd2",
+				"doorEnd1Flipped",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR",
+			"condition": "AT_DEPOT"
 		}
 	],
 	"modelYOffset": 1,
