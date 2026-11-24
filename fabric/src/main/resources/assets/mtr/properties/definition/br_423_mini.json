@@ -41,8 +41,16 @@
 			]
 		},
 		{
-			"name": "window4Flipped",
+			"name": "window7",
 			"positionsFlipped": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
+			"name": "window7Flipped",
+			"positions": [
 				{
 					"z": -13.5
 				}

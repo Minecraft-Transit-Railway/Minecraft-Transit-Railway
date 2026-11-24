@@ -1,6 +1,44 @@
 {
 	"positionDefinitions": [
 		{
+			"name": "roofWindow1",
+			"positions": [
+				{
+					"z": -120
+				},
+				{
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 120
+				}
+			]
+		},
+		{
+			"name": "roofWindow2",
+			"positions": [
+				{
+					"z": -40
+				},
+				{
+					"z": 120
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -120
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
 			"name": "window",
 			"positions": [
 				{

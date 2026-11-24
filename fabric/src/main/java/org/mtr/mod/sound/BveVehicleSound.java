@@ -171,52 +171,8 @@ public class BveVehicleSound extends VehicleSoundBase {
 		isCompressorActiveLastElapsed = isCompressorActive;
 
 		if (vehicleResource != null && persistentVehicleData != null) {
-			double railProgress = persistentVehicleData.smoothedRailProgress;
-
-			// Joint / bogie crossing sounds
-			final double bogie1Position = vehicleResource.getBogie1Position();
-			final double bogie2Position = vehicleResource.getBogie2Position();
-
-			if (bogie1Position != 0 || bogie2Position != 0) {
-				final double carCenter = railProgress - vehicleExtraData.getTotalVehicleLength() / 2
-					+ vehicleExtraData.immutableVehicleCars.stream()
-					.limit(carNumber)
-					.mapToDouble(VehicleCar::getLength)
-					.sum()
-					+ vehicleResource.getLength() / 2;
-
-				final double bogie1Progress = carCenter - bogie1Position;
-				final double bogie2Progress = carCenter - bogie2Position;
-
-				final int bogie1RailId = Utilities.getIndexFromConditionalList(
-					vehicleExtraData.immutablePath,
-					bogie1Progress
-				);
-				final int bogie2RailId = Utilities.getIndexFromConditionalList(
-					vehicleExtraData.immutablePath,
-					bogie2Progress
-				);
-
-				final float pitch = speedKilometersPerHour * 20 / 12.5F;
-				final float gain = pitch < 0.5F ? 2 * pitch : 1;
-
-				playSoundInWorld(config.config.joint[0], blockPos);
-			}
-
-			if (bogie1Position <= 0) {
-				final int indexFront = (int) (railProgress + bogie1Position);
-				if (indexFront != bogieRailId[0]) {
-					bogieRailId[0] = indexFront;
-					playSoundInWorld(config.config.joint[0], blockPos);
-				}
-			}
-			if (bogie2Position >= 0) {
-				final int indexRear = (int) (railProgress + bogie2Position);
-				if (indexRear != bogieRailId[1]) {
-					bogieRailId[1] = indexRear;
-					playSoundInWorld(config.config.joint[0], blockPos);
-				}
-			}
+			// TODO: Play joint sounds
+			//playSoundInWorld(config.config.joint[0], blockPos);
 		}
 	}
 

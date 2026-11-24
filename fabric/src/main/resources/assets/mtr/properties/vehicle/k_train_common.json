@@ -21,8 +21,7 @@
 		{
 			"names": [
 				"window",
-				"window_handrails",
-				"roof_window"
+				"window_handrails"
 			],
 			"positionDefinitions": [
 				"window",
@@ -58,10 +57,7 @@
 				"roof_window"
 			],
 			"positionDefinitions": [
-				"window2",
-				"window1Flipped",
-				"windowEnd2",
-				"windowEnd1Flipped"
+				"roofWindow1"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -70,10 +66,7 @@
 				"roof_window_2"
 			],
 			"positionDefinitions": [
-				"window1",
-				"window2Flipped",
-				"windowEnd1",
-				"windowEnd2Flipped"
+				"roofWindow2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -82,13 +75,10 @@
 				"interior_display"
 			],
 			"positionDefinitions": [
-				"window1",
-				"window2Flipped",
-				"windowEnd1",
-				"windowEnd2Flipped"
+				"roofWindow2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.25,
+			"displayXPadding": 0.125,
 			"displayYPadding": 0,
 			"displayColor": "FF9900",
 			"displayOptions": [

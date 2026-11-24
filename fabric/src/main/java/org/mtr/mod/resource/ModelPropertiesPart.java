@@ -123,28 +123,30 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		return brightness >= 180 ? 0x000000 : 0xFFFFFF;
 	}
 
-	public void setupDisplayColor(@Nullable VehicleExtension vehicle, boolean fromResourcePackCreator) {
-		int routeColor;
+	public int setupDisplayColor(@Nullable VehicleExtension vehicle, boolean fromResourcePackCreator, boolean isCjk) {
+		final int routeColor;
 		if (fromResourcePackCreator) {
 			routeColor = ARGB_BLACK | rainbowColor();
 		} else {
 			routeColor = getOrDefault(ARGB_BLACK | vehicle.vehicleExtraData.getThisRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getNextRouteColor(), ARGB_BLACK | vehicle.vehicleExtraData.getPreviousRouteColor(), 0, vehicle);
 		}
 
-		if (displayColor.equals("ROUTE_COLOR")) {
-			displayColorInt = routeColor;
-		} else if (displayColor.equals("CONTRAST_COLOR")) {
-			displayColorInt = getContrastColor(routeColor);
+		if (isCjk && displayColorCjk != null && !displayColorCjk.isBlank()) {
+			if (displayColorCjk.equals("ROUTE_COLOR")) {
+				return routeColor;
+			} else if (displayColorCjk.equals("CONTRAST_COLOR")) {
+				return getContrastColor(routeColor);
+			} else {
+				return parseColor(displayColorCjk, displayColorInt);
+			}
 		} else {
-			displayColorInt = parseColor(displayColor, 0xFF9900);
-		}
-
-		if (displayColorCjk.equals("ROUTE_COLOR")) {
-			displayColorCjkInt = routeColor;
-		} else if (displayColorCjk.equals("CONTRAST_COLOR")) {
-			displayColorCjkInt = getContrastColor(routeColor);
-		} else {
-			displayColorCjkInt = parseColor(displayColorCjk, displayColorInt);
+			if (displayColor.equals("ROUTE_COLOR")) {
+				return routeColor;
+			} else if (displayColor.equals("CONTRAST_COLOR")) {
+				return getContrastColor(routeColor);
+			} else {
+				return parseColor(displayColor, 0xFF9900);
+			}
 		}
 	}
 
@@ -268,13 +270,12 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						if (displayType == DisplayType.ROUTE_COLOR || displayType == DisplayType.ROUTE_COLOR_ROUNDED) {
 							renderLineColor(storedMatrixTransformations, vehicle, fromResourcePackCreator, renderPropertiesDisplay, light);
 						} else {
-							setupDisplayColor(vehicle, fromResourcePackCreator);
 							if (displayOptions.contains(DisplayOption.SEVEN_SEGMENT.toString())) {
-								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light);
+								renderSevenSegmentDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light, fromResourcePackCreator);
 							} else if (displayOptions.contains(DisplayOption.SCROLL_NORMAL.toString()) || displayOptions.contains(DisplayOption.SCROLL_LIGHT_RAIL.toString())) {
-								renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderPropertiesDisplay, light);
+								renderScrollingDisplay(storedMatrixTransformations, vehicle, carNumber, scrollingDisplayIndexTracker, renderPropertiesDisplay, light, fromResourcePackCreator);
 							} else {
-								renderDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light);
+								renderDisplay(storedMatrixTransformations, vehicle, renderPropertiesDisplay, light, fromResourcePackCreator);
 							}
 						}
 					}
@@ -455,7 +456,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		});
 	}
 
-	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light) {
+	private void renderSevenSegmentDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light, boolean fromResourcePackCreator) {
+		final int color = setupDisplayColor(vehicle, fromResourcePackCreator, false);
+		
 		final String text = formatText(vehicle);
 		final HorizontalAlignment horizontalAlignment = getHorizontalAlignment(false);
 
@@ -477,7 +480,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 							0, 0,
 							(displayPart.height - (float) displayYPadding * 2) / 16,
 							horizontalAlignment,
-							ARGB_BLACK | displayColorInt, renderProperties.rightInt()
+							ARGB_BLACK | color, renderProperties.rightInt()
 					);
 					graphicsHolder.pop();
 				}));
@@ -489,7 +492,9 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 		});
 	}
 
-	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light) {
+	private void renderScrollingDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, int carNumber, int[] scrollingDisplayIndexTracker, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light, boolean fromResourcePackCreator) {
+		final int color = setupDisplayColor(vehicle, fromResourcePackCreator, false);
+		
 		final String text = formatText(vehicle);
 		final ObjectArrayList<ScrollingText> scrollingTexts = vehicle.persistentVehicleData.getScrollingText(carNumber);
 
@@ -511,14 +516,17 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 					scrollingTexts.add(new ScrollingText(width, height, 4, height < 0.1));
 				}
 
-				scrollingTexts.get(scrollingDisplayIndexTracker[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, ARGB_BLACK | displayColorInt, renderProperties.rightInt(), displayCjkSizeRatio, height < 0.1));
+				scrollingTexts.get(scrollingDisplayIndexTracker[0]).changeImage(text.isEmpty() ? null : DynamicTextureCache.instance.getPixelatedText(text, ARGB_BLACK | color, renderProperties.rightInt(), displayCjkSizeRatio, height < 0.1));
 				scrollingTexts.get(scrollingDisplayIndexTracker[0]).scrollText(storedMatrixTransformations2);
 				scrollingDisplayIndexTracker[0]++;
 			}));
 		});
 	}
 
-	private void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light) {
+	private void renderDisplay(StoredMatrixTransformations storedMatrixTransformations, VehicleExtension vehicle, ObjectIntImmutablePair<QueuedRenderLayer> renderProperties, int light, boolean fromResourcePackCreator) {
+		final int color = setupDisplayColor(vehicle, fromResourcePackCreator, false);
+		final int colorCjk = setupDisplayColor(vehicle, fromResourcePackCreator, true);
+		
 		final String[] textSplit = formatText(vehicle).split("\\|");
 		final boolean[] isCjk = new boolean[textSplit.length];
 		final double[] textHeightScale = new double[textSplit.length];
@@ -553,7 +561,7 @@ public final class ModelPropertiesPart extends ModelPropertiesPartSchema impleme
 						graphicsHolder.push();
 						graphicsHolder.translate(Math.max(0, horizontalAlignment.getOffset(0, (float) (textWidth - availableTextWidth))), 0, 0);
 						graphicsHolder.scale((float) (Math.min(1, availableTextWidth / textWidth) * newTextScale), (float) newTextScale, 1);
-						graphicsHolder.drawText(mutableText, 0, 0, isCjk[i] ? displayColorCjkInt : displayColorInt, false, renderProperties.rightInt());
+						graphicsHolder.drawText(mutableText, 0, 0, isCjk[i] ? colorCjk : color, false, renderProperties.rightInt());
 						graphicsHolder.pop();
 						graphicsHolder.translate(0, newTextScale * (TEXT_HEIGHT + LINE_PADDING), 0);
 					}

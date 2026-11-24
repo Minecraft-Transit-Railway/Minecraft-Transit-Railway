@@ -73,7 +73,7 @@
 			]
 		},
 		{
-			"name": "door2Flipped",
+			"name": "door1Flipped",
 			"positionsFlipped": [
 				{
 					"z": 0

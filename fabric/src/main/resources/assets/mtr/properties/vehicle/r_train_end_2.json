@@ -91,8 +91,7 @@
 			"displayColor": "000000",
 			"displayOptions": [],
 			"displayCjkSizeRatio": 999999,
-			"displayType": "NEXT_STATION",
-			"displayDefaultText": "回廠"
+			"displayType": "NEXT_STATION"
 		},
 		{
 			"names": [
@@ -107,8 +106,7 @@
 			"displayColor": "000000",
 			"displayOptions": [],
 			"displayCjkSizeRatio": 0.000001,
-			"displayType": "NEXT_STATION",
-			"displayDefaultText": "Depot"
+			"displayType": "NEXT_STATION"
 		}
 	],
 	"modelYOffset": 1

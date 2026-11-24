@@ -11,6 +11,7 @@
 				"window3Flipped",
 				"window4",
 				"window4Flipped",
+				"window7",
 				"window5",
 				"window5Flipped"
 			],
@@ -48,7 +49,8 @@
 				"window_3_interior"
 			],
 			"positionDefinitions": [
-				"window4Flipped"
+				"window4Flipped",
+				"window7"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -75,6 +77,7 @@
 				"window3Flipped",
 				"window4",
 				"window4Flipped",
+				"window7",
 				"window5",
 				"window5Flipped"
 			],
@@ -93,6 +96,7 @@
 				"window3Flipped",
 				"window4",
 				"window4Flipped",
+				"window7",
 				"window5",
 				"window5Flipped",
 				"window6",
@@ -114,7 +118,8 @@
 				"window_3_exterior"
 			],
 			"positionDefinitions": [
-				"window3"
+				"window3",
+				"window7"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -361,10 +366,8 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.8,
-			"displayColor": "FFFFFF",
+			"displayColor": "CONTRAST_COLOR",
 			"displayOptions": [
-				"ALIGN_LEFT",
-				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
@@ -388,7 +391,8 @@
 				"side_destination_display_2"
 			],
 			"positionDefinitions": [
-				"window4"
+				"window4",
+				"window7Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
@@ -406,15 +410,14 @@
 				"side_route_number_display_2"
 			],
 			"positionDefinitions": [
-				"window4"
+				"window4",
+				"window7Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.4,
 			"displayYPadding": 0.8,
-			"displayColor": "FFFFFF",
+			"displayColor": "CONTRAST_COLOR",
 			"displayOptions": [
-				"ALIGN_LEFT",
-				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
@@ -424,7 +427,8 @@
 				"side_route_color_display_2"
 			],
 			"positionDefinitions": [
-				"window4"
+				"window4",
+				"window7Flipped"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 0.2,
@@ -493,7 +497,7 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.125,
 			"displayYPadding": 0.375,
-			"displayColor": "FFFFFF",
+			"displayColor": "CONTRAST_COLOR",
 			"displayOptions": [],
 			"displayType": "ROUTE_NUMBER"
 		},

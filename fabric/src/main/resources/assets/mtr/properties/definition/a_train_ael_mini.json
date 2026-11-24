@@ -67,12 +67,12 @@
 			"name": "aelLcd",
 			"positions": [
 				{
-					"z": -28.1
+					"z": 28.1
 				}
 			],
 			"positionsFlipped": [
 				{
-					"z": 28.1
+					"z": -28.1
 				}
 			]
 		},
