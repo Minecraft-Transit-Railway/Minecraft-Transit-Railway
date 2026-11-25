@@ -1,6 +1,4 @@
 {
-	"format_version": "26.3",
-	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
 		"black": "mtr:block/black",
@@ -43,7 +41,18 @@
 		{
 			"from": [12.5, 15, 7.75],
 			"to": [15, 15.5, 8.25],
-			"shade_direction_override": "up",
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 2.75]},
+			"faces": {
+				"north": {"uv": [1, 0.5, 3.5, 1], "texture": "#yellow_glass_off"},
+				"east": {"uv": [7.75, 0.5, 8.25, 1], "texture": "#yellow_glass_off"},
+				"south": {"uv": [12.5, 0.5, 15, 1], "texture": "#yellow_glass_off"},
+				"west": {"uv": [7.75, 0.5, 8.25, 1], "texture": "#yellow_glass_off"},
+				"up": {"uv": [12.5, 7.75, 15, 8.25], "texture": "#yellow_glass_off"}
+			}
+		},
+		{
+			"from": [12.5, 15, 7.75],
+			"to": [15, 15.5, 8.25],
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 2.75]},
 			"faces": {
 				"north": {"uv": [1, 0.5, 3.5, 1], "texture": "#yellow_glass_on"},
@@ -83,7 +92,6 @@
 		{
 			"from": [12.5, 8, -0.1],
 			"to": [15, 10.5, -0.1],
-			"shade_direction_override": "up",
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 16]},
 			"faces": {
 				"north": {"uv": [16, 0, 0, 16], "texture": "#arrow", "cullface": "south"}
@@ -158,7 +166,6 @@
 		{
 			"from": [12.5, 8, 16.1],
 			"to": [15, 10.5, 16.1],
-			"shade_direction_override": "up",
 			"faces": {
 				"south": {"uv": [0, 0, 16, 16], "texture": "#arrow", "cullface": "south"}
 			}
