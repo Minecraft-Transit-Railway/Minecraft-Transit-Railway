@@ -5,7 +5,7 @@
 				"window"
 			],
 			"positionDefinitions": [
-				"b7d00fb7"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -16,7 +16,7 @@
 				"window_exterior"
 			],
 			"positionDefinitions": [
-				"196a4858"
+				"window_exterior"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -27,7 +27,7 @@
 				"window_handrail"
 			],
 			"positionDefinitions": [
-				"15f40661"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -38,7 +38,7 @@
 				"window_light"
 			],
 			"positionDefinitions": [
-				"31f3af6"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -49,7 +49,7 @@
 				"denko"
 			],
 			"positionDefinitions": [
-				"9b941e0f"
+				"interior_display"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -60,7 +60,7 @@
 				"display_interior"
 			],
 			"positionDefinitions": [
-				"43cfb66"
+				"interior_display"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -83,7 +83,7 @@
 				"window_floor"
 			],
 			"positionDefinitions": [
-				"9256ed46"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -94,7 +94,7 @@
 				"window_chair"
 			],
 			"positionDefinitions": [
-				"533fb80b"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -105,7 +105,7 @@
 				"side_panel"
 			],
 			"positionDefinitions": [
-				"66e12414"
+				"side_panel"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -116,7 +116,7 @@
 				"roof_exterior_aircon"
 			],
 			"positionDefinitions": [
-				"e8597728"
+				"roof_exterior_aircon"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -127,7 +127,7 @@
 				"roof_exterior"
 			],
 			"positionDefinitions": [
-				"7f17eb6d"
+				"roof_exterior"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -138,7 +138,7 @@
 				"door_light_on"
 			],
 			"positionDefinitions": [
-				"3eb22f58"
+				"window_exterior"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -149,7 +149,7 @@
 				"display_side"
 			],
 			"positionDefinitions": [
-				"f2c07ae"
+				"window_exterior"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -172,7 +172,7 @@
 				"door"
 			],
 			"positionDefinitions": [
-				"96e9a23a"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -183,7 +183,7 @@
 				"door_floor"
 			],
 			"positionDefinitions": [
-				"7c0aea5f"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -194,7 +194,7 @@
 				"doorway"
 			],
 			"positionDefinitions": [
-				"141a686a"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -205,7 +205,7 @@
 				"door_left"
 			],
 			"positionDefinitions": [
-				"20f2990e"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -219,7 +219,7 @@
 				"door_right"
 			],
 			"positionDefinitions": [
-				"826b1eec"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -233,7 +233,7 @@
 				"door_exterior_left"
 			],
 			"positionDefinitions": [
-				"900c137f"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -247,7 +247,7 @@
 				"door_exterior_right"
 			],
 			"positionDefinitions": [
-				"6aec4cb3"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -261,7 +261,7 @@
 				"door_exterior"
 			],
 			"positionDefinitions": [
-				"766c09b3"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -272,7 +272,7 @@
 				"door_handrail"
 			],
 			"positionDefinitions": [
-				"2ca9ff45"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -283,7 +283,7 @@
 				"door_light"
 			],
 			"positionDefinitions": [
-				"cff7093f"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -294,7 +294,7 @@
 				"end"
 			],
 			"positionDefinitions": [
-				"768cb543"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -305,7 +305,7 @@
 				"end_exterior"
 			],
 			"positionDefinitions": [
-				"f9f45b59"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -316,7 +316,7 @@
 				"end_light"
 			],
 			"positionDefinitions": [
-				"51f72db1"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -327,7 +327,7 @@
 				"gangway_light"
 			],
 			"positionDefinitions": [
-				"85d0f2c1"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -338,7 +338,7 @@
 				"end_floor"
 			],
 			"positionDefinitions": [
-				"c284a06a"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -349,7 +349,7 @@
 				"end_chair"
 			],
 			"positionDefinitions": [
-				"e00fbed8"
+				"end"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",

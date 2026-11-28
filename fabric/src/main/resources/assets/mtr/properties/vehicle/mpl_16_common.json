@@ -120,6 +120,55 @@
 		},
 		{
 			"names": [
+				"lcd_light"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window2a",
+				"window2b",
+				"window3"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"lcd_text"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window2a",
+				"window2b",
+				"window3"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.225,
+			"displayYPadding": 0.35,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"SCROLL_NORMAL",
+				"SINGLE_LINE"
+			],
+			"displayType": "NEXT_STATION_UK",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"lcd_route_color"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window2a",
+				"window2b",
+				"window3"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.375,
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR"
+		},
+		{
+			"names": [
 				"light_door"
 			],
 			"positionDefinitions": [

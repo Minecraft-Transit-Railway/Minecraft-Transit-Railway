@@ -297,6 +297,32 @@
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"interior_display_frame"
+			],
+			"positionDefinitions": [
+				"interiorDisplay"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"interior_display"
+			],
+			"positionDefinitions": [
+				"interiorDisplay"
+			],
+			"type": "DISPLAY",
+			"displayColor": "A9D130",
+			"displayXPadding": 0.1,
+			"displayYPadding": 0.1,
+			"displayOptions": [
+				"SCROLL_NORMAL",
+				"SINGLE_LINE"
+			],
+			"displayType": "NEXT_STATION_MTR"
 		}
 	],
 	"modelYOffset": 1,

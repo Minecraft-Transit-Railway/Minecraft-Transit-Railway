@@ -10,10 +10,12 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBooleanImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectDoubleImmutablePair;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.EntityHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.OptimizedRenderer;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.*;
 import org.mtr.mod.config.Config;
@@ -23,6 +25,10 @@ import org.mtr.mod.resource.Interpolation;
 import org.mtr.mod.resource.VehicleResource;
 import org.mtr.mod.resource.VehicleResourceCache;
 import org.mtr.mod.servlet.ResourcePackCreatorOperationServlet;
+import org.mtr.mod.resource.OptimizedModelWrapper;
+import org.mtr.mod.resource.ResourceProvider;
+import org.mtr.mod.client.CustomResourceLoader;
+import org.mtr.mod.resource.ModelResourceLoader;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -30,6 +36,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RenderVehicles implements IGui {
+	private static final ResourceProvider RESOURCE_PROVIDER = new ResourceProvider() {
+		@Override
+		public String get(Identifier identifier) {
+			return CustomResourceLoader.readResource(identifier);
+		}
+
+		@Override
+		public byte[] getBytes(Identifier identifier) {
+			return CustomResourceLoader.readResourceBytes(identifier);
+		}
+	};
 
 	public static final ObjectArrayList<RidingPlayerInterpolation> RIDING_PLAYER_INTERPOLATIONS = new ObjectArrayList<>();
 
@@ -232,48 +249,48 @@ public class RenderVehicles implements IGui {
 
 							// Render gangway
 							renderConnection(
-									vehicleResource.hasGangway1(),
-									vehicleResource.hasGangway2(),
-									true,
-									previousGangwayPositionsList.get(modelIndex),
-									model.modelProperties.gangwayInnerSideTexture,
-									model.modelProperties.gangwayInnerTopTexture,
-									model.modelProperties.gangwayInnerBottomTexture,
-									model.modelProperties.gangwayOuterSideTexture,
-									model.modelProperties.gangwayOuterTopTexture,
-									model.modelProperties.gangwayOuterBottomTexture,
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getGangwayWidth(),
-									model.modelProperties.getGangwayHeight(),
-									model.modelProperties.getGangwayYOffset(),
-									model.modelProperties.getGangwayZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
+								vehicleResource.hasGangway1(),
+								vehicleResource.hasGangway2(),
+								true,
+								previousGangwayPositionsList.get(modelIndex),
+								model.modelProperties.gangwayInnerSideTexture,
+								model.modelProperties.gangwayInnerTopTexture,
+								model.modelProperties.gangwayInnerBottomTexture,
+								model.modelProperties.gangwayOuterSideTexture,
+								model.modelProperties.gangwayOuterTopTexture,
+								model.modelProperties.gangwayOuterBottomTexture,
+								vehicleCarRenderingPositionAndRotation,
+								offsetVector == null,
+								vehicleCarDetails.left().getLength(),
+								model.modelProperties.getGangwayWidth(),
+								model.modelProperties.getGangwayHeight(),
+								model.modelProperties.getGangwayYOffset(),
+								model.modelProperties.getGangwayZOffset(),
+								oscillationAmount,
+								vehicle.getIsOnRoute()
 							);
 
 							// Render barrier
 							renderConnection(
-									vehicleResource.hasBarrier1(),
-									vehicleResource.hasBarrier2(),
-									false,
-									previousBarrierPositionsList.get(modelIndex),
-									model.modelProperties.barrierInnerSideTexture,
-									model.modelProperties.barrierInnerTopTexture,
-									model.modelProperties.barrierInnerBottomTexture,
-									model.modelProperties.barrierOuterSideTexture,
-									model.modelProperties.barrierOuterTopTexture,
-									model.modelProperties.barrierOuterBottomTexture,
-									vehicleCarRenderingPositionAndRotation,
-									offsetVector == null,
-									vehicleCarDetails.left().getLength(),
-									model.modelProperties.getBarrierWidth(),
-									model.modelProperties.getBarrierHeight(),
-									model.modelProperties.getBarrierYOffset(),
-									model.modelProperties.getBarrierZOffset(),
-									oscillationAmount,
-									vehicle.getIsOnRoute()
+								vehicleResource.hasBarrier1(),
+								vehicleResource.hasBarrier2(),
+								false,
+								previousBarrierPositionsList.get(modelIndex),
+								model.modelProperties.barrierInnerSideTexture,
+								model.modelProperties.barrierInnerTopTexture,
+								model.modelProperties.barrierInnerBottomTexture,
+								model.modelProperties.barrierOuterSideTexture,
+								model.modelProperties.barrierOuterTopTexture,
+								model.modelProperties.barrierOuterBottomTexture,
+								vehicleCarRenderingPositionAndRotation,
+								offsetVector == null,
+								vehicleCarDetails.left().getLength(),
+								model.modelProperties.getBarrierWidth(),
+								model.modelProperties.getBarrierHeight(),
+								model.modelProperties.getBarrierYOffset(),
+								model.modelProperties.getBarrierZOffset(),
+								oscillationAmount,
+								vehicle.getIsOnRoute()
 							);
 						});
 

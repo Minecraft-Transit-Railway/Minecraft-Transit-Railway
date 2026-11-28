@@ -2,21 +2,45 @@
 	"replacements": {
 		"lengths": [
 			15,
-			15
+			15,
+			10,
+			10
 		],
-		"name": [
+		"name1": [
+			"S7",
+			"S8",
 			"S7",
 			"S8"
 		],
+		"name2": [
+			"Normal",
+			"Normal",
+			"Mini",
+			"Mini"
+		],
 		"type": [
 			"s7",
+			"s8",
+			"s7",
 			"s8"
+		],
+		"definition": [
+			"",
+			"",
+			"_mini",
+			"_mini"
+		],
+		"doors": [
+			"3",
+			"3",
+			"2",
+			"2"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "london_underground_@type@_trailer",
-			"name": "London Underground @name@ Trailer",
+			"id": "london_underground_@type@@definition@_trailer",
+			"name": "London Underground @name1@ Stock Trailer (@name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -26,14 +50,14 @@
 			"tags": [
 				"family:london_underground_@type@",
 				"iso_3166:GB",
-				"doors:3"
+				"doors:@doors@"
 			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_trailer.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_trailer.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@@definition@_trailer.json"
 				}
 			],
 			"bogie1Models": [
@@ -57,8 +81,8 @@
 			"bveSoundBaseResource": "london_underground_s7"
 		},
 		{
-			"id": "london_underground_@type@_cab_1",
-			"name": "London Underground @name@ Cab (Forwards)",
+			"id": "london_underground_@type@@definition@_cab_1",
+			"name": "London Underground @name1@ Stock Cab (Forwards, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -68,14 +92,14 @@
 			"tags": [
 				"family:london_underground_@type@",
 				"iso_3166:GB",
-				"doors:3"
+				"doors:@doors@"
 			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_1.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@@definition@_cab_1.json"
 				}
 			],
 			"bogie1Models": [
@@ -99,8 +123,8 @@
 			"bveSoundBaseResource": "london_underground_s7"
 		},
 		{
-			"id": "london_underground_@type@_cab_2",
-			"name": "London Underground @name@ Cab (Backwards)",
+			"id": "london_underground_@type@@definition@_cab_2",
+			"name": "London Underground @name1@ Stock Cab (Backwards, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -110,14 +134,14 @@
 			"tags": [
 				"family:london_underground_@type@",
 				"iso_3166:GB",
-				"doors:3"
+				"doors:@doors@"
 			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_2.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@@definition@_cab_2.json"
 				}
 			],
 			"bogie1Models": [
@@ -141,8 +165,8 @@
 			"bveSoundBaseResource": "london_underground_s7"
 		},
 		{
-			"id": "london_underground_@type@_cab_3",
-			"name": "London Underground @name@ Cab (Double)",
+			"id": "london_underground_@type@@definition@_cab_3",
+			"name": "London Underground @name1@ Stock Cab (Double, @name2@)",
 			"color": "F64F1C",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -152,14 +176,14 @@
 			"tags": [
 				"family:london_underground_@type@",
 				"iso_3166:GB",
-				"doors:3"
+				"doors:@doors@"
 			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_s7.bbmodel",
 					"textureResource": "mtr:textures/vehicle/london_underground_s7.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_@type@_cab_3.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@_cab_3.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_@type@@definition@_cab_3.json"
 				}
 			],
 			"bogie1Models": [

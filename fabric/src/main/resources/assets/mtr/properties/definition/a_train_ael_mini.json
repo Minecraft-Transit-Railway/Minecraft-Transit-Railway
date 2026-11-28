@@ -1,0 +1,244 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "windowEnd1",
+			"positions": [
+				{
+					"z": -41
+				}
+			]
+		},
+		{
+			"name": "windowEnd2",
+			"positionsFlipped": [
+				{
+					"z": 41
+				}
+			]
+		},
+		{
+			"name": "windowEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -41
+				}
+			]
+		},
+		{
+			"name": "windowEnd2Flipped",
+			"positions": [
+				{
+					"z": 41
+				}
+			]
+		},
+		{
+			"name": "sidePanel",
+			"positions": [
+				{
+					"z": -28.1
+				},
+				{
+					"z": -11.9
+				},
+				{
+					"z": 11.9
+				},
+				{
+					"z": 28.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -28.1
+				},
+				{
+					"z": -11.9
+				},
+				{
+					"z": 11.9
+				},
+				{
+					"z": 28.1
+				}
+			]
+		},
+		{
+			"name": "aelLcd",
+			"positions": [
+				{
+					"z": 28.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -28.1
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "doorRoof",
+			"positions": [
+				{
+					"z": -2
+				},
+				{
+					"z": 2
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -2
+				},
+				{
+					"z": 2
+				}
+			]
+		},
+		{
+			"name": "luggageRack",
+			"positions": [
+				{
+					"z": -20
+				},
+				{
+					"z": 20
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -20
+				},
+				{
+					"z": 20
+				}
+			]
+		},
+		{
+			"name": "seat",
+			"positions": [
+				{
+					"x": -15,
+					"z": 40
+				},
+				{
+					"x": -8.5,
+					"z": 40
+				},
+				{
+					"x": 8.5,
+					"z": 40
+				},
+				{
+					"x": 15,
+					"z": 40
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -15,
+					"z": -40
+				},
+				{
+					"x": -8.5,
+					"z": -40
+				},
+				{
+					"x": 8.5,
+					"z": -40
+				},
+				{
+					"x": 15,
+					"z": -40
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -52
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 52
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -52
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 52
+				}
+			]
+		},
+		{
+			"name": "end1Roof",
+			"positions": [
+				{
+					"z": -36
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -36
+				}
+			]
+		},
+		{
+			"name": "end2Roof",
+			"positions": [
+				{
+					"z": 36
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 36
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": -41
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 41
+				}
+			]
+		}
+	]
+}

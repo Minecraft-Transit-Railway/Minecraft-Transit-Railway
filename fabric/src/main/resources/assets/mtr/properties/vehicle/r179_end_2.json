@@ -46,6 +46,64 @@
 				"end2"
 			],
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end_display_main"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"condition": "DOORS_CLOSED",
+			"displayXPadding": 0.475,
+			"displayYPadding": 0.475,
+			"displayOptions": [
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FF0000",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "THE NEXT STOP IS|%NEXT_STATION%|%ROUTE_NAME%|TO %DESTINATION%|%CLOCK_12HR% %CLOCK_AM_PM_UPPER%",
+			"displayDefaultText": "NO PASSENGERS"
+		},
+		{
+			"names": [
+				"end_display_main"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"condition": "DOORS_OPENED",
+			"displayXPadding": 0.475,
+			"displayYPadding": 0.475,
+			"displayOptions": [
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FF0000",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "THIS IS|%NEXT_STATION%|%ROUTE_NAME%|TO %DESTINATION%|%CLOCK_12HR% %CLOCK_AM_PM_UPPER%",
+			"displayDefaultText": "NO PASSENGERS"
+		},
+		{
+			"names": [
+				"end_display_route_number"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.225,
+			"displayYPadding": 0.475,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"UPPER_CASE"
+			],
+			"displayColor": "FF9900",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "(%ROUTE_NUMBER%)"
 		}
 	],
 	"modelYOffset": 1

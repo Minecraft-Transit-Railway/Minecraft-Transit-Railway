@@ -1,16 +1,26 @@
 {
 	"replacements": {
 		"lengths": [
-			20
+			20,
+			13.5
 		],
-		"id": [
-			"mpl_16"
+		"name": [
+			"Normal",
+			"Mini"
+		],
+		"definition": [
+			"",
+			"_mini"
+		],
+		"doors": [
+			"3",
+			"2"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "mpl_16_trailer",
-			"name": "MPL 16 (Trailer)",
+			"id": "mpl_16@definition@_trailer",
+			"name": "MPL 16 Trailer (@name@)",
 			"color": "CC0000",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -20,7 +30,7 @@
 			"tags": [
 				"family:mpl_16",
 				"iso_3166:FR",
-				"doors:3",
+				"doors:@doors@",
 				"type:trailer"
 			],
 			"models": [
@@ -28,19 +38,19 @@
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -61,14 +71,14 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "mpl_85",
-			"legacySpeedSoundCount": 48,
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
 			"legacyDoorSoundBaseResource": "mpl_85",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "mpl_16_cab_1",
-			"name": "MPL 16 (Forwards)",
+			"id": "mpl_16@definition@_cab_1",
+			"name": "MPL 16 Cab (Forwards, @name@)",
 			"color": "CC0000",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -78,7 +88,7 @@
 			"tags": [
 				"family:mpl_16",
 				"iso_3166:FR",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_1"
 			],
 			"models": [
@@ -86,19 +96,19 @@
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -119,14 +129,14 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": true,
-			"legacySpeedSoundBaseResource": "mpl_85",
-			"legacySpeedSoundCount": 48,
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
 			"legacyDoorSoundBaseResource": "mpl_85",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "mpl_16_cab_2",
-			"name": "MPL 16 (Backwards)",
+			"id": "mpl_16@definition@_cab_2",
+			"name": "MPL 16 Cab (Backwards, @name@)",
 			"color": "CC0000",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -136,7 +146,7 @@
 			"tags": [
 				"family:mpl_16",
 				"iso_3166:FR",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_2"
 			],
 			"models": [
@@ -144,19 +154,19 @@
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -177,14 +187,14 @@
 			],
 			"hasGangway1": true,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "mpl_85",
-			"legacySpeedSoundCount": 48,
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
 			"legacyDoorSoundBaseResource": "mpl_85",
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "mpl_16_cab_3",
-			"name": "MPL 16 (Double)",
+			"id": "mpl_16@definition@_cab_3",
+			"name": "MPL 16 Cab (Double, @name@)",
 			"color": "CC0000",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -194,7 +204,7 @@
 			"tags": [
 				"family:mpl_16",
 				"iso_3166:FR",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_3"
 			],
 			"models": [
@@ -202,19 +212,19 @@
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/mpl_16.bbmodel",
 					"textureResource": "mtr:textures/vehicle/mpl_16.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/mpl_16_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/mpl_16.json"
+					"positionDefinitionsResource": "mtr:properties/definition/mpl_16@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -235,8 +245,8 @@
 			],
 			"hasGangway1": false,
 			"hasGangway2": false,
-			"legacySpeedSoundBaseResource": "mpl_85",
-			"legacySpeedSoundCount": 48,
+			"legacySpeedSoundBaseResource": "s_train",
+			"legacySpeedSoundCount": 42,
 			"legacyDoorSoundBaseResource": "mpl_85",
 			"legacyDoorCloseSoundTime": 1
 		}

@@ -1,0 +1,28 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "head",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+			]
+		},
+		{
+			"name": "lights",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 77
+				}
+			],
+			"positionsFlipped": [
+			]
+		}
+	]
+}

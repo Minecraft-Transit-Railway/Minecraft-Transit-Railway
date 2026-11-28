@@ -73,10 +73,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211@definition@_cab_1",
@@ -133,10 +130,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211@definition@_cab_2",
@@ -193,10 +187,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211@definition@_cab_3",
@@ -253,10 +244,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211t@definition@_trailer",
@@ -313,10 +301,7 @@
 			"hasGangway2": true,
 			"hasBarrier1": true,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211t@definition@_cab_1",
@@ -373,10 +358,7 @@
 			"hasGangway2": true,
 			"hasBarrier1": false,
 			"hasBarrier2": true,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211t@definition@_cab_2",
@@ -433,10 +415,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": true,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		},
 		{
 			"id": "r211t@definition@_cab_3",
@@ -493,10 +472,7 @@
 			"hasGangway2": false,
 			"hasBarrier1": false,
 			"hasBarrier2": false,
-			"legacySpeedSoundBaseResource": "r179",
-			"legacySpeedSoundCount": 66,
-			"legacyDoorSoundBaseResource": "r179",
-			"legacyDoorCloseSoundTime": 1
+			"bveSoundBaseResource": "r211"
 		}
 	]
 }

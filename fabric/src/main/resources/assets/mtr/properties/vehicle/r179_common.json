@@ -12,11 +12,28 @@
 		{
 			"names": [
 				"window",
-				"roof_window",
 				"window_handrails"
 			],
 			"positionDefinitions": [
 				"window"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_window"
+			],
+			"positionDefinitions": [
+				"roofWindow1"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"roof_window_2"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -258,6 +275,187 @@
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"find_display_route_color"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR_ROUNDED"
+		},
+		{
+			"names": [
+				"find_display_route_number"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.1,
+			"displayYPadding": 0.1,
+			"displayOptions": [],
+			"displayColor": "CONTRAST_COLOR",
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"find_display_route_name"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.1,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FFFFFF",
+			"displayType": "ROUTE_NAME",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"find_display_destination"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.3,
+			"displayYPadding": 0.1,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FFFFFF",
+			"displayType": "DESTINATION"
+		},
+		{
+			"names": [
+				"find_display_next_station"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FF9900",
+			"displayType": "NEXT_STATION"
+		},
+		{
+			"names": [
+				"find_display_destination_2"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FF9900",
+			"displayType": "DESTINATION"
+		},
+		{
+			"names": [
+				"find_display_next_this_text"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"condition": "DOORS_OPENED",
+			"type": "DISPLAY",
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "FF0000",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "This Is"
+		},
+		{
+			"names": [
+				"find_display_next_this_text"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"condition": "DOORS_CLOSED",
+			"type": "DISPLAY",
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "FF0000",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "Next Stop"
+		},
+		{
+			"names": [
+				"find_display_last_stop_text"
+			],
+			"positionDefinitions": [
+				"roofWindow2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.15,
+			"displayYPadding": 0.275,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "FFFFFF",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "Last Stop"
+		},
+		{
+			"names": [
+				"door_light_interior_on"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"roofWindow2",
+				"window3",
+				"window3Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"door_light_interior_off"
+			],
+			"positionDefinitions": [
+				"window1",
+				"window1Flipped",
+				"roofWindow2",
+				"window3",
+				"window3Flipped"
+			],
+			"condition": "DOORS_CLOSED",
+			"renderStage": "EXTERIOR"
 		}
 	],
 	"modelYOffset": 1,

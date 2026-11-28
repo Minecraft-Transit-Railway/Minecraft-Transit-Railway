@@ -326,7 +326,7 @@ public class CustomResourceLoader {
 		}
 	}
 
-	private static String readResource(Identifier identifier) {
+	public static String readResource(Identifier identifier) {
 		final String identifierString = identifier.data.toString();
 		final String cache = RESOURCE_CACHE.get(identifierString);
 		if (cache == null) {
@@ -349,7 +349,7 @@ public class CustomResourceLoader {
 		}
 	}
 
-	private static byte[] readResourceBytes(Identifier identifier) {
+	public static byte[] readResourceBytes(Identifier identifier) {
 		if (Keys.DEBUG) {
 			try (final InputStream inputStream = Files.newInputStream(MinecraftClient.getInstance().getRunDirectoryMapped().toPath().resolve("../src/main/resources/assets").resolve(identifier.getNamespace()).resolve(identifier.getPath()), StandardOpenOption.READ)) {
 				return IOUtils.toByteArray(inputStream);

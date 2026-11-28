@@ -1,16 +1,26 @@
 {
 	"replacements": {
 		"lengths": [
-			16
+			16,
+			11
 		],
-		"id": [
-			"br_423"
+		"name": [
+			"Normal",
+			"Mini"
+		],
+		"definition": [
+			"",
+			"_mini"
+		],
+		"doors": [
+			"3",
+			"2"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "br_423_trailer",
-			"name": "DB BR 423 (Trailer)",
+			"id": "br_423@definition@_trailer",
+			"name": "DB BR 423 Trailer (@name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -20,7 +30,7 @@
 			"tags": [
 				"family:br_423",
 				"iso_3166:DE",
-				"doors:3",
+				"doors:@doors@",
 				"type:trailer"
 			],
 			"models": [
@@ -28,19 +38,19 @@
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -64,8 +74,8 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_1",
-			"name": "DB BR 423 (Forwards)",
+			"id": "br_423@definition@_cab_1",
+			"name": "DB BR 423 Cab (Forwards, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -75,7 +85,7 @@
 			"tags": [
 				"family:br_423",
 				"iso_3166:DE",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_1"
 			],
 			"models": [
@@ -83,19 +93,19 @@
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -119,8 +129,8 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_2",
-			"name": "DB BR 423 (Backwards)",
+			"id": "br_423@definition@_cab_2",
+			"name": "DB BR 423 Cab (Backwards, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -130,7 +140,7 @@
 			"tags": [
 				"family:br_423",
 				"iso_3166:DE",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_2"
 			],
 			"models": [
@@ -138,19 +148,19 @@
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -174,8 +184,8 @@
 			"bveSoundBaseResource": "br_423"
 		},
 		{
-			"id": "br_423_cab_3",
-			"name": "DB BR 423 (Double)",
+			"id": "br_423@definition@_cab_3",
+			"name": "DB BR 423 Cab (Double, @name@)",
 			"color": "E3010F",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -185,7 +195,7 @@
 			"tags": [
 				"family:br_423",
 				"iso_3166:DE",
-				"doors:3",
+				"doors:@doors@",
 				"type:cab_3"
 			],
 			"models": [
@@ -193,19 +203,19 @@
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/br_423.bbmodel",
 					"textureResource": "mtr:textures/vehicle/br_423.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/br_423_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/br_423.json"
+					"positionDefinitionsResource": "mtr:properties/definition/br_423@definition@.json"
 				}
 			],
 			"bogie1Models": [

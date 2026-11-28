@@ -33,6 +33,14 @@ public final class OptimizedModelWrapper {
 		this.optimizedModel = optimizedModel;
 	}
 
+	public static OptimizedModelWrapper fromConnectionModel(
+			@Nullable OptimizedModel optimizedModel
+	) {
+		return new OptimizedModelWrapper(
+				OptimizedRenderer.hasOptimizedRendering() ? optimizedModel : null
+		);
+	}
+
 	public OptimizedModelWrapper(@Nullable OptimizedModelWrapper optimizedModel1, @Nullable OptimizedModelWrapper optimizedModel2) {
 		final boolean nonNull1 = optimizedModel1 != null && optimizedModel1.optimizedModel != null;
 		final boolean nonNull2 = optimizedModel2 != null && optimizedModel2.optimizedModel != null;

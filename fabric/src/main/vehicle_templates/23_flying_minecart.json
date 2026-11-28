@@ -1,17 +1,55 @@
 {
 	"replacements": {
 		"lengths": [
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
+			2,
 			2
 		],
 		"id": [
-			"flying_minecart"
+			"flying_minecart",
+			"flying_chest_minecart",
+			"flying_hopper_minecart",
+			"flying_tnt_minecart",
+			"flying_furnace_minecart",
+			"flying_command_block_minecart",
+			"flying_repeating_command_block_minecart",
+			"flying_chain_command_block_minecart",
+			"flying_spawner_minecart"
+		],
+		"name": [
+			"Flying Minecart",
+			"Flying Minecart with Chest",
+			"Flying Minecart with Hopper",
+			"Flying Minecart with TNT",
+			"Flying Minecart with Furnace",
+			"Flying Minecart with Command Block (Impulse)",
+			"Flying Minecart with Command Block (Repeating)",
+			"Flying Minecart with Command Block (Chain)",
+			"Flying Minecart with Spawner"
+		],
+		"color": [
+			"A6A6A6",
+			"B38736",
+			"4A4A4A",
+			"D11500",
+			"717171",
+		    "F5A24E",
+			"552D87",
+			"66C4BE",
+			"082024"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "minecart",
-			"name": "Flying Minecart",
-			"color": "666666",
+			"id": "@id@",
+			"name": "@name@",
+			"color": "@color@",
 			"transportMode": "AIRPLANE",
 			"width": 1,
 			"couplingPadding1": 0,
@@ -24,15 +62,16 @@
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/minecart.bbmodel",
-					"textureResource": "minecraft:textures/entity/minecart.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/minecart.json",
+					"textureResource": "mtr:textures/vehicle/minecart.png",
+					"modelPropertiesResource": "mtr:properties/vehicle/@id@.json",
 					"positionDefinitionsResource": "mtr:properties/definition/minecart.json"
 				}
 			],
 			"bogie1Models": [
 			],
 			"bogie2Models": [
-			]
+			],
+			"bveSoundBaseResource": "minecart"
 		}
 	]
 }

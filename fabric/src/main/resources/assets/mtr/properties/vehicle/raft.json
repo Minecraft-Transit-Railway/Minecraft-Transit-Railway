@@ -1,0 +1,32 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway_1",
+				"doorway_2"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "DOORWAY"
+		}
+	]
+}

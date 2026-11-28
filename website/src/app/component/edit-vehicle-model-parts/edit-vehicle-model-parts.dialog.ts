@@ -40,6 +40,7 @@ const DOOR_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPar
 
 const isDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.type === "DISPLAY";
 const isRouteColorDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.displayType === "ROUTE_COLOR" || modelPropertiesPart.displayType === "ROUTE_COLOR_ROUNDED";
+const isTemplateDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.displayType === "TEMPLATE";
 const isDepartureIndexDisplay = (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => modelPropertiesPart.displayType === "DEPARTURE_INDEX";
 const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelPropertiesPart: ModelPropertiesPartWrapperDTO) => string }[] = [
 	{id: "displayXPadding", title: "X Padding", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayXPadding.toString() : ""},
@@ -51,12 +52,13 @@ const DISPLAY_COLUMNS: { id: string, title: string, formatData: (modelProperties
 	{id: "displayPadZeros", title: "Pad Zeros", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && isDepartureIndexDisplay(modelPropertiesPart) ? modelPropertiesPart.displayPadZeros.toString() : ""},
 	{id: "displayType", title: "Type", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) ? modelPropertiesPart.displayType : ""},
 	{id: "displayDefaultText", title: "Default Text", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && !isRouteColorDisplay(modelPropertiesPart) ? modelPropertiesPart.displayDefaultText : ""},
+	{id: "displayTemplateText", title: "Template Text", formatData: modelPropertiesPart => isDisplay(modelPropertiesPart) && isTemplateDisplay(modelPropertiesPart) ? modelPropertiesPart.displayDefaultText : ""},
 ];
 
 export const CREATE_MODEL_PROPERTIES_PART = () => new ModelPropertiesPartWrapperDTO(
 	new PositionDefinitionDTO(""),
 	"NORMAL", "EXTERIOR", "NORMAL",
-	0, 0, "FF9900", "FF9900", 1.5, 2, 0, "DESTINATION", "Not In Service",
+	0, 0, "FF9900", "FF9900", 1.5, 2, 0, "DESTINATION", "Not In Service", "", "LIGHT",
 	0, 0, "STANDARD", 0, 0, 0, 0, 0, 0,
 );
 

@@ -1,0 +1,271 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": -78
+				},
+				{
+					"z": -14
+				},
+				{
+					"z": 14
+				},
+				{
+					"z": 78
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -78
+				},
+				{
+					"z": -14
+				},
+				{
+					"z": 14
+				},
+				{
+					"z": 78
+				}
+			]
+		},
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -78
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 78
+				}
+			]
+		},
+		{
+			"name": "window2a",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+				{
+					"z": 78
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -78
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "middleHandrail",
+			"positions": [
+				{
+					"z": -48
+				},
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "roofDoor1",
+			"positions": [
+				{
+					"z": -48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48
+				}
+			]
+		},
+		{
+			"name": "roofDoor3",
+			"positions": [
+				{
+					"z": 48
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 48
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -104
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 104
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -104
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 104
+				}
+			]
+		},
+		{
+			"name": "seatEnd1",
+			"positions": [
+				{
+					"z": -92
+				}
+			]
+		},
+		{
+			"name": "seatEnd1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -92
+				}
+			]
+		},
+		{
+			"name": "seatEnd2",
+			"positions": [
+				{
+					"z": 92
+				}
+			]
+		},
+		{
+			"name": "seatEnd2Flipped",
+			"positionsFlipped": [
+				{
+					"z": 92
+				}
+			]
+		},
+		{
+			"name": "seatHandrail1",
+			"positions": [
+				{
+					"z": -21
+				},
+				{
+					"z": 21
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -21
+				},
+				{
+					"z": 21
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2a",
+			"positions": [
+				{
+					"z": -71
+				},
+				{
+					"z": 71
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -71
+				},
+				{
+					"z": 71
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2b",
+			"positions": [
+				{
+					"z": -87
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -87
+				}
+			]
+		},
+		{
+			"name": "seatHandrail2c",
+			"positions": [
+				{
+					"z": 87
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 87
+				}
+			]
+		},
+		{
+			"name": "sideDisplay",
+			"positions": [
+				{
+					"z": -13.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 13.5
+				}
+			]
+		}
+	]
+}

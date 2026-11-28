@@ -124,6 +124,7 @@
 				<mat-select formControlName="displayType">
 					<mat-option value="DESTINATION">Destination</mat-option>
 					<mat-option value="ROUTE_NUMBER">Route Number</mat-option>
+					<mat-option value="ROUTE_NAME">Route Name</mat-option>
 					<mat-option value="DEPARTURE_INDEX">Departure Index</mat-option>
 					<mat-option value="NEXT_STATION">Next Station</mat-option>
 					<mat-option value="NEXT_STATION_KCR">Next Station (KCR)</mat-option>
@@ -131,8 +132,25 @@
 					<mat-option value="NEXT_STATION_UK">Next Station (UK)</mat-option>
 					<mat-option value="ROUTE_COLOR">Route Colour (Square)</mat-option>
 					<mat-option value="ROUTE_COLOR_ROUNDED">Route Colour (Rounded)</mat-option>
+					<mat-option value="TEMPLATE">Template</mat-option>
 				</mat-select>
 			</mat-form-field>
+		    <mat-form-field subscriptSizing="dynamic">
+				<mat-label>Display Render Stage</mat-label>
+				<mat-select formControlName="displayRenderStage">
+					<mat-option value="LIGHT">Light</mat-option>
+					<mat-option value="ALWAYS_ON_LIGHT">Light (Always On)</mat-option>
+					<mat-option value="INTERIOR">Interior</mat-option>
+					<mat-option value="INTERIOR_TRANSLUCENT">Interior (Translucent)</mat-option>
+					<mat-option value="EXTERIOR">Exterior</mat-option>
+				</mat-select>
+			</mat-form-field>
+			@if (isTemplateDisplay()) {
+				<mat-form-field subscriptSizing="dynamic">
+					<mat-label>Template Text</mat-label>
+					<input matInput aria-label="Template Text" formControlName="displayTemplateText" autocomplete="off"/>
+				</mat-form-field>
+			}
 			@if (!isRouteColorDisplay()) {
 				<mat-form-field subscriptSizing="dynamic">
 					<mat-label>Default Text</mat-label>
@@ -153,12 +171,33 @@
 				<div class="row gap">
 					<mat-form-field subscriptSizing="dynamic">
 						<mat-label>Colour (CJK Text)</mat-label>
-						<input matInput type="color" aria-label="Colour (CJK Text)" formControlName="displayColorCjk"/>
+						<mat-select formControlName="displayColorCjk">
+							<mat-option value="CUSTOM">Custom</mat-option>
+							<mat-option value="ROUTE_COLOR">Route Colour</mat-option>
+							<mat-option value="CONTRAST_COLOR">Contrast Colour</mat-option>
+						</mat-select>
 					</mat-form-field>
+					@if (hasCustomDisplayColorCjk()) {
+						<mat-form-field subscriptSizing="dynamic">
+							<mat-label>Custom Colour (CJK Text)</mat-label>
+							<input matInput type="color" aria-label="Colour (CJK Text)" formControlName="displayColorCjkCustom"/>
+						</mat-form-field>
+					}
+
 					<mat-form-field subscriptSizing="dynamic">
 						<mat-label>Colour (Non-CJK Text)</mat-label>
-						<input matInput type="color" aria-label="Colour (Non-CJK Text)" formControlName="displayColor"/>
+						<mat-select formControlName="displayColor">
+							<mat-option value="CUSTOM">Custom</mat-option>
+							<mat-option value="ROUTE_COLOR">Route Colour</mat-option>
+							<mat-option value="CONTRAST_COLOR">Contrast Colour</mat-option>
+						</mat-select>
 					</mat-form-field>
+					@if (hasCustomDisplayColor()) {
+						<mat-form-field subscriptSizing="dynamic">
+							<mat-label>Custom Colour (Non-CJK Text)</mat-label>
+							<input matInput type="color" aria-label="Colour (Non-CJK Text)" formControlName="displayColorCustom"/>
+						</mat-form-field>
+					}
 				</div>
 				<mat-form-field subscriptSizing="dynamic">
 					<mat-label>Max Line Height</mat-label>

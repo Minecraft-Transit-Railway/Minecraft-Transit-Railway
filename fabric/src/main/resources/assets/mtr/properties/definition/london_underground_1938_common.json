@@ -1,7 +1,7 @@
 {
 	"positionDefinitions": [
 		{
-			"name": "9c1ea2da",
+			"name": "window",
 			"positions": [
 				{
 					"x": 0.0,
@@ -28,34 +28,7 @@
 			]
 		},
 		{
-			"name": "8572b276",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -96.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 96.0
-				}
-			]
-		},
-		{
-			"name": "d13b2960",
+			"name": "door",
 			"positions": [
 				{
 					"x": 0.0,
@@ -82,88 +55,7 @@
 			]
 		},
 		{
-			"name": "7cd08362",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			]
-		},
-		{
-			"name": "66ffcb1e",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			]
-		},
-		{
-			"name": "e9335e84",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 48.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -48.0
-				}
-			]
-		},
-		{
-			"name": "da38f32d",
+			"name": "seat_transverse",
 			"positions": [
 				{
 					"x": 0.0,
@@ -180,7 +72,7 @@
 			]
 		},
 		{
-			"name": "3e5657b7",
+			"name": "seat_longitudinal",
 			"positions": [
 				{
 					"x": 0.0,
@@ -207,34 +99,7 @@
 			]
 		},
 		{
-			"name": "27eb21e6",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -96.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 96.0
-				}
-			]
-		},
-		{
-			"name": "d20601d4",
+			"name": "lights",
 			"positions": [
 				{
 					"x": 0.0,
@@ -305,34 +170,7 @@
 			"positionsFlipped": []
 		},
 		{
-			"name": "5f95f2e0",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -96.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 96.0
-				}
-			]
-		},
-		{
-			"name": "c333938a",
+			"name": "door_light",
 			"positions": [
 				{
 					"x": 0.0,
@@ -349,24 +187,7 @@
 			]
 		},
 		{
-			"name": "b5b73b97",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -96.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 96.0
-				}
-			]
-		},
-		{
-			"name": "1c5e7adc",
+			"name": "window_floor_longitudinal",
 			"positions": [
 				{
 					"x": 0.0,
@@ -393,7 +214,7 @@
 			]
 		},
 		{
-			"name": "75a4324e",
+			"name": "door_floor",
 			"positions": [
 				{
 					"x": 0.0,
@@ -410,24 +231,7 @@
 			]
 		},
 		{
-			"name": "a14526f2",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				}
-			]
-		},
-		{
-			"name": "d140eac3",
+			"name": "doorway",
 			"positions": [
 				{
 					"x": 0.0,
@@ -454,34 +258,7 @@
 			]
 		},
 		{
-			"name": "2b1f6631",
-			"positions": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": -96.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 0.0
-				},
-				{
-					"x": 0.0,
-					"y": 0.0,
-					"z": 96.0
-				}
-			]
-		},
-		{
-			"name": "aaba4de",
+			"name": "window_floor_transverse",
 			"positions": [
 				{
 					"x": 0.0,
@@ -498,7 +275,7 @@
 			]
 		},
 		{
-			"name": "67ac467a",
+			"name": "seat_longitudinal_def",
 			"positions": [
 				{
 					"x": 0.0,
@@ -525,7 +302,7 @@
 			]
 		},
 		{
-			"name": "99401df",
+			"name": "seat_transverse_def",
 			"positions": [
 				{
 					"x": 0.0,

@@ -26,6 +26,38 @@
 			]
 		},
 		{
+			"name": "roofWindow1",
+			"positions": [
+				{
+					"z": -80
+				},
+				{
+					"z": 80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "roofWindow2",
+			"positions": [
+				{
+					"z": 0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -80
+				},
+				{
+					"z": 80
+				}
+			]
+		},
+		{
 			"name": "roofHandle",
 			"positions": [
 				{

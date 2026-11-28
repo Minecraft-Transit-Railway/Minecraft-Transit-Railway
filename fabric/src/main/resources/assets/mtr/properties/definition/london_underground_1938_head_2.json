@@ -1,7 +1,7 @@
 {
 	"positionDefinitions": [
 		{
-			"name": "b35173a",
+			"name": "head",
 			"positions": [
 				{
 					"x": 0,
@@ -13,7 +13,7 @@
 			]
 		},
 		{
-			"name": "d0884815",
+			"name": "lights",
 			"positions": [
 				{
 					"x": 0,

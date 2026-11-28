@@ -1,0 +1,232 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "seat_transverse",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			]
+		},
+		{
+			"name": "seat_longitudinal",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "lights",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 35.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 61.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -35.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -61.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 2.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 28.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -28.0
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "door_light",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "window_floor_longitudinal",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "door_floor",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			]
+		},
+		{
+			"name": "doorway",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			]
+		},
+		{
+			"name": "window_floor_transverse",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			]
+		},
+		{
+			"name": "seat_longitudinal_def",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "seat_transverse_def",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -48.0
+				}
+			]
+		}
+	]
+}

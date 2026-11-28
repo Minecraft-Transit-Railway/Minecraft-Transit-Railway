@@ -87,6 +87,7 @@
 			"displayColor": "FFFFFF",
 			"displayOptions": [
 				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
 				"CYCLE_LANGUAGES"
 			],
 			"displayType": "ROUTE_NUMBER"

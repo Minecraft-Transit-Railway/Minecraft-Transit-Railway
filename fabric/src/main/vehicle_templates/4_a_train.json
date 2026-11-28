@@ -1,13 +1,35 @@
 {
 	"replacements": {
 		"lengths": [
-			25
+			25,
+			20,
+			9
+		],
+		"name": [
+			"Normal",
+			"Small",
+			"Mini"
+		],
+		"definition": [
+			"",
+			"_small",
+			"_mini"
+		],
+		"doors": [
+			"2",
+			"2",
+			"1"
+		],
+		"headtype": [
+			"",
+			"",
+			"_mini"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "a_train_ael_trailer",
-			"name": "Airport Express CAF Train",
+			"id": "a_train_ael@definition@_trailer",
+			"name": "Airport Express CAF Train Trailer (@name@)",
 			"color": "008D8D",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -17,7 +39,7 @@
 			"tags": [
 				"family:a_train",
 				"iso_3166:HK",
-				"doors:2",
+				"doors:@doors@",
 				"type:trailer"
 			],
 			"models": [
@@ -25,19 +47,19 @@
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -61,8 +83,8 @@
 			"bveSoundBaseResource": "a_train"
 		},
 		{
-			"id": "a_train_ael_cab_1",
-			"name": "Airport Express CAF Train Cab (Forwards)",
+			"id": "a_train_ael@definition@_cab_1",
+			"name": "Airport Express CAF Train Cab (Forwards, @name@)",
 			"color": "008D8D",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -72,7 +94,7 @@
 			"tags": [
 				"family:a_train",
 				"iso_3166:HK",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_1"
 			],
 			"models": [
@@ -80,19 +102,19 @@
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1@headtype@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -116,8 +138,8 @@
 			"bveSoundBaseResource": "a_train"
 		},
 		{
-			"id": "a_train_ael_cab_2",
-			"name": "Airport Express CAF Train Cab (Backwards)",
+			"id": "a_train_ael@definition@_cab_2",
+			"name": "Airport Express CAF Train Cab (Backwards, @name@)",
 			"color": "008D8D",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -127,7 +149,7 @@
 			"tags": [
 				"family:a_train",
 				"iso_3166:HK",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_2"
 			],
 			"models": [
@@ -135,19 +157,19 @@
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2@headtype@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -171,8 +193,8 @@
 			"bveSoundBaseResource": "a_train"
 		},
 		{
-			"id": "a_train_ael_cab_3",
-			"name": "Airport Express CAF Train Cab (Double)",
+			"id": "a_train_ael@definition@_cab_3",
+			"name": "Airport Express CAF Train Cab (Double, @name@)",
 			"color": "008D8D",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -182,7 +204,7 @@
 			"tags": [
 				"family:a_train",
 				"iso_3166:HK",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_3"
 			],
 			"models": [
@@ -190,19 +212,19 @@
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_1@headtype@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/a_train.bbmodel",
 					"textureResource": "mtr:textures/vehicle/a_train_ael.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/a_train_ael_head_2@headtype@.json",
+					"positionDefinitionsResource": "mtr:properties/definition/a_train_ael@definition@.json"
 				}
 			],
 			"bogie1Models": [

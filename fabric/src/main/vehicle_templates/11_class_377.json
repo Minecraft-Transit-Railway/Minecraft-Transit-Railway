@@ -1,13 +1,26 @@
 {
 	"replacements": {
 		"lengths": [
-			17
+			17,
+			9
+		],
+		"definition": [
+			"",
+			"_mini"
+		],
+		"name": [
+			"Normal",
+			"Mini"
+		],
+		"doors": [
+			"2",
+			"1"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "class_377_southern_trailer",
-			"name": "Class 377 Trailer (Southern)",
+			"id": "class_377_southern@definition@_trailer",
+			"name": "Class 377 Trailer (Southern, @name@)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -17,7 +30,7 @@
 			"tags": [
 				"family:class_377",
 				"iso_3166:GB",
-				"doors:2",
+				"doors:@doors@",
 				"type:trailer"
 			],
 			"models": [
@@ -25,19 +38,19 @@
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -66,8 +79,8 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_southern_cab_1",
-			"name": "Class 377 Cab (Southern, Forwards)",
+			"id": "class_377_southern@definition@_cab_1",
+			"name": "Class 377 Cab (Southern, Forwards, @name@)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -77,7 +90,7 @@
 			"tags": [
 				"family:class_377",
 				"iso_3166:GB",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_1"
 			],
 			"models": [
@@ -85,19 +98,19 @@
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_end_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -126,8 +139,8 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_southern_cab_2",
-			"name": "Class 377 Cab (Southern, Backwards)",
+			"id": "class_377_southern@definition@_cab_2",
+			"name": "Class 377 Cab (Southern, Backwards, @name@)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -137,7 +150,7 @@
 			"tags": [
 				"family:class_377",
 				"iso_3166:GB",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_2"
 			],
 			"models": [
@@ -145,19 +158,19 @@
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_end_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				}
 			],
 			"bogie1Models": [
@@ -186,8 +199,8 @@
 			"legacyDoorCloseSoundTime": 1
 		},
 		{
-			"id": "class_377_southern_cab_3",
-			"name": "Class 377 Cab (Southern, Double)",
+			"id": "class_377_southern@definition@_cab_3",
+			"name": "Class 377 Cab (Southern, Double, @name@)",
 			"color": "5AB565",
 			"transportMode": "TRAIN",
 			"width": 2,
@@ -197,7 +210,7 @@
 			"tags": [
 				"family:class_377",
 				"iso_3166:GB",
-				"doors:2",
+				"doors:@doors@",
 				"type:cab_3"
 			],
 			"models": [
@@ -205,19 +218,19 @@
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_head_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/class_377.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_377_southern.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/class_377_head_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_377.json"
+					"positionDefinitionsResource": "mtr:properties/definition/class_377@definition@.json"
 				}
 			],
 			"bogie1Models": [

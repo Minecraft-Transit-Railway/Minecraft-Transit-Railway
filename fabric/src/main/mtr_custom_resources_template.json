@@ -982,6 +982,55 @@
 			"color": "E5E533",
 			"modelResource": "mtr:models/rail/rail_siding.obj",
 			"repeatInterval": 0.5
+		},
+		{
+			"id": "minecraft_rail",
+			"name": "rail.mtr.minecraft_rail",
+			"color": "99653D",
+			"modelResource": "mtr:models/rail/minecraft_rail.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_powered_rail_1",
+			"name": "rail.mtr.minecraft_powered_rail_1",
+			"color": "FFBC05",
+			"modelResource": "mtr:models/rail/minecraft_powered_rail_1.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_powered_rail_2",
+			"name": "rail.mtr.minecraft_powered_rail_2",
+			"color": "B08205",
+			"modelResource": "mtr:models/rail/minecraft_powered_rail_2.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_detector_rail_1",
+			"name": "rail.mtr.minecraft_detector_rail_1",
+			"color": "D6ABA5",
+			"modelResource": "mtr:models/rail/minecraft_detector_rail_1.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_detector_rail_2",
+			"name": "rail.mtr.minecraft_detector_rail_2",
+			"color": "826460",
+			"modelResource": "mtr:models/rail/minecraft_detector_rail_2.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_activator_rail_1",
+			"name": "rail.mtr.minecraft_activator_rail_1",
+			"color": "FA1F02",
+			"modelResource": "mtr:models/rail/minecraft_activator_rail_1.obj",
+			"repeatInterval": 1
+		},
+		{
+			"id": "minecraft_activator_rail_2",
+			"name": "rail.mtr.minecraft_activator_rail_2",
+			"color": "941403",
+			"modelResource": "mtr:models/rail/minecraft_activator_rail_2.obj",
+			"repeatInterval": 1
 		}
 	],
 	"objects": [

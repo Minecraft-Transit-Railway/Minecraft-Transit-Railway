@@ -148,7 +148,7 @@
 			"type": "DISPLAY",
 			"displayXPadding": 0.5,
 			"displayYPadding": 0.2,
-			"displayColor": "FFFFFF",
+			"displayColor": "CONTRAST_COLOR",
 			"displayOptions": [
 				"ALIGN_CENTER",
 				"UPPER_CASE",
@@ -168,18 +168,73 @@
 		},
 		{
 			"names": [
-				"next_station_display_head"
+				"head_display_main"
 			],
 			"positionDefinitions": [
 				"end2"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.2,
+			"condition": "DOORS_OPENED",
+			"displayXPadding": 0.275,
+			"displayYPadding": 0,
 			"displayColor": "FFFFFF",
 			"displayOptions": [
-				"SCROLL_NORMAL"
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
 			],
-			"displayType": "NEXT_STATION_KCR"
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "THIS IS|%NEXT_STATION%|%ROUTE_NAME%|TO %DESTINATION%|%CLOCK_12HR% %CLOCK_AM_PM_UPPER%",
+			"displayDefaultText": "NO PASSENGERS"
+		},
+		{
+			"names": [
+				"head_display_main"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"condition": "DOORS_CLOSED",
+			"displayXPadding": 0.275,
+			"displayYPadding": 0,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "THE NEXT STOP IS|%NEXT_STATION%|%ROUTE_NAME%|TO %DESTINATION%|%CLOCK_12HR% %CLOCK_AM_PM_UPPER%",
+			"displayDefaultText": "NO PASSENGERS"
+		},
+		{
+			"names": [
+				"head_display_route_number"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.05,
+			"displayYPadding": 0.05,
+			"displayColor": "FFFFFF",
+			"displayOptions": [
+				"UPPER_CASE"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"head_display_route_color"
+			],
+			"positionDefinitions": [
+				"end2"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0,
+			"displayColor": "FFFFFF",
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR_ROUNDED"
 		}
 	],
 	"modelYOffset": 1

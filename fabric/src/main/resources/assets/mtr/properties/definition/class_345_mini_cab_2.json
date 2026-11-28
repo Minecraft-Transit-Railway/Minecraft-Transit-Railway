@@ -1,0 +1,265 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -30.0
+				},
+				{
+					"z": 30.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -30.0
+				},
+				{
+					"z": 30.0
+				}
+			]
+		},
+		{
+			"name": "window_2",
+			"positions": [
+				{
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "window_1_exterior",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"z": -56.0
+				}
+			]
+		},
+		{
+			"name": "window_2_exterior",
+			"positions": [
+				{
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "roof",
+			"positions": [
+				{
+					"z": -59.0
+				},
+				{
+					"z": -41.0
+				},
+				{
+					"z": -18.0
+				},
+				{
+					"z": 0.0
+				},
+				{
+					"z": 18.0
+				},
+				{
+					"z": 41.0
+				},
+				{
+					"z": 59.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -59.0
+				},
+				{
+					"z": -41.0
+				},
+				{
+					"z": -18.0
+				},
+				{
+					"z": 0.0
+				},
+				{
+					"z": 18.0
+				},
+				{
+					"z": 41.0
+				},
+				{
+					"z": 59.0
+				}
+			]
+		},
+		{
+			"name": "end",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"z": -60.0
+				}
+			]
+		},
+		{
+			"name": "head",
+			"positions": [
+				{
+					"z": 56.0
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "seat_2",
+			"positions": [
+				{
+					"z": -68.0
+				},
+				{
+					"z": -60.0
+				},
+				{
+					"z": -52.0
+				},
+				{
+					"z": -8.0
+				},
+				{
+					"z": 0.0
+				},
+				{
+					"z": 8.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -68.0
+				},
+				{
+					"z": -60.0
+				},
+				{
+					"z": -52.0
+				},
+				{
+					"z": -8.0
+				},
+				{
+					"z": 0.0
+				},
+				{
+					"z": 8.0
+				}
+			]
+		},
+		{
+			"name": "side_panel",
+			"positions": [
+				{
+					"z": -48.0
+				},
+				{
+					"z": -12.0
+				},
+				{
+					"z": 12.0
+				},
+				{
+					"z": 48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48.0
+				},
+				{
+					"z": -12.0
+				},
+				{
+					"z": 12.0
+				},
+				{
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "side_panel_translucent",
+			"positions": [
+				{
+					"z": -48.0
+				},
+				{
+					"z": -12.0
+				},
+				{
+					"z": 12.0
+				},
+				{
+					"z": 48.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -48.0
+				},
+				{
+					"z": -12.0
+				},
+				{
+					"z": 12.0
+				},
+				{
+					"z": 48.0
+				}
+			]
+		},
+		{
+			"name": "interior_display",
+			"positions": [
+				{
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "side_display",
+			"positions": [
+				{
+					"z": -26.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 26.0
+				}
+			]
+		}
+	]
+}

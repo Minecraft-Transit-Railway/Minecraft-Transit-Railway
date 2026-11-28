@@ -1,7 +1,7 @@
 {
 	"positionDefinitions": [
 		{
-			"name": "5c6d2a3f",
+			"name": "doorway_right",
 			"positions": [
 				{
 					"x": 0,
@@ -12,7 +12,7 @@
 			"positionsFlipped": []
 		},
 		{
-			"name": "9bdbbbc4",
+			"name": "window",
 			"positions": [
 			],
 			"positionsFlipped": [
@@ -24,19 +24,7 @@
 			]
 		},
 		{
-			"name": "9bdbbbc5",
-			"positions": [
-			],
-			"positionsFlipped": [
-				{
-					"x": 0,
-					"y": 0,
-					"z": -96
-				}
-			]
-		},
-		{
-			"name": "e7909a88",
+			"name": "door_flipped",
 			"positions": [
 			],
 			"positionsFlipped": [
@@ -48,7 +36,7 @@
 			]
 		},
 		{
-			"name": "e7909a89",
+			"name": "door",
 			"positions": [
 				{
 					"x": 0,
@@ -59,7 +47,7 @@
 			"positionsFlipped": []
 		},
 		{
-			"name": "12e0595f",
+			"name": "lights",
 			"positions": [
 				{
 					"x": 0,

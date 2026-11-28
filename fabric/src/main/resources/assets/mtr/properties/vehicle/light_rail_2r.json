@@ -80,12 +80,20 @@
 		{
 			"names": [
 				"door",
-				"door_window",
-				"door_handrails_5",
-				"door_window_handrails_5"
+				"door_handrails_5"
 			],
 			"positionDefinitions": [
 				"door"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_window",
+				"door_window_handrails_5"
+			],
+			"positionDefinitions": [
+				"doorWindow"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -195,11 +203,19 @@
 		},
 		{
 			"names": [
-				"door_exterior_5",
-				"door_window_exterior"
+				"door_exterior_5"
 			],
 			"positionDefinitions": [
 				"door"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door_window_exterior"
+			],
+			"positionDefinitions": [
+				"doorWindow"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -488,9 +504,19 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"end1"
+				"headlights1"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
+			"renderStage": "ALWAYS_ON_LIGHT"
+		},
+		{
+			"names": [
+				"headlights"
+			],
+			"positionDefinitions": [
+				"headlights2"
+			],
+			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
 		},
 		{

@@ -31,6 +31,24 @@
 		},
 		{
 			"names": [
+				"window_3b"
+			],
+			"positionDefinitions": [
+				"windowDisplay"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"window_3b_exterior"
+			],
+			"positionDefinitions": [
+				"windowDisplay"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
 				"side_panel"
 			],
 			"positionDefinitions": [
@@ -228,6 +246,391 @@
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"side_display_route_number"
+			],
+			"positionDefinitions": [
+				"windowDisplay"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.475,
+			"displayYPadding": 0.475,
+			"displayColor": "CONTRAST_COLOR",
+			"displayOptions": [
+				"ALIGN_CENTER",
+				"UPPER_CASE",
+				"CYCLE_LANGUAGES"
+			],
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"side_display_route_color"
+			],
+			"positionDefinitions": [
+				"windowDisplay"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.375,
+			"displayYPadding": 0.375,
+			"displayType": "ROUTE_COLOR_ROUNDED"
+		},
+		{
+			"names": [
+				"side_display_destination"
+			],
+			"positionDefinitions": [
+				"windowDisplay"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.1,
+			"displayYPadding": 0.1,
+			"displayOptions": [],
+			"displayColor": "FFFFFF",
+			"displayType": "DESTINATION",
+			"displayDefaultText": "NOT IN|SERVICE"
+		},
+		{
+			"names": [
+				"find_display_route_color"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.125,
+			"displayYPadding": 0.125,
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR_ROUNDED"
+		},
+		{
+			"names": [
+				"find_display_route_number"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.175,
+			"displayYPadding": 0.175,
+			"displayOptions": [],
+			"displayColor": "CONTRAST_COLOR",
+			"displayType": "ROUTE_NUMBER"
+		},
+		{
+			"names": [
+				"find_display_route_name"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.375,
+			"displayYPadding": 0.15,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FFFFFF",
+			"displayType": "ROUTE_NAME"
+		},
+		{
+			"names": [
+				"find_display_destination"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.375,
+			"displayYPadding": 0.15,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "FFFFFF",
+			"displayType": "DESTINATION"
+		},
+		{
+			"names": [
+				"find_display_next_station"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.35,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "CONTRAST_COLOR",
+			"displayType": "NEXT_STATION"
+		},
+		{
+			"names": [
+				"find_display_destination_2"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.375,
+			"displayOptions": [
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK",
+				"CYCLE_LANGUAGES"
+			],
+			"displayColor": "CONTRAST_COLOR",
+			"displayType": "DESTINATION"
+		},
+		{
+			"names": [
+				"find_display_route_color_2"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0,
+			"displayYPadding": 0.4,
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR"
+		},
+		{
+			"names": [
+				"find_display_route_color_3"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.35,
+			"displayOptions": [],
+			"displayType": "ROUTE_COLOR"
+		},
+		{
+			"names": [
+				"find_display_next_this_text"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.35,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "ROUTE_COLOR",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "THIS IS"
+		},
+		{
+			"names": [
+				"find_display_next_this_text"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_CLOSED",
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.35,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "ROUTE_COLOR",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "NEXT STOP"
+		},
+		{
+			"names": [
+				"find_display_last_stop_text"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.35,
+			"displayOptions": [
+				"ALIGN_LEFT"
+			],
+			"displayColor": "ROUTE_COLOR",
+			"displayType": "TEMPLATE",
+			"displayTemplateText": "LAST STOP"
+		},
+		{
+			"names": [
+				"door_idle_indicator_left"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_idle_indicator_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"door_closing_indicator_left"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"doorXMultiplier": 0,
+			"doorZMultiplier": 0.01,
+			"doorAnimationType": "STANDARD",
+			"renderFromOpeningDoorTime": 3000,
+			"renderUntilOpeningDoorTime": 3000,
+			"renderFromClosingDoorTime": 0,
+			"renderUntilClosingDoorTime": 0,
+			"flashOffTime": 500,
+			"flashOnTime": 500
+		},
+		{
+			"names": [
+				"door_closing_indicator_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"doorXMultiplier": 0,
+			"doorZMultiplier": -0.01,
+			"doorAnimationType": "STANDARD",
+			"renderFromOpeningDoorTime": 3000,
+			"renderUntilOpeningDoorTime": 3000,
+			"renderFromClosingDoorTime": 0,
+			"renderUntilClosingDoorTime": 0,
+			"flashOffTime": 500,
+			"flashOnTime": 500
+		},
+		{
+			"names": [
+				"door_opening_indicator_left"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"doorXMultiplier": 0,
+			"doorZMultiplier": 0.01,
+			"doorAnimationType": "STANDARD",
+			"renderFromOpeningDoorTime": 0,
+			"renderUntilOpeningDoorTime": 0,
+			"renderFromClosingDoorTime": 0,
+			"renderUntilClosingDoorTime": 100,
+			"flashOffTime": 0,
+			"flashOnTime": 0
+		},
+		{
+			"names": [
+				"door_opening_indicator_right"
+			],
+			"positionDefinitions": [
+				"door",
+				"doorEnd1",
+				"doorEnd1Flipped",
+				"doorEnd2",
+				"doorEnd2Flipped"
+			],
+			"condition": "DOORS_OPENED",
+			"renderStage": "ALWAYS_ON_LIGHT",
+			"doorXMultiplier": 0,
+			"doorZMultiplier": -0.01,
+			"doorAnimationType": "STANDARD",
+			"renderFromOpeningDoorTime": 0,
+			"renderUntilOpeningDoorTime": 0,
+			"renderFromClosingDoorTime": 0,
+			"renderUntilClosingDoorTime": 100,
+			"flashOffTime": 0,
+			"flashOnTime": 0
 		}
 	],
 	"modelYOffset": 1,

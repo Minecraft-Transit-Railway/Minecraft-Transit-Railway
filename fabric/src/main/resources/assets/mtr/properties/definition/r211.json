@@ -46,6 +46,19 @@
 			]
 		},
 		{
+			"name": "windowDisplay",
+			"positions": [
+				{
+					"z": 80
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
 			"name": "roofLight",
 			"positions": [
 				{

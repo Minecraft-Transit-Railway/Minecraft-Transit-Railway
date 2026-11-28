@@ -1,0 +1,274 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -51.5
+				}
+			]
+		},
+		{
+			"name": "window1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -51.5
+				}
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": -26.5
+				}
+			]
+		},
+		{
+			"name": "window2Flipped",
+			"positionsFlipped": [
+				{
+					"z": -26.5
+				}
+			]
+		},
+		{
+			"name": "window7",
+			"positions": [
+				{
+					"z": 26.5
+				}
+			]
+		},
+		{
+			"name": "window7Flipped",
+			"positionsFlipped": [
+				{
+					"z": 26.5
+				}
+			]
+		},
+		{
+			"name": "window8",
+			"positions": [
+				{
+					"z": 51.5
+				}
+			]
+		},
+		{
+			"name": "window8Flipped",
+			"positionsFlipped": [
+				{
+					"z": 51.5
+				}
+			]
+		},
+		{
+			"name": "door1",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "door1Flipped",
+			"positionsFlipped": [
+				{
+					"z": 0
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -76.5
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -76.5
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 76.5
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 76.5
+				}
+			]
+		},
+		{
+			"name": "seat",
+			"positions": [
+				{
+					"x": -16,
+					"z": -44.5
+				},
+				{
+					"x": -8,
+					"z": -44.5
+				},
+				{
+					"x": 8,
+					"z": -44.5
+				},
+				{
+					"x": 16,
+					"z": -44.5
+				},
+				{
+					"x": -16,
+					"z": -19.5
+				},
+				{
+					"x": -8,
+					"z": -19.5
+				},
+				{
+					"x": 8,
+					"z": -19.5
+				},
+				{
+					"x": 16,
+					"z": -19.5
+				},
+				{
+					"x": -16,
+					"z": 33.5
+				},
+				{
+					"x": -8,
+					"z": 33.5
+				},
+				{
+					"x": 8,
+					"z": 33.5
+				},
+				{
+					"x": 16,
+					"z": 33.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": -33.5
+				},
+				{
+					"x": -8,
+					"z": -33.5
+				},
+				{
+					"x": 8,
+					"z": -33.5
+				},
+				{
+					"x": 16,
+					"z": -33.5
+				},
+				{
+					"x": -16,
+					"z": 19.5
+				},
+				{
+					"x": -8,
+					"z": 19.5
+				},
+				{
+					"x": 8,
+					"z": 19.5
+				},
+				{
+					"x": 16,
+					"z": 19.5
+				},
+				{
+					"x": -16,
+					"z": 44.5
+				},
+				{
+					"x": -8,
+					"z": 44.5
+				},
+				{
+					"x": 8,
+					"z": 44.5
+				},
+				{
+					"x": 16,
+					"z": 44.5
+				}
+			]
+		},
+		{
+			"name": "seatEnd1",
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": -58.5
+				},
+				{
+					"x": -8,
+					"z": -58.5
+				},
+				{
+					"x": 8,
+					"z": -58.5
+				},
+				{
+					"x": 16,
+					"z": -58.5
+				}
+			]
+		},
+		{
+			"name": "seatEnd2",
+			"positions": [
+				{
+					"x": -16,
+					"z": 58.5
+				},
+				{
+					"x": -8,
+					"z": 58.5
+				},
+				{
+					"x": 8,
+					"z": 58.5
+				},
+				{
+					"x": 16,
+					"z": 58.5
+				}
+			]
+		},
+		{
+			"name": "doorLight",
+			"positions": [
+				{
+					"z": -32
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 32
+				}
+			]
+		}
+	]
+}

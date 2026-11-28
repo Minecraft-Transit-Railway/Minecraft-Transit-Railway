@@ -6,6 +6,9 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.SoundHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.data.PersistentVehicleData;
+import org.mtr.mod.resource.VehicleResource;
+import org.mtr.core.data.VehicleExtraData;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -37,7 +40,7 @@ public class LegacyVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
-	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute, @Nullable VehicleResource vehicleResource, @Nullable PersistentVehicleData persistentVehicleData, @Nullable VehicleExtraData vehicleExtraData, @Nullable Integer carNumber) {
 		if (!InitClient.canPlaySound()) {
 			return;
 		}

@@ -4,13 +4,16 @@ import org.mtr.core.serializer.JsonReader;
 import org.mtr.core.serializer.ReaderBase;
 import org.mtr.core.tool.Utilities;
 import org.mtr.libraries.com.google.gson.JsonObject;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.mapping.holder.Identifier;
+import org.mtr.mapping.mapper.OptimizedModel;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.generated.resource.VehicleModelSchema;
 import org.mtr.mod.render.DynamicVehicleModel;
+import javax.annotation.Nullable;
 
 public final class VehicleModel extends VehicleModelSchema {
 
@@ -113,6 +116,7 @@ public final class VehicleModel extends VehicleModelSchema {
 
 	private DynamicVehicleModel createModel(ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
 		final Identifier textureId = CustomResourceTools.formatIdentifierWithDefault(textureResource, "png");
+
 		CustomResourceLoader.OPTIMIZED_RENDERER_WRAPPER.beginReload();
 		try {
 			if (modelResource.endsWith(".bbmodel")) {

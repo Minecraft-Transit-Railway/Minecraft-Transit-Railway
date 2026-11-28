@@ -5,7 +5,7 @@
 				"window_glass"
 			],
 			"positionDefinitions": [
-				"9bdbbbc5"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -16,7 +16,7 @@
 				"window"
 			],
 			"positionDefinitions": [
-				"9bdbbbc5"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -27,7 +27,7 @@
 				"window_exterior"
 			],
 			"positionDefinitions": [
-				"fda78a56"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -38,7 +38,7 @@
 				"doorway_left"
 			],
 			"positionDefinitions": [
-				"9bdbbbc5"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -52,7 +52,7 @@
 				"door_left_floor"
 			],
 			"positionDefinitions": [
-				"9bdbbbc5"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -66,7 +66,7 @@
 				"door_right_glass"
 			],
 			"positionDefinitions": [
-				"e7909a88"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -80,7 +80,7 @@
 				"door_left"
 			],
 			"positionDefinitions": [
-				"e7909a88"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -94,7 +94,7 @@
 				"door_left_exterior"
 			],
 			"positionDefinitions": [
-				"2160a11a"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -108,7 +108,7 @@
 				"doorway_right"
 			],
 			"positionDefinitions": [
-				"9bdbbbc6"
+				"window_flipped"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -122,7 +122,7 @@
 				"door_left_glass"
 			],
 			"positionDefinitions": [
-				"2a6b978"
+				"door_flipped"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -136,7 +136,7 @@
 				"door_right"
 			],
 			"positionDefinitions": [
-				"2a6b978"
+				"door_flipped"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -150,7 +150,7 @@
 				"door_right_exterior"
 			],
 			"positionDefinitions": [
-				"acafb485"
+				"door_flipped"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -164,7 +164,7 @@
 				"side_panel"
 			],
 			"positionDefinitions": [
-				"de1b2785"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -175,7 +175,7 @@
 				"side_panel_translucent"
 			],
 			"positionDefinitions": [
-				"716534ff"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -186,7 +186,7 @@
 				"end"
 			],
 			"positionDefinitions": [
-				"43cc51f9"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -197,7 +197,7 @@
 				"end_exterior"
 			],
 			"positionDefinitions": [
-				"948f289b"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -208,7 +208,7 @@
 				"lights"
 			],
 			"positionDefinitions": [
-				"12e0595f"
+				"lights"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",

@@ -1,0 +1,104 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -2,
+			"doorZMultiplier": 12,
+			"doorAnimationType": "PLUG_SLOW"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"command_block_impulse"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+    {
+			"names": [
+				"command_block_light_1"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+      "condition": "CHRISTMAS_LIGHT_RED"
+		},
+    {
+			"names": [
+				"command_block_light_2"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+      "condition": "CHRISTMAS_LIGHT_YELLOW"
+		},
+    {
+			"names": [
+				"command_block_light_3"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+      "condition": "CHRISTMAS_LIGHT_GREEN"
+		},
+    {
+			"names": [
+				"command_block_light_4"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+      "condition": "CHRISTMAS_LIGHT_BLUE"
+		}
+	]
+}

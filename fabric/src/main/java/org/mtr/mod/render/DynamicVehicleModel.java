@@ -23,6 +23,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 
 	public final ModelProperties modelProperties;
 	private final Identifier texture;
+
 	private final ObjectArraySet<Box> floors = new ObjectArraySet<>();
 	private final ObjectArraySet<Box> doorways = new ObjectArraySet<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, OptimizedModelWrapper.MaterialGroupWrapper>> materialGroupsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
@@ -30,7 +31,13 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStage = new Object2ObjectOpenHashMap<>();
 	private final Object2ObjectOpenHashMap<PartCondition, Object2ObjectOpenHashMap<RenderStage, ObjectArrayList<OptimizedModelWrapper.ObjModelWrapper>>> objModelsForPartConditionAndRenderStageDoorsClosed = new Object2ObjectOpenHashMap<>();
 
-	public DynamicVehicleModel(BlockbenchModel blockbenchModel, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
+	public DynamicVehicleModel(
+			BlockbenchModel blockbenchModel,
+			Identifier texture,
+			ModelProperties modelProperties,
+			PositionDefinitions positionDefinitions,
+			String id
+	) {
 		super(blockbenchModel.getTextureWidth(), blockbenchModel.getTextureHeight());
 
 		final Object2ObjectOpenHashMap<String, BlockbenchElement> uuidToBlockbenchElement = new Object2ObjectOpenHashMap<>();
@@ -69,7 +76,13 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		testDoors(id);
 	}
 
-	public DynamicVehicleModel(Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels, Identifier texture, ModelProperties modelProperties, PositionDefinitions positionDefinitions, String id) {
+	public DynamicVehicleModel(
+			Object2ObjectAVLTreeMap<String, OptimizedModel.ObjModel> nameToObjModels,
+			Identifier texture,
+			ModelProperties modelProperties,
+			PositionDefinitions positionDefinitions,
+			String id
+	) {
 		super(0, 0);
 		buildModel();
 		modelProperties.addPartsIfEmpty(nameToObjModels.keySet());
@@ -78,7 +91,7 @@ public final class DynamicVehicleModel extends EntityModelExtension<EntityAbstra
 		modelProperties.iterateParts(modelPropertiesPart -> modelPropertiesPart.writeCache(nameToObjModels, positionDefinitions, objModelsForPartConditionAndRenderStage, objModelsForPartConditionAndRenderStageDoorsClosed, modelProperties.getModelYOffset()));
 		testDoors(id);
 	}
-
+	
 	@Override
 	public void setAngles2(EntityAbstractMapping entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 	}

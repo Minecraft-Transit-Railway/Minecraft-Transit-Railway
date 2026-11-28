@@ -1,0 +1,242 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "window_exterior",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "interior_display",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "side_panel",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -54.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -25.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 25.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 54.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -54.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -25.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 25.5
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 54.5
+				}
+			]
+		},
+		{
+			"name": "roof_exterior_aircon",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				}
+			]
+		},
+		{
+			"name": "roof_exterior",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 40.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -40.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 40.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 0.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -40.0
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -40.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 40.0
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -40.0
+				},
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 40.0
+				}
+			]
+		},
+		{
+			"name": "head_ushiro",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -68.7
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 68.7
+				}
+			]
+		},
+		{
+			"name": "head",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -89.7
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 89.7
+				}
+			]
+		},
+		{
+			"name": "head_ushiro_chair",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -69.7
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 69.7
+				}
+			]
+		},
+		{
+			"name": "lights_1",
+			"positions": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": -89.7
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "lights_2",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0.0,
+					"y": 0.0,
+					"z": 89.7
+				}
+			]
+		}
+	]
+}

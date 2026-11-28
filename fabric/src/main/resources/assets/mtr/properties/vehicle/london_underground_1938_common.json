@@ -5,7 +5,7 @@
 				"window"
 			],
 			"positionDefinitions": [
-				"9c1ea2da"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -16,7 +16,7 @@
 				"window_glass"
 			],
 			"positionDefinitions": [
-				"9c1ea2da"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -27,7 +27,7 @@
 				"window_exterior"
 			],
 			"positionDefinitions": [
-				"8572b276"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -38,7 +38,7 @@
 				"door_right_glass"
 			],
 			"positionDefinitions": [
-				"d13b2960"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -52,7 +52,7 @@
 				"door_left"
 			],
 			"positionDefinitions": [
-				"d13b2960"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -66,7 +66,7 @@
 				"door_left_glass"
 			],
 			"positionDefinitions": [
-				"7cd08362"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -80,7 +80,7 @@
 				"door_right"
 			],
 			"positionDefinitions": [
-				"7cd08362"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -94,7 +94,7 @@
 				"door_left_exterior"
 			],
 			"positionDefinitions": [
-				"66ffcb1e"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -108,7 +108,7 @@
 				"door_right_exterior"
 			],
 			"positionDefinitions": [
-				"e9335e84"
+				"door"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -122,7 +122,7 @@
 				"seat_transverse"
 			],
 			"positionDefinitions": [
-				"da38f32d"
+				"seat_transverse"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -133,7 +133,7 @@
 				"seat_longitudinal"
 			],
 			"positionDefinitions": [
-				"3e5657b7"
+				"seat_longitudinal"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -144,7 +144,7 @@
 				"side_panel"
 			],
 			"positionDefinitions": [
-				"27eb21e6"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -155,7 +155,7 @@
 				"lights"
 			],
 			"positionDefinitions": [
-				"d20601d4"
+				"lights"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -166,7 +166,7 @@
 				"side_panel_translucent"
 			],
 			"positionDefinitions": [
-				"5f95f2e0"
+				"window"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -177,7 +177,7 @@
 				"doorlight_off"
 			],
 			"positionDefinitions": [
-				"c333938a"
+				"door_light"
 			],
 			"condition": "DOORS_CLOSED",
 			"renderStage": "EXTERIOR",
@@ -188,7 +188,7 @@
 				"doorlight_on"
 			],
 			"positionDefinitions": [
-				"b5b73b97"
+				"door_light"
 			],
 			"condition": "DOORS_OPENED",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -199,7 +199,7 @@
 				"window_floor_longitudinal"
 			],
 			"positionDefinitions": [
-				"1c5e7adc"
+				"window_floor_longitudinal"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -210,7 +210,7 @@
 				"door_left_floor"
 			],
 			"positionDefinitions": [
-				"75a4324e"
+				"door_floor"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -221,7 +221,7 @@
 				"door_right_floor"
 			],
 			"positionDefinitions": [
-				"a14526f2"
+				"door_floor"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -232,7 +232,7 @@
 				"doorway_left"
 			],
 			"positionDefinitions": [
-				"d140eac3"
+				"doorway"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -243,7 +243,7 @@
 				"doorway_right"
 			],
 			"positionDefinitions": [
-				"2b1f6631"
+				"doorway"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -254,7 +254,7 @@
 				"window_floor_transverse"
 			],
 			"positionDefinitions": [
-				"aaba4de"
+				"window_floor_transverse"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -265,7 +265,7 @@
 				"seat_longitudinal_def"
 			],
 			"positionDefinitions": [
-				"67ac467a"
+				"seat_longitudinal_def"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -276,7 +276,7 @@
 				"seat_transverse_def"
 			],
 			"positionDefinitions": [
-				"99401df"
+				"seat_transverse_def"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",

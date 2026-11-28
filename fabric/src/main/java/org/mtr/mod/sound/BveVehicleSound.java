@@ -3,6 +3,12 @@ package org.mtr.mod.sound;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.SoundEvent;
+import org.mtr.mod.data.PersistentVehicleData;
+import org.mtr.mod.resource.VehicleResource;
+import org.mtr.core.data.VehicleExtraData;
+import org.mtr.core.data.VehicleCar;
+import org.mtr.core.tool.Utilities;
+import org.mtr.mod.Init;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -20,6 +26,8 @@ public class BveVehicleSound extends VehicleSoundBase {
 	private float mrPress;
 	private boolean isCompressorActive;
 	private boolean isCompressorActiveLastElapsed;
+
+	private final int[] bogieRailId = new int[2];
 
 	private final VehicleLoopingSoundHolder vehicleLoopingSoundHolder;
 
@@ -47,7 +55,7 @@ public class BveVehicleSound extends VehicleSoundBase {
 	}
 
 	@Override
-	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute) {
+	public void playMotorSound(BlockPos blockPos, float speed, float speedChange, float acceleration, boolean isOnRoute, @Nullable VehicleResource vehicleResource, @Nullable PersistentVehicleData persistentVehicleData, @Nullable VehicleExtraData vehicleExtraData, @Nullable Integer carNumber) {
 		final float secondsElapsed = MinecraftClient.getInstance().getLastFrameDuration() / 20;
 		final float speedKilometersPerHour = speed * 3600;
 		final float speedMetersPerSecond = speed * 1000;
@@ -161,6 +169,11 @@ public class BveVehicleSound extends VehicleSoundBase {
 		oldSpeedChange = speedChange;
 		oldOnRoute = isOnRoute;
 		isCompressorActiveLastElapsed = isCompressorActive;
+
+		if (vehicleResource != null && persistentVehicleData != null) {
+			// TODO: Play joint sounds
+			//playSoundInWorld(config.config.joint[0], blockPos);
+		}
 	}
 
 	@Override

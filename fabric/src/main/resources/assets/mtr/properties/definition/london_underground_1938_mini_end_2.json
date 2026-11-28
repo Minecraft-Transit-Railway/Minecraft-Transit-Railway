@@ -1,0 +1,65 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 48
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "window_flipped",
+			"positions": [
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 144
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 96
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "door_flipped",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 96
+				}
+			]
+		},
+		{
+			"name": "lights",
+			"positions": [],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": 83
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": 98
+				}
+			]
+		}
+	]
+}

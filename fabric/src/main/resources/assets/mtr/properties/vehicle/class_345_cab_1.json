@@ -5,7 +5,7 @@
 				"window"
 			],
 			"positionDefinitions": [
-				"c2357fe8"
+				"window"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -14,7 +14,7 @@
 				"door"
 			],
 			"positionDefinitions": [
-				"35ca377b"
+				"door"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -23,7 +23,7 @@
 				"window_1"
 			],
 			"positionDefinitions": [
-				"14f6648c"
+				"window_1"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -32,7 +32,7 @@
 				"window_2"
 			],
 			"positionDefinitions": [
-				"f67841c5"
+				"window_2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -41,7 +41,7 @@
 				"window_1_exterior"
 			],
 			"positionDefinitions": [
-				"74cb5204"
+				"window_1_exterior"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -50,7 +50,7 @@
 				"window_2_exterior"
 			],
 			"positionDefinitions": [
-				"979fca95"
+				"window_2_exterior"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -59,7 +59,7 @@
 				"roof"
 			],
 			"positionDefinitions": [
-				"a95afc2b"
+				"roof"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -68,7 +68,7 @@
 				"door_left"
 			],
 			"positionDefinitions": [
-				"a8374e48"
+				"door"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1.0,
@@ -80,7 +80,7 @@
 				"door_right"
 			],
 			"positionDefinitions": [
-				"3c1c2f2d"
+				"door"
 			],
 			"renderStage": "INTERIOR",
 			"doorXMultiplier": -1.0,
@@ -92,7 +92,7 @@
 				"door_left_exterior"
 			],
 			"positionDefinitions": [
-				"8ec819a6"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1.0,
@@ -104,7 +104,7 @@
 				"door_right_exterior"
 			],
 			"positionDefinitions": [
-				"a4089846"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"doorXMultiplier": -1.0,
@@ -116,7 +116,7 @@
 				"end"
 			],
 			"positionDefinitions": [
-				"a12d6fa2"
+				"end"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -125,7 +125,7 @@
 				"light"
 			],
 			"positionDefinitions": [
-				"1d39f290"
+				"roof"
 			],
 			"renderStage": "LIGHT"
 		},
@@ -134,7 +134,7 @@
 				"light_end"
 			],
 			"positionDefinitions": [
-				"dfdb45a0"
+				"end"
 			],
 			"renderStage": "LIGHT"
 		},
@@ -143,7 +143,7 @@
 				"head"
 			],
 			"positionDefinitions": [
-				"50c8e750"
+				"head"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -152,7 +152,7 @@
 				"head_exterior"
 			],
 			"positionDefinitions": [
-				"6c1b8698"
+				"head"
 			],
 			"renderStage": "EXTERIOR"
 		},
@@ -161,7 +161,7 @@
 				"cab_floor"
 			],
 			"positionDefinitions": [
-				"6c1b8698"
+				"head"
 			],
 			"type": "FLOOR"
 		},
@@ -170,7 +170,7 @@
 				"seat_2"
 			],
 			"positionDefinitions": [
-				"88821eb3"
+				"seat_2"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -179,7 +179,7 @@
 				"side_panel"
 			],
 			"positionDefinitions": [
-				"62cbcc1b"
+				"side_panel"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -188,7 +188,7 @@
 				"side_panel_translucent"
 			],
 			"positionDefinitions": [
-				"ebb54c5f"
+				"side_panel_translucent"
 			],
 			"renderStage": "INTERIOR_TRANSLUCENT"
 		},
@@ -197,7 +197,7 @@
 				"interior_display_box"
 			],
 			"positionDefinitions": [
-				"beaec049"
+				"interior_display"
 			],
 			"renderStage": "INTERIOR"
 		},
@@ -206,13 +206,13 @@
 				"interior_display"
 			],
 			"positionDefinitions": [
-				"770bea51"
+				"interior_display"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.4,
-			"displayYPadding": 0.6,
-			"displayColorCjk": "FFFFFF",
-			"displayColor": "FFFFFF",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0,
+			"displayColorCjk": "000000",
+			"displayColor": "000000",
 			"displayOptions": [
 				"SINGLE_LINE",
 				"SCROLL_NORMAL"
@@ -222,29 +222,68 @@
 		},
 		{
 			"names": [
+				"interior_display_light"
+			],
+			"positionDefinitions": [
+				"interior_display"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_FORWARDS"
+		},
+		{
+			"names": [
+				"interior_display_light"
+			],
+			"positionDefinitions": [
+				"interior_display"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_BACKWARDS"
+		},
+		{
+			"names": [
 				"side_display"
 			],
 			"positionDefinitions": [
-				"99d88bec"
+				"side_display"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 1.0,
-			"displayYPadding": 0.5,
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.375,
 			"displayColorCjk": "FF9900",
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"SINGLE_LINE",
-				"SCROLL_NORMAL"
+				"ALIGN_LEFT",
+				"ALIGN_LEFT_CJK"
 			],
 			"displayType": "DESTINATION",
 			"displayDefaultText": "Not In Service"
 		},
 		{
 			"names": [
+				"side_display_departure_index"
+			],
+			"positionDefinitions": [
+				"side_display"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.125,
+			"displayYPadding": 0.125,
+			"displayColorCjk": "FF9900",
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"ALIGN_RIGHT"
+			],
+			"displayType": "DEPARTURE_INDEX",
+			"displayDefaultText": "000",
+			"displayPadZeros": 3
+		},
+		{
+			"names": [
 				"destination_display"
 			],
 			"positionDefinitions": [
-				"cd81a58c"
+				"head"
 			],
 			"type": "DISPLAY",
 			"displayXPadding": 1.0,
@@ -263,7 +302,7 @@
 				"window_floor"
 			],
 			"positionDefinitions": [
-				"5adfe7a8"
+				"window"
 			],
 			"renderStage": "EXTERIOR",
 			"type": "FLOOR"
@@ -273,7 +312,7 @@
 				"door_floor"
 			],
 			"positionDefinitions": [
-				"c1bc2187"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"type": "FLOOR"
@@ -283,7 +322,7 @@
 				"doorway"
 			],
 			"positionDefinitions": [
-				"1c7b5a12"
+				"door"
 			],
 			"renderStage": "EXTERIOR",
 			"type": "DOORWAY"
@@ -293,7 +332,7 @@
 				"end_floor"
 			],
 			"positionDefinitions": [
-				"ee79dd90"
+				"end"
 			],
 			"renderStage": "EXTERIOR",
 			"type": "FLOOR"
@@ -303,7 +342,7 @@
 				"seat_2_floor"
 			],
 			"positionDefinitions": [
-				"c32ab3d4"
+				"seat_2"
 			],
 			"renderStage": "EXTERIOR",
 			"type": "FLOOR"
@@ -313,7 +352,7 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"225154bc"
+				"head"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -323,7 +362,7 @@
 				"tail_lights"
 			],
 			"positionDefinitions": [
-				"836d3ca9"
+				"head"
 			],
 			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT"
@@ -333,7 +372,7 @@
 				"tail_lights"
 			],
 			"positionDefinitions": [
-				"cfe8ba5b"
+				"head"
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT"

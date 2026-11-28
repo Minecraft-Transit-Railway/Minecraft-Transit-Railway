@@ -1,21 +1,33 @@
 {
 	"replacements": {
 		"lengths": [
-			21
+			21,
+			10.75
 		],
-		"id": [
-			"mpl_85"
+		"name": [
+			"Normal",
+			"Mini"
+		],
+		"definition": [
+			"",
+			"_mini"
+		],
+		"bogie1Position": [
+			-7.5,
+			-2.375
+		],
+		"bogie2Position": [
+			7.5,
+			2.375
 		]
 	},
 	"vehicles": [
 		{
-			"id": "class_345_1_trailer",
-			"name": "Class 345 (Seating 1, Trailer)",
+			"id": "class_345@definition@_1_trailer",
+			"name": "Class 345 (Trailer, @name@, Seating 1)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -24,8 +36,8 @@
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_345.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/class_345_1_trailer.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_345_1_trailer.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345@definition@_1_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345@definition@_1_trailer.json"
 				}
 			],
 			"bogie1Models": [
@@ -57,13 +69,11 @@
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
-			"id": "class_345_2_trailer",
-			"name": "Class 345 (Seating 2, Trailer)",
+			"id": "class_345@definition@_2_trailer",
+			"name": "Class 345 (Trailer, @name@, Seating 2)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -72,8 +82,8 @@
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_345.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/class_345_2_trailer.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_345_2_trailer.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345@definition@_2_trailer.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345@definition@_2_trailer.json"
 				}
 			],
 			"bogie1Models": [
@@ -105,13 +115,11 @@
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
-			"id": "class_345_cab_1",
-			"name": "Class 345 (Forwards)",
+			"id": "class_345@definition@_cab_1",
+			"name": "Class 345 Cab (Forwards, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 1,
 			"couplingPadding2": 0,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -120,8 +128,8 @@
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_345.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_1.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_1.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345@definition@_cab_1.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345@definition@_cab_1.json"
 				}
 			],
 			"bogie1Models": [
@@ -153,13 +161,11 @@
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
-			"id": "class_345_cab_2",
-			"name": "Class 345 (Backwards)",
+			"id": "class_345@definition@_cab_2",
+			"name": "Class 345 Cab (Backwards, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 0,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -168,8 +174,8 @@
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_345.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_2.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_2.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345@definition@_cab_2.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345@definition@_cab_2.json"
 				}
 			],
 			"bogie1Models": [
@@ -201,13 +207,11 @@
 			"legacyDoorCloseSoundTime": 0.5
 		},
 		{
-			"id": "class_345_cab_3",
-			"name": "Class 345 (Double)",
+			"id": "class_345@definition@_cab_3",
+			"name": "Class 345 Cab (Double, @name@)",
 			"color": "7156A5",
 			"transportMode": "TRAIN",
 			"width": 2,
-			"bogie1Position": -7.5,
-			"bogie2Position": 7.5,
 			"couplingPadding1": 1,
 			"couplingPadding2": 1,
 			"wikipediaArticle": "British_Rail_Class_345",
@@ -216,8 +220,8 @@
 				{
 					"modelResource": "mtr:models/vehicle/class_345.bbmodel",
 					"textureResource": "mtr:textures/vehicle/class_345.png",
-					"modelPropertiesResource": "mtr:properties/vehicle/class_345_cab_3.json",
-					"positionDefinitionsResource": "mtr:properties/definition/class_345_cab_3.json"
+					"modelPropertiesResource": "mtr:properties/vehicle/class_345@definition@_cab_3.json",
+					"positionDefinitionsResource": "mtr:properties/definition/class_345@definition@_cab_3.json"
 				}
 			],
 			"bogie1Models": [

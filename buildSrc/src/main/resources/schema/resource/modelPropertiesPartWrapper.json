@@ -55,10 +55,17 @@
 		},
 		"displayType": {
 			"$ref": "DisplayType",
-			"typeScriptEnum": "DESTINATION|ROUTE_NUMBER|DEPARTURE_INDEX|NEXT_STATION|NEXT_STATION_KCR|NEXT_STATION_MTR|NEXT_STATION_UK|ROUTE_COLOR|ROUTE_COLOR_ROUNDED"
+			"typeScriptEnum": "DESTINATION|ROUTE_NUMBER|DEPARTURE_INDEX|NEXT_STATION|NEXT_STATION_KCR|NEXT_STATION_MTR|NEXT_STATION_UK|ROUTE_COLOR|ROUTE_COLOR_ROUNDED|TEMPLATE"
 		},
 		"displayDefaultText": {
 			"type": "string"
+		},
+		"displayTemplateText": {
+			"type": "string"
+		},
+		"displayRenderStage": {
+			"$ref": "RenderStage",
+			"typeScriptEnum": "LIGHT|ALWAYS_ON_LIGHT|INTERIOR|INTERIOR_TRANSLUCENT|EXTERIOR"
 		},
 		"doorXMultiplier": {
 			"type": "number"
@@ -106,9 +113,12 @@
 		"displayColor",
 		"displayMaxLineHeight",
 		"displayCjkSizeRatio",
+		"displayOptions",
 		"displayPadZeros",
 		"displayType",
 		"displayDefaultText",
+		"displayTemplateText",
+		"displayRenderStage",
 		"doorXMultiplier",
 		"doorZMultiplier",
 		"doorAnimationType",

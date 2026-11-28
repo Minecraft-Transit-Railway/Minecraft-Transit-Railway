@@ -27,7 +27,6 @@
 		{
 			"names": [
 				"window_2",
-				"window_2_tv",
 				"window_handrails",
 				"roof_window"
 			],
@@ -35,6 +34,24 @@
 				"window2"
 			],
 			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"interior_display"
+			],
+			"positionDefinitions": [
+				"window2"
+			],
+			"type": "DISPLAY",
+			"displayColor": "A9D130",
+			"displayColorCjk": "FF0000",
+			"displayXPadding": 0.1,
+			"displayYPadding": 0.1,
+			"displayOptions": [
+				"SCROLL_NORMAL",
+				"SINGLE_LINE"
+			],
+			"displayType": "NEXT_STATION_KCR"
 		},
 		{
 			"names": [

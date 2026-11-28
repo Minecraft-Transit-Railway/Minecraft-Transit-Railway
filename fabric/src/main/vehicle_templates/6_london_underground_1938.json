@@ -2,29 +2,39 @@
 	"replacements": {
 		"lengths": [
 			19,
-      19,
-      19,
-      20
+			19,
+			19,
+			20,
+			13,
+			13,
+			13,
+			14
 		],
 		"id": [
-			"1938_trailer",
-			"1938_cab_1",
-			"1938_cab_2",
-			"1938_cab_3"
-		],
-		"color": [
-			"AA232D",
-			"AA232D",
-			"AA232D",
-			"AA232D"
+			"trailer",
+			"cab_1",
+			"cab_2",
+			"cab_3",
+			"mini_trailer",
+			"mini_cab_1",
+			"mini_cab_2",
+			"mini_cab_3"
 		],
 		"name": [
-			"1938 Stock Trailer",
-			"1938 Stock Cab (Forwards)",
-			"1938 Stock Cab (Backwards)",
-			"1938 Stock Cab (Double)"
+			"Trailer (Normal)",
+			"Cab (Forwards, Normal)",
+			"Cab (Backwards, Normal)",
+			"Cab (Double, Normal)",
+			"Trailer (Mini)",
+			"Cab (Forwards, Mini)",
+			"Cab (Backwards, Mini)",
+			"Cab (Double, Mini)"
 		],
 		"end1": [
+			"end_1",
+			"head_1",
+			"end_1",
+			"head_1",
 			"end_1",
 			"head_1",
 			"end_1",
@@ -34,48 +44,66 @@
 			"end_2",
 			"end_2",
 			"head_2",
+			"head_2",
+			"end_2",
+			"end_2",
+			"head_2",
 			"head_2"
 		],
-		"year": [
-			"1938",
-			"1938",
-			"1938",
-			"1938"
+		"variant": [
+			"",
+			"",
+			"",
+			"",
+			"_mini",
+			"_mini",
+			"_mini",
+			"_mini"
+		],
+		"doors": [
+			"4",
+			"3",
+			"3",
+			"2",
+			"3",
+			"2",
+			"2",
+			"1"
 		]
 	},
 	"vehicles": [
 		{
-			"id": "london_underground_@id@",
-			"name": "London Underground @name@",
-			"color": "@color@",
+			"id": "london_underground_1938_@id@",
+			"name": "London Underground 1938 Stock @name@",
+			"color": "AA232D",
 			"transportMode": "TRAIN",
 			"width": 2,
 			"couplingPadding1": 0,
 			"couplingPadding2": 0,
-			"wikipediaArticle": "London_Underground_@year@_Stock",
+			"wikipediaArticle": "London_Underground_1938_Stock",
 			"tags": [
-				"family:london_underground_@year@",
+				"family:london_underground_1938",
 				"iso_3166:GB",
-				"doors:4"
+				"doors:@doors@"
 			],
 			"models": [
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
-					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"textureResource": "mtr:textures/vehicle/london_underground_1938.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_common.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_common.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938@variant@_common.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
-					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"textureResource": "mtr:textures/vehicle/london_underground_1938.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_@end1@.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_@end1@.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938@variant@_@end1@.json"
 				},
 				{
 					"modelResource": "mtr:models/vehicle/london_underground_1938.bbmodel",
-					"textureResource": "mtr:textures/vehicle/london_underground_@year@.png",
+					"textureResource": "mtr:textures/vehicle/london_underground_1938.png",
 					"modelPropertiesResource": "mtr:properties/vehicle/london_underground_1938_@end2@.json",
-					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938_@end2@.json"
+					"positionDefinitionsResource": "mtr:properties/definition/london_underground_1938@variant@_@end2@.json"
 				}
 			],
 			"bogie1Models": [

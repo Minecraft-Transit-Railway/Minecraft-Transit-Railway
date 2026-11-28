@@ -60,6 +60,35 @@
 		},
 		{
 			"names": [
+				"ael_lcd_base"
+			],
+			"positionDefinitions": [
+				"aelLcd"
+			],
+			"renderStage": "INTERIOR"
+		},
+		{
+			"names": [
+				"ael_lcd_light"
+			],
+			"positionDefinitions": [
+				"aelLcd"
+			],
+			"renderStage": "LIGHT"
+		},
+		{
+			"names": [
+				"ael_lcd"
+			],
+			"positionDefinitions": [
+				"aelLcd"
+			],
+			"type": "DISPLAY",
+			"displayColor": "FFFFFF",
+			"displayType": "NEXT_STATION"
+		},
+		{
+			"names": [
 				"roof_exterior"
 			],
 			"positionDefinitions": [

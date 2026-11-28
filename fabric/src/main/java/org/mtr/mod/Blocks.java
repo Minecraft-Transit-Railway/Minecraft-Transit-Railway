@@ -205,8 +205,9 @@ public final class Blocks {
 		STATION_COLOR_POLE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "station_pole"), () -> new Block(new BlockStationColorPole(true)), ItemBlockEnchanted::new, CreativeModeTabs.STATION_BUILDING_BLOCKS);
 
 		// machines
-		TICKET_BARRIER_ENTRANCE_1 = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_entrance_1"), () -> new Block(new BlockTicketBarrier(true)), CreativeModeTabs.RAILWAY_FACILITIES);
-		TICKET_BARRIER_EXIT_1 = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_exit_1"), () -> new Block(new BlockTicketBarrier(false)), CreativeModeTabs.RAILWAY_FACILITIES);
+		TICKET_BARRIER_ENTRANCE_1 = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_entrance_1"), () -> new Block(new BlockTicketBarrier(BlockTicketBarrier.EnumTicketBarrierMode.ENTRANCE)), CreativeModeTabs.RAILWAY_FACILITIES);
+		TICKET_BARRIER_EXIT_1 = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_exit_1"), () -> new Block(new BlockTicketBarrier(BlockTicketBarrier.EnumTicketBarrierMode.EXIT)), CreativeModeTabs.RAILWAY_FACILITIES);
+		TICKET_BARRIER_TWOWAY_1 = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_barrier_twoway_1"), () -> new Block(new BlockTicketBarrier(BlockTicketBarrier.EnumTicketBarrierMode.TWOWAY)), CreativeModeTabs.RAILWAY_FACILITIES);
 		TICKET_MACHINE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_machine"), () -> new Block(new BlockTicketMachine(createDefaultBlockSettings(true, blockState -> 5))), CreativeModeTabs.RAILWAY_FACILITIES);
 		TICKET_PROCESSOR = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_processor"), () -> new Block(new BlockTicketProcessor(true, true, true)), CreativeModeTabs.RAILWAY_FACILITIES);
 		TICKET_PROCESSOR_ENTRANCE = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ticket_processor_entrance"), () -> new Block(new BlockTicketProcessor(true, true, false)), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -436,6 +437,7 @@ public final class Blocks {
 	public static final BlockRegistryObject TACTILE_MAP;
 	public static final BlockRegistryObject TICKET_BARRIER_ENTRANCE_1;
 	public static final BlockRegistryObject TICKET_BARRIER_EXIT_1;
+	public static final BlockRegistryObject TICKET_BARRIER_TWOWAY_1;
 	public static final BlockRegistryObject TICKET_MACHINE;
 	public static final BlockRegistryObject TICKET_PROCESSOR;
 	public static final BlockRegistryObject TICKET_PROCESSOR_ENQUIRY;

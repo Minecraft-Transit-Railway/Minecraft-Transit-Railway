@@ -126,6 +126,10 @@ public final class Items {
 		TUNNEL_CREATOR_6_5 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_6_5"), itemSettings -> new Item(new ItemTunnelCreator(6, 5, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_CREATOR_6_7 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_6_7"), itemSettings -> new Item(new ItemTunnelCreator(6, 7, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_CREATOR_6_9 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_6_9"), itemSettings -> new Item(new ItemTunnelCreator(6, 9, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_CREATOR_7_3 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_7_3"), itemSettings -> new Item(new ItemTunnelCreator(7, 3, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_CREATOR_7_5 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_7_5"), itemSettings -> new Item(new ItemTunnelCreator(7, 5, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_CREATOR_7_7 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_7_7"), itemSettings -> new Item(new ItemTunnelCreator(7, 7, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_CREATOR_7_9 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_creator_7_9"), itemSettings -> new Item(new ItemTunnelCreator(7, 9, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_WALL_CREATOR_4_3 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_4_3"), itemSettings -> new Item(new ItemTunnelWallCreator(4, 3, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_WALL_CREATOR_4_5 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_4_5"), itemSettings -> new Item(new ItemTunnelWallCreator(4, 5, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_WALL_CREATOR_4_7 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_4_7"), itemSettings -> new Item(new ItemTunnelWallCreator(4, 7, itemSettings)), CreativeModeTabs.CORE);
@@ -138,6 +142,10 @@ public final class Items {
 		TUNNEL_WALL_CREATOR_6_5 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_6_5"), itemSettings -> new Item(new ItemTunnelWallCreator(6, 5, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_WALL_CREATOR_6_7 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_6_7"), itemSettings -> new Item(new ItemTunnelWallCreator(6, 7, itemSettings)), CreativeModeTabs.CORE);
 		TUNNEL_WALL_CREATOR_6_9 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_6_9"), itemSettings -> new Item(new ItemTunnelWallCreator(6, 9, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_WALL_CREATOR_7_3 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_7_3"), itemSettings -> new Item(new ItemTunnelWallCreator(7, 3, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_WALL_CREATOR_7_5 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_7_5"), itemSettings -> new Item(new ItemTunnelWallCreator(7, 5, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_WALL_CREATOR_7_7 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_7_7"), itemSettings -> new Item(new ItemTunnelWallCreator(7, 7, itemSettings)), CreativeModeTabs.CORE);
+		TUNNEL_WALL_CREATOR_7_9 = Init.REGISTRY.registerItem(new Identifier(Init.MOD_ID, "tunnel_wall_creator_7_9"), itemSettings -> new Item(new ItemTunnelWallCreator(7, 9, itemSettings)), CreativeModeTabs.CORE);
 	}
 
 	public static final ItemRegistryObject BRUSH;
@@ -240,6 +248,10 @@ public final class Items {
 	public static final ItemRegistryObject TUNNEL_CREATOR_6_5;
 	public static final ItemRegistryObject TUNNEL_CREATOR_6_7;
 	public static final ItemRegistryObject TUNNEL_CREATOR_6_9;
+	public static final ItemRegistryObject TUNNEL_CREATOR_7_3;
+	public static final ItemRegistryObject TUNNEL_CREATOR_7_5;
+	public static final ItemRegistryObject TUNNEL_CREATOR_7_7;
+	public static final ItemRegistryObject TUNNEL_CREATOR_7_9;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_4_3;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_4_5;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_4_7;
@@ -252,6 +264,10 @@ public final class Items {
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_5;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_7;
 	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_6_9;
+	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_7_3;
+	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_7_5;
+	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_7_7;
+	public static final ItemRegistryObject TUNNEL_WALL_CREATOR_7_9;
 
 	public static void init() {
 		Init.LOGGER.info("Registering Minecraft Transit Railway items");

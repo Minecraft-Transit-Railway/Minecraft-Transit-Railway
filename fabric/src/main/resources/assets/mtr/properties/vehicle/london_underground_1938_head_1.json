@@ -5,7 +5,7 @@
 				"head_glass"
 			],
 			"positionDefinitions": [
-				"b35173a"
+				"head"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR_TRANSLUCENT",
@@ -16,7 +16,7 @@
 				"head"
 			],
 			"positionDefinitions": [
-				"b35173a"
+				"head"
 			],
 			"condition": "NORMAL",
 			"renderStage": "INTERIOR",
@@ -27,7 +27,7 @@
 				"lights"
 			],
 			"positionDefinitions": [
-				"d0884815"
+				"lights"
 			],
 			"condition": "NORMAL",
 			"renderStage": "LIGHT",
@@ -38,7 +38,7 @@
 				"head_exterior"
 			],
 			"positionDefinitions": [
-				"a2041324"
+				"head"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -49,7 +49,7 @@
 				"headlights"
 			],
 			"positionDefinitions": [
-				"cdc78ec4"
+				"head"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -60,7 +60,7 @@
 				"taillight_off"
 			],
 			"positionDefinitions": [
-				"aeec9e6b"
+				"head"
 			],
 			"condition": "ON_ROUTE_FORWARDS",
 			"renderStage": "EXTERIOR",
@@ -71,7 +71,7 @@
 				"taillight_on"
 			],
 			"positionDefinitions": [
-				"ecdbed1e"
+				"head"
 			],
 			"condition": "ON_ROUTE_BACKWARDS",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -82,7 +82,7 @@
 				"taillight_on"
 			],
 			"positionDefinitions": [
-				"a8b34bdd"
+				"head"
 			],
 			"condition": "AT_DEPOT",
 			"renderStage": "ALWAYS_ON_LIGHT",
@@ -93,7 +93,7 @@
 				"display_number"
 			],
 			"positionDefinitions": [
-				"ba7cd131"
+				"head"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",
@@ -116,7 +116,7 @@
 				"display_dest"
 			],
 			"positionDefinitions": [
-				"53b59fcd"
+				"head"
 			],
 			"condition": "NORMAL",
 			"renderStage": "EXTERIOR",

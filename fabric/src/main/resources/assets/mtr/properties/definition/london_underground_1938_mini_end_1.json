@@ -1,0 +1,67 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "doorway_right",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -144
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "window",
+			"positions": [
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -48
+				}
+			]
+		},
+		{
+			"name": "door_flipped",
+			"positions": [
+			],
+			"positionsFlipped": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -96
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -96
+				}
+			],
+			"positionsFlipped": []
+		},
+		{
+			"name": "lights",
+			"positions": [
+				{
+					"x": 0,
+					"y": 0,
+					"z": -83
+				},
+				{
+					"x": 0,
+					"y": 0,
+					"z": -98
+				}
+			],
+			"positionsFlipped": [
+			]
+		}
+	]
+}

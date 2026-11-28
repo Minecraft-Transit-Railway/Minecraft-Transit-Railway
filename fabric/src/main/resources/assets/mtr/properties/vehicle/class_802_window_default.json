@@ -92,20 +92,56 @@
 		},
 		{
 			"names": [
-				"destination_display_1",
-				"destination_display_2"
+				"side_display_destination"
 			],
 			"positionDefinitions": [
 				"window1Flipped",
 				"window9"
 			],
 			"type": "DISPLAY",
-			"displayXPadding": 0.4,
+			"displayXPadding": 0.125,
+			"displayYPadding": 0,
 			"displayColor": "FF9900",
 			"displayOptions": [
-				"SCROLL_NORMAL"
+				"ALIGN_LEFT",
+				"SINGLE_LINE"
 			],
 			"displayType": "DESTINATION",
+			"displayDefaultText": "Not In Service"
+		},
+		{
+			"names": [
+				"side_display_route_number"
+			],
+			"positionDefinitions": [
+				"window1Flipped",
+				"window9"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0.25,
+			"displayColor": "FF9900",
+			"displayOptions": [],
+			"displayType": "ROUTE_NUMBER",
+			"displayDefaultText": ""
+		},
+		{
+			"names": [
+				"side_display_scrolling"
+			],
+			"positionDefinitions": [
+				"window1Flipped",
+				"window9"
+			],
+			"type": "DISPLAY",
+			"displayXPadding": 0.25,
+			"displayYPadding": 0,
+			"displayColor": "FF9900",
+			"displayOptions": [
+				"SCROLL_NORMAL",
+				"SINGLE_LINE"
+			],
+			"displayType": "NEXT_STATION_UK",
 			"displayDefaultText": "Not In Service"
 		}
 	],

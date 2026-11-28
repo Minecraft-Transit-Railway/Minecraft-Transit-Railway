@@ -85,6 +85,20 @@
 			]
 		},
 		{
+			"name": "doorWindow",
+			"positionsFlipped": [
+				{
+					"z": -96
+				},
+				{
+					"z": 0
+				},
+				{
+					"z": 96
+				}
+			]
+		},
+		{
 			"name": "doorFlipped",
 			"positions": [
 				{
@@ -386,6 +400,14 @@
 				{
 					"x": -8.5,
 					"z": 136
+				}
+			]
+		},
+		{
+			"name": "headlights1",
+			"positions": [
+				{
+					"z": -128
 				}
 			]
 		}

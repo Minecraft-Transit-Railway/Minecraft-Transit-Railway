@@ -1,0 +1,265 @@
+{
+	"positionDefinitions": [
+		{
+			"name": "window1",
+			"positions": [
+				{
+					"z": -66.5
+				}
+			]
+		},
+		{
+			"name": "window1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -66.5
+				}
+			]
+		},
+		{
+			"name": "window2",
+			"positions": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
+			"name": "window3",
+			"positions": [
+				{
+					"z": 13.5
+				}
+			]
+		},
+		{
+			"name": "window3Flipped",
+			"positionsFlipped": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
+			"name": "window7",
+			"positionsFlipped": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
+			"name": "window7Flipped",
+			"positions": [
+				{
+					"z": -13.5
+				}
+			]
+		},
+		{
+			"name": "window5Flipped",
+			"positionsFlipped": [
+				{
+					"z": 13.5
+				}
+			]
+		},
+		{
+			"name": "window6",
+			"positions": [
+				{
+					"z": 66.5
+				}
+			]
+		},
+		{
+			"name": "window6Flipped",
+			"positionsFlipped": [
+				{
+					"z": 66.5
+				}
+			]
+		},
+		{
+			"name": "door",
+			"positions": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "doorFlipped",
+			"positionsFlipped": [
+				{
+					"z": -40
+				},
+				{
+					"z": 40
+				}
+			]
+		},
+		{
+			"name": "end1",
+			"positions": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "end2",
+			"positionsFlipped": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "end1Flipped",
+			"positionsFlipped": [
+				{
+					"z": -80
+				}
+			]
+		},
+		{
+			"name": "end2Flipped",
+			"positions": [
+				{
+					"z": 80
+				}
+			]
+		},
+		{
+			"name": "seat",
+			"positions": [
+				{
+					"x": -16,
+					"z": -59.5
+				},
+				{
+					"x": -8,
+					"z": -59.5
+				},
+				{
+					"x": 8,
+					"z": -59.5
+				},
+				{
+					"x": 16,
+					"z": -59.5
+				},
+				{
+					"x": -16,
+					"z": 5
+				},
+				{
+					"x": -8,
+					"z": 5
+				},
+				{
+					"x": 8,
+					"z": 5
+				},
+				{
+					"x": 16,
+					"z": 5
+				},
+				{
+					"x": -16,
+					"z": -21.5
+				},
+				{
+					"x": 16,
+					"z": -21.5
+				},
+				{
+					"x": -16,
+					"z": 73.5
+				},
+				{
+					"x": -8,
+					"z": 73.5
+				},
+				{
+					"x": 8,
+					"z": 73.5
+				},
+				{
+					"x": 16,
+					"z": 73.5
+				}
+			],
+			"positionsFlipped": [
+				{
+					"x": -16,
+					"z": -73.5
+				},
+				{
+					"x": -8,
+					"z": -73.5
+				},
+				{
+					"x": 8,
+					"z": -73.5
+				},
+				{
+					"x": 16,
+					"z": -73.5
+				},
+				{
+					"x": -16,
+					"z": 21.5
+				},
+				{
+					"x": 16,
+					"z": 21.5
+				},
+				{
+					"x": -16,
+					"z": -5
+				},
+				{
+					"x": -8,
+					"z": -5
+				},
+				{
+					"x": 8,
+					"z": -5
+				},
+				{
+					"x": 16,
+					"z": -5
+				},
+				{
+					"x": -16,
+					"z": 59.5
+				},
+				{
+					"x": -8,
+					"z": 59.5
+				},
+				{
+					"x": 8,
+					"z": 59.5
+				},
+				{
+					"x": 16,
+					"z": 59.5
+				}
+			]
+		},
+		{
+			"name": "lcd",
+			"positions": [
+				{
+					"z": 0
+				}
+			]
+		}
+	]
+}

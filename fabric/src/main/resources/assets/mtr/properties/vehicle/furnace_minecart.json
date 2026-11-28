@@ -1,0 +1,84 @@
+{
+	"parts": [
+		{
+			"names": [
+				"main"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"end"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"door"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"renderStage": "EXTERIOR",
+			"doorXMultiplier": -2,
+			"doorZMultiplier": 12,
+			"doorAnimationType": "PLUG_SLOW"
+		},
+		{
+			"names": [
+				"floor"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"type": "FLOOR"
+		},
+		{
+			"names": [
+				"doorway"
+			],
+			"positionDefinitions": [
+				"main",
+				"mainFlipped"
+			],
+			"type": "DOORWAY"
+		},
+		{
+			"names": [
+				"furnace"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "EXTERIOR"
+		},
+		{
+			"names": [
+				"furnace_on"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_FORWARDS"
+		},
+		{
+			"names": [
+				"furnace_on"
+			],
+			"positionDefinitions": [
+				"main"
+			],
+			"renderStage": "LIGHT",
+			"condition": "ON_ROUTE_BACKWARDS"
+		}
+	]
+}

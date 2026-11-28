@@ -143,6 +143,25 @@
 			]
 		},
 		{
+			"name": "aelLcd",
+			"positions": [
+				{
+					"z": -51.9
+				},
+				{
+					"z": 108.1
+				}
+			],
+			"positionsFlipped": [
+				{
+					"z": 51.9
+				},
+				{
+					"z": -108.1
+				}
+			]
+		},
+		{
 			"name": "door",
 			"positions": [
 				{

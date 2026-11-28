@@ -1,7 +1,7 @@
 {
 	"positionDefinitions": [
 		{
-			"name": "b20d0645",
+			"name": "window_4",
 			"positions": [
 				{
 					"z": 0.0
@@ -14,20 +14,7 @@
 			]
 		},
 		{
-			"name": "9d6887a2",
-			"positions": [
-				{
-					"z": 0.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"z": 0.0
-				}
-			]
-		},
-		{
-			"name": "f02c70a1",
+			"name": "end",
 			"positions": [
 				{
 					"z": -24.9
@@ -40,7 +27,7 @@
 			]
 		},
 		{
-			"name": "2267a69",
+			"name": "light",
 			"positions": [
 				{
 					"x": 0.0,
@@ -67,7 +54,7 @@
 			]
 		},
 		{
-			"name": "7d74e4cc",
+			"name": "end_exterior",
 			"positions": [
 				{
 					"z": -17.0
@@ -80,7 +67,7 @@
 			]
 		},
 		{
-			"name": "c89b5814",
+			"name": "seat_horizontal",
 			"positions": [
 				{
 					"x": -12.01,
@@ -127,39 +114,13 @@
 			]
 		},
 		{
-			"name": "e8a9ea68",
+			"name": "window_4_floor",
 			"positions": [
 				{
 					"z": 0.0
 				}
 			],
 			"positionsFlipped": []
-		},
-		{
-			"name": "7db045ae",
-			"positions": [
-				{
-					"z": 0.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"z": 0.0
-				}
-			]
-		},
-		{
-			"name": "bcf3e741",
-			"positions": [
-				{
-					"z": 0.0
-				}
-			],
-			"positionsFlipped": [
-				{
-					"z": 0.0
-				}
-			]
 		}
 	]
 }
